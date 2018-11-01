@@ -1,0 +1,3 @@
+# Member panel customer dashboard resources
+uvdesk_core_member_public_routing_resources:
+    resource: "@UVDeskCoreBundle/Resources/config/routes/public.yaml"

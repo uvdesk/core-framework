@@ -1,0 +1,189 @@
+# Ticket List Resources
+helpdesk_member_ticket_collection:
+    path:     /tickets
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::listTicketCollection
+
+helpdesk_member_ticket_collection_xhr:
+    path:     /tickets/xhr
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::listTicketCollectionXHR
+
+helpdesk_member_ticket_collection_mass_action_xhr:
+    path:     /tickets/mass-xhr
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::updateTicketCollectionXHR
+
+helpdesk_member_ticket_collection_load_filter_options_xhr:
+    path:     /tickets/filter-options
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::loadTicketFilterOptionsXHR
+
+helpdesk_member_ticket_collection_search_filter_options_xhr:
+    path:     /tickets/search-filter-options
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::loadTicketCollectionSearchFilterOptions
+
+# Ticket Resources
+helpdesk_member_ticket:
+    path:     /ticket/view/{ticketId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::loadTicket
+    defaults: { ticketId: 0 }
+
+helpdesk_member_ticket_xhr:
+    path:     /ticket/xhr/{ticketId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::loadTicketXHR
+    defaults: { ticketId: 0 }
+
+helpdesk_member_create_ticket:
+    path:     /ticket/save
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::saveTicket
+    methods: [POST, PUT]
+
+search_ticket_filter_options_xhr:
+    path: /ticket/search-filter-options
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::getSearchFilterOptionsXhr
+
+helpdesk_member_trash_ticket:
+    path:     /ticket/trash/{ticketId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::trashTicket
+
+helpdesk_member_delete_ticket:
+    path:     /ticket/delete/{ticketId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::deleteTicket
+
+helpdesk_member_ticket_saved_reply_xhr:
+    path:     /ticket/saved-reply-apply/{id}
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::loadTicketSavedReplies
+    defaults: { id: 0 }
+
+helpdesk_member_ticket_add_label_xhr:
+    path:     /ticket/labels/save
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::saveTicketLabel
+
+helpdesk_member_ticket_label_xhr:
+    path:     /ticket/labels/update/{ticketLabelId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::ticketLabelXHR
+    defaults: { ticketLabelId: 0 }
+
+helpdesk_member_bookmark_ticket_xhr:
+    path:     /ticket/bookmark/xhr
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::bookmarkTicketXHR
+
+helpdesk_member_update_ticket_details_xhr:
+    path:     /ticket/update/details/{ticketId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::updateTicketDetails
+
+helpdesk_member_update_ticket_attributes_xhr:
+    path:     /ticket/update/attributes/{ticketId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::updateTicketAttributes
+    defaults: { ticketId: 0 }
+
+helpdesk_member_ticket_download_attachment:
+    path:     /ticket/download/{id}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::downloadAttachment
+    defaults: { id: 0 }
+
+helpdesk_member_ticket_download_attachment_zip:
+    path:     /ticket/download-zip/{threadId}/{task}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::downloadZipAttachment
+    defaults: { threadId: 0, task: 0 }
+
+helpdesk_member_ticket_manage_collaborators_xhr:
+    path:     /ticket/collaborator/{id}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::updateCollaboratorXHR
+    defaults: { id: 0 }
+
+helpdesk_member_ticket_search_filter_options:
+    path:     /ticket/search-filter-options
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::loadTicketSearchFilterOptions
+
+# Ticket Thread Resources
+helpdesk_member_thread_collection_xhr:
+    path:     /threads/ajax/{ticketId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\ThreadXHR::listTicketThreadCollectionXHR
+    defaults: { ticketId: 0 }
+
+helpdesk_member_thread_encoded_image_uploader:
+    path:     /thread/encoded-images/save/{ticketId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Thread::base64ImageUpload
+
+helpdesk_member_add_ticket_thread:
+    path:     /thread/add/{ticketId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Thread::saveThread
+    defaults: { ticketId: 0 }
+
+helpdesk_member_thread_xhr:
+    path:     /threads/ajax/{threadId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Thread::threadXHR
+    defaults: { threadId: 0 }
+
+helpdesk_member_thread_update_xhr:
+    path:     /threads/update/{threadId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Thread::updateThreadXHR
+    defaults: { threadId: 0 }
+
+# Email Templates Resources
+email_templates_action:
+    path:     /templates
+    controller: Webkul\UVDesk\CoreBundle\Controller\Email::templates
+    defaults: { panelId: 'settings' }
+
+email_templates_xhraction:
+    path:     /template-ajax/{template}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Email::templatesxhr
+    defaults: { template: 0 }
+
+email_templates_addaction:
+    path:     /template/add
+    controller: Webkul\UVDesk\CoreBundle\Controller\Email::templateForm
+    defaults: { panelId: 'settings' }
+
+email_templates_editaction:
+    path:     /template/edit/{template}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Email::templateForm
+    defaults: { template: 0, panelId: 'settings' }
+
+# Ticket Tag Resources
+helpdesk_member_ticket_tag_collection:
+    path:     /support-tags
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::listTagCollection
+    defaults: { panelId: 'productivity' }
+
+helpdesk_member_ticket_tag_collection_xhr:
+    path:     /support-tags/xhr
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::listTagCollectionXHR
+
+helpdesk_member_ticket_create_tag_xhr:
+    path:     /support-tags/create
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::createTicketTagXHR
+
+helpdesk_member_update_ticket_tag_xhr:
+    path:     /support-tags/update/{tagId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::updateTicketTagXHR
+    defaults: { tagId: 0 }
+
+helpdesk_member_remove_ticket_tag_xhr:
+    path:     /support-tags/remove/{tagId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::removeTicketTagXHR
+    defaults: { tagId: 0 }
+
+# Ticket Type Resources
+helpdesk_member_ticket_type_collection:
+    path:     /ticket-types
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::listTicketTypeCollection
+    defaults: { panelId: 'productivity' }
+
+helpdesk_member_ticket_type_collection_xhr:
+    path:     /ticket-types/xhr
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::listTicketTypeCollectionXHR
+
+helpdesk_member_create_ticket_type:
+    path:     /ticket-types/create
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::ticketType
+    defaults: { panelId: 'productivity' }
+
+helpdesk_member_remove_ticket_type:
+    path:     /ticket-types/remove/{typeId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::removeTicketTypeXHR
+    defaults: { typeId: 0 }
+
+helpdesk_member_update_ticket_type:
+    path:     /ticket-types/update/{ticketTypeId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::ticketType
+    defaults: { panelId: 'productivity' }

@@ -1,0 +1,36 @@
+security:
+    role_hierarchy:
+        ROLE_AGENT: ROLE_AGENT
+        ROLE_ADMIN: [ROLE_AGENT, ROLE_ADMIN]
+        ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_SUPER_ADMIN]
+        ROLE_CUSTOMER: ROLE_CUSTOMER
+    
+    providers:
+        user_provider:
+            id: user.provider
+    
+    encoders:
+        Webkul\UVDesk\CoreBundle\Entity\User: bcrypt
+    
+    firewalls:
+        back_support:
+            pattern: /member
+            provider: user_provider
+            anonymous: ~
+            form_login:
+                use_referer: true
+                login_path: helpdesk_member_handle_login
+                check_path: helpdesk_member_handle_login
+                default_target_path: helpdesk_member_dashboard
+                always_use_default_target_path: true
+            logout:
+                path:   helpdesk_member_handle_logout
+                target: helpdesk_member_handle_login
+        
+    access_control:
+        - { path: /member/login, roles: [IS_AUTHENTICATED_REMEMBERED, IS_AUTHENTICATED_ANONYMOUSLY] }
+        - { path: /member/create-account, roles: [IS_AUTHENTICATED_REMEMBERED, IS_AUTHENTICATED_ANONYMOUSLY] }
+        - { path: /member/forgot-password, roles: [IS_AUTHENTICATED_REMEMBERED,IS_AUTHENTICATED_ANONYMOUSLY] }
+        - { path: /member/update-credentials, roles: [IS_AUTHENTICATED_REMEMBERED,IS_AUTHENTICATED_ANONYMOUSLY] }
+        - { path: /member/mailbox/listener, roles: [IS_AUTHENTICATED_ANONYMOUSLY] }
+        - { path: /member/, roles: ROLE_AGENT }

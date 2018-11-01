@@ -1,0 +1,24 @@
+<div class="uv-aside" {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}style="display: none;"{% endif %}>
+    {% set navigationPanel = uvdesk_service.getPanelSidebarRoutes() %}
+    
+    {% if navigationPanel.routes is defined and navigationPanel.routes is not empty %}
+        <div class="uv-aside-head">
+            <div class="uv-aside-title"><h6>{{ navigationPanel.name }}</h6></div>
+            <div class="uv-aside-back">
+                <span onclick="history.length > 1 ? history.go(-1) : window.location = '{{ path("helpdesk_member_dashboard") }}';"> {{ 'Back'|trans }}</span>
+            </div>
+        </div>
+
+        <div class="uv-aside-nav">
+            <ul>
+                {% for route in navigationPanel.routes %}
+                    {% if route.isEnabled and route.permission is not defined or route.permission is empty or user_service.checkPermission(route.permission) %}
+                        <li>
+                            <a {{ route.isActive ? 'class="uv-aside-nav-active"' : '' }} {{ route.link is not empty ? 'href=' ~ route.link ~ '' : '' }}>{{ route.name|raw }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+</div>

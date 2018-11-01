@@ -1,0 +1,146 @@
+Webkul\UVDesk\CoreBundle\Entity\UserInstance:
+    type: entity
+    table: uv_user_instance
+    repositoryClass: null
+    oneToMany:
+        userSavedReplies:
+            targetEntity: EmailTemplates
+            mappedBy: user
+            cascade: [remove]
+            orphanRemoval: true
+        userSavedFilters:
+            targetEntity: SavedFilters
+            mappedBy: user
+            cascade: [remove]
+            orphanRemoval: true
+    manyToOne:
+        user:
+            targetEntity: User
+            inversedBy: userInstance
+            joinColumn:
+                name: user_id
+                referencedColumnName: id
+                onDelete: CASCADE
+        supportRole:
+            targetEntity: SupportRole
+            joinColumn:
+                name: supportRole_id
+                referencedColumnName: id
+                onDelete: CASCADE
+    manyToMany:
+        supportPrivileges:
+            targetEntity: SupportPrivilege
+            inversedBy: users
+            joinTable:
+                name: uv_user_support_privileges
+                joinColumns:
+                    userInstanceId:
+                        referencedColumnName: id
+                        onDelete: CASCADE
+                inverseJoinColumns:
+                    supportPrivilegeId:
+                        referencedColumnName: id
+                        onDelete: CASCADE
+        supportTeams:
+            targetEntity: SupportTeam
+            inversedBy: users
+            joinTable:
+                name: uv_user_support_teams
+                joinColumns:
+                    userInstanceId:
+                        referencedColumnName: id
+                        onDelete: CASCADE
+                inverseJoinColumns:
+                    supportTeamId:
+                        referencedColumnName: id
+                        onDelete: CASCADE
+        supportGroups:
+            targetEntity: SupportGroup
+            inversedBy: users
+            joinTable:
+                name: uv_user_support_groups
+                joinColumns:
+                    userInstanceId:
+                        referencedColumnName: id
+                        onDelete: CASCADE
+                inverseJoinColumns:
+                    supportGroupId:
+                        referencedColumnName: id
+                        onDelete: CASCADE
+        leadSupportTeams:
+            targetEntity: SupportTeam
+            inversedBy: leads
+            joinTable:
+                name: uv_lead_support_teams
+                joinColumns:
+                    leadUserInstanceId:
+                        referencedColumnName: id
+                        onDelete: CASCADE
+                inverseJoinColumns:
+                    supportTeamId:
+                        referencedColumnName: id
+                        onDelete: CASCADE
+        adminSupportGroups:
+            targetEntity: SupportGroup
+            inversedBy: admins
+            joinTable:
+                name: uv_admin_support_groups
+                joinColumns:
+                    adminUserInstanceId:
+                        referencedColumnName: id
+                        onDelete: CASCADE
+                inverseJoinColumns:
+                    supportGroupId:
+                        referencedColumnName: id
+                        onDelete: CASCADE
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+    fields:
+        source:
+            type: string
+            length: 191
+        skypeId:
+            type: string
+            length: 191
+            nullable: true
+        contactNumber:
+            type: string
+            length: 191
+            nullable: true
+        designation:
+            type: string
+            length: 191
+            nullable: true
+        signature:
+            type: text
+            nullable: true
+        profileImagePath:
+            type: text
+            nullable: true
+        createdAt:
+            type: datetime
+        updatedAt:
+            type: datetime
+        isActive:
+            type: boolean
+            options:
+                default: false
+        isVerified:
+            type: boolean
+            options:
+                default: false
+        isStarred:
+            type: boolean
+            options:
+                default: false
+        ticketAccessLevel:
+            type: string
+            length: 32
+            nullable: true
+    lifecycleCallbacks:
+        prePersist: [ initializeUserTimestamp ]
+        preUpdate: [ updateUserTimestamp ]
