@@ -1,0 +1,31 @@
+# Support Customer Resources
+helpdesk_member_manage_customer_account_collection:
+    path:     /customers
+    controller: Webkul\UVDesk\CoreBundle\Controller\Customer::listCustomers
+    defaults: { panelId: 'users' }
+
+helpdesk_member_manage_customer_account_collection_xhr:
+    path:     /customers/xhr
+    controller: Webkul\UVDesk\CoreBundle\Controller\CustomerXHR::listCustomersXHR
+    defaults: { panelId: 'users' }
+
+helpdesk_member_bookmark_customer_xhr:
+    path:     /customer/update-star
+    controller: Webkul\UVDesk\CoreBundle\Controller\Customer::bookmarkCustomer
+    defaults: { panelId: 'users' }
+
+helpdesk_member_manage_customer_account:
+    path:     /customer/{customerId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Customer::editCustomer
+    defaults: { panelId: 'users', customerId: 0 }
+
+helpdesk_member_remove_customer_account_xhr:
+    path:     /customer/xhr/{customerId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\CustomerXHR::removeCustomerXHR
+    defaults: { panelId: 'users', customerId: 0 }
+
+helpdesk_member_create_customer_account:
+    path:     /create/customer
+    controller: Webkul\UVDesk\CoreBundle\Controller\Customer::createCustomer
+    defaults: { panelId: 'users' }
+

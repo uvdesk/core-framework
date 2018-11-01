@@ -1,0 +1,48 @@
+Webkul\UVDesk\CoreBundle\Entity\SupportGroup:
+    type: entity
+    table: uv_support_group
+    repositoryClass: Webkul\UVDesk\CoreBundle\Repository\SupportGroupRepository
+    manyToMany:
+        users:
+            targetEntity: UserInstance
+            mappedBy: supportGroups
+        admins:
+            targetEntity: UserInstance
+            mappedBy: adminSupportGroups
+        supportTeams:
+            targetEntity: SupportTeam
+            inversedBy: supportGroups
+            joinTable:
+                name: uv_support_groups_teams
+                joinColumns:
+                    supportGroup_id:
+                        referencedColumnName: id
+                        onDelete: CASCADE
+                inverseJoinColumns:
+                    supportTeam_id:
+                        referencedColumnName: id
+                        onDelete: CASCADE
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+    fields:
+        name:
+            type: string
+            length: 191
+        description:
+            type: text
+        createdAt:
+            type: datetime
+        isActive:
+            type: boolean
+            options:
+                default: false
+        userView:
+            type: boolean
+            options:
+                default: false
+    lifecycleCallbacks:
+        prePersist: [ initializeTimestamp ]

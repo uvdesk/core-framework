@@ -1,0 +1,23 @@
+Webkul\UVDesk\CoreBundle\Entity\TicketType:
+    type: entity
+    table: uv_ticket_type
+    repositoryClass: null
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+    fields:
+        code:
+            type: string
+            length: 191
+            unique: true
+        description:
+            type: text
+            nullable: true
+        isActive:
+            type: boolean
+            options:
+                default: false
+    lifecycleCallbacks: {  }

@@ -1,0 +1,48 @@
+parameters:
+    app_locales: en|fr|it
+
+    # Default Assets
+    assets_default_agent_profile_image_path: 'bundles/uvdeskcore/images/uv-avatar-batman.png'
+    assets_default_customer_profile_image_path: 'bundles/uvdeskcore/images/uv-avatar-ironman.png'
+    assets_default_helpdesk_profile_image_path: 'bundles/uvdeskcore/images/uv-avatar-uvdesk.png'
+
+uvdesk:
+    site_url: localhost
+    upload_manager:
+        id: uvdesk.core.fs.upload.manager
+    
+    support_email: ~
+    
+    # Default resources
+    default:
+        ticket:
+            type: ~
+            status: ~
+            priority: ~
+        templates:
+            email: mail.html.twig
+    
+    # Configure your mailboxes here
+    emails: ~
+        # Often Reply emails like from gmail contains extra and redundant previous mail data.
+        # This data can be removed by adding delimiter i.e. specific line before each reply. 
+        # delimiter: '<-- Please add content above this line -->'
+        # enable_delimiter: true
+
+    # Configure your mailboxes here
+    mailboxes: ~
+        # default:
+        #     name: 'Sample Mailbox'
+        #     enabled: true
+        
+        #     # [SMTP] Outgoing mail server
+        #     # Swiftmailer smtp mailer to use for sending emails through on behalf of this mailbox
+        #     smtp_server:
+        #         mailer_id: ~
+        
+        #     # [IMAP] Incoming mail server
+        #     # IMAP configurations to use for fetching emails from mailbox
+        #     imap_server:
+        #         host: ~
+        #         email: ~
+        #         password: ~
