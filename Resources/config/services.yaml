@@ -33,10 +33,9 @@ services:
         public: true
         class: Webkul\UVDesk\CoreBundle\FileSystem\DefaultManager
     
-    Webkul\UVDesk\CoreBundle\Security\TicketVoter:
-        arguments: ['@service_container', '@security.access.decision_manager']
-        tags:
-            - { name: security.voter }
+    Webkul\UVDesk\CoreBundle\Guides\:
+        resource: '../../Guides/*'
+        tags: ['console.command']
     
     Webkul\UVDesk\CoreBundle\Console\:
         resource: '../../Console/*'
@@ -48,6 +47,11 @@ services:
         resource: '../../Fixtures/*'
         arguments: ['@service_container', '@doctrine.orm.entity_manager']
         tags: ['doctrine.fixture.orm']
+    
+    Webkul\UVDesk\CoreBundle\Security\TicketVoter:
+        arguments: ['@service_container', '@security.access.decision_manager']
+        tags:
+            - { name: security.voter }
     
     Webkul\UVDesk\CoreBundle\EventListener\ORMLifecycle:
         arguments: ['@service_container']
@@ -61,19 +65,3 @@ services:
         tags:
             - { name: kernel.event_listener, event: console.command }
             - { name: kernel.event_listener, event: console.terminate }
-    
-    Webkul\UVDesk\CoreBundle\Workflow\Events\:
-        resource: '../../Workflow/Events/*'
-        arguments: ['@service_container', '@request_stack', '@doctrine.orm.entity_manager']
-        tags:
-            - { name: uvdesk.automations.workflow.events }
-    
-    Webkul\UVDesk\CoreBundle\Workflow\Actions\:
-        resource: '../../Workflow/Actions/*'
-        arguments: ['@service_container', '@request_stack', '@doctrine.orm.entity_manager']
-        tags:
-            - { name: uvdesk.automations.workflow.actions }
-    
-    Webkul\UVDesk\CoreBundle\Guides\:
-        resource: '../../Guides/*'
-        tags: ['console.command']

@@ -26,6 +26,11 @@ class CoreExtension extends Extension
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yaml');
 
+        // Register automations conditionally if AutomationBundle has been added as an dependency.
+        if (in_array('UVDeskAutomationBundle', $container->getParameter('kernel.bundles'))) {
+            $loader->load('automations.yaml');
+        }
+
         // Load bundle configurations
         $configuration = $this->getConfiguration($configs, $container);
         foreach ($this->processConfiguration($configuration, $configs) as $param => $value) {
