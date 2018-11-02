@@ -76,7 +76,7 @@ class ConfigureHelpdesk extends Command
             ->compareMigrations($output)
             ->getLatestMigrationVersion(new BufferedOutput());
         
-        if ('0' != $currentMigrationVersion && $currentMigrationVersion != $latestMigrationVersion) {
+        if (('0' != $currentMigrationVersion && $currentMigrationVersion != $latestMigrationVersion) || ($currentMigrationVersion != $latestMigrationVersion)) {
             $output->writeln("  <comment>[!]</comment> The current database schema is not up-to-date with the current mapping metadata.");
             $interactiveQuestion = new Question("\n      <comment>Update your database schema to the current mapping metadata? [Y/N]</comment> ", 'Y');
 

@@ -27,7 +27,7 @@ class CoreExtension extends Extension
         $loader->load('services.yaml');
 
         // Register automations conditionally if AutomationBundle has been added as an dependency.
-        if (in_array('UVDeskAutomationBundle', $container->getParameter('kernel.bundles'))) {
+        if (array_key_exists('UVDeskAutomationBundle', $container->getParameter('kernel.bundles'))) {
             $loader->load('automations.yaml');
         }
 
