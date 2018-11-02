@@ -226,35 +226,25 @@ class Ticket extends Controller
             $type = new CoreBundleEntities\TicketType();
         }
 
-        if($request->getMethod() == "POST") {
-            $form = $this->createForm(CoreBundleForms\TicketTypeForm::class, $type);
-            
-            $form->handleRequest($request);
-            $form->submit($request->request->all());
-            if ($form->isValid()) {
-                $em->persist($type);
-                $em->flush();
+        if ($request->getMethod() == "POST") {
+            $data = $request->request->all();
+            $type->setCode($data['code']);
+            $type->setDescription($data['description']);
+            $type->setIsActive(isset($data['isActive']) ? 1 : 0);
 
-                if(!$request->attributes->get('id')) {
-                    $request->getSession()->getFlashBag()->set('success', sprintf('Success! Ticket type saved successfully.'));
-                } else {
-                    $request->getSession()->getFlashBag()->set('success', sprintf('Success! Ticket type updated successfully.'));
-                }
+            $em->persist($type);
+            $em->flush();
 
-                return $this->redirect($this->generateUrl('helpdesk_member_ticket_type_collection'));
+            if(!$request->attributes->get('id')) {
+                $request->getSession()->getFlashBag()->set('success', sprintf('Success! Ticket type saved successfully.'));
             } else {
-                $errors = $form->getErrors();
-                if (!empty($errors)) {
-                    foreach ($errors as $field => $message) {
-                        $errorContext[$field] = $this->translate($message);
-                    }
-                }
-
-                $request->getSession()->getFlashBag()->set('error', sprintf('Oops! Something went wrong.'));
+                $request->getSession()->getFlashBag()->set('success', sprintf('Success! Ticket type updated successfully.'));
             }
+
+            return $this->redirect($this->generateUrl('helpdesk_member_ticket_type_collection'));
         }
 
-        return $this->render('@UVDeskCore/TicketTypes/ticketTypeAdd.html.twig', array(
+        return $this->render('@UVDeskCore/ticketTypeAdd.html.twig', array(
             'type' => $type,
             'errors' => json_encode($errorContext)
         ));
