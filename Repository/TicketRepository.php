@@ -373,12 +373,15 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             if (in_array($field, $this->safeFields)) {
                 continue;
             }
-
             switch ($field) {
                 case 'search':
                     $queryBuilder->andwhere("ticketType.code LIKE :searchQuery OR ticketType.description LIKE :searchQuery");
                     $queryBuilder->setParameter('searchQuery', '%' . urldecode($fieldValue) . '%');
                     break;
+                case 'isActive':
+                    $queryBuilder->andwhere("ticketType.isActive LIKE :searchQuery");
+                    $queryBuilder->setParameter('searchQuery', '%' . urldecode($fieldValue) . '%');
+                break;
                 default:
                     break;
             }
