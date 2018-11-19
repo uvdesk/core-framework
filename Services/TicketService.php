@@ -35,7 +35,7 @@ class TicketService
     }
 
     public function getUser() {
-        return $this->currentUser = ($this->currentUser ? $this->currentUser : $this->container->get('user.service')->getCurrentUser());
+        return $this->currentUser = $this->container->get('user.service')->getCurrentUser();
     }
 
     public function getDefaultType()
@@ -948,7 +948,6 @@ class TicketService
     public function getCustomLabelDetails($container)
     {
         $currentUser = $container->get('user.service')->getCurrentUser();
-
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('COUNT(DISTINCT t) as ticketCount,sl.id')->from("UVDeskCoreBundle:Ticket", 't')
                 ->leftJoin('t.supportLabels','sl')
@@ -973,8 +972,25 @@ class TicketService
                     $labels[$key]['count'] = $ticketCount['ticketCount'] ?: 0;
             }
         }
-
         return $labels;
+    }
+
+    public function getLabels($request = null) {
+        static $labels;
+        if (null !== $labels)
+            return $labels;
+
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('sl')->from('UVDeskCoreBundle:SupportLabel', 'sl')
+                ->andwhere('sl.user = :userId')
+                ->setParameter('userId', $this->getUser()->getId());
+
+
+        if($request) {
+            $qb->andwhere("sl.name LIKE :labelName");
+            $qb->setParameter('labelName', '%'.urldecode($request->query->get('query')).'%');
+        }
+        return $labels = $qb->getQuery()->getArrayResult();
     }
 }
 
