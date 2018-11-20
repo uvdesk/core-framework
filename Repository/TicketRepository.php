@@ -538,5 +538,14 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
         return $qb->getQuery()->getSingleScalarResult() ? true : false;
     }
+    public function isTicketCollaborator($ticket,$collaboratorEmail) {
+        if($ticket->getCollaborators()) {
+            foreach ($ticket->getCollaborators() as $collaborator) {
+                if(strtolower($collaborator->getEmail()) == strtolower($collaboratorEmail))
+                    return true;
+            }
+        }
+        return false;
+    }
     
 }
