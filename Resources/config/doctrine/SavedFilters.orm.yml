@@ -21,7 +21,7 @@ Webkul\UVDesk\CoreBundle\Entity\SavedFilters:
             type: string
             length: 191
         filtering:
-            type: json_array
+            type: text
             nullable: true
         route:
             type: string
