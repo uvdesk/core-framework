@@ -86,7 +86,7 @@ class SavedFilters
      */
     public function setFiltering($filtering)
     {
-        $this->filtering = $filtering;
+        $this->filtering = serialize($filtering);
 
         return $this;
     }
@@ -98,7 +98,7 @@ class SavedFilters
      */
     public function getFiltering()
     {
-        return $this->filtering;
+        return unserialize($this->filtering);
     }
 
     /**
