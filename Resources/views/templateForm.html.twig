@@ -107,9 +107,9 @@
 						this.text('{{ "Placeholders"|trans }}');
 					},
 					values: [
-					{# {% for basekey, placeholders in email_service.getEmailPlaceHolders('template') %}
-						// { text: '{{ basekey | trans | title }}' , menu: [
-							// { text: "{{ basekey | trans | title }}", value: '{{ basekey }}', disabled: true },
+					{% for basekey, placeholders in email_service.getEmailPlaceHolders('template') %}
+						{ text: '{{ basekey | trans | title }}' , menu: [
+							{ text: "{{ basekey | trans | title }}", value: '{{ basekey }}', disabled: true },
 							{% if placeholders is iterable %}
 								{% for fieldKey, fieldPlaceholder in placeholders %}
 									{ text: "{{ fieldPlaceholder.title|raw }}", value: '{{ "{%" ~ basekey ~ "." ~ fieldKey ~ "%}"}}', group: '{{ basekey }}'
@@ -118,8 +118,8 @@
 									{% endif %} },
 								{% endfor %}
 							{% endif %}
-						// ]},
-						{% endfor %} #}
+						 ]},
+						{% endfor %}
 					],
 				});
 			},
