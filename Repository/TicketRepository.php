@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Criteria;
 use Webkul\UVDesk\CoreBundle\Entity\User;
 use Webkul\UVDesk\CoreBundle\Entity\Ticket;
 use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * TicketRepository
@@ -233,6 +234,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->leftJoin('ticket.supportGroup', 'supportGroup')
             ->leftJoin('ticket.supportTeam', 'supportTeam')
             ->leftJoin('ticket.priority', 'priority')
+            ->leftJoin('ticket.supportTags', 'supportTags')
             ->leftJoin('ticket.type', 'type')
             ->leftJoin('customer.userInstance', 'customerInstance')
             ->leftJoin('agent.userInstance', 'agentInstance')
@@ -252,7 +254,6 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             if (in_array($field, $this->safeFields)) {
                 continue;
             }
-
 
             switch ($field) {
                 // case 'label':
@@ -296,44 +297,38 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 case 'customer':
                     $queryBuilder->andwhere('customer.id IN (:customerCollection)')->setParameter('customerCollection', explode(',', $fieldValue));
                     break;
-                // case 'group':
-                //     $queryBuilder->andwhere('gr.id IN (:groupIds)');
-                //     $queryBuilder->setParameter('groupIds', explode(',', $fieldValue));
-                //     break;
-                // case 'team':
-                //     $queryBuilder->andwhere("tSub.id In(:subGrpKeys)");
-                //     $queryBuilder->setParameter('subGrpKeys', explode(',', $fieldValue));
-                //     break;
-                // case 'tag':
-                //     $queryBuilder->leftJoin('t.tags', 'tg');
-                //     $queryBuilder->andwhere("tg.id In(:tagIds)");
-                //     $queryBuilder->setParameter('tagIds', explode(',', $fieldValue));
-                //     break;
-                // case 'mailbox':
-                //     $queryBuilder->leftJoin('t.mailbox', 'ml');
-                //     $queryBuilder->andwhere('ml.id IN (:mailboxIds)');
-                //     $queryBuilder->setParameter('mailboxIds', explode(',', $fieldValue));
-                //     break;
-                // case 'source':
-                //     $queryBuilder->andwhere('t.source IN (:sources)');
-                //     $queryBuilder->setParameter('sources', explode(',', $fieldValue));
-                //     break;
-                // case 'after':
-                //     $date = \DateTime::createFromFormat('d-m-Y H:i', $fieldValue.' 23:59');
-                //     if($date) {
-                //         $date = \DateTime::createFromFormat('d-m-Y H:i', $container->get('user.service')->convertTimezoneToServer($date, 'd-m-Y H:i'));
-                //         $queryBuilder->andwhere('t.createdAt > :afterDate');
-                //         $queryBuilder->setParameter('afterDate', $date);
-                //     }
-                //     break;
-                // case 'before':
-                //     $date = \DateTime::createFromFormat('d-m-Y H:i', $fieldValue.' 23:59');
-                //     if($date) {
-                //         $date = \DateTime::createFromFormat('d-m-Y H:i', $container->get('user.service')->convertTimezoneToServer($date, 'd-m-Y H:i'));
-                //         $queryBuilder->andwhere('t.createdAt < :beforeDate');
-                //         $queryBuilder->setParameter('beforeDate', $date);
-                //     }
-                //     break;
+                case 'group':
+                    $queryBuilder->andwhere('supportGroup.id IN (:groupIds)');
+                    $queryBuilder->setParameter('groupIds', explode(',', $fieldValue));
+                    break;
+                case 'team':
+                    $queryBuilder->andwhere("supportTeam.id In(:subGrpKeys)");
+                    $queryBuilder->setParameter('subGrpKeys', explode(',', $fieldValue));
+                    break;
+                case 'tag':
+                    $queryBuilder->andwhere("supportTags.id In(:tagIds)");
+                    $queryBuilder->setParameter('tagIds', explode(',', $fieldValue));
+                    break;
+                case 'source':
+                    $queryBuilder->andwhere('ticket.source IN (:sources)');
+                    $queryBuilder->setParameter('sources', explode(',', $fieldValue));
+                    break;
+                case 'after':
+                    $date = \DateTime::createFromFormat('d-m-Y H:i', $fieldValue.' 23:59');
+                    if($date) {
+                       // $date = \DateTime::createFromFormat('d-m-Y H:i', $this->container->get('user.service')->convertTimezoneToServer($date, 'd-m-Y H:i'));
+                        $queryBuilder->andwhere('ticket.createdAt > :afterDate');
+                        $queryBuilder->setParameter('afterDate', $date);
+                    }
+                    break;
+                case 'before':
+                    $date = \DateTime::createFromFormat('d-m-Y H:i', $fieldValue.' 23:59');
+                    if($date) {
+                        //$date = \DateTime::createFromFormat('d-m-Y H:i', $container->get('user.service')->convertTimezoneToServer($date, 'd-m-Y H:i'));
+                        $queryBuilder->andwhere('ticket.createdAt < :beforeDate');
+                        $queryBuilder->setParameter('beforeDate', $date);
+                    }
+                    break;
                 // case 'custom':
                 //     $queryBuilder->leftJoin('t.customFieldValues', 'tCfV');
                 //     $columnSeparator = '|';

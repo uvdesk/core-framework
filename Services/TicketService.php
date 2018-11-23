@@ -157,7 +157,6 @@ class TicketService
     public function createThread(Ticket $ticket, array $threadData)
     {
         $threadData['isLocked'] = 0;
-        
         if ('forward' === $threadData['threadType']) {
             $threadData['replyTo'] = $threadData['to'];
         }
@@ -171,7 +170,7 @@ class TicketService
         $thread->setTicket($ticket);
         $thread->setCreatedAt(new \DateTime());
         $thread->setUpdatedAt(new \DateTime());
-
+      
         foreach ($threadData as $property => $value) {
             if (!empty($value)) {
                 $callable = 'set' . ucwords($property);
@@ -181,7 +180,7 @@ class TicketService
                 }
             }
         }
-
+        
         // Update ticket reference ids is thread message id is defined
         if (null != $thread->getMessageId() && false === strpos($ticket->getReferenceIds(), $thread->getMessageId())) {
             $updatedReferenceIds = $ticket->getReferenceIds() . ' ' . $thread->getMessageId();            
@@ -191,11 +190,13 @@ class TicketService
         }
 
         if ('reply' === $threadData['threadType']) {
+
             if ('agent' === $threadData['createdBy']) {
                 // Ticket has been updated by support agents, mark as agent replied | customer view pending
                 $ticket->setIsCustomerViewed(false);
                 $ticket->setIsReplied(true);
             } else {
+               
                 // Ticket has been updated by customer, mark as agent view | reply pending
                 $ticket->setIsAgentViewed(false);
                 $ticket->setIsReplied(false);
@@ -207,9 +208,9 @@ class TicketService
 
             $this->entityManager->persist($ticket);
         }
-
-        $ticket->currentThread = $this->entityManager->getRepository('UVDeskCoreBundle:Thread')->getTicketCurrentThread($ticket);
         
+        
+        $ticket->currentThread = $this->entityManager->getRepository('UVDeskCoreBundle:Thread')->getTicketCurrentThread($ticket);
         $this->entityManager->persist($thread);
         $this->entityManager->flush();
 
@@ -322,9 +323,9 @@ class TicketService
 
         // Add reply count filter to base query
         if (array_key_exists('repliesLess', $params) || array_key_exists('repliesMore', $params)) {
-            $baseQuery->leftJoin('t.threads', 'th')
+            $baseQuery->leftJoin('ticket.threads', 'th')
                 ->andWhere('th.threadType = :threadType')->setParameter('threadType', 'reply')
-                ->groupBy('t.id');
+                ->groupBy('ticket.id');
 
             if (array_key_exists('repliesLess', $params)) {
                 $baseQuery->andHaving('count(th.id) < :threadValueLesser')->setParameter('threadValueLesser', intval($params['repliesLess']));
@@ -1030,6 +1031,25 @@ class TicketService
 
         $result = $qb->getQuery()->getResult();
         return $result ? $result : [];
+    }
+
+    public function getManualWorkflow()
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('DISTINCT mw')->from('UVDeskAutomationBundle:PreparedResponses', 'mw');
+        $qb->andwhere('mw.status = 1');
+        return $qb->getQuery()->getResult();
+    }
+
+    public function getPriorities() {
+        static $priorities;
+        if (null !== $priorities)
+            return $priorities;
+
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('tp')->from('UVDeskCoreBundle:TicketPriority', 'tp');
+
+        return $priorities = $qb->getQuery()->getArrayResult();
     }
 }
 

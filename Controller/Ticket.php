@@ -14,8 +14,10 @@ class Ticket extends Controller
 {
     public function listTicketCollection(Request $request)
     {
-        $entityManager = $this->getDoctrine()->getManager();
+        //dump($this->getUser()); die;
 
+        $entityManager = $this->getDoctrine()->getManager();
+        
         return $this->render('@UVDeskCore//ticketList.html.twig', [
             'ticketStatusCollection' => $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findAll(),
             'ticketTypeCollection' => $entityManager->getRepository('UVDeskCoreBundle:TicketType')->findAll(),
@@ -451,5 +453,31 @@ class Ticket extends Controller
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');
         return $response;
+    }
+    
+    // Apply workflow
+    public function applyWorkflow(Request $request) {
+
+        $workflowId = $request->attributes->get('id');
+        $ticketId = $request->attributes->get('ticketId');
+        $em = $this->getDoctrine()->getManager();
+
+        $preparedResponses = $em->getRepository('UVDeskAutomationBundle:PreparedResponses')->getPreparedResponse($workflowId, $this->container);
+        $ticket = $em->getRepository('UVDeskCoreBundle:Ticket')->findOneBy(array('id' => $ticketId));
+        if (!$ticket)
+            $this->noResultFound();
+
+        if ($preparedResponses) {
+            //Apply Workflow
+            $workflowListnerService = $this->get('workflow.listener.alias');
+            $workflowListnerService->eventType = 'manual';
+            $workflowListnerService->applyResponse($preparedResponses, $ticket);
+
+            $this->addFlash('success', 'Success ! Prepared Response applied successfully.');
+        } else {
+            $this->addFlash('warning', "Error ! Prepared Response doesn't exist.");
+        }
+
+        return $this->redirect($this->generateUrl('helpdesk_member_ticket',['ticketId' => $ticket->getId()]));
     }
 }

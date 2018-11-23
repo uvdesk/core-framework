@@ -26,8 +26,10 @@ class ORMLifecycle
                 $entity->setCreatedAt($timestamp);
                 break;
             case $entity instanceof CoreEntities\Ticket:
-            case $entity instanceof CoreEntities\SavedFilters:
                 $entity->setCreatedAt($timestamp)->setUpdatedAt($timestamp);
+                break;
+            case $entity instanceof CoreEntities\SavedFilters:
+                $entity->setDateAdded($timestamp)->setDateUpdated($timestamp);
                 break;
             case $entity instanceof CoreEntities\Thread:
                 $entity->setCreatedAt($timestamp)->setUpdatedAt($timestamp);
@@ -61,13 +63,15 @@ class ORMLifecycle
         switch (true) {
             case $entity instanceof CoreEntities\Ticket:
             case $entity instanceof CoreEntities\Thread:
-            case $entity instanceof CoreEntities\SavedFilters:
                 $entity->setUpdatedAt($timestamp);
+                break;
+            case $entity instanceof CoreEntities\SavedFilters:
+                $entity->setDateUpdated($timestamp);
                 break;
             default:
                 break;
         }
-
+        
         return;
     }
 

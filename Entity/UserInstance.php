@@ -462,6 +462,33 @@ class UserInstance
     {
         return $this->userSavedReplies;
     }
+    /**
+     * @var integer
+     */
+    private $defaultFiltering;
+
+    /**
+     * Set defaultFiltering
+     *
+     * @param integer $defaultFiltering
+     * @return UserInstance
+     */
+    public function setDefaultFiltering($defaultFiltering)
+    {
+        $this->defaultFiltering = $defaultFiltering;
+
+        return $this;
+    }
+
+    /**
+     * Get defaultFiltering
+     *
+     * @return integer 
+     */
+    public function getDefaultFiltering()
+    {
+        return $this->defaultFiltering;
+    }
 
     /**
      * Add userSavedFilter

@@ -22,6 +22,9 @@
         .uv-action-buttons .uv-dropdown-list ul li {
             padding: 5px 0px !important;
         }
+        .uv-action-buttons{
+            margin-bottom: 40px !important;
+        }
         .uv-ticket-reply .uv-element-block-textarea, .thread-edit-container .uv-element-block-textarea {
             width: 100% !important;
             max-width: 100% !important;
@@ -1004,7 +1007,6 @@
                                 </div>
                             </form>
                         </div>
-
                         {# Ticket Thread | Add Note #}
                         {% if user_service.isAccessAuthorized('ROLE_AGENT_ADD_NOTE') %}
                             <div class="uv-tab-view" id="note">
@@ -1064,6 +1066,60 @@
                     </div>
                 </div>
             </div>
+            <!-- Bottom Action Block -->
+            <div class="uv-ticket-fixed-region">
+                <div class="uv-ticket-fixed-region-lt">
+                        {# <!-- Saved Replied-->
+                        <div class="uv-dropdown saved-reply">
+                            <div class="uv-dropdown-btn">{{ 'Saved Replies'|trans }}</div>
+                            <div class="uv-dropdown-list uv-top-left">
+                                <div class="uv-dropdown-container">
+                                    <label>{{ 'Saved Replies'|trans }}</label>
+                                    <ul>
+                                        <li data-id="">
+                                            <a href="" target="_blank" style="color: #2750C4">{{ 'Create New'|trans }}</a>
+                                        </li>
+                                        {% for savedReply in ticket_service.getSavedReplies() %}
+                                            <li data-id="{{ savedReply.id }}">
+                                                {{ savedReply.name }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- //Saved Replied--> #}
+
+                        <!--Code-->
+                        <div class="uv-dropdown">
+                            <div class="uv-dropdown-btn">{{ 'Prepared Responses'|trans }}</div>
+                            <div class="uv-dropdown-list uv-top-left">
+                            <div class="uv-dropdown-container prepared-responses">
+                                <label>{{ 'Prepared Responses'|trans }}</label>
+                                <ul>
+                                    <li>
+                                        <a class="create-new" href="{{path('prepare_response_action')}}" target="_blank" style="color: #2750C4">{{ 'Create New'|trans }}</a>
+                                    </li>
+                                    {% set preparedResponses = ticket_service.getManualWorkflow() %}
+                                    {% for workflow in preparedResponses %}
+                                        <li>
+                                            <a href="{{ path('helpdesk_apply_ticket_workflow') }}/{{ ticket.id }}/{{ workflow.id }}">
+                                                {{ workflow.name }}
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            </div>
+                        </div>
+                        <!--//Code-->
+                </div>
+
+                <div class="uv-ticket-fixed-region-rt">
+
+                </div>
+            </div>
+            <!-- //Bottom Action Block -->
         </div>
     </div>
 
@@ -2718,7 +2774,6 @@
                 removeItem : function () {
                     self = this;
                     app.appView.showLoader();
-                    console.log(this.model.get('id'));
                     this.model.destroy({
                         url : "{{ path('helpdesk_member_update_ticket_attributes_xhr') }}",
                         data : { attribute :'label', 'ticketId': ticketModel.id, 'labelId': this.model.get('id') },

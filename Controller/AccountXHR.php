@@ -5,6 +5,7 @@ namespace Webkul\UVDesk\CoreBundle\Controller;
 use Webkul\UVDesk\CoreBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Webkul\UVDesk\CoreBundle\Entity;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -58,4 +59,72 @@ class AccountXHR extends Controller
         $response->headers->set('Content-Type', 'application/json');
         return $response;
     } 
+    //Saved filter xhr
+    public function savedFiltersXHR(Request $request)
+    {
+        $json = array();
+
+            $em = $this->getDoctrine()->getManager();
+            $user = $this->get('user.service')->getCurrentUser();
+            $userData = $user->getAgentInstance();
+
+            if($request->getMethod() == 'POST') {
+                $content = $request->request->all();
+                //dump($content); die;
+                $filter = new Entity\SavedFilters();
+                $filter->setName($content['name']);
+                $filter->setRoute($content['route']);
+                $filter->setUser($userData);
+                $em->persist($filter);
+                $em->flush();
+
+                if(isset($content['is_default'])) {
+                    $userData->setDefaultFiltering($filter->getId());
+                    $em->persist($userData);
+                    $em->flush();
+                }
+
+                $json['filter'] = ['id' => $filter->getId(), 'name' => $filter->getName(), 'route' => $filter->getRoute(), 'is_default' => isset($content['is_default'])];
+                $json['alertClass'] = 'success';
+                $json['alertMessage'] = 'Success ! Filter has been saved successfully.';
+            } elseif($request->getMethod() == 'PUT' || $request->getMethod() == 'PATCH') {
+                $content = $request->request->all();
+                $filter = $em->getRepository('UVDeskCoreBundle:SavedFilters')->find($content['id']);
+                $filter->setName($content['name']);
+                $filter->setRoute($content['route']);
+                $em->flush();
+
+                if(isset($content['is_default']))
+                    $userData->setDefaultFiltering($filter->getId());
+                elseif($filter->getId() == $userData->getDefaultFiltering())
+                    $userData->setDefaultFiltering(0);
+                
+                $em->persist($userData);
+                $em->flush();
+
+                $json['filter'] = ['id' => $filter->getId(), 'name' => $filter->getName(), 'route' => $filter->getRoute(), 'is_default' => isset($content['is_default']) ? 1 : 0 ];
+                $json['alertClass'] = 'success';
+                $json['alertMessage'] = 'Success ! Filter has been updated successfully.';
+            } elseif($request->getMethod() == 'DELETE') {
+
+                $id = $request->attributes->get('filterId');
+                $filter = $em->getRepository('UVDeskCoreBundle:SavedFilters')->find($id);
+                $em->remove($filter);
+                $em->flush();
+
+                // if($id == $userData->getDefaultFiltering())
+                //     $userData->setDefaultFiltering(0);
+                
+                // $em->persist($userData);
+                // $em->flush();
+
+                $json['alertClass'] = 'success';
+                $json['alertMessage'] = 'Success ! Filter has been removed successfully.';
+            }
+        
+        $response = new Response(json_encode($json));
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
 }

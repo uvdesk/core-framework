@@ -17,7 +17,7 @@ helpdesk_member_ticket_collection_load_filter_options_xhr:
 
 helpdesk_member_ticket_collection_search_filter_options_xhr:
     path:     /tickets/search-filter-options
-    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::loadTicketCollectionSearchFilterOptions
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::getSearchFilterOptionsXhr
 
 # Ticket Resources
 helpdesk_member_ticket:
@@ -188,3 +188,9 @@ helpdesk_member_update_ticket_type:
     path:     /ticket-types/update/{ticketTypeId}
     controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::ticketType
     defaults: { panelId: 'productivity' }
+
+# Apply Prepared Response 
+helpdesk_apply_ticket_workflow:
+    path:     /ticket/apply-workflow/{ticketId}/{id}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::applyWorkflow
+    defaults: { ticketId: 0, id: 0 }
