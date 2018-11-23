@@ -1558,7 +1558,6 @@
             var CollaboratorCollection = Backbone.PageableCollection.extend({
                 model : CollaboratorModel
             });
-
             // Ticket Tag Collection
             var TagCollection = Backbone.PageableCollection.extend({
                 model : TagModel,
@@ -2492,6 +2491,8 @@
                     this.$el.find(".collaborator-list").html('');
                     var self = this;
                     collaboratorOptionHtml = '';
+
+                    
                     if(collaboratorCollection.length) {
                         _.each(collaboratorCollection.models, function (item) {
                             this.renderCollaborator(item);
@@ -2516,12 +2517,12 @@
                         inputElement.removeClass('uv-field-error');
                         inputElement.parents('.uv-element-block').find('.uv-field-message').remove()
                         var text = inputElement.val().trim();
-
+                       
                         if (e.which === 13 && text) {
                             this.model = new CollaboratorModel();
                             self = this;
+                          
                             this.model.set({email: text})
-
                             if(this.model.isValid(true)) {
                                 app.appView.showLoader();
                                 this.model.save({},{
@@ -2555,6 +2556,7 @@
                 }
             });
 
+       
             // Ticket Tag Item View
             var TagItem = Backbone.View.extend({
                 tagName : "a",
@@ -2640,7 +2642,7 @@
                         }
                         inputElement.removeClass('uv-field-error');
                         inputElement.parents('.uv-element-block').find('.uv-field-message').remove()
-
+                        
                         if (currentElement.is('li') || (e.which === 13 && text)) {
                             if(text.length <= 20) {
                                 if(tagCollection.isTagExist(text)) {
@@ -2694,7 +2696,7 @@
                     inputElement.parents('.uv-element-block').find('.uv-field-message').remove()
                 },
             });
-            
+
             // Ticket Label Item View
             var LabelItem = Backbone.View.extend({
                 tagName : "a",
@@ -2716,9 +2718,10 @@
                 removeItem : function () {
                     self = this;
                     app.appView.showLoader();
+                    console.log(this.model.get('id'));
                     this.model.destroy({
                         url : "{{ path('helpdesk_member_update_ticket_attributes_xhr') }}",
-                        data : { attribute :'label', 'id': ticketModel.id, 'labelId': this.model.get('id') },
+                        data : { attribute :'label', 'ticketId': ticketModel.id, 'labelId': this.model.get('id') },
                         success : function (model, response, options) {
                             app.appView.hideLoader();
                             self.$el.remove();
@@ -2883,9 +2886,19 @@
             var threadList = new ThreadList();
             var pagination = new Pagination();
 
-            var labelCollection = new LabelCollection($.parseJSON('{{ ticketLabelCollection|json_encode|raw }}'));
+            var collaboratorCollection = new CollaboratorCollection($.parseJSON('{{ ticket_service.getTicketCollaborators(ticket.id)|json_encode|raw }}'));
+            var collaboratorList = new CollaboratorList();
+            collaboratorList.render();
+
+            var tagCollection = new TagCollection($.parseJSON('{{ ticket_service.getTicketTagsById(ticket.id)|json_encode|raw }}'));
+            var tagListView = new TagList();
+            tagListView.render();
+
+            var labelCollection = new LabelCollection($.parseJSON('{{ ticket_service.getTicketLabels(ticket.id)|json_encode|raw }}'));
             var labelListView = new LabelList();
             labelListView.render();
+
+
 
             var router = new Router();
             Backbone.history.start({push_state:true});

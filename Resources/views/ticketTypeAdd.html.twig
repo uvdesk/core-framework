@@ -68,12 +68,12 @@
 {% endblock %}
 
 {% block footer %}
-	{# {{ parent() }} #}
+	{{ parent() }}
 	<script type="text/javascript">
 		$(function () {
 			var TypeModel = Backbone.Model.extend({
 				validation: {
-					'name': {
+					'code': {
 						required: true,
 						msg: "{{ 'This field is mandatory'|trans }}"
 					},

@@ -483,6 +483,39 @@ class Ticket
 
         return $this;
     }
+        /**
+     * @var \Doctrine\Common\Collections\Collection
+     */
+    private $collaborators;
+    /**
+     * Add collaborators
+     *
+     * @param \Webkul\UserBundle\Entity\User $collaborators
+     * @return Ticket
+     */
+    public function addCollaborator(\Webkul\UVDesk\CoreBundle\Entity\User $collaborators)
+    {
+        $this->collaborators[] = $collaborators;
+        return $this;
+    }
+    /**
+     * Remove collaborators
+     *
+     * @param \Webkul\UserBundle\Entity\User $collaborators
+     */
+    public function removeCollaborator(\Webkul\UVDesk\CoreBundle\Entity\User $collaborators)
+    {
+        $this->collaborators->removeElement($collaborators);
+    }
+    /**
+     * Get collaborators
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCollaborators()
+    {
+        return $this->collaborators;
+    }
 
     /**
      * Remove thread
