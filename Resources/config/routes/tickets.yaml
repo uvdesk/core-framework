@@ -150,8 +150,9 @@ helpdesk_member_ticket_tag_collection_xhr:
     controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::listTagCollectionXHR
 
 helpdesk_member_ticket_create_tag_xhr:
-    path:     /support-tags/create
+    path:     /support-tags/create/{id}
     controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::createTicketTagXHR
+    defaults: { id: 0 }
 
 helpdesk_member_update_ticket_tag_xhr:
     path:     /support-tags/update/{tagId}

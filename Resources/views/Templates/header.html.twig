@@ -278,14 +278,13 @@
     <div class="uv-mob-aside {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-mob-aside-collapsed{% endif %}">
         <span class="uv-icon-aside-menu"></span>
     </div>
-    
     <!-- Search Box -->
     <div class="uv-search-wrapper uv-no-error-success-icon">
         <input placeholder="Search" class="uv-search-bar" type="text" name="">
         <div class="uv-search-result-wrapper" id="beauty-scroll">
             <h6>Results</h6>
 
-            <a href="">
+            <a href="{{ path('helpdesk_member_ticket_collection')}}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" class="uv-margin-icon-srch">
@@ -295,8 +294,7 @@
                     <p>Tickets</p>
                 </div>
             </a>
-
-            <a href="">
+            {# <a href="">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
@@ -306,9 +304,8 @@
                     </div>
                     <p>Mailbox</p>
                 </div>
-            </a>
-
-            <a href="">
+            </a> #}
+            <a href="{{ path('helpdesk_member_support_group_collection')}}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
@@ -320,7 +317,7 @@
                 </div>
             </a>
 
-            <a href="">
+            <a href="{{ path('helpdesk_member_support_team_collection')}}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
@@ -332,7 +329,7 @@
                 </div>
             </a>
 
-            <a href="">
+            <a href="{{ path('helpdesk_member_account_collection') }}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
@@ -344,7 +341,7 @@
                 </div>
             </a>
 
-            <a href="">
+            <a href="{{ path('helpdesk_member_privilege_collection')}}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
@@ -356,7 +353,7 @@
                 </div>
             </a>
 
-            <a href="">
+            <a href="{{ path('helpdesk_member_manage_customer_account_collection') }}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
@@ -368,7 +365,7 @@
                 </div>
             </a>
 
-            <a href="">
+            <a href="{{ path('helpdesk_member_knowledgebase_folders_collection') }}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" class="uv-margin-icon-srch">
@@ -379,7 +376,7 @@
                 </div>
             </a>
 
-            <a href="">
+            <a href="{{ path('helpdesk_member_knowledgebase_folders_collection') }}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
@@ -391,8 +388,7 @@
                 </div>
             </a>
 
-
-            <a href="">
+            <a href="{{ path('helpdesk_knowledgebase_category_collection') }}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
@@ -404,8 +400,7 @@
                 </div>
             </a>
 
-
-            <a href="">
+            <a href="{{ path('helpdesk_member_knowledgebase_article_collection')}}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
@@ -417,7 +412,7 @@
                 </div>
             </a>
 
-            <a href="">
+            {# <a href="">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" class="uv-margin-icon-srch">
@@ -450,7 +445,7 @@
                     </div>
                     <p>{{ 'Agent Insights'|trans }}</p>
                 </div>
-            </a>
+            </a> #}
 
             <a href="">
                 <div class="uv-search-result-row">
@@ -476,7 +471,7 @@
                 </div>
             </a>
 
-            <a href="">
+            <a href="{{ path('prepare_response_action')}}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
@@ -488,7 +483,7 @@
                 </div>
             </a>
 
-            <a href="">
+            <a href="{{ path('helpdesk_member_workflow_collection') }}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
@@ -512,7 +507,7 @@
                 </div>
             </a>
 
-            <a href="">
+            <a href="{{ path('helpdesk_member_ticket_type_collection')}}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
@@ -524,7 +519,7 @@
                 </div>
             </a>
 
-            <a href="">
+            <a href="{{ path('helpdesk_member_ticket_tag_collection')}}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
@@ -536,7 +531,7 @@
                 </div>
             </a>
 
-            <a href="">
+            {# <a href="">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
@@ -546,9 +541,9 @@
                     </div>
                     <p>{{ 'Company'|trans }}</p>
                 </div>
-            </a>
+            </a> #}
 
-            <a href="">
+            <a href="{{ path('helpdesk_member_helpdesk_theme') }}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
@@ -560,7 +555,7 @@
                 </div>
             </a>
 
-            <a href="">
+            <a href="{{ path('email_templates_action') }}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
@@ -572,7 +567,7 @@
                 </div>
             </a>
 
-            <a href="">
+            {# <a href="">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
@@ -581,9 +576,9 @@
                     </div>
                     <p>{{ 'Email Settings'|trans }}</p>
                 </div>
-            </a>
+            </a> #}
 
-            <a href="}">
+            <a href="{{ path('helpdesk_member_knowledgebase_spam') }}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
@@ -595,7 +590,7 @@
                 </div>
             </a>
 
-            <a href="">
+            {# <a href="">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
@@ -617,9 +612,9 @@
                     </div>
                     <p>{{ 'Secure Field View Logs'|trans }}</p>
                 </div>
-            </a>
+            </a> #}
 
-            <a href="">
+            {# <a href="">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
@@ -628,9 +623,9 @@
                     </div>
                     <p>{{ 'Api client'|trans }}</p>
                 </div>
-            </a>
+            </a> #}
 
-            <a href="">
+            {# <a href="">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
@@ -639,9 +634,9 @@
                     </div>
                     <p>{{ 'Api Access Token'|trans }}</p>
                 </div>
-            </a>
+            </a> #}
 
-            <a href="">
+            {# <a href="">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
@@ -650,7 +645,7 @@
                     </div>
                     <p>{{ 'Import and Export'|trans }}</p>
                 </div>
-            </a>
+            </a> #}
 
             <div class="uv-search-result-row uv-no-results" style="display: none">
                 <p>{{ 'No result found'|trans }}</p>

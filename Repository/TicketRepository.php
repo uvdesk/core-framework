@@ -373,12 +373,15 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             if (in_array($field, $this->safeFields)) {
                 continue;
             }
-
             switch ($field) {
                 case 'search':
                     $queryBuilder->andwhere("ticketType.code LIKE :searchQuery OR ticketType.description LIKE :searchQuery");
                     $queryBuilder->setParameter('searchQuery', '%' . urldecode($fieldValue) . '%');
                     break;
+                case 'isActive':
+                    $queryBuilder->andwhere("ticketType.isActive LIKE :searchQuery");
+                    $queryBuilder->setParameter('searchQuery', '%' . urldecode($fieldValue) . '%');
+                break;
                 default:
                     break;
             }
@@ -534,6 +537,15 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 ->setParameter('ticketId',$ticket->getId());
 
         return $qb->getQuery()->getSingleScalarResult() ? true : false;
+    }
+    public function isTicketCollaborator($ticket,$collaboratorEmail) {
+        if($ticket->getCollaborators()) {
+            foreach ($ticket->getCollaborators() as $collaborator) {
+                if(strtolower($collaborator->getEmail()) == strtolower($collaboratorEmail))
+                    return true;
+            }
+        }
+        return false;
     }
     
 }

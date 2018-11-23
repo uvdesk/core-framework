@@ -68,6 +68,18 @@ Webkul\UVDesk\CoreBundle\Entity\Ticket:
                     tag_id:
                         referencedColumnName: id
                         onDelete: cascade
+        collaborators:
+            targetEntity: User
+            joinTable:
+                name: tickets_collaborators
+                joinColumns:
+                    ticket_id:
+                        referencedColumnName: id
+                        onDelete : cascade
+                inverseJoinColumns:
+                    user_id:
+                        referencedColumnName: id
+                        onDelete : cascade               
         supportLabels:
             targetEntity: SupportLabel
             joinTable:

@@ -82,20 +82,20 @@
 
 	<!-- Sorting Template -->
 	<script id="type_list_sorting_tmp" type="text/template">
-        <li class="<% if(sort == 'a.id') { %>uv-drop-list-active<% } %>">
-            <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/a.id/<% if(sort == 'a.id') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="a.id">
+        <li class="<% if(sort == 'ticketType.id') { %>uv-drop-list-active<% } %>">
+            <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/ticketType.id/<% if(sort == 'ticketType.id') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="ticketType.id">
                 {{ 'Id'|trans }}
             </a>
-            <% if(sort == 'a.id') { %>
+            <% if(sort == 'ticketType.id') { %>
                 <span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
 
             <% } %>
         </li>
-        <li class="<% if(sort == 'a.name') { %>uv-drop-list-active<% } %>">
-            <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/a.name/<% if(sort == 'a.name') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="a.name">
-                {{ 'Name'|trans }}
+        <li class="<% if(sort == 'ticketType.code') { %>uv-drop-list-active<% } %>">
+            <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/ticketType.code/<% if(sort == 'ticketType.code') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="ticketType.code">
+                {{ 'Code'|trans }}
             </a>
-            <% if(sort == 'a.name') { %>
+            <% if(sort == 'ticketType.code') { %>
                 <span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
 
             <% } %>
