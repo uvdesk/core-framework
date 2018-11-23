@@ -172,12 +172,9 @@ class UserService
 
         if (null == $user->getId()) {
             $name = explode(' ', trim($name));
+            
             $user->setEmail($email);
-            if(isset($extras['firstName'])){
-                $user->setFirstName($extras['firstName']);
-            }else{
-                $user->setFirstName(array_shift($name));
-            }
+            $user->setFirstName(isset($extras['firstName']) ? $extras['firstName'] : array_shift($name));
             $user->setLastName(trim(implode(' ', $name)));
             $user->setIsEnabled(true);
 

@@ -71,7 +71,7 @@ Webkul\UVDesk\CoreBundle\Entity\Ticket:
         collaborators:
             targetEntity: User
             joinTable:
-                name: tickets_collaborators
+                name: uv_tickets_collaborators
                 joinColumns:
                     ticket_id:
                         referencedColumnName: id

@@ -35,7 +35,7 @@ class TicketService
     }
 
     public function getUser() {
-        return $this->currentUser = $this->container->get('user.service')->getCurrentUser();
+        return $this->container->get('user.service')->getCurrentUser();
     }
 
     public function getDefaultType()
@@ -948,6 +948,7 @@ class TicketService
     public function getCustomLabelDetails($container)
     {
         $currentUser = $container->get('user.service')->getCurrentUser();
+
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('COUNT(DISTINCT t) as ticketCount,sl.id')->from("UVDeskCoreBundle:Ticket", 't')
                 ->leftJoin('t.supportLabels','sl')
@@ -972,24 +973,26 @@ class TicketService
                     $labels[$key]['count'] = $ticketCount['ticketCount'] ?: 0;
             }
         }
+
         return $labels;
     }
 
-    public function getLabels($request = null) {
+    public function getLabels($request = null)
+    {
         static $labels;
         if (null !== $labels)
             return $labels;
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('sl')->from('UVDeskCoreBundle:SupportLabel', 'sl')
-                ->andwhere('sl.user = :userId')
-                ->setParameter('userId', $this->getUser()->getId());
-
+            ->andwhere('sl.user = :userId')
+            ->setParameter('userId', $this->getUser()->getId());
 
         if($request) {
             $qb->andwhere("sl.name LIKE :labelName");
             $qb->setParameter('labelName', '%'.urldecode($request->query->get('query')).'%');
         }
+
         return $labels = $qb->getQuery()->getArrayResult();
     }
 
@@ -1008,7 +1011,8 @@ class TicketService
         return $qb->getQuery()->getArrayResult();
     }
 
-    public function getTicketTagsById($ticketId) {
+    public function getTicketTagsById($ticketId)
+    {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('tg')->from('UVDeskCoreBundle:Tag', 'tg')
                 ->leftJoin('tg.tickets' ,'t')
@@ -1018,7 +1022,8 @@ class TicketService
         return $qb->getQuery()->getArrayResult();
     }
 
-    public function getTicketLabels($ticketId) {
+    public function getTicketLabels($ticketId)
+    {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('DISTINCT sl.id,sl.name,sl.colorCode')->from('UVDeskCoreBundle:Ticket', 't')
                 ->leftJoin('t.supportLabels','sl')
@@ -1029,6 +1034,7 @@ class TicketService
                 ->setParameter('ticketId', $ticketId);
 
         $result = $qb->getQuery()->getResult();
+        
         return $result ? $result : [];
     }
 }

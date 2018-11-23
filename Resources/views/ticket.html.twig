@@ -1558,6 +1558,7 @@
             var CollaboratorCollection = Backbone.PageableCollection.extend({
                 model : CollaboratorModel
             });
+
             // Ticket Tag Collection
             var TagCollection = Backbone.PageableCollection.extend({
                 model : TagModel,
@@ -2491,7 +2492,6 @@
                     this.$el.find(".collaborator-list").html('');
                     var self = this;
                     collaboratorOptionHtml = '';
-
                     
                     if(collaboratorCollection.length) {
                         _.each(collaboratorCollection.models, function (item) {
@@ -2521,8 +2521,8 @@
                         if (e.which === 13 && text) {
                             this.model = new CollaboratorModel();
                             self = this;
-                          
                             this.model.set({email: text})
+
                             if(this.model.isValid(true)) {
                                 app.appView.showLoader();
                                 this.model.save({},{
@@ -2718,7 +2718,7 @@
                 removeItem : function () {
                     self = this;
                     app.appView.showLoader();
-                    console.log(this.model.get('id'));
+
                     this.model.destroy({
                         url : "{{ path('helpdesk_member_update_ticket_attributes_xhr') }}",
                         data : { attribute :'label', 'ticketId': ticketModel.id, 'labelId': this.model.get('id') },
@@ -2897,8 +2897,6 @@
             var labelCollection = new LabelCollection($.parseJSON('{{ ticket_service.getTicketLabels(ticket.id)|json_encode|raw }}'));
             var labelListView = new LabelList();
             labelListView.render();
-
-
 
             var router = new Router();
             Backbone.history.start({push_state:true});

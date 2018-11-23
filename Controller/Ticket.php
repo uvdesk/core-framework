@@ -135,6 +135,7 @@ class Ticket extends Controller
 
         $ticketProxy = new CoreBundleDataProxies\CreateTicketDataClass();
         $form = $this->createForm(CoreBundleForms\CreateTicket::class, $ticketProxy);
+
         // Validate Ticket Details
         $form->submit($requestParams);
         if (false == $form->isSubmitted() || false == $form->isValid()) {
@@ -340,8 +341,8 @@ class Ticket extends Controller
         return $response;
     }
 
-    // Tag add for ticket
-    public function createTicketTagXHR(Request $request) { 
+    public function createTicketTagXHR(Request $request)
+    { 
         $json = [];
         $content = json_decode($request->getContent(), true);
 
@@ -394,12 +395,9 @@ class Ticket extends Controller
         $response->headers->set('Content-Type', 'application/json');
         return $response;
     }
-        /**
-     * ticketCollaboratorXhrAction "Ticket Collaborator controller action"
-     * @param Object $request "HTTP Request object"
-     */
-    public function updateCollaboratorXHR(Request $request) {
-
+    
+    public function updateCollaboratorXHR(Request $request)
+    {
         $json = [];
         $content = json_decode($request->getContent(), true);
         $em = $this->getDoctrine()->getManager();
