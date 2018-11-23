@@ -35,7 +35,7 @@ class TicketService
     }
 
     public function getUser() {
-        return $this->currentUser = ($this->currentUser ? $this->currentUser : $this->container->get('user.service')->getCurrentUser());
+        return $this->container->get('user.service')->getCurrentUser();
     }
 
     public function getDefaultType()
@@ -975,6 +975,67 @@ class TicketService
         }
 
         return $labels;
+    }
+
+    public function getLabels($request = null)
+    {
+        static $labels;
+        if (null !== $labels)
+            return $labels;
+
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('sl')->from('UVDeskCoreBundle:SupportLabel', 'sl')
+            ->andwhere('sl.user = :userId')
+            ->setParameter('userId', $this->getUser()->getId());
+
+        if($request) {
+            $qb->andwhere("sl.name LIKE :labelName");
+            $qb->setParameter('labelName', '%'.urldecode($request->query->get('query')).'%');
+        }
+
+        return $labels = $qb->getQuery()->getArrayResult();
+    }
+
+    public function getTicketCollaborators($ticketId)
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select("DISTINCT c.id, c.email, CONCAT(c.firstName,' ', c.lastName) AS name, userInstance.profileImagePath, userInstance.profileImagePath as smallThumbnail")->from('UVDeskCoreBundle:Ticket', 't')
+                ->leftJoin('t.collaborators', 'c')
+                ->leftJoin('c.userInstance', 'userInstance')
+                ->andwhere('t.id = :ticketId')
+                ->andwhere('userInstance.supportRole = :roles')
+                ->setParameter('ticketId', $ticketId)
+                ->setParameter('roles', 4)
+                ->orderBy('name','ASC');
+
+        return $qb->getQuery()->getArrayResult();
+    }
+
+    public function getTicketTagsById($ticketId)
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('tg')->from('UVDeskCoreBundle:Tag', 'tg')
+                ->leftJoin('tg.tickets' ,'t')
+                ->andwhere('t.id = :ticketId')
+                ->setParameter('ticketId', $ticketId);
+
+        return $qb->getQuery()->getArrayResult();
+    }
+
+    public function getTicketLabels($ticketId)
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('DISTINCT sl.id,sl.name,sl.colorCode')->from('UVDeskCoreBundle:Ticket', 't')
+                ->leftJoin('t.supportLabels','sl')
+                ->leftJoin('sl.user','slu')
+                ->andWhere('slu.id = :userId')
+                ->andWhere('t.id = :ticketId')
+                ->setParameter('userId', $this->getUser()->getId())
+                ->setParameter('ticketId', $ticketId);
+
+        $result = $qb->getQuery()->getResult();
+        
+        return $result ? $result : [];
     }
 }
 

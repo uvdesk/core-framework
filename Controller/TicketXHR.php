@@ -150,6 +150,7 @@ class TicketXHR extends Controller
         $entityManager = $this->getDoctrine()->getManager();
         $request = $this->container->get('request_stack')->getCurrentRequest();
         $requestContent = $request->request->all() ?: json_decode($request->getContent(), true);
+        $ticketId =  $ticketId != 0 ? $ticketId : $requestContent['ticketId'];
         $ticket = $entityManager->getRepository('UVDeskCoreBundle:Ticket')->findOneById($ticketId);
         
         // Validate request integrity
@@ -160,12 +161,11 @@ class TicketXHR extends Controller
             ];
 
             return new Response(json_encode($responseContent), 200, ['Content-Type' => 'application/json']);
-        } else if (!isset($requestContent['attribute']) || !isset($requestContent['value'])) {
+        } else if (!isset($requestContent['attribute'])) {
             $responseContent = [
                 'alertClass' => 'danger',
                 'alertMessage' => "Insufficient details provided.",
             ];
-
             return new Response(json_encode($responseContent), 400, ['Content-Type' => 'application/json']);
         }
 
@@ -413,15 +413,17 @@ class TicketXHR extends Controller
                 }
                 break;
             case 'label':
-                // $label = $em->getRepository('UVDeskCoreBundle:TicketLabel')->find($data['labelId']);
-                // if($label) {
-                //     $ticket->removeTicketLabel($label);
-                //     $em->persist($ticket);
-                //     $em->flush();
-
-                //     $json['alertClass'] = 'success';
-                //     $json['alertMessage'] = $this->translate('Success ! Ticket to label removed successfully.');
-                // }
+                $label = $entityManager->getRepository('UVDeskCoreBundle:SupportLabel')->find($requestContent['labelId']);
+                if($label) {
+                    $ticket->removeSupportLabel($label);
+                    $entityManager->persist($ticket);
+                    $entityManager->flush();
+                    
+                    return new Response(json_encode([
+                        'alertClass' => 'success',
+                        'alertMessage' => 'Success ! Ticket to label removed successfully.',
+                    ]), 200, ['Content-Type' => 'application/json']);
+                }
                 break;
             default:
                 break;
@@ -435,10 +437,10 @@ class TicketXHR extends Controller
         
         if ($request->isXmlHttpRequest()) {
             $paginationResponse = $this->get('ticket.service')->paginateMembersTicketCollection($request);
-
+           
             return new Response(json_encode($paginationResponse), 200, ['Content-Type' => 'application/json']);
         }
-        
+
         return new Response(json_encode([]), 404, ['Content-Type' => 'application/json']);
     }
 
