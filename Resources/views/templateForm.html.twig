@@ -113,9 +113,8 @@
 							{% if placeholders is iterable %}
 								{% for fieldKey, fieldPlaceholder in placeholders %}
 									{ text: "{{ fieldPlaceholder.title|raw }}", value: '{{ "{%" ~ basekey ~ "." ~ fieldKey ~ "%}"}}', group: '{{ basekey }}'
-									{% if 'global' != basekey  %}
 										, classes: 'pitem {{ basekey }}' {% if template.templateFor and (basekey != template.templateFor) %}, hidden: true{% endif %}
-									{% endif %} },
+									 },
 								{% endfor %}
 							{% endif %}
 						 ]},

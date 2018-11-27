@@ -1307,7 +1307,7 @@
     {# Ticket List Item View Template #}
     <script id="ticket_list_item_tmp" type="text/template">
         <td class="uv-width-140 uv-no-content">
-            <span class="uv-list-ticket-priority" style="<% if(priority) { %>background: <%= priority.color %><% } %>;"></span>
+            <span class="uv-list-ticket-priority" style="<% if(priority) { %>background: <%=priority.colorCode %><% } %>;"></span>
             <label class="uv-vertical-align uv-margin-right-5">
                 <div class="uv-checkbox">
                     <input type="checkbox" class="mass-action-checkbox" value="<%= id %>"/>
@@ -2401,7 +2401,7 @@
                     this.render();
                 },
                 events: {
-                    'change .mass-action-checkbox' : 'showBulkOptions',
+                    'change .select-all-checkbox' : 'showBulkOptions',
                 },
                 showBulkOptions: function() {
                     var count = 0;
@@ -2692,6 +2692,35 @@
                 }
             });
 
+            var PageView = Backbone.View.extend({
+                el: '.uv-action-bar',
+                events : {
+                    'change .select-all-checkbox' : 'selectAll',
+                },
+                selectAll : function(e) {
+                    if(Backbone.$(e.currentTarget).is(':checked')) {
+                        $('.mass-action-checkbox').prop('checked', true);
+                        $('.uv-action-bar .filter').parent().hide();
+		    		    $('.uv-action-bar .mass-action').parent().addClass("uv-width-100").show();
+                        $('.uv-action-bar-col-rt').hide()
+                    } else {
+                        var count = 0;
+                        $('.mass-action-checkbox').each(function() {
+                            if($(this).is(':checked'))
+                                count++;
+                        });
+                        if(count == $('.mass-action-checkbox').length) {
+                            $('.mass-action-checkbox').prop('checked', false);
+                            $('.uv-action-bar .filter').parent().show();
+		    		        $('.uv-action-bar .mass-action').parent().removeClass("uv-width-100").hide();
+                            $('.uv-action-bar-col-rt').show()
+                        }
+                    }
+                },
+                
+            });
+            
+
             // Ticket Router
             Router = Backbone.Router.extend({
                 routes: {
@@ -2824,7 +2853,7 @@
                     this.fetch(number,sortField,order);
                 },
                 fetch: function(number, sortField, order) {
-                    console.log('fetching');
+
                     ticketCollection.state.currentPage = number;
                     filter.sortCollection(sortField, order);
                     ticketCollection.syncData();
@@ -2923,6 +2952,7 @@
             });
 
             var router = new Router();
+            var pageview = new PageView;
             var bulkAction = new BulkActionView();
             var sideFilterModel = new SideFilterModel(filterContext)
             var sideFilter = new SideFilter();

@@ -40,20 +40,6 @@ class EmailService
         $placeHolders = [];
 
         $allEmailPlaceholders = [
-            'global' => [
-                        'companyName' => [
-                                    'title' => $this->trans('Company Name'),
-                                    'info' => $this->trans('global.company.name.info'),
-                                ],
-                        'companyUrl' => [
-                                    'title' => $this->trans('Company Url'),
-                                    'info' => $this->trans('global.company.url.info'),
-                                ],
-                        'companyLogo' => [
-                                    'title' => $this->trans('Company Logo'),
-                                    'info' => $this->trans('global.company.logo.info'),
-                                ],
-                    ],
 
         ];
 
@@ -151,7 +137,6 @@ class EmailService
                                                             'info' => $this->trans('user.password.forgot.link.info'),
                                                         ],
                                             ],
-                                'global' => $allEmailPlaceholders['global'],
                             ];
         } elseif($default == 'savedReply') {
             $placeHolders = [

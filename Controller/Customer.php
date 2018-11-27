@@ -32,7 +32,7 @@ class Customer extends Controller
             $uploadedFiles = $request->files->get('customer_form');
             
             $user = $entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(array('email' => $formDetails['email']));
-            $customerInstance = !empty($user) ? $checkUser->getCustomerInstance() : null;
+            $customerInstance = !empty($user) ? $user->getCustomerInstance() : null;
 
             if (empty($customerInstance)){
                 if (!empty($formDetails)) {

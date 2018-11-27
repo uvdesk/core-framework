@@ -18,7 +18,7 @@ class TicketXHR extends Controller
         die;
     }
 
-    public function bookmarkTicketXHR($ticketId)
+    public function bookmarkTicketXHR()
     {
         $entityManager = $this->getDoctrine()->getManager();
         $request = $this->container->get('request_stack')->getCurrentRequest();
@@ -34,7 +34,6 @@ class TicketXHR extends Controller
 
             return new Response(json_encode(['alertClass' => 'success']), 200, ['Content-Type' => 'application/json']);
         }
-
         return new Response(json_encode([]), 404, ['Content-Type' => 'application/json']);
     }
 
@@ -49,8 +48,8 @@ class TicketXHR extends Controller
             if($data['name'] != "") {
                 $label = new SupportLabel();
                 $label->setName($data['name']);
-                if(isset($data['color']))
-                    $label->setColorCode($data['color']);
+                if(isset($data['colorCode']))
+                    $label->setColorCode($data['colorCode']);
                 $label->setUser($this->get('user.service')->getCurrentUser());
                 $em->persist($label);
                 $em->flush();
@@ -60,7 +59,7 @@ class TicketXHR extends Controller
                 $json['label'] = json_encode([
                     'id' => $label->getId(),
                     'name' => $label->getName(),
-                    'color' => $label->getColorCode(),
+                    'colorCode' => $label->getColorCode(),
                     'labelUser' => $label->getUser()->getId(),
                 ]);
             } else {
@@ -72,8 +71,8 @@ class TicketXHR extends Controller
             $label = $em->getRepository('UVDeskCoreBundle:SupportLabel')->findOneBy(array('id' => $request->attributes->get('ticketLabelId')));
             if($label) {
                 $label->setName($data['name']);
-                if(!empty($data['color'])) {
-                    $label->setColorCode($data['color']);
+                if(!empty($data['colorCode'])) {
+                    $label->setColorCode($data['colorCode']);
                 }
                 $em->persist($label);
                 $em->flush();
@@ -81,7 +80,7 @@ class TicketXHR extends Controller
                 $json['label'] = json_encode([
                     'id' => $label->getId(),
                     'name' => $label->getName(),
-                    'color' => $label->getColorCode(),
+                    'colorCode' => $label->getColorCode(),
                     'labelUser' => $label->getUser()->getId(),
                 ]);
                 $json['alertClass'] = 'success';
@@ -434,7 +433,6 @@ class TicketXHR extends Controller
 
     public function listTicketCollectionXHR(Request $request)
     {
-        
         if ($request->isXmlHttpRequest()) {
             $paginationResponse = $this->get('ticket.service')->paginateMembersTicketCollection($request);
            
@@ -592,6 +590,7 @@ class TicketXHR extends Controller
 
     public function loadTicketCollectionSearchFilterOptions(Request $request)
     {
+
         return new Response(json_encode([]), 404);
     }
 

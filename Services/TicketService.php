@@ -190,7 +190,7 @@ class TicketService
         }
 
         if ('reply' === $threadData['threadType']) {
-
+            
             if ('agent' === $threadData['createdBy']) {
                 // Ticket has been updated by support agents, mark as agent replied | customer view pending
                 $ticket->setIsCustomerViewed(false);
@@ -203,6 +203,8 @@ class TicketService
             }
 
             $this->entityManager->persist($ticket);
+        
+            
         } else if ('create' === $threadData['threadType']) {
             $ticket->setIsReplied(false);
 
@@ -388,7 +390,7 @@ class TicketService
             $totalTicketReplies = (int) $ticketThreadCountQuery->getQuery()->getSingleScalarResult();
             // $ticketHasAttachments = (bool) (int) $ticketAttachmentCountQuery->getQuery()->getSingleScalarResult();
             $ticketHasAttachments = false;
-
+          
             $ticketResponse = [
                 'id' => $ticket['id'],
                 'subject' => $ticket['subject'],
@@ -398,7 +400,7 @@ class TicketService
                 'source' => $ticket['source'],
                 'group' => $ticketDetails['groupName'],
                 'team' => $ticketDetails['teamName'],
-                'priority' => $ticket['priority']['description'],
+                'priority' => $ticket['priority'],
                 'type' => $ticketDetails['typeName'],
                 'timestamp' => $ticket['createdAt']->getTimestamp(),
                 'formatedCreatedAt' => $ticket['createdAt']->format('d-m-Y h:ia'),
