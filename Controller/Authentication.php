@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Webkul\UVDesk\CoreBundle\Utils\TokenGenerator;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\EventDispatcher\GenericEvent;
+use Webkul\UVDesk\CoreBundle\Workflow\Events as CoreWorkflowEvents;
 
 class Authentication extends Controller
 {

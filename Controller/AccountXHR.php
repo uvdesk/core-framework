@@ -6,6 +6,8 @@ use Webkul\UVDesk\CoreBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Webkul\UVDesk\CoreBundle\Entity;
+use Symfony\Component\EventDispatcher\GenericEvent;
+use Webkul\UVDesk\CoreBundle\Workflow\Events as CoreWorkflowEvents;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
