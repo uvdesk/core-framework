@@ -1,29 +1,28 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
+namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Agent;
 
-use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
-use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
 
-class Delete extends WorkflowAction
+class TransferTickets extends PreparedResponseAction
 {
     public static function getId()
     {
-        return 'uvdesk.ticket.delete';
+        return 'uvdesk.agent.transfer_tickets';
     }
 
     public static function getDescription()
     {
-        return 'Delete Ticket';
+        return 'Transfer Tickets';
     }
 
     public static function getFunctionalGroup()
     {
-        return FunctionalGroup::TICKET;
+        return FunctionalGroup::AGENT;
     }
-
+    
     public static function getOptions(ContainerInterface $container)
     {
         return [];
@@ -32,9 +31,5 @@ class Delete extends WorkflowAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        if($entity instanceof Ticket) {
-            $entityManager->remove($entity);
-            $entityManager->flush();
-        }
     }
 }

@@ -1,14 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Customer;
+namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Customer;
 
 use Webkul\UVDesk\CoreBundle\Entity as CoreEntities;
-use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
 
-class MailCustomer extends WorkflowAction
+class MailCustomer extends PreparedResponseAction
 {
     public static function getId()
     {

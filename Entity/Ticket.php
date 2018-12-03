@@ -137,6 +137,7 @@ class Ticket
      */
     private $supportLabels;
 
+    public $lastCollaborator;
     /**
      * Constructor
      */

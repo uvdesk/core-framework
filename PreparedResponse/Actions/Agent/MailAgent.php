@@ -1,14 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Agent;
+namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Agent;
 
 use Webkul\UVDesk\CoreBundle\Entity as CoreEntities;
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
-use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
 
-class MailAgent extends WorkflowAction
+class MailAgent extends PreparedResponseAction
 {
     public static function getId()
     {

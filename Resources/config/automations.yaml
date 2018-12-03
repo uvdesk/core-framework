@@ -10,3 +10,9 @@ services:
         arguments: ['@service_container', '@request_stack', '@doctrine.orm.entity_manager']
         tags:
             - { name: uvdesk.automations.workflow.actions }
+    
+    Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\:
+        resource: '../../PreparedResponse/Actions/*'
+        arguments: ['@service_container', '@request_stack', '@doctrine.orm.entity_manager']
+        tags:
+            - { name: uvdesk.automation.prepared_response.actions }

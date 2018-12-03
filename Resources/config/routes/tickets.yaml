@@ -190,7 +190,7 @@ helpdesk_member_update_ticket_type:
     defaults: { panelId: 'productivity' }
 
 # Apply Prepared Response 
-helpdesk_apply_ticket_workflow:
-    path:     /ticket/apply-workflow/{ticketId}/{id}
-    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::applyWorkflow
+helpdesk_apply_ticket_prepared_response:
+    path:     /ticket/apply-prepared-response/{ticketId}/{id}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::applyPreparedResponse
     defaults: { ticketId: 0, id: 0 }

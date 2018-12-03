@@ -1101,10 +1101,10 @@
                                         <a class="create-new" href="{{path('prepare_response_action')}}" target="_blank" style="color: #2750C4">{{ 'Create New'|trans }}</a>
                                     </li>
                                     {% set preparedResponses = ticket_service.getManualWorkflow() %}
-                                    {% for workflow in preparedResponses %}
+                                    {% for preparedResponse in preparedResponses %}
                                         <li>
-                                            <a href="{{ path('helpdesk_apply_ticket_workflow') }}/{{ ticket.id }}/{{ workflow.id }}">
-                                                {{ workflow.name }}
+                                            <a href="{{ path('helpdesk_apply_ticket_prepared_response') }}/{{ ticket.id }}/{{ preparedResponse.id }}">
+                                                {{ preparedResponse.name }}
                                             </a>
                                         </li>
                                     {% endfor %}

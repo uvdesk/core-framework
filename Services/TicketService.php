@@ -1053,5 +1053,16 @@ class TicketService
 
         return $priorities = $qb->getQuery()->getArrayResult();
     }
+
+    public function getTicketLastThread($ticketId) {
+        $qb = $this->em->createQueryBuilder();
+        $qb->select("th")->from('UVDeskCoreBundle:Thread', 'th')
+                ->leftJoin('th.ticket','t')
+                ->andWhere('t.id = :ticketId')
+                ->setParameter('ticketId',$ticketId)
+                ->orderBy('th.id', 'DESC');
+
+        return $qb->getQuery()->setMaxResults(1)->getSingleResult();
+    }
 }
 

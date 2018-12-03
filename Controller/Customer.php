@@ -128,6 +128,13 @@ class Customer extends Controller
                     $em->persist($user);
                     $em->flush();
 
+                    // Trigger customer created event
+                    $event = new GenericEvent(CoreWorkflowEvents\Customer\Update::getId(), [
+                        'entity' => $user,
+                    ]);
+    
+                    $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+
                     $this->addFlash('success', 'Success ! Customer information updated successfully.'); 
                     return $this->redirect($this->generateUrl('helpdesk_member_manage_customer_account_collection'));
                 } else {

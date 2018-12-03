@@ -1,0 +1,145 @@
+<style>
+.mce-tinymce.mce-container.mce-panel.viewing, .mce-edit-area.mce-container.mce-panel.mce-stack-layout-item.viewing{
+	border-color: #f97278;
+}
+</style>
+<script id="ticket_viewer" type="text/template">
+	<% if(pic){ %>
+		<img src="<%= pic %>" title="<%- name %>">
+	<% }else{ %>
+		<span class="viewer-firstletter img-thumbnail" style="color:<%- thisColor %>;border-color:<%- thisColor %>" title="<%- name %>"><%- name.charAt(0) %></span>
+	<% } %>
+	<% if(role) { %>
+		<div class="uv-ticket-viewer-close uv-cursor" title="<%- name %>" data-id="<%- user %>"><span class="uv-icon-remove-dark-before"></span></div>
+	<% } %>
+</script>	
+
+<script type="text/javascript">
+$(function(){
+	"use strict";
+    $(window).on('load',  function(e) {
+	
+		var socket_uvdesk = io("{{app.request.server.get('REQUEST_SCHEME')}}://{{site_host}}:{{node_port}}");
+		
+		var firstId;
+
+		var tViewer = {
+						'Users': {},
+						'clearUsers': {},
+						'userDetails': JSON.parse("{{userDetails|json_encode|e('js')}}"),
+						'newReplyAded': {
+											'alertClass' : 'success',
+											'alertMessage': "{% trans %}New Actvity - Reply Added to Ticket{% endtrans %} - <a href='#threadreplaceThreadId'>#replaceThreadId</a>",
+										},
+						'colors': ['#8cc152', '#da4453', '#345995', '#000', '#A3846F', '#533F26'],
+					};
+
+		function getColor(){
+			return tViewer.colors[Math.floor((Math.random() * (tViewer.colors.length -1)) + 1)];
+		}
+
+		tViewer.Model = Backbone.Model.extend({
+			idAttribute : "user"
+		});
+
+		tViewer.Collection = Backbone.Collection.extend({
+			model : tViewer.Model
+		});
+
+		var ticketViewerCollection = new tViewer.Collection({});
+
+		tViewer.Item = Backbone.View.extend({
+			tagName : "div",
+			className : "uv-ticket-viewer-single",
+			template : _.template($("#ticket_viewer").html()),
+			render : function () {
+				this.$el.html(this.template(_.extend(this.model.toJSON(), {'thisColor': getColor(), 'role' : tViewer.userDetails.role})));
+				return this;
+			},
+		});
+
+		tViewer.List = Backbone.View.extend({
+			el : $(".uv-ticket-viewer-bar .uv-ticket-viewer-list"),
+			initialize : function() {
+				this.listenTo(ticketViewerCollection, "add", this.render);
+			},
+			events: {
+				'click .uv-ticket-viewer-close ': 'viewerKick',
+			},
+			render : function (item) {
+				var newItem = new tViewer.Item({
+					model: item
+				});
+				tViewer.Users[item.attributes.socket] = newItem.render();
+				this.$el.append(tViewer.Users[item.attributes.socket].el);
+
+				if(tViewer.userDetails.user == item.attributes.user)
+					this.$(tViewer.Users[item.attributes.socket].el).addClass('uv-hide');
+
+			},
+			viewerKick: function(e){
+				if(tViewer.userDetails.role)
+					socket_uvdesk.emit('viewerKick', {room: "{{app.request.server.get('HTTP_HOST')}}_{{ticket.incrementId}}", id: this.$(e.currentTarget).attr('data-id')});
+			}
+		});
+		var ticketViewerList = new tViewer.List();
+
+		socket_uvdesk.on('connect', function() {
+			socket_uvdesk.emit('newUserConneted', tViewer.userDetails);
+		});
+
+		socket_uvdesk.on('onKick', function(user) {
+			if({{app.user.id}} == user) 
+				window.location = "{{ path('helpdesk_member_ticket_collection') }}";
+		});
+
+		socket_uvdesk.on('onNewUserConneted', function(data) {
+			if(!data)
+				return;
+
+			ticketViewerCollection.add(data);
+
+			if(ticketViewerCollection.length > 2)
+				$('.uv-ticket-viewer-bar').addClass('active');
+			else
+				$('.uv-ticket-viewer-bar').removeClass('active');
+			
+			if(ticketViewerCollection.length == 2)
+				secureEditor();
+		});
+
+		function secureEditor(){
+			var editor = '.mce-tinymce.mce-container.mce-panel';
+			var editorBar = '.mce-edit-area.mce-container.mce-panel.mce-stack-layout-item';
+			if((firstId = ticketViewerCollection.at(1).id) && firstId != tViewer.userDetails.user){
+				$(editor).addClass('viewing');
+				$(editorBar).addClass('viewing');
+			}else{
+				$(editor).removeClass('viewing');
+				$(editorBar).removeClass('viewing');
+			}
+		}
+
+		socket_uvdesk.on('onUserDisConneted', function(data) {
+			if(typeof(tViewer.Users[data]) != 'undefined')
+				tViewer.Users[data].remove();
+			ticketViewerCollection.remove(ticketViewerCollection.findWhere({'socket': data}));
+			if(ticketViewerCollection.length == 2)
+				$('.uv-ticket-viewer-bar').removeClass('active');
+			secureEditor();
+		});
+
+		socket_uvdesk.on('onReplyRecieved', function(data) {
+			if({{app.user.id}} != data.user) {
+				var thisTViewerNewReplyAdded = tViewer.newReplyAded;
+				thisTViewerNewReplyAdded.alertMessage = thisTViewerNewReplyAdded.alertMessage.replace(/replaceThreadId/g, data.thread.id);
+				//appView.renderResponseAlert(thisTViewerNewReplyAdded);
+				app.appView.renderResponseAlert(thisTViewerNewReplyAdded);
+				threadCollection.fullCollection.add(data.thread)
+			}
+		});
+
+	});
+
+})
+</script>

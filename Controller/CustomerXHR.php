@@ -43,6 +43,13 @@ class CustomerXHR extends Controller
             if($user) {
 
                 $this->get('user.service')->removeCustomer($user);
+                // Trigger customer created event
+                $event = new GenericEvent(CoreWorkflowEvents\Customer\Delete::getId(), [
+                    'entity' => $user,
+                ]);
+
+                $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+
                 $json['alertClass'] = 'success';
                 $json['alertMessage'] = ('Success ! Customer removed successfully.');
             } else {

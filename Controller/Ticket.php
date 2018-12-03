@@ -6,16 +6,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Webkul\UVDesk\CoreBundle\Form as CoreBundleForms;
+use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreBundle\Entity as CoreBundleEntities;
 use Webkul\UVDesk\CoreBundle\DataProxies as CoreBundleDataProxies;
+use Webkul\UVDesk\CoreBundle\Workflow\Events as CoreWorkflowEvents;
 
 class Ticket extends Controller
 {
     public function listTicketCollection(Request $request)
     {
-        //dump($this->getUser()); die;
-
         $entityManager = $this->getDoctrine()->getManager();
         
         return $this->render('@UVDeskCore//ticketList.html.twig', [
@@ -187,6 +187,12 @@ class Ticket extends Controller
        
         $thread = $this->get('ticket.service')->createTicketBase($ticketData);
 
+        // Trigger ticket created event
+        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Create::getId(), [
+            'entity' =>  $thread->getTicket(),
+        ]);
+        $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+
         if (!empty($thread)) {
             $ticket = $thread->getTicket();
             $request->getSession()->getFlashBag()->set('success', sprintf('Success! Ticket #%s has been created successfully.', $ticket->getId()));
@@ -303,8 +309,13 @@ class Ticket extends Controller
             $entityManager->persist($ticket);
             $entityManager->flush();
         }
+        // Trigger ticket delete event
+        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Delete::getId(), [
+            'entity' => $user,
+        ]);
+        $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
-        $this->addFlash('warning','Success ! Ticket moved to trash successfully.');
+        $this->addFlash('success','Success ! Ticket moved to trash successfully.');
 
         return $this->redirectToRoute('helpdesk_member_ticket_collection');
     }
@@ -428,6 +439,13 @@ class Ticket extends Controller
                     $ticket->lastCollaborator = $collaborator;
                    
                     $json['collaborator'] =  $this->get('user.service')->getCustomerPartialDetailById($collaborator->getId());
+
+                     // Trigger agent delete event
+                     $event = new GenericEvent(CoreWorkflowEvents\Ticket\Collaborator::getId(), [
+                        'entity' => $user,
+                    ]);
+                    $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                    
                     $json['alertClass'] = 'success';
                     $json['alertMessage'] = $this->get('translator')->trans('Success ! Collaborator added successfully.');
                 } else {
@@ -455,29 +473,18 @@ class Ticket extends Controller
         return $response;
     }
     
-    // Apply workflow
-    public function applyWorkflow(Request $request) {
+    // Apply Prepared Response
+    public function applyPreparedResponse(Request $request) {
 
-        $workflowId = $request->attributes->get('id');
-        $ticketId = $request->attributes->get('ticketId');
-        $em = $this->getDoctrine()->getManager();
+        $em        = $this->getDoctrine()->getManager();
+        $id        = $request->attributes->get('id'); // Prepared response id
+        $ticketId  = $request->attributes->get('ticketId'); //Ticket Id
+        $ticket    = $em->getRepository('UVDeskCoreBundle:Ticket')->findOneBy(array('id' => $ticketId));
 
-        $preparedResponses = $em->getRepository('UVDeskAutomationBundle:PreparedResponses')->getPreparedResponse($workflowId, $this->container);
-        $ticket = $em->getRepository('UVDeskCoreBundle:Ticket')->findOneBy(array('id' => $ticketId));
-        if (!$ticket)
-            $this->noResultFound();
+        $event    = new GenericEvent($id, ['entity' =>  $ticket]);
+        $this->get('event_dispatcher')->dispatch('uvdesk.automation.prepared_response.execute', $event);
+        $this->addFlash('success', 'Success ! Prepared Response applied successfully.');
 
-        if ($preparedResponses) {
-            //Apply Workflow
-            $workflowListnerService = $this->get('workflow.listener.alias');
-            $workflowListnerService->eventType = 'manual';
-            $workflowListnerService->applyResponse($preparedResponses, $ticket);
-
-            $this->addFlash('success', 'Success ! Prepared Response applied successfully.');
-        } else {
-            $this->addFlash('warning', "Error ! Prepared Response doesn't exist.");
-        }
-
-        return $this->redirect($this->generateUrl('helpdesk_member_ticket',['ticketId' => $ticket->getId()]));
+        return $this->redirect($this->generateUrl('helpdesk_member_ticket',['ticketId' => $ticketId]));
     }
 }

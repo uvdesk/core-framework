@@ -47,6 +47,11 @@ class Authentication extends Controller
                     $user = $entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(array('email' => $form->getData()->getEmail()));
                   
                     if($user) {
+                         // Trigger agent forgot password event
+                        $event = new GenericEvent(CoreWorkflowEvents\Agent\ForgotPassword::getId(), [
+                            'entity' => $user,
+                        ]);
+                        $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
                         $request->getSession()->getFlashBag()->set(
                             'success','Please check your mail for password update.'
                         );
