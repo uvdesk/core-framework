@@ -311,7 +311,7 @@ class Ticket extends Controller
         }
         // Trigger ticket delete event
         $event = new GenericEvent(CoreWorkflowEvents\Ticket\Delete::getId(), [
-            'entity' => $user,
+            'entity' => $ticket,
         ]);
         $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
@@ -442,7 +442,7 @@ class Ticket extends Controller
 
                      // Trigger agent delete event
                      $event = new GenericEvent(CoreWorkflowEvents\Ticket\Collaborator::getId(), [
-                        'entity' => $user,
+                        'entity' => $ticket,
                     ]);
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
                     

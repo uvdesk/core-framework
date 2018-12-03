@@ -206,7 +206,7 @@ class TicketXHR extends Controller
 
                     // Trigger Agent Assign event
                     $event = new GenericEvent(CoreWorkflowEvents\Ticket\Agent::getId(), [
-                        'entity' => $user,
+                        'entity' => $ticket,
                     ]);
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
                     return new Response(json_encode([
@@ -239,7 +239,7 @@ class TicketXHR extends Controller
                 
                     // Trigger ticket status event
                     $event = new GenericEvent(CoreWorkflowEvents\Ticket\Status::getId(), [
-                        'entity' => $user,
+                        'entity' => $ticket,
                     ]);
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
@@ -274,7 +274,7 @@ class TicketXHR extends Controller
 
                      // Trigger ticket Priority event
                      $event = new GenericEvent(CoreWorkflowEvents\Ticket\Priority::getId(), [
-                        'entity' => $user,
+                        'entity' => $ticket,
                     ]);
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
@@ -308,7 +308,7 @@ class TicketXHR extends Controller
                     
                      // Trigger Support group event
                      $event = new GenericEvent(CoreWorkflowEvents\Ticket\Group::getId(), [
-                        'entity' => $user,
+                        'entity' => $ticket,
                     ]);
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
@@ -341,7 +341,7 @@ class TicketXHR extends Controller
                     
                     // Trigger ticket delete event
                     $event = new GenericEvent(CoreWorkflowEvents\Ticket\Team::getId(), [
-                        'entity' => $user,
+                        'entity' => $ticket,
                     ]);
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
@@ -373,7 +373,7 @@ class TicketXHR extends Controller
 
                     // Trigger ticket delete event
                     $event = new GenericEvent(CoreWorkflowEvents\Ticket\Type::getId(), [
-                        'entity' => $user,
+                        'entity' => $ticket,
                     ]);
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
