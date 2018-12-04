@@ -186,16 +186,20 @@ class UVDeskService
                 ];
                 break;
             case 'SETTINGS':
+                try {
+                    $helpdeskThemePath = $router->generate('helpdesk_member_knowledgebase_theme');
+                } catch(\Exception $e) {
+                    $helpdeskThemePath = false;
+                }
+                try {
+                    $helpdeskSpamPath = $router->generate('helpdesk_member_knowledgebase_spam');
+                } catch(\Exception $e) {
+                    $helpdeskSpamPath = false;
+                }
+
                 $navigationPanel = [
                     'name' => 'Settings',
                     'routes' => [
-                        [
-                            'name' => 'Branding',
-                            'link' => $router->generate('helpdesk_member_knowledgebase_theme'),
-                            'isActive' => false,
-                            'isEnabled' => true,
-                            'permission' => 'ROLE_ADMIN',
-                        ],
                         [
                             'name' => 'Email Templates',
                             'link' => $router->generate('email_templates_action'),
@@ -204,14 +208,33 @@ class UVDeskService
                             'permission' => 'ROLE_AGENT_MANAGE_EMAIL_TEMPLATE',
                         ],
                         [
-                            'name' => 'Block Spam',
-                            'link' => $router->generate('helpdesk_member_knowledgebase_spam'),
+                            'name' => 'Mailbox',
+                            'link' => $router->generate('maibox_action'),
                             'isActive' => false,
                             'isEnabled' => true,
-                            'permission' => 'ROLE_ADMIN',
-                        ],
+                            'permission' => 'ROLE_SUPER_AGENT_MANAGE_Mailboxes',
+                        ]
                     ],
                 ];
+
+                if ($helpdeskThemePath) {
+                    $navigationPanel['routes'] += [
+                        'name' => 'Branding',
+                        'link' => $router->generate('helpdesk_member_knowledgebase_theme'),
+                        'isActive' => false,
+                        'isEnabled' => true,
+                        'permission' => 'ROLE_ADMIN',
+                    ];
+                }
+                if ($helpdeskSpamPath) {
+                    $navigationPanel['routes'] += [
+                        'name' => 'Block Spam',
+                        'link' => $router->generate('helpdesk_member_knowledgebase_spam'),
+                        'isActive' => false,
+                        'isEnabled' => true,
+                        'permission' => 'ROLE_ADMIN',
+                    ];
+                }
                 break;
             case 'THEMES':
                 $enabled_bundles = $this->container->getParameter('kernel.bundles');
