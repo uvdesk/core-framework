@@ -651,8 +651,8 @@
                                                     <li data-action="print">Print Ticket</li>
 
                                                     {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}
-                                                        <li data-action="spam" data-index="5">Mark as Spam</li>
-                                                        <li data-action="closed" data-index="4">Mark as Closed</li>
+                                                        <li data-action="spam" data-index="6">Mark as Spam</li>
+                                                        <li data-action="closed" data-index="5">Mark as Closed</li>
                                                     {% endif %}
 
                                                     {% if user_service.isAccessAuthorized('ROLE_AGENT_DELETE_TICKET') %}
@@ -1101,10 +1101,10 @@
                                         <a class="create-new" href="{{path('prepare_response_action')}}" target="_blank" style="color: #2750C4">{{ 'Create New'|trans }}</a>
                                     </li>
                                     {% set preparedResponses = ticket_service.getManualWorkflow() %}
-                                    {% for preparedResponse in preparedResponses %}
+                                    {% for workflow in preparedResponses %}
                                         <li>
-                                            <a href="{{ path('helpdesk_apply_ticket_prepared_response') }}/{{ ticket.id }}/{{ preparedResponse.id }}">
-                                                {{ preparedResponse.name }}
+                                            <a href="{{ path('helpdesk_apply_ticket_prepared_response') }}/{{ ticket.id }}/{{ workflow.id }}">
+                                                {{ workflow.name }}
                                             </a>
                                         </li>
                                     {% endfor %}
@@ -1243,11 +1243,6 @@
                                         <li data-action="lock" data-id="1">{{ 'Unlock Thread'|trans }}</li>
                                     <% } else { %>
                                         <li data-action="lock" data-id="0">{{ 'Lock Thread'|trans }}</li>
-                                    <% } %>
-                                {% endif %}
-                                {% if user_service.isAccessAuthorized('ROLE_AGENT_CREATE_TASK') %}
-                                    <% if(!hasTask) { %>
-                                        <li data-action="mark">{{ 'Mark For Task'|trans }}</li>
                                     <% } %>
                                 {% endif %}
                             <% } %>
@@ -1670,6 +1665,7 @@
                                 app.appView.hideLoader();
                                 currentElement.removeAttr("disabled");
                                 if(response.alertClass == "success") {
+                                    console.log(response);
                                     app.appView.renderResponseAlert(response);
                                     $('.uv-aside-customer-info').html("<span>" + self.model.attributes.name + "</span><span>" + self.model.attributes.email + "</span><span>" + self.model.attributes.contactNumber + "</span><span class='uv-customize'></span>")
                                     self.backToInfo();
@@ -2147,7 +2143,15 @@
                 },
                 unrender : function(response) {
                     if(response.alertMessage != undefined) {
-                        threadCollection.remove(this.model);
+                        var self = this;
+                        {# threadCollection.models.remove(this.model); #}
+                        threadCollection.models = threadCollection.models.filter(thread => {
+                            if(thread.id == self.model.id) {
+                                return false;
+                            }
+
+                            return true;
+                        });
                         this.remove();
                         threadCollection.syncData();
                         app.appView.renderResponseAlert(response);
@@ -2257,21 +2261,7 @@
                         }
                     });
                 },
-                markForTask : function(e) {
-                    var element = Backbone.$(e.currentTarget);
-                    var maskTaskElement = this.$el.find('.uv-icon-marked-task');
-                    if(element.hasClass('marked')) {
-                        var index = threadIds.indexOf(this.model.id);
-                        if (index > -1)
-                            threadIds.splice(index, 1);
-                        element.removeClass('marked').text("{{ 'Mark for Task'|trans }}");
-                    } else {
-                        threadIds.push(this.model.id);
-                        element.addClass('marked').text("{{ 'Unmark for Task'|trans }}");
-                    }
-                    this.toggleCreateTaskBar();
-                    this.toggleThreadPropertyIcon()
-                },
+               
                 forwardThread : function(e) {
                     var element = Backbone.$(e.currentTarget);
                     tinymce.get('forward-area').setContent(this.model.attributes.reply);

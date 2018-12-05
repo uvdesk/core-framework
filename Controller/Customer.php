@@ -104,7 +104,7 @@ class Customer extends Controller
                     $user->setIsEnabled(isset($data['isActive']) ? 1 : 0);
                     $em->persist($user);
 
-                    
+                    // User Instance
                     $userInstance = $em->getRepository('UVDeskCoreBundle:UserInstance')->findOneBy(array('user' => $user->getId()));
                     $userInstance->setUser($user);
                     $userInstance->setIsActive(isset($data['isActive']) ? 1 : 0);
@@ -120,10 +120,8 @@ class Customer extends Controller
                         $fileName = $this->container->get('uvdesk.service')->getFileUploadManager()->upload($contentFile['profileImage']);
                         $userInstance->setProfileImagePath($fileName);
                     }
-                        
                     $em->persist($userInstance);
                     $em->flush();
-            
                     $user->addUserInstance($userInstance);
                     $em->persist($user);
                     $em->flush();
@@ -141,8 +139,45 @@ class Customer extends Controller
                     $this->addFlash('warning', 'Error ! User with same email is already exist.');
                 }
             } 
+        }elseif($request->getMethod() == "PUT"){
+            $content = json_decode($request->getContent(), true);
+            $userId  = $content['id'];
+            $user = $repository->findOneBy(['id' =>  $userId]);
+            if(!$user)
+                $this->noResultFound();
+
+            $checkUser = $em->getRepository('UVDeskCoreBundle:User')->findOneBy(array('email' => $content['email']));
+            $errorFlag = 0;
+
+            if($checkUser) {
+                if($checkUser->getId() != $userId)
+                    $errorFlag = 1;
+            }
+            if(!$errorFlag && 'hello@uvdesk.com' !== $user->getEmail()) {
+                    $name = explode(' ', $content['name']);
+                    $lastName = isset($name[1]) ? $name[1] : ' ';
+                    $user->setFirstName($name[0]);
+                    $user->setLastName($lastName);
+                    $user->setEmail($content['email']);
+                    $em->persist($user);
+
+                    //user Instance
+                    $userInstance = $em->getRepository('UVDeskCoreBundle:UserInstance')->findOneBy(array('user' => $user->getId()));
+                    if(isset($content['contactNumber'])){
+                        $userInstance->setContactNumber($content['contactNumber']);
+                    }
+                    $em->persist($userInstance);
+                    $em->flush();
+
+                    $json['alertClass']      = 'success';
+                    $json['alertMessage']    = 'Success ! Customer updated successfully.';
+            }else{
+                    $json['alertClass']      = 'error';
+                    $json['alertMessage']    = 'Error ! Customer with same email already exist.';      
+            }
+            return new Response(json_encode($json), 200, []);
         }
-        
+
         return $this->render('@UVDeskCore/Customers/updateSupportCustomer.html.twig', [
                 'user' => $user,
                 'errors' => json_encode([])

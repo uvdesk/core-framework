@@ -462,4 +462,24 @@ class UVDeskService
     {
         return headers_sent() ? true : false;
     }
+
+    public function convertStringToUrl($string)
+    {
+        return autolink($string);
+        
+        return(preg_replace(
+                    array(
+                        '/(?(?=<a[^>]*>.+<\/a>)
+                                (?:<a[^>]*>.+<\/a>)
+                                |
+                                ([^="\']?)((?:https?|ftp|bf2|):\/\/[^<> \n\r]+)
+                            )/iex',
+                        ),
+                    array(
+                        "stripslashes((strlen('\\2')>0?'\\1<a href=\"\\2\">\\2</a>\\3':'\\0'))",
+                        ),
+                        $string
+                    )
+                );
+    }
 }

@@ -109,7 +109,7 @@ helpdesk_member_add_ticket_thread:
     defaults: { ticketId: 0 }
 
 helpdesk_member_thread_xhr:
-    path:     /threads/ajax/{threadId}
+    path:     /threads/ajax/action/{threadId}
     controller: Webkul\UVDesk\CoreBundle\Controller\Thread::threadXHR
     defaults: { threadId: 0 }
 

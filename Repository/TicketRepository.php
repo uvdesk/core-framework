@@ -155,7 +155,6 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 }
             }
         }
-
         $qb->andwhere('t.customer = :customerId');
         $qb->setParameter('customerId', $currentUser->getId());
         $qb->andwhere('t.isTrashed != 1');
@@ -242,7 +241,9 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->where('customerInstance.supportRole = 4')
             ->andWhere("ticket.agent IS NULL OR agentInstance.supportRole != 4")
             ->andWhere('ticket.isTrashed = :isTrashed')->setParameter('isTrashed', isset($params['trashed']) ? true : false);
-
+        if($user->getRoles()[0] != 'ROLE_SUPER_ADMIN'){
+            $queryBuilder->andwhere('ticket.agent = '.$user->getId());
+        }
         if (!isset($params['sort'])) {
             $queryBuilder->orderBy('ticket.updatedAt', Criteria::DESC);
         }

@@ -15,4 +15,4 @@ services:
         resource: '../../PreparedResponse/Actions/*'
         arguments: ['@service_container', '@request_stack', '@doctrine.orm.entity_manager']
         tags:
-            - { name: uvdesk.automation.prepared_response.actions }
+            - { name: uvdesk.automations.prepared_response.actions }

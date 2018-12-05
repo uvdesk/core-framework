@@ -169,7 +169,6 @@ class TicketXHR extends Controller
             ];
             return new Response(json_encode($responseContent), 400, ['Content-Type' => 'application/json']);
         }
-
         // Update attribute
         switch ($requestContent['attribute']) {
             case 'agent':
@@ -218,9 +217,7 @@ class TicketXHR extends Controller
                 }
                 break;
             case 'status':
-                // $this->isAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS');
                 $ticketStatus = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findOneById((int) $requestContent['value']);
-
                 if (empty($ticketStatus)) {
                     // Selected ticket status does not exist
                     return new Response(json_encode([
