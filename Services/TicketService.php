@@ -171,12 +171,6 @@ class TicketService
         $thread->setCreatedAt(new \DateTime());
         $thread->setUpdatedAt(new \DateTime());
 
-        // when cc and bcc exist
-        if(isset($threadData['cc']))
-            $thread->setCc($threadData['cc']);
-        if(isset($threadData['bcc']))
-            $thread->setBcc($threadData['bcc']);
-
         foreach ($threadData as $property => $value) {
             if (!empty($value)) {
                 $callable = 'set' . ucwords($property);
