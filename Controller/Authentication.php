@@ -6,8 +6,10 @@ use Symfony\Component\Form\FormError;
 use Webkul\UVDesk\CoreBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Webkul\UVDesk\CoreBundle\Utils\TokenGenerator;
+use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Webkul\UVDesk\CoreBundle\Workflow\Events as CoreWorkflowEvents;
 
 class Authentication extends Controller
 {
@@ -47,9 +49,13 @@ class Authentication extends Controller
                     $user = $entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(array('email' => $form->getData()->getEmail()));
                   
                     if($user) {
-                        $request->getSession()->getFlashBag()->set(
-                            'success','Please check your mail for password update.'
-                        );
+                        // Trigger agent forgot password event
+                        $event = new GenericEvent(CoreWorkflowEvents\Agent\ForgotPassword::getId(), [
+                            'entity' => $user,
+                        ]);
+                        
+                        $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                        $request->getSession()->getFlashBag()->set('success','Please check your mail for password update.');
                         
                         return $this->redirect($this->generateUrl('helpdesk_member_update_account_credentials')."/".$form->getData()->getEmail());
                     } else {

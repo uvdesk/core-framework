@@ -17,7 +17,7 @@ helpdesk_member_ticket_collection_load_filter_options_xhr:
 
 helpdesk_member_ticket_collection_search_filter_options_xhr:
     path:     /tickets/search-filter-options
-    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::loadTicketCollectionSearchFilterOptions
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::loadTicketCollectionSearchFilterOptionsXHR
 
 # Ticket Resources
 helpdesk_member_ticket:
@@ -109,7 +109,7 @@ helpdesk_member_add_ticket_thread:
     defaults: { ticketId: 0 }
 
 helpdesk_member_thread_xhr:
-    path:     /threads/ajax/{threadId}
+    path:     /threads/ajax/action/{threadId}
     controller: Webkul\UVDesk\CoreBundle\Controller\Thread::threadXHR
     defaults: { threadId: 0 }
 
@@ -188,3 +188,9 @@ helpdesk_member_update_ticket_type:
     path:     /ticket-types/update/{ticketTypeId}
     controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::ticketType
     defaults: { panelId: 'productivity' }
+
+# Apply Prepared Response 
+helpdesk_member_ticket_prepared_response_xhr:
+    path:     /ticket/prepared-response/xhr/{ticketId}/{id}
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::applyTicketPreparedResponseXHR
+    defaults: { ticketId: 0, id: 0 }

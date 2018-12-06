@@ -4,6 +4,7 @@ namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class UpdateTeam extends WorkflowAction
@@ -31,5 +32,16 @@ class UpdateTeam extends WorkflowAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
+        if($entity instanceof Ticket) {
+            $subGroup = $entityManager->getRepository('UVDeskCoreBundle:SupportTeam')->find($value);
+            if($subGroup) {
+                $entity->setSupportTeam($subGroup);
+                $entityManager->persist($entity);
+                $entityManager->flush();
+            } else {
+                // User Sub Group Not Found. Disable Workflow/Prepared Response
+                //$this->disableEvent($event, $entity);
+            }
+        }
     }
 }

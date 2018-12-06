@@ -1,13 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
+namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Ticket;
 
 use Webkul\UVDesk\CoreBundle\Entity\Ticket;
-use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
 
-class UpdateStatus extends WorkflowAction
+class UpdateStatus extends PreparedResponseAction
 {
     public static function getId()
     {
@@ -39,9 +39,9 @@ class UpdateStatus extends WorkflowAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-
         if ($entity instanceof Ticket && !empty($value)) {
             $ticketStatus = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findOneById($value);
+
             $entity->setStatus($ticketStatus);
             $entityManager->persist($entity);
             $entityManager->flush();

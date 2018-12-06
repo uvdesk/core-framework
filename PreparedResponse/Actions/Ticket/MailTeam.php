@@ -1,22 +1,22 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
+namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Ticket;
 
-use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreBundle\Entity\Ticket;
-use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
 
-class MailGroup extends WorkflowAction
+class MailTeam extends PreparedResponseAction
 {
     public static function getId()
     {
-        return 'uvdesk.ticket.mail_group';
+        return 'uvdesk.ticket.mail_team';
     }
 
     public static function getDescription()
     {
-        return 'Mail to group';
+        return 'Mail to team';
     }
 
     public static function getFunctionalGroup()
@@ -35,20 +35,20 @@ class MailGroup extends WorkflowAction
             ];
         }, $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findAll());
 
-        $groupCollection = array_map(function ($supportGroup) {
+        $supportTeamCollection = array_map(function ($supportTeam) {
             return [
-                'id' => $supportGroup['id'],
-                'name' => $supportGroup['name'],
+                'id' => $supportTeam['id'],
+                'name' => $supportTeam['name'],
             ];
-        }, $container->get('user.service')->getSupportGroups());
+        }, $container->get('user.service')->getSupportTeams());
 
-        array_unshift($groupCollection, [
-            'id' => 'assignedGroup',
-            'name' => 'Assigned Group',
+        array_unshift($supportTeamCollection, [
+            'id' => 'assignedTeam',
+            'name' => 'Assigned Team',
         ]);
 
         return [
-            'partResults' => $groupCollection,
+            'partResults' => $supportTeamCollection,
             'templates' => $emailTemplateCollection,
         ];
     }
@@ -57,16 +57,15 @@ class MailGroup extends WorkflowAction
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         $emailTemplate = $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findOneById($value['value']);
-        
         if($entity instanceof Ticket && $emailTemplate) {
             $mailData = array();
             if($entity instanceof Ticket) {
-                $createThread = $container->get('ticket.service')->getCreateReply($entity->getId(),false);
+                $createThread = $container->get('ticket.service')->getCreateReply($entity->getId(), false);
                 $mailData['references'] = $createThread['messageId'];
             }
             $to = array();
-            foreach ($value['for'] as $grp) {
-                foreach ($container->get('user.service')->getUsersByGroupId( (($grp == 'assignedGroup' && $entity->getSupportGroup()) ? $object->getGroup()->getId() : $grp)) as $agent) {
+            foreach ($value['for'] as $subGrp) {
+                foreach ($container->get('user.service')->getUsersBySubGroupId((($subGrp == 'assignedTeam' && $entity->getSupportTeam()) ? $entity->getSupportTeam()->getId() : $subGrp)) as $agent) {
                     $to[] = $agent['email'];
                 }
             }
@@ -75,6 +74,7 @@ class MailGroup extends WorkflowAction
                 $placeHolderValues   = $container->get('email.service')->getTicketPlaceholderValues($entity);
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(),$placeHolderValues);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(),$placeHolderValues);
+
 
                 foreach($mailData['email'] as $email){
                     $messageId = $container->get('uvdesk.core.mailbox')->sendMail($subject, $message, $email);
@@ -85,6 +85,6 @@ class MailGroup extends WorkflowAction
                 // Email Template Not Found. Disable Workflow/Prepared Response
                 //$this->disableEvent($event, $object);
             }
-        }  
+        }
     }
 }

@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Criteria;
 use Webkul\UVDesk\CoreBundle\Entity\User;
 use Webkul\UVDesk\CoreBundle\Entity\Ticket;
 use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * TicketRepository
@@ -219,7 +220,8 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 supportTeam.name as teamName, 
                 priority, 
                 type.code as typeName, 
-                agent.id as agentId, 
+                agent.id as agentId,
+                agent.email as agentEmail,
                 agentInstance.profileImagePath as smallThumbnail, 
                 customer.id as customerId, 
                 customer.email as customerEmail, 
@@ -233,12 +235,17 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->leftJoin('ticket.supportGroup', 'supportGroup')
             ->leftJoin('ticket.supportTeam', 'supportTeam')
             ->leftJoin('ticket.priority', 'priority')
+            ->leftJoin('ticket.supportTags', 'supportTags')
             ->leftJoin('ticket.type', 'type')
             ->leftJoin('customer.userInstance', 'customerInstance')
             ->leftJoin('agent.userInstance', 'agentInstance')
             ->where('customerInstance.supportRole = 4')
             ->andWhere("ticket.agent IS NULL OR agentInstance.supportRole != 4")
             ->andWhere('ticket.isTrashed = :isTrashed')->setParameter('isTrashed', isset($params['trashed']) ? true : false);
+        
+        if ($user->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
+            $queryBuilder->andwhere('ticket.agent = ' . $user->getId());
+        }
 
         if (!isset($params['sort'])) {
             $queryBuilder->orderBy('ticket.updatedAt', Criteria::DESC);
@@ -253,7 +260,6 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 continue;
             }
 
-
             switch ($field) {
                 // case 'label':
                 //     $queryBuilder->leftJoin('t.ticketLabels', 'tl');
@@ -263,15 +269,15 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 case 'starred':
                     $queryBuilder->andWhere('ticket.isStarred = 1');
                     break;
-                // case 'search':
-                //     $queryBuilder->andwhere("ticket.subject LIKE :subject OR c.email LIKE :customerEmail OR CONCAT(cd.firstName,' ', cd.lastName) LIKE :customerName OR a.email LIKE :agentEmail OR CONCAT(ad.firstName,' ', ad.lastName) LIKE :agentName OR t.incrementId LIKE :ticketId");
-                //     $queryBuilder->setParameter('subject', '%'.urldecode($value).'%');
-                //     $queryBuilder->setParameter('customerName', '%'.urldecode($value).'%');
-                //     $queryBuilder->setParameter('customerEmail', '%'.urldecode($value).'%');
-                //     $queryBuilder->setParameter('agentName', '%'.urldecode($value).'%');
-                //     $queryBuilder->setParameter('agentEmail', '%'.urldecode($value).'%');
-                //     $queryBuilder->setParameter('ticketId', '%'.urldecode(trim($value)).'%');
-                //     break;
+                case 'search':
+                    $queryBuilder->andwhere("ticket.subject LIKE :subject OR ticket.id  LIKE :ticketId OR customer.email LIKE :customerEmail OR CONCAT(customer.firstName,' ', customer.lastName) LIKE :customerName OR agent.email LIKE :agentEmail OR CONCAT(agent.firstName,' ', agent.lastName) LIKE :agentName");
+                    $queryBuilder->setParameter('subject', '%'.urldecode($fieldValue).'%');
+                    $queryBuilder->setParameter('customerName', '%'.urldecode($fieldValue).'%');
+                    $queryBuilder->setParameter('customerEmail', '%'.urldecode($fieldValue).'%');
+                    $queryBuilder->setParameter('agentName', '%'.urldecode($fieldValue).'%');
+                    $queryBuilder->setParameter('agentEmail', '%'.urldecode($fieldValue).'%');
+                    $queryBuilder->setParameter('ticketId', '%'.urldecode(trim($fieldValue)).'%');
+                    break;
                 case 'unassigned':
                     $queryBuilder->andWhere("ticket.agent is NULL");
                     break;
@@ -296,64 +302,38 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 case 'customer':
                     $queryBuilder->andwhere('customer.id IN (:customerCollection)')->setParameter('customerCollection', explode(',', $fieldValue));
                     break;
-                // case 'group':
-                //     $queryBuilder->andwhere('gr.id IN (:groupIds)');
-                //     $queryBuilder->setParameter('groupIds', explode(',', $fieldValue));
-                //     break;
-                // case 'team':
-                //     $queryBuilder->andwhere("tSub.id In(:subGrpKeys)");
-                //     $queryBuilder->setParameter('subGrpKeys', explode(',', $fieldValue));
-                //     break;
-                // case 'tag':
-                //     $queryBuilder->leftJoin('t.tags', 'tg');
-                //     $queryBuilder->andwhere("tg.id In(:tagIds)");
-                //     $queryBuilder->setParameter('tagIds', explode(',', $fieldValue));
-                //     break;
-                // case 'mailbox':
-                //     $queryBuilder->leftJoin('t.mailbox', 'ml');
-                //     $queryBuilder->andwhere('ml.id IN (:mailboxIds)');
-                //     $queryBuilder->setParameter('mailboxIds', explode(',', $fieldValue));
-                //     break;
-                // case 'source':
-                //     $queryBuilder->andwhere('t.source IN (:sources)');
-                //     $queryBuilder->setParameter('sources', explode(',', $fieldValue));
-                //     break;
-                // case 'after':
-                //     $date = \DateTime::createFromFormat('d-m-Y H:i', $fieldValue.' 23:59');
-                //     if($date) {
-                //         $date = \DateTime::createFromFormat('d-m-Y H:i', $container->get('user.service')->convertTimezoneToServer($date, 'd-m-Y H:i'));
-                //         $queryBuilder->andwhere('t.createdAt > :afterDate');
-                //         $queryBuilder->setParameter('afterDate', $date);
-                //     }
-                //     break;
-                // case 'before':
-                //     $date = \DateTime::createFromFormat('d-m-Y H:i', $fieldValue.' 23:59');
-                //     if($date) {
-                //         $date = \DateTime::createFromFormat('d-m-Y H:i', $container->get('user.service')->convertTimezoneToServer($date, 'd-m-Y H:i'));
-                //         $queryBuilder->andwhere('t.createdAt < :beforeDate');
-                //         $queryBuilder->setParameter('beforeDate', $date);
-                //     }
-                //     break;
-                // case 'custom':
-                //     $queryBuilder->leftJoin('t.customFieldValues', 'tCfV');
-                //     $columnSeparator = '|';
-                //     $indexValueSeparator = '_';
-                //     $customFields = explode($columnSeparator, $fieldValue);
-                //     $query = [];
-                //     foreach ($customFields as $key => $customField) {
-                //         $idValue = explode($indexValueSeparator, $customField);
-                //         if(isset($idValue[1])){
-                //             $query[] = '(tCfV.ticketCustomFieldsValues = :customId'. $key .' AND (tCfV.value LIKE :customValue'. $key .' OR tCfV.ticketCustomFieldValueValues IN (:customValueId'. $key .')))';
-                //             $queryBuilder->setParameter('customId'.$key , $idValue[0]);
-                //             $queryBuilder->setParameter('customValue'.$key , '%'.$idValue[1].'%');
-                //             $queryBuilder->setParameter('customValueId'.$key , explode(',', $idValue[1]));
-                //         }
-                //     }
-
-                //     if($query) {
-                //         $queryBuilder->andwhere(implode(' OR ', $query));
-                //     }
-                //     break;
+                case 'group':
+                    $queryBuilder->andwhere('supportGroup.id IN (:groupIds)');
+                    $queryBuilder->setParameter('groupIds', explode(',', $fieldValue));
+                    break;
+                case 'team':
+                    $queryBuilder->andwhere("supportTeam.id In(:subGrpKeys)");
+                    $queryBuilder->setParameter('subGrpKeys', explode(',', $fieldValue));
+                    break;
+                case 'tag':
+                    $queryBuilder->andwhere("supportTags.id In(:tagIds)");
+                    $queryBuilder->setParameter('tagIds', explode(',', $fieldValue));
+                    break;
+                case 'source':
+                    $queryBuilder->andwhere('ticket.source IN (:sources)');
+                    $queryBuilder->setParameter('sources', explode(',', $fieldValue));
+                    break;
+                case 'after':
+                    $date = \DateTime::createFromFormat('d-m-Y H:i', $fieldValue.' 23:59');
+                    if($date) {
+                       // $date = \DateTime::createFromFormat('d-m-Y H:i', $this->container->get('user.service')->convertTimezoneToServer($date, 'd-m-Y H:i'));
+                        $queryBuilder->andwhere('ticket.createdAt > :afterDate');
+                        $queryBuilder->setParameter('afterDate', $date);
+                    }
+                    break;
+                case 'before':
+                    $date = \DateTime::createFromFormat('d-m-Y H:i', $fieldValue.' 23:59');
+                    if($date) {
+                        //$date = \DateTime::createFromFormat('d-m-Y H:i', $container->get('user.service')->convertTimezoneToServer($date, 'd-m-Y H:i'));
+                        $queryBuilder->andwhere('ticket.createdAt < :beforeDate');
+                        $queryBuilder->setParameter('beforeDate', $date);
+                    }
+                    break;
                 default:
                     break;
             }

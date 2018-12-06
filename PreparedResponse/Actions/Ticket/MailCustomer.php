@@ -1,14 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
+namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Ticket;
 
 use Webkul\UVDesk\CoreBundle\Entity as CoreEntities;
-use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
-use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
 
-class MailCustomer extends WorkflowAction
+class MailCustomer extends PreparedResponseAction
 {
     public static function getId()
     {
@@ -45,15 +44,14 @@ class MailCustomer extends WorkflowAction
 
         switch (true) {
             case $entity instanceof CoreEntities\Ticket:
-                $currentThread = $entity->currentThread;
-                $createdThread = $entity->createdThread;
+                // $currentThread = $entity->currentThread;
+                // $createdThread = $entity->createdThread;
 
                 $emailTemplate = $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findOneById($value);
 
                 if (empty($emailTemplate)) {
                     break;
                 }
-
                 $ticketPlaceholders = $container->get('email.service')->getTicketPlaceholderValues($entity);
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $ticketPlaceholders);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $ticketPlaceholders);
@@ -62,11 +60,10 @@ class MailCustomer extends WorkflowAction
                 // if (null != $currentThread->getMessageId()) {
                 //     $emailHeaders['In-Reply-To'] = $currentThread->getMessageId();
                 // }
-                
+
                 $messageId = $container->get('uvdesk.core.mailbox')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $emailHeaders, $entity->getMailboxEmail());
-                
                 // if (!empty($messageId)) {
-                //      $createdThread->setMessageId($messageId);
+                //     $createdThread->setMessageId($messageId);
 
                 //     $entityManager->persist($createdThread);
                 //     $entityManager->flush();
