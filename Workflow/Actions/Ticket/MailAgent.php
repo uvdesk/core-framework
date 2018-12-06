@@ -4,6 +4,7 @@ namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class MailAgent extends WorkflowAction
@@ -55,5 +56,60 @@ class MailAgent extends WorkflowAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
+        if($entity instanceof Ticket) {
+            $emailTemplate = $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findOneById($value['value']);
+            $emails = self::getAgentMails($value['for'], (($ticketAgent = $entity->getAgent()) ? $ticketAgent->getEmail() : ''), $container);
+           
+            if($emails && $emailTemplate) {
+                $mailData = array();
+                if($entity instanceof Ticket) {
+                    $createThread = $container->get('ticket.service')->getCreateReply($entity->getId(), false);
+                    $mailData['references'] = $createThread['messageId'];
+                }
+                $mailData['email'] = $emails;
+                $placeHolderValues   = $container->get('email.service')->getTicketPlaceholderValues($entity);
+                $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(),$placeHolderValues);
+                $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(),$placeHolderValues);
+
+                foreach($mailData['email'] as $email){
+                    $messageId = $container->get('uvdesk.core.mailbox')->sendMail($subject, $message, $email);
+                }
+            } else {
+                // Email Template/Emails Not Found. Disable Workflow/Prepared Response
+                // $this->disableEvent($event, $entity);
+            }
+        } 
+    }
+
+    public static function getAgentMails($for, $currentEmails, $container)
+    {
+        $entityManager = $container->get('doctrine.orm.entity_manager');
+        $agentMails = [];
+        foreach ($for as $agent) {
+            if($agent == 'assignedAgent'){
+                if(is_array($currentEmails))
+                    $agentMails = array_merge($agentMails, $currentEmails);
+                else
+                    $agentMails[] = $currentEmails;
+            }elseif($agent == 'responsePerforming' && is_object($currentUser = $this->container->get('security.tokenstorage')->getToken()->getUser())) //add current user email if any
+                $agentMails[] = $currentUser->getEmail();
+            
+            elseif($agent == 'baseAgent'){ //add selected user email if any
+                if(is_array($currentEmails))
+                    $agentMails = array_merge($agentMails, $currentEmails);
+                else
+                    $agentMails[] = $currentEmails;
+            }elseif((int)$agent){
+                $qb = $entityManager->createQueryBuilder();
+                $email = $qb->select('u.email')->from('UVDeskCoreBundle:User', 'u')
+                            ->andwhere("u.id = :userId")
+                            ->setParameter('userId', $agent)
+                            ->getQuery()->getResult()
+                        ;
+                if(isset($email[0]['email']))
+                    $agentMails[] = $email[0]['email'];
+            }
+        }
+        return array_filter($agentMails);
     }
 }

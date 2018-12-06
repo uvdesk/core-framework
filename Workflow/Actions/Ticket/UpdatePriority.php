@@ -4,6 +4,7 @@ namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class UpdatePriority extends WorkflowAction
@@ -38,5 +39,11 @@ class UpdatePriority extends WorkflowAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
+        if( ($entity instanceof Ticket) && $value) {
+            $priority = $entityManager->getRepository('UVDeskCoreBundle:TicketPriority')->find($value);
+            $entity->setPriority($priority);
+            $entityManager->persist($entity);
+            $entityManager->flush();
+        }
     }
 }

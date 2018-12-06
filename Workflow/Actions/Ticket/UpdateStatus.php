@@ -42,7 +42,6 @@ class UpdateStatus extends WorkflowAction
 
         if ($entity instanceof Ticket && !empty($value)) {
             $ticketStatus = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findOneById($value);
-
             $entity->setStatus($ticketStatus);
             $entityManager->persist($entity);
             $entityManager->flush();

@@ -157,7 +157,7 @@ class TicketService
     public function createThread(Ticket $ticket, array $threadData)
     {
         $threadData['isLocked'] = 0;
-        
+
         if ('forward' === $threadData['threadType']) {
             $threadData['replyTo'] = $threadData['to'];
         }
@@ -181,7 +181,7 @@ class TicketService
                 }
             }
         }
-
+        
         // Update ticket reference ids is thread message id is defined
         if (null != $thread->getMessageId() && false === strpos($ticket->getReferenceIds(), $thread->getMessageId())) {
             $updatedReferenceIds = $ticket->getReferenceIds() . ' ' . $thread->getMessageId();            
@@ -207,7 +207,7 @@ class TicketService
 
             $this->entityManager->persist($ticket);
         }
-
+        
         $ticket->currentThread = $this->entityManager->getRepository('UVDeskCoreBundle:Thread')->getTicketCurrentThread($ticket);
         
         $this->entityManager->persist($thread);
@@ -322,9 +322,9 @@ class TicketService
 
         // Add reply count filter to base query
         if (array_key_exists('repliesLess', $params) || array_key_exists('repliesMore', $params)) {
-            $baseQuery->leftJoin('t.threads', 'th')
+            $baseQuery->leftJoin('ticket.threads', 'th')
                 ->andWhere('th.threadType = :threadType')->setParameter('threadType', 'reply')
-                ->groupBy('t.id');
+                ->groupBy('ticket.id');
 
             if (array_key_exists('repliesLess', $params)) {
                 $baseQuery->andHaving('count(th.id) < :threadValueLesser')->setParameter('threadValueLesser', intval($params['repliesLess']));
@@ -387,7 +387,7 @@ class TicketService
             $totalTicketReplies = (int) $ticketThreadCountQuery->getQuery()->getSingleScalarResult();
             // $ticketHasAttachments = (bool) (int) $ticketAttachmentCountQuery->getQuery()->getSingleScalarResult();
             $ticketHasAttachments = false;
-
+          
             $ticketResponse = [
                 'id' => $ticket['id'],
                 'subject' => $ticket['subject'],
@@ -397,7 +397,7 @@ class TicketService
                 'source' => $ticket['source'],
                 'group' => $ticketDetails['groupName'],
                 'team' => $ticketDetails['teamName'],
-                'priority' => $ticket['priority']['description'],
+                'priority' => $ticket['priority'],
                 'type' => $ticketDetails['typeName'],
                 'timestamp' => $ticket['createdAt']->getTimestamp(),
                 'formatedCreatedAt' => $ticket['createdAt']->format('d-m-Y h:ia'),
@@ -1036,6 +1036,39 @@ class TicketService
         $result = $qb->getQuery()->getResult();
         
         return $result ? $result : [];
+    }
+
+    public function getManualWorkflow()
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('DISTINCT mw')->from('UVDeskAutomationBundle:PreparedResponses', 'mw');
+        $qb->andwhere('mw.status = 1');
+        
+        return $qb->getQuery()->getResult();
+    }
+
+    public function getPriorities()
+    {
+        static $priorities;
+        if (null !== $priorities)
+            return $priorities;
+
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('tp')->from('UVDeskCoreBundle:TicketPriority', 'tp');
+
+        return $priorities = $qb->getQuery()->getArrayResult();
+    }
+
+    public function getTicketLastThread($ticketId)
+    {
+        $qb = $this->em->createQueryBuilder();
+        $qb->select("th")->from('UVDeskCoreBundle:Thread', 'th')
+                ->leftJoin('th.ticket','t')
+                ->andWhere('t.id = :ticketId')
+                ->setParameter('ticketId',$ticketId)
+                ->orderBy('th.id', 'DESC');
+
+        return $qb->getQuery()->setMaxResults(1)->getSingleResult();
     }
 }
 

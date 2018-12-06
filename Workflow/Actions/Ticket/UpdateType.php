@@ -4,6 +4,7 @@ namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class UpdateType extends WorkflowAction
@@ -38,5 +39,16 @@ class UpdateType extends WorkflowAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
+        if($entity instanceof Ticket && $value) {
+            $type = $entityManager->getRepository('UVDeskCoreBundle:TicketType')->find($value);
+            if($type) {
+                $entity->setType($type);
+                $entityManager->persist($entity);
+                $entityManager->flush();
+            } else {
+                // Ticket Type Not Found. Disable Workflow/Prepared Response
+                // $this->disableEvent($event, $entity);
+            }
+        }
     }
 }

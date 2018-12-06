@@ -4,6 +4,7 @@ namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class UpdateAgent extends WorkflowAction
@@ -43,5 +44,24 @@ class UpdateAgent extends WorkflowAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
+        if($entity instanceof Ticket) {
+            if ($value == 'responsePerforming' && is_object($currentUser = $container->get('security.token_storage')->getToken()->getUser())) {
+                $agent = $currentUser;
+            } else {
+                $agent = $entityManager->getRepository('UVDeskCoreBundle:User')->find($value);
+                if ($agent) {
+                    $agent = $entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(array('email' => $agent->getEmail()));
+                }
+            }
+            if ($agent) {
+                if($entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(array('id' => $agent->getId()))) {
+                    $entity->setAgent($agent);
+                    $entityManager->persist($entity);
+                    $entityManager->flush();
+                }
+            } else {
+                // Agent Not Found. Disable Workflow/Prepared Response
+            }
+        }
     }
 }

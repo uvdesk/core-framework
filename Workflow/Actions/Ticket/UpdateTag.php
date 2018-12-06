@@ -4,6 +4,7 @@ namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class UpdateTag extends WorkflowAction
@@ -38,5 +39,26 @@ class UpdateTag extends WorkflowAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
+        if($entity instanceof Ticket) {
+            $isAlreadyAdded = 0;
+            $tags = $container->get('ticket.service')->getTicketTagsById($entity->getId());
+            if(is_array($tags)) {
+                foreach ($tags as $tag) {
+                    if($tag['id'] == $value)
+                        $isAlreadyAdded = 1;
+                }
+            }
+            if(!$isAlreadyAdded) {
+                $tag = $entityManager->getRepository('UVDeskCoreBundle:Tag')->find($value);
+                if($tag) {
+                    $entity->addSupportTag($tag);
+                    $entityManager->persist($entity);
+                    $entityManager->flush();
+                } else {
+                    // Ticket Tag Not Found. Disable Workflow/Prepared Response
+                    //$this->disableEvent($event, $object);
+                }
+            }
+        }
     }
 }

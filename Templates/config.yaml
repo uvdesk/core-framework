@@ -1,6 +1,6 @@
 parameters:
     app_locales: en|fr|it
-
+    
     # Default Assets
     assets_default_agent_profile_image_path: 'bundles/uvdeskcore/images/uv-avatar-batman.png'
     assets_default_customer_profile_image_path: 'bundles/uvdeskcore/images/uv-avatar-ironman.png'
@@ -8,6 +8,11 @@ parameters:
 
 uvdesk:
     site_url: localhost
+    site_path:
+        member_prefix: member
+        knowledgebase_prefix: ~
+        knowledgebase_customer_prefix: customer
+    
     upload_manager:
         id: uvdesk.core.fs.upload.manager
     

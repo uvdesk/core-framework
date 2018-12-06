@@ -4,6 +4,7 @@ namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Customer;
 
 use Webkul\UVDesk\CoreBundle\Entity as CoreEntities;
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
+use Webkul\UVDesk\CoreBundle\Entity\Ticket;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 

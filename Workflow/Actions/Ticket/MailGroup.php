@@ -4,6 +4,7 @@ namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class MailGroup extends WorkflowAction
@@ -55,5 +56,35 @@ class MailGroup extends WorkflowAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
+        $emailTemplate = $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findOneById($value['value']);
+        
+        if($entity instanceof Ticket && $emailTemplate) {
+            $mailData = array();
+            if($entity instanceof Ticket) {
+                $createThread = $container->get('ticket.service')->getCreateReply($entity->getId(),false);
+                $mailData['references'] = $createThread['messageId'];
+            }
+            $to = array();
+            foreach ($value['for'] as $grp) {
+                foreach ($container->get('user.service')->getUsersByGroupId( (($grp == 'assignedGroup' && $entity->getSupportGroup()) ? $object->getGroup()->getId() : $grp)) as $agent) {
+                    $to[] = $agent['email'];
+                }
+            }
+            if(count($to)) {
+                $mailData['email'] = $to;
+                $placeHolderValues   = $container->get('email.service')->getTicketPlaceholderValues($entity);
+                $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(),$placeHolderValues);
+                $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(),$placeHolderValues);
+
+                foreach($mailData['email'] as $email){
+                    $messageId = $container->get('uvdesk.core.mailbox')->sendMail($subject, $message, $email);
+                }
+            }
+        } else {
+            if (!$emailTemplate) {
+                // Email Template Not Found. Disable Workflow/Prepared Response
+                //$this->disableEvent($event, $object);
+            }
+        }  
     }
 }

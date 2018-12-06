@@ -5,6 +5,7 @@ namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
 use Webkul\UVDesk\CoreBundle\Entity as CoreEntities;
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class MailCustomer extends WorkflowAction
@@ -58,18 +59,18 @@ class MailCustomer extends WorkflowAction
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $ticketPlaceholders);
 
                 $emailHeaders = ['References' => $entity->getReferenceIds()];
-                if (null != $currentThread->getMessageId()) {
-                    $emailHeaders['In-Reply-To'] = $currentThread->getMessageId();
-                }
+                // if (null != $currentThread->getMessageId()) {
+                //     $emailHeaders['In-Reply-To'] = $currentThread->getMessageId();
+                // }
                 
                 $messageId = $container->get('uvdesk.core.mailbox')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $emailHeaders, $entity->getMailboxEmail());
                 
-                if (!empty($messageId)) {
-                    $createdThread->setMessageId($messageId);
+                // if (!empty($messageId)) {
+                //      $createdThread->setMessageId($messageId);
 
-                    $entityManager->persist($createdThread);
-                    $entityManager->flush();
-                }
+                //     $entityManager->persist($createdThread);
+                //     $entityManager->flush();
+                // }
                 break;
             default:
                 break;

@@ -169,7 +169,7 @@ class UserService
     public function createUserInstance($email, $name, SupportRole $role, array $extras = [])
     {
         $user = $this->entityManager->getRepository('UVDeskCoreBundle:User')->findOneByEmail($email) ?: new User();
-
+        
         if (null == $user->getId()) {
             $name = explode(' ', trim($name));
             
@@ -346,41 +346,36 @@ class UserService
     public function getCustomersPartial(Request $request = null)
     {
         $qb = $this->entityManager->createQueryBuilder();
-
-        if($this->getCurrentUser()->getRole() == "ROLE_AGENT" && $this->getCurrentUser()->detail['agent']->getTicketView() != UserData::GLOBAL_ACCESS) {
-            $qb->from('UVDeskCoreBundle:Ticket', 't')
-                ->leftJoin('t.customer', 'c');
-
-            $this->entityManager->getRepository('WebkulCoreBundle:Ticket')->addPermissionFilter($qb, $this->container, false);
+        
+        if ($this->getCurrentUser()->getCustomerInstance()->getSupportRole()->getCode() == "ROLE_AGENT") {
+            $qb->from('UVDeskCoreBundle:Ticket', 't')->leftJoin('t.customer', 'u');
+            $this->entityManager->getRepository('UVDeskCoreBundle:Ticket')->addPermissionFilter($qb, $this->container, false);
         } else {
-            $qb->from('WebkulUserBundle:User', 'c');
+            $qb->from('UVDeskCoreBundle:User', 'u');
         }
 
-        $qb->select("DISTINCT c.id,CONCAT(userInstance.firstName,' ', userInstance.lastName) AS name, c.profileImage as smallThumbnail ")
-                ->leftJoin('c.data', 'userInstance')
-                ->andwhere('userInstance.companyId = :userCompanyId')
-                ->andwhere('userInstance.userRole = :roles')
-                ->setParameter('roles', 4)
-                ->setParameter('userCompanyId', $this->getCompany()->getId())
-                ->orderBy('name','ASC');
-
-        if($request) {
-            if($request->query->get('query') && $this->getCompany() && $this->getCompany()->getId() !== 1) {
-                $qb->andwhere("CONCAT(userInstance.firstName,' ', userInstance.lastName) LIKE :customerName OR c.email LIKE :customerName");
+        $qb->select("DISTINCT u.id,CONCAT(u.firstName,' ', u.lastName) AS name, userInstance.profileImagePath as smallThumbnail ")
+            ->leftJoin('u.userInstance', 'userInstance')
+            ->andwhere('userInstance.supportRole = :roles')
+            ->setParameter('roles', 4)
+            ->orderBy('name','ASC');
+        
+        if ($request) {
+            if ($request->query->get('query')) {
+                $qb->andwhere("CONCAT(u.firstName,' ', u.lastName) LIKE :customerName OR u.email LIKE :customerName");
             } else {
-                $qb->andwhere("CONCAT(userInstance.firstName,' ', userInstance.lastName) LIKE :customerName");
+                $qb->andwhere("CONCAT(u.firstName,' ', u.lastName) LIKE :customerName");
             }
-            $qb->setParameter('customerName', '%'.urldecode($request->query->get('query')).'%');
-            $qb->andwhere("c.id NOT IN (:ids)");
-            $qb->setParameter('ids', explode(',',urldecode($request->query->get('not'))));
+            
+            $qb->setParameter('customerName', '%'.urldecode($request->query->get('query')).'%')
+                ->andwhere("u.id NOT IN (:ids)")
+                ->setParameter('ids', explode(',',urldecode($request->query->get('not'))));
         }
 
         $query = $qb->getQuery();
-
         // $query->useResultCache(true, 3600, 'customer_list_'.$this->getCompany()->getId());
 
-        $result = $query->getScalarResult();
-        return $result;
+        return $query->getScalarResult();
     }
 
     public function getCustomersCount()

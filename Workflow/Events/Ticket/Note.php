@@ -17,7 +17,6 @@ class Note extends WorkflowEvent
     {
         return 'Note Added';
     }
-
     public static function getFunctionalGroup()
     {
         return FunctionalGroup::TICKET;
