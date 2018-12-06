@@ -549,8 +549,8 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 ->andwhere('tp.code = :codeValue')
                 ->setParameter('codeValue', $code);
                 if($id != null){
-                    $qb->andwhere('tp.id = :id');
-                    $qb->setParameter('id', !$id);
+                    $qb->andwhere('tp.id != :id');
+                    $qb->setParameter('id', $id);
                 }
         return $qb->getQuery()->getResult() ? true : false;
     }
