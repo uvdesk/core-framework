@@ -1,13 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
+namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Ticket;
 
-use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreBundle\Entity\Ticket;
-use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
 
-class UpdateAgent extends WorkflowAction
+class UpdateAgent extends PreparedResponseAction
 {
     public static function getId()
     {

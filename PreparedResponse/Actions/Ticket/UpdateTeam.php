@@ -1,22 +1,22 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
+namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Ticket;
 
-use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreBundle\Entity\Ticket;
-use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
 
-class UpdateGroup extends WorkflowAction
+class UpdateTeam extends PreparedResponseAction
 {
     public static function getId()
     {
-        return 'uvdesk.ticket.assign_group';
+        return 'uvdesk.ticket.assign_team';
     }
 
     public static function getDescription()
     {
-        return 'Assign to group';
+        return 'Assign to team';
     }
 
     public static function getFunctionalGroup()
@@ -26,21 +26,21 @@ class UpdateGroup extends WorkflowAction
 
     public static function getOptions(ContainerInterface $container)
     {
-        return $container->get('user.service')->getSupportGroups();
+        return $container->get('user.service')->getSupportTeams();
     }
 
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         if($entity instanceof Ticket) {
-            $group = $entityManager->getRepository('UVDeskCoreBundle:SupportGroup')->find($value);
-            if($group) {
-                $entity->setSupportGroup($group);
+            $subGroup = $entityManager->getRepository('UVDeskCoreBundle:SupportTeam')->find($value);
+            if($subGroup) {
+                $entity->setSupportTeam($subGroup);
                 $entityManager->persist($entity);
                 $entityManager->flush();
             } else {
-                // User Group Not Found. Disable Workflow/Prepared Response
-               // $this->disableEvent($event, $entity);
+                // User Sub Group Not Found. Disable Workflow/Prepared Response
+                //$this->disableEvent($event, $entity);
             }
         }
     }

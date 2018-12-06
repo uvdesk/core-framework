@@ -1,22 +1,22 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
+namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Ticket;
 
-use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreBundle\Entity\Ticket;
-use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
 
-class Delete extends WorkflowAction
+class MarkSpam extends PreparedResponseAction
 {
     public static function getId()
     {
-        return 'uvdesk.ticket.delete';
+        return 'uvdesk.ticket.mark_spam';
     }
 
     public static function getDescription()
     {
-        return 'Delete Ticket';
+        return 'Mark Spam';
     }
 
     public static function getFunctionalGroup()
@@ -33,7 +33,9 @@ class Delete extends WorkflowAction
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         if($entity instanceof Ticket) {
-            $entityManager->remove($entity);
+            $status = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->find(6);
+            $entity->setStatus($status);
+            $entityManager->persist($entity);
             $entityManager->flush();
         }
     }

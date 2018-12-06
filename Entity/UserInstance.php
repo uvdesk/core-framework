@@ -73,6 +73,11 @@ class UserInstance
     private $ticketAccessLevel;
 
     /**
+     * @var integer
+     */
+    private $defaultFiltering;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      */
     private $userSavedReplies;
@@ -427,6 +432,29 @@ class UserInstance
     public function getTicketAccessLevel()
     {
         return $this->ticketAccessLevel;
+    }
+
+    /**
+     * Set defaultFiltering
+     *
+     * @param integer $defaultFiltering
+     * @return UserInstance
+     */
+    public function setDefaultFiltering($defaultFiltering)
+    {
+        $this->defaultFiltering = $defaultFiltering;
+
+        return $this;
+    }
+
+    /**
+     * Get defaultFiltering
+     *
+     * @return integer 
+     */
+    public function getDefaultFiltering()
+    {
+        return $this->defaultFiltering;
     }
 
     /**

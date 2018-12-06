@@ -4,9 +4,11 @@ namespace Webkul\UVDesk\CoreBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Webkul\UVDesk\CoreBundle\Utils\HTMLFilter;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Webkul\UVDesk\CoreBundle\Workflow\Events as CoreWorkflowEvents;
 
 class Thread extends Controller
 {
@@ -58,9 +60,18 @@ class Thread extends Controller
             'attachments' => $request->files->get('attachments')
         ];
         
-        if(isset($params['to']))
+        if (isset($params['to'])) {
             $threadDetails['to'] = $params['to'];
+        }
         
+        if (isset($params['cc'])) {
+            $threadDetails['cc'] = $params['cc'];
+        }
+
+        if (isset($params['bcc'])) {
+            $threadDetails['bcc'] = $params['bcc'];
+        }
+
         // Create Thread
         $thread = $this->get('ticket.service')->createThread($ticket, $threadDetails);
         // $this->addFlash('success', ucwords($params['threadType']) . " added successfully.");
@@ -69,8 +80,8 @@ class Thread extends Controller
         // @TODO: Trigger Thread Created Event
         
         // Trigger agent reply event
-        $event = new GenericEvent('uvdesk.ticket.agent_reply', [
-            'entity' => $ticket,
+        $event = new GenericEvent(CoreWorkflowEvents\Ticket\AgentReply::getId(), [
+            'entity' =>  $ticket,
         ]);
       
         $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
@@ -79,7 +90,7 @@ class Thread extends Controller
         $updateTicketToStatus = !empty($params['status']) ? (trim($params['status']) ?: null) : null;
        
         if (!empty($updateTicketToStatus) && $this->get('user.service')->isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS')) {
-            $ticketStatus = $em->getRepository('UVDeskCoreBundle:TicketStatus')->findOneById($updateTicketToStatus);
+            $ticketStatus = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findOneById($updateTicketToStatus);
 
             if (!empty($ticketStatus) && $ticketStatus->getId() === $ticket->getStatus()->getId()) {
                 $ticket->setStatus($ticketStatus);
@@ -96,6 +107,96 @@ class Thread extends Controller
             return $this->redirect($this->generateUrl('helpdesk_member_ticket_collection'));
         }
         
+        $request->getSession()->getFlashBag()->set('success', ('Success! Reply has been added successfully'));
         return $this->redirect($this->generateUrl('helpdesk_member_ticket', ['ticketId' => $ticket->getId()]));
+    }
+
+    public function updateThreadXHR(Request $request)
+    {
+        $json = [];
+        $em = $this->getDoctrine()->getManager();
+        $content = json_decode($request->getContent(), true);
+        
+        if ($request->getMethod() == "PUT") {
+            // $this->isAuthorized('ROLE_AGENT_EDIT_THREAD_NOTE');
+            if (str_replace(' ','',str_replace('&nbsp;','',trim(strip_tags($content['reply'], '<img>')))) != "") {
+                $htmlFilter = new HTMLFilter();
+                $thread = $em->getRepository('UVDeskCoreBundle:Thread')->find($request->attributes->get('threadId'));
+                $thread->setMessage(autolink($htmlFilter->HTMLFilter($content['reply'], '')));
+
+                $em->persist($thread);
+                $em->flush();
+                
+                $ticket = $thread->getTicket();
+                $ticket->currentThread = $thread;
+
+                // Trigger agent reply event
+                $event = new GenericEvent(CoreWorkflowEvents\Ticket\ThreadUpdate::getId(), [
+                    'entity' =>  $ticket,
+                ]);
+
+                $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+
+                $json['alertMessage'] = 'Success ! Thread updated successfully.';
+                $json['alertClass'] = 'success';
+            } else {
+                $json['alertMessage'] = 'Error ! Reply field can not be blank.';
+                $json['alertClass'] = 'error';
+            }
+        }  
+
+        return new Response(json_encode($json), 200, ['Content-Type' => 'application/json']);
+    }
+
+    public function threadXHR(Request $request)
+    {
+        $json = array();
+        $content = json_decode($request->getContent(), true);
+        $em = $this->getDoctrine()->getManager();
+        
+        if ($request->getMethod() == "DELETE") {
+            $thread = $em->getRepository('UVDeskCoreBundle:Thread')->findOneBy(array('id' => $request->attributes->get('threadId'), 'ticket' => $content['ticketId']));
+            
+            if ($thread) {
+                // Trigger thread deleted event
+                //  $event = new GenericEvent(CoreWorkflowEvents\Ticket\ThreadUpdate::getId(), [
+                //     'entity' =>  $ticket,
+                // ]);
+                // $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+
+                $em->remove($thread);
+                $em->flush();
+                $json['alertClass'] = 'success';
+                $json['alertMessage'] = 'Success ! Thread removed successfully.';
+            } else {
+                $json['alertClass'] = 'danger';
+                $json['alertMessage'] = 'Error ! Invalid thread.';
+            }
+        } elseif ($request->getMethod() == "PATCH") {
+            $thread = $em->getRepository('UVDeskCoreBundle:Thread')->findOneBy(array('id' => $request->attributes->get('threadId'), 'ticket' => $content['ticketId']));
+
+            if ($thread) {
+                if ($content['updateType'] == 'lock') { 
+                    $thread->setIsLocked($content['isLocked']);
+                    $em->persist($thread);
+                    $em->flush();
+                    
+                    $json['alertMessage'] = $content['isLocked'] ? 'Success ! Thread locked successfully.' : 'Success ! Thread unlocked successfully.';
+                    $json['alertClass'] = 'success';
+                } elseif ($content['updateType'] == 'bookmark') {
+                    $thread->setIsBookmarked($content['bookmark']);
+                    $em->persist($thread);
+                    $em->flush();
+
+                    $json['alertMessage'] = $content['bookmark'] ? 'Success ! Thread pinned successfully.' : 'Success ! unpinned removed successfully.';
+                    $json['alertClass'] = 'success';
+                }
+            } else {
+                $json['alertClass'] = 'danger';
+                $json['alertMessage'] = 'Error ! Invalid thread.';
+            }
+        }
+
+        return new Response(json_encode($json), 200, ['Content-Type' => 'application/json']);
     }
 }

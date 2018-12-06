@@ -1,13 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
+namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Ticket;
 
-use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreBundle\Entity\Ticket;
-use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
 
-class MailAgent extends WorkflowAction
+class MailAgent extends PreparedResponseAction
 {
     public static function getId()
     {
@@ -56,6 +56,7 @@ class MailAgent extends WorkflowAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
+        
         if($entity instanceof Ticket) {
             $emailTemplate = $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findOneById($value['value']);
             $emails = self::getAgentMails($value['for'], (($ticketAgent = $entity->getAgent()) ? $ticketAgent->getEmail() : ''), $container);
@@ -67,6 +68,7 @@ class MailAgent extends WorkflowAction
                     $mailData['references'] = $createThread['messageId'];
                 }
                 $mailData['email'] = $emails;
+                
                 $placeHolderValues   = $container->get('email.service')->getTicketPlaceholderValues($entity);
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(),$placeHolderValues);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(),$placeHolderValues);
@@ -78,7 +80,8 @@ class MailAgent extends WorkflowAction
                 // Email Template/Emails Not Found. Disable Workflow/Prepared Response
                 // $this->disableEvent($event, $entity);
             }
-        } 
+        }
+
     }
 
     public static function getAgentMails($for, $currentEmails, $container)

@@ -1,13 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
+namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Ticket;
 
-use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreBundle\Entity\Ticket;
-use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
 
-class AddNote extends WorkflowAction
+class AddNote extends PreparedResponseAction
 {
     public static function getId()
     {
@@ -34,7 +34,6 @@ class AddNote extends WorkflowAction
         if($entity instanceof Ticket && $entity->getIsTrashed())
             return;
         if($entity instanceof Ticket) {
-            
             $data = array();
             $data['ticket'] = $entity;
             $data['threadType'] = 'note';

@@ -546,12 +546,12 @@
                     </script>
 
                     {# Saved Filters #}
-                    {# <div class="uv-element-block" style="border-bottom: 1px solid #D3D3D3; padding-bottom: 5px;">
+                    <div class="uv-element-block" style="border-bottom: 1px solid #D3D3D3; padding-bottom: 5px;">
                         <label class="uv-field-label">Saved Filters</label>
                         <div class="uv-field-block">
                             <div class="uv-customize-wrapper">
-                                <select class="uv-select uv-select-70" id="saved-filter">
-                                    {% set filters = app.user.detail.agent.userSavedFilters %}
+                                <select class="uv-select uv-select-70" id="saved-filter">                            
+                                    {% set filters = app.user.agentInstance.userSavedFilters %}
                                     {% if filters|length %}
                                         <option value="">-- Saved Filter --</option>
                                         {% for userFilter in filters %}
@@ -561,10 +561,10 @@
                                         <option value="">No saved filter created</option>
                                     {% endif %}
                                 </select>
-                                {% for userFilter in app.user.detail.agent.userSavedFilters %}
+                                {% for userFilter in app.user.agentInstance.userSavedFilters %}
                                     <script>
                                         {% set isDefault = 0 %}
-                                        {% if app.user.detail.agent.defaultFiltering == userFilter.id %}
+                                        {% if app.user.agentInstance.defaultFiltering == userFilter.id %}
                                             {% set isDefault = 1 %}
                                         {% endif %}
                                         userFilters[{{userFilter.id}}] = {{ {'id': userFilter.id, 'name': userFilter.name, 'route': userFilter.route, 'is_default': isDefault}|json_encode|raw }};
@@ -573,10 +573,10 @@
                                 <span class="uv-customize" style="display: none" data-toggle="tooltip" title="{{ 'Edit Saved Filter'|trans }}"></span>
                             </div>
                         </div>
-                    </div> #}
+                    </div>
 
                     {% set filterContext = {} %}
-                    {# 
+                    {# agent #}
                     <div class="uv-element-block">
                         <label class="uv-field-label">{{ 'Agent'|trans }}</label>
                         <div class="uv-field-block" id="agent-filter">
@@ -638,7 +638,7 @@
                                     <label>{{ 'Filter With'|trans }}</label>
                                     <ul class="">
                                         {% set options = [] %}
-                                        {% for group in user_service.getGroups() %}
+                                        {% for group in user_service.getSupportGroups() %}
                                             {% set options = options|merge([{'id': group.id, 'name': group.name}]) %}
                                             <li data-id="{{group.id}}">
                                                 {{group.name}}
@@ -664,7 +664,7 @@
                                     <label>{{ 'Filter With'|trans }}</label>
                                     <ul class="">
                                         {% set options = [] %}
-                                        {% for team in user_service.getSubGroups() %}
+                                        {% for team in user_service.getSupportTeams() %}
                                             {% set options = options|merge([{'id': team.id, 'name': team.name}]) %}
                                             <li data-id="{{team.id}}">
                                                 {{team.name}}
@@ -717,9 +717,9 @@
                                     <ul class="">
                                         {% set options = [] %}
                                         {% for priority in ticket_service.getPriorities() %}
-                                            {% set options = options|merge([{'id': priority.id, 'name': priority.name, 'color': priority.color}]) %}
+                                            {% set options = options|merge([{'id': priority.id, 'name': priority.code, 'color': priority.color}]) %}
                                             <li data-id="{{priority.id}}">
-                                                {{priority.name|trans}}
+                                                {{priority.code}}
                                             </li>
                                         {% endfor %}
                                         <li class="uv-no-results" style="display: none;">
@@ -753,35 +753,6 @@
                             <div class="uv-filtered-tags"></div>
                         </div>
                     </div>
-
-                    {% if user_service.getCurrentUser().getRole() != "ROLE_AGENT" %}
-                        <div class="uv-element-block">
-                            <label class="uv-field-label">{{ 'Mailbox'|trans }}</label>
-                            <div class="uv-field-block" id="mailbox-filter">
-                                <input class="uv-field uv-dropdown-other preloaded" type="text" data-filter-type="mailbox" id="mailbox-filter-input">
-                                <div class="uv-dropdown-list uv-bottom-left">
-                                    <div class="uv-dropdown-container">
-                                        <label>{{ 'Filter With'|trans }}</label>
-                                        <ul class="">
-                                            {% set options = [] %}
-                                            {% for mailbox in ticket_service.getMailboxes() %}
-                                                {% set options = options|merge([{'id': mailbox.id, 'name': mailbox.name}]) %}
-                                                <li data-id="{{mailbox.id}}">
-                                                    {{mailbox.name}}
-                                                </li>
-                                            {% endfor %}
-                                            <li class="uv-no-results" style="display: none;">
-                                                {{ 'No result found'|trans }}
-                                            </li>
-                                            {% set filterContext = filterContext|merge({'mailbox':options}) %}
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="uv-filtered-tags"></div>
-                            </div>
-                        </div>
-                    {% endif %}
-
                     <div class="uv-element-block">
                         <label class="uv-field-label">{{ 'Source'|trans }}</label>
                         <div class="uv-field-block" id="source-filter">
@@ -837,7 +808,7 @@
                     </div>
 
                     <div class="uv-action-buttons">
-                    </div> #}
+                    </div>
 
                     {# Clear Filters #}
                     <a class="uv-btn-remove" href="#"><span class="uv-icon-discard"></span> Clear All</a>
@@ -1336,7 +1307,7 @@
     {# Ticket List Item View Template #}
     <script id="ticket_list_item_tmp" type="text/template">
         <td class="uv-width-140 uv-no-content">
-            <span class="uv-list-ticket-priority" style="<% if(priority) { %>background: <%= priority.color %><% } %>;"></span>
+            <span class="uv-list-ticket-priority" style="<% if(priority) { %>background: <%=priority.colorCode %><% } %>;"></span>
             <label class="uv-vertical-align uv-margin-right-5">
                 <div class="uv-checkbox">
                     <input type="checkbox" class="mass-action-checkbox" value="<%= id %>"/>
@@ -1449,6 +1420,18 @@
         var pathToTicket = "{{ path('helpdesk_member_ticket', {'ticketId': 'replaceId' }) }}";
 
         $(() => {
+            $('#before-filter-input').datetimepicker({
+            	format: 'DD-MM-YYYY',
+            	maxDate: 'now',
+                useCurrent: false,
+            });
+
+            $('#after-filter-input').datetimepicker({
+            	format: 'DD-MM-YYYY',
+            	maxDate: 'now',
+                useCurrent: false,
+            });
+
             // Ticket Model
             var TicketModel = Backbone.Model.extend({
                 idAttribute: "id",
@@ -2708,6 +2691,33 @@
                 }
             });
 
+            var PageView = Backbone.View.extend({
+                el: '.uv-action-bar',
+                events : {
+                    'change .select-all-checkbox' : 'selectAll',
+                },
+                selectAll : function(e) {
+                    if(Backbone.$(e.currentTarget).is(':checked')) {
+                        $('.mass-action-checkbox').prop('checked', true);
+                        $('.uv-action-bar .filter').parent().hide();
+		    		    $('.uv-action-bar .mass-action').parent().addClass("uv-width-100").show();
+                        $('.uv-action-bar-col-rt').hide()
+                    } else {
+                        var count = 0;
+                        $('.mass-action-checkbox').each(function() {
+                            if($(this).is(':checked'))
+                                count++;
+                        });
+                        if(count == $('.mass-action-checkbox').length) {
+                            $('.mass-action-checkbox').prop('checked', false);
+                            $('.uv-action-bar .filter').parent().show();
+		    		        $('.uv-action-bar .mass-action').parent().removeClass("uv-width-100").hide();
+                            $('.uv-action-bar-col-rt').show()
+                        }
+                    }
+                },
+            });
+
             // Ticket Router
             Router = Backbone.Router.extend({
                 routes: {
@@ -2840,7 +2850,6 @@
                     this.fetch(number,sortField,order);
                 },
                 fetch: function(number, sortField, order) {
-                    console.log('fetching');
                     ticketCollection.state.currentPage = number;
                     filter.sortCollection(sortField, order);
                     ticketCollection.syncData();
@@ -2939,6 +2948,7 @@
             });
 
             var router = new Router();
+            var pageview = new PageView;
             var bulkAction = new BulkActionView();
             var sideFilterModel = new SideFilterModel(filterContext)
             var sideFilter = new SideFilter();

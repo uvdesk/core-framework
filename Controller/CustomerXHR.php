@@ -5,7 +5,9 @@ namespace Webkul\UVDesk\CoreBundle\Controller;
 use Webkul\UVDesk\CoreBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Webkul\UVDesk\CoreBundle\Workflow\Events as CoreWorkflowEvents;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class CustomerXHR extends Controller
@@ -43,6 +45,13 @@ class CustomerXHR extends Controller
             if($user) {
 
                 $this->get('user.service')->removeCustomer($user);
+                // Trigger customer created event
+                $event = new GenericEvent(CoreWorkflowEvents\Customer\Delete::getId(), [
+                    'entity' => $user,
+                ]);
+
+                $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+
                 $json['alertClass'] = 'success';
                 $json['alertMessage'] = ('Success ! Customer removed successfully.');
             } else {
