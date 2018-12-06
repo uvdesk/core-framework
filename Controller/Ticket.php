@@ -205,28 +205,35 @@ class Ticket extends Controller
 
         if($id = $request->attributes->get('ticketTypeId')) {
             $type = $em->getRepository('UVDeskCoreBundle:TicketType')->find($id);
-            if(!$type)
+            if (!$type) {
                 $this->noResultFound();
+            }
         } else {
             $type = new CoreBundleEntities\TicketType();
         }
 
         if ($request->getMethod() == "POST") {
             $data = $request->request->all();
-            $type->setCode($data['code']);
-            $type->setDescription($data['description']);
-            $type->setIsActive(isset($data['isActive']) ? 1 : 0);
+            $ticketType = $em->getRepository('UVDeskCoreBundle:TicketType')->findOneByCode($data['code']);
 
-            $em->persist($type);
-            $em->flush();
-
-            if(!$request->attributes->get('id')) {
-                $request->getSession()->getFlashBag()->set('success', sprintf('Success! Ticket type saved successfully.'));
+            if (!empty($ticketType) && $id != $ticketType->getId()) {
+                $this->addFlash('warning', sprintf('Error! Ticket type with same name already exist'));
             } else {
-                $request->getSession()->getFlashBag()->set('success', sprintf('Success! Ticket type updated successfully.'));
-            }
+                $type->setCode($data['code']);
+                $type->setDescription($data['description']);
+                $type->setIsActive(isset($data['isActive']) ? 1 : 0);
+                
+                $em->persist($type);
+                $em->flush();
 
-            return $this->redirect($this->generateUrl('helpdesk_member_ticket_type_collection'));
+                if (!$request->attributes->get('ticketTypeId')) {
+                    $this->addFlash('success', sprintf('Success! Ticket type saved successfully.'));
+                } else {
+                    $this->addFlash('success', sprintf('Success! Ticket type updated successfully.'));
+                }
+
+                return $this->redirect($this->generateUrl('helpdesk_member_ticket_type_collection'));
+            }
         }
 
         return $this->render('@UVDeskCore/ticketTypeAdd.html.twig', array(
