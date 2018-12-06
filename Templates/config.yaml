@@ -1,9 +1,5 @@
 parameters:
     app_locales: en|fr|it
-
-    # Customizable prefixes for panels
-    uvdesk_member_routing_prefix: 'member'
-    uvdesk_support_center_routing_prefix: 'customer'
     
     # Default Assets
     assets_default_agent_profile_image_path: 'bundles/uvdeskcore/images/uv-avatar-batman.png'
@@ -12,6 +8,11 @@ parameters:
 
 uvdesk:
     site_url: localhost
+    site_path:
+        member_prefix: member
+        knowledgebase_prefix: ~
+        knowledgebase_customer_prefix: customer
+    
     upload_manager:
         id: uvdesk.core.fs.upload.manager
     

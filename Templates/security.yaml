@@ -14,7 +14,7 @@ security:
     
     firewalls:
         back_support:
-            pattern: /%uvdesk_member_routing_prefix%
+            pattern: /%uvdesk.site_path.member_prefix%
             provider: user_provider
             anonymous: ~
             form_login:
@@ -28,9 +28,9 @@ security:
                 target: helpdesk_member_handle_login
         
     access_control:
-        - { path: /%uvdesk_member_routing_prefix%/login, roles: [IS_AUTHENTICATED_REMEMBERED, IS_AUTHENTICATED_ANONYMOUSLY] }
-        - { path: /%uvdesk_member_routing_prefix%/create-account, roles: [IS_AUTHENTICATED_REMEMBERED, IS_AUTHENTICATED_ANONYMOUSLY] }
-        - { path: /%uvdesk_member_routing_prefix%/forgot-password, roles: [IS_AUTHENTICATED_REMEMBERED,IS_AUTHENTICATED_ANONYMOUSLY] }
-        - { path: /%uvdesk_member_routing_prefix%/update-credentials, roles: [IS_AUTHENTICATED_REMEMBERED,IS_AUTHENTICATED_ANONYMOUSLY] }
-        - { path: /%uvdesk_member_routing_prefix%/mailbox/listener, roles: [IS_AUTHENTICATED_ANONYMOUSLY] }
-        - { path: /%uvdesk_member_routing_prefix%/, roles: ROLE_AGENT }
+        - { path: /%uvdesk.site_path.member_prefix%/login, roles: [IS_AUTHENTICATED_REMEMBERED, IS_AUTHENTICATED_ANONYMOUSLY] }
+        - { path: /%uvdesk.site_path.member_prefix%/create-account, roles: [IS_AUTHENTICATED_REMEMBERED, IS_AUTHENTICATED_ANONYMOUSLY] }
+        - { path: /%uvdesk.site_path.member_prefix%/forgot-password, roles: [IS_AUTHENTICATED_REMEMBERED,IS_AUTHENTICATED_ANONYMOUSLY] }
+        - { path: /%uvdesk.site_path.member_prefix%/update-credentials, roles: [IS_AUTHENTICATED_REMEMBERED,IS_AUTHENTICATED_ANONYMOUSLY] }
+        - { path: /%uvdesk.site_path.member_prefix%/mailbox/listener, roles: [IS_AUTHENTICATED_ANONYMOUSLY] }
+        - { path: /%uvdesk.site_path.member_prefix%/, roles: ROLE_AGENT }

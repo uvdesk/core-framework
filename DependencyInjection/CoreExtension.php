@@ -36,6 +36,7 @@ class CoreExtension extends Extension
         foreach ($this->processConfiguration($configuration, $configs) as $param => $value) {
             switch ($param) {
                 case 'emails':
+                case 'site_path':
                 case 'support_email':
                 case 'upload_manager':
                     foreach ($value as $field => $fieldValue) {

@@ -172,7 +172,7 @@ class UserService
         
         if (null == $user->getId()) {
             $name = explode(' ', trim($name));
-
+            
             $user->setEmail($email);
             $user->setFirstName(isset($extras['firstName']) ? $extras['firstName'] : array_shift($name));
             $user->setLastName(trim(implode(' ', $name)));
@@ -522,7 +522,7 @@ class UserService
 
         if(!$user) {
             //create user
-             $user = $this->createUserInstance($data['from'], $data['fullname'] = '', $role, $data);
+            $user = $this->createUserInstance($data['from'], $data['fullname'] = '', $role, $data);
         } else {
             $checkCustomer = $this->entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(['email' => $data['from']]);
 
