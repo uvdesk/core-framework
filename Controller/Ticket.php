@@ -221,7 +221,6 @@ class Ticket extends Controller
         if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
-
         $errorContext = [];
         $em = $this->getDoctrine()->getManager();
 
@@ -235,20 +234,23 @@ class Ticket extends Controller
 
         if ($request->getMethod() == "POST") {
             $data = $request->request->all();
-            $type->setCode($data['code']);
-            $type->setDescription($data['description']);
-            $type->setIsActive(isset($data['isActive']) ? 1 : 0);
+            $tickeTypeName = $em->getRepository('UVDeskCoreBundle:Ticket')->isTicketTypeNameExist($data['code'], $id);
+            if(!$tickeTypeName){
+                $type->setCode($data['code']);
+                $type->setDescription($data['description']);
+                $type->setIsActive(isset($data['isActive']) ? 1 : 0);
+                $em->persist($type);
+                $em->flush();
 
-            $em->persist($type);
-            $em->flush();
-
-            if(!$request->attributes->get('id')) {
-                $request->getSession()->getFlashBag()->set('success', sprintf('Success! Ticket type saved successfully.'));
-            } else {
-                $request->getSession()->getFlashBag()->set('success', sprintf('Success! Ticket type updated successfully.'));
-            }
-
-            return $this->redirect($this->generateUrl('helpdesk_member_ticket_type_collection'));
+                if(!$request->attributes->get('ticketTypeId')) {
+                    $this->addFlash('success', sprintf('Success! Ticket type saved successfully.'));
+                } else {
+                    $this->addFlash('success', sprintf('Success! Ticket type updated successfully.'));
+                }
+                return $this->redirect($this->generateUrl('helpdesk_member_ticket_type_collection'));
+            }else {
+                $this->addFlash('warning', sprintf('Error! Ticket type with same name already exist'));
+           }
         }
 
         return $this->render('@UVDeskCore/ticketTypeAdd.html.twig', array(

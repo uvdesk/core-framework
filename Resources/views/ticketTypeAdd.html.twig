@@ -25,7 +25,7 @@
 			<form method="post" action="{% if type.id %}{{ path('helpdesk_member_update_ticket_type', {ticketTypeId: type.id}) }}{% else %}{{ path('helpdesk_member_create_ticket_type') }}{% endif %}" id="ticket-type-form">
 				<!-- Field -->
 				<div class="uv-element-block">
-					<label class="uv-field-label">{{ 'Code'|trans }}</label>
+					<label class="uv-field-label">{{ 'Name'|trans }}</label>
 					<div class="uv-field-block">
 						<input type="text" name="code" class="uv-field" value="{{ type.code }}" />
 					</div>

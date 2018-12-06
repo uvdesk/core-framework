@@ -776,7 +776,6 @@ class TicketService
         $params = $request->query->all();
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreBundle:Ticket');
         $paginationQuery = $ticketRepository->prepareBasePaginationTicketTypesQuery($params);
-
         // Apply Pagination
         $paginationOptions = ['distinct' => true];
         $pageNumber = !empty($params['page']) ? (int) $params['page'] : 1;

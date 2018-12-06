@@ -364,7 +364,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select("ticketType")
             ->from('UVDeskCoreBundle:TicketType', 'ticketType');
-
+        
         // Apply filters
         foreach ($params as $field => $fieldValue) {
             if (in_array($field, $this->safeFields)) {
@@ -390,7 +390,6 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         } else {
             $queryBuilder->orderBy('ticketType.code', (empty($params['direction']) || 'ASC' == strtoupper($params['direction'])) ? Criteria::ASC : Criteria::DESC);
         }
-
         return $queryBuilder;
     }
 
@@ -543,6 +542,17 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             }
         }
         return false;
+    }
+    public function isTicketTypeNameExist($code, $id) {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('tp')->from("UVDeskCoreBundle:TicketType", 'tp')
+                ->andwhere('tp.code = :codeValue')
+                ->setParameter('codeValue', $code);
+                if($id != null){
+                    $qb->andwhere('tp.id = :id');
+                    $qb->setParameter('id', !$id);
+                }
+        return $qb->getQuery()->getResult() ? true : false;
     }
     
 }
