@@ -194,3 +194,9 @@ helpdesk_apply_ticket_prepared_response:
     path:     /ticket/apply-prepared-response/{ticketId}/{id}
     controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::applyPreparedResponse
     defaults: { ticketId: 0, id: 0 }
+
+#Ticket Quick view
+helpdesk_ticket_quick_view_xhr:
+    path:     /ticket/quick-view/{ticketId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::getTicketQuickViewDetailsXhr
+    defaults: { ticketId: 0 }

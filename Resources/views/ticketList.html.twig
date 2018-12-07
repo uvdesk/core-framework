@@ -1122,7 +1122,7 @@
                             <span class="uv-ticket-strip-label">
                                 {{ 'By'|trans }} -
                             </span>
-                            <%- createThread.fullname %>
+                            <%- createThread.user.name %>
                         </span>
                         <% if(agent) { %>
                             <span class="agent-info" style="">
@@ -1136,11 +1136,11 @@
                     <div class="uv-ticket-strip">
                         <span class="uv-btn-tag">
                             {{ 'Priority'|trans }}
-                            - <%- priority.name %>
+                            - <%- priority.code %>
                         </span>
                         <span class="uv-btn-tag">
                             {{ 'Status'|trans }}
-                            - <%- status.name %>
+                            - <%- status.code %>
                         </span>
                         <% if(lastReplyAgentName) { %>
                             <span class="uv-btn-tag">
@@ -1201,21 +1201,21 @@
                                                     <img src="<%= file.attachmentThumb %>" data-url="<%= file.attachmentOrginal %>">
                                                 </a>
                                             <% } else { %>
-                                                <a class="uv-ticket-uploads-brick uv-template-file" href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%= file.id %>" target="_blank" data-toggle="tooltip" title="<%- file.name %>">
-                                                    <% if(fileDefaultImages[file.contentType]) { %>
+                                                {# <a class="uv-ticket-uploads-brick uv-template-file" href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%= file.id %>" target="_blank" data-toggle="tooltip" title="<%- file.name %>">
+                                                    <% if() { %>
                                                         <img src="<%- fileDefaultImages[file.contentType] %>">
                                                     <% } else { %>
                                                         <img src="<%= fileDefaultImages['unknown'] %>">
                                                     <% } %>
-                                                </a>
+                                                </a> #}
                                             <% } %>
                                         <% }) %>
                                     </div>
                                     <% if(createThread.attachments.length > 1) { %>
                                         <div class="thread-attachments-zip pull-left">
                                             <div class="uv-upload-actions">
-                                                {#<a href="#"><span class="uv-icon-open-in-files"></span>Open in Files</a>#}
-                                                <a href="{{ path('helpdesk_member_ticket_download_attachment_zip') }}/<%= id %>" target="_blank"><span class="uv-icon-attachment"></span> {{ 'Download (as .zip)'|trans }}</a>
+                                                {# <a href="#"><span class="uv-icon-open-in-files"></span>Open in Files</a> #}
+                                                <a href="{{ path('helpdesk_member_ticket_download_attachment_zip') }}/<%= createThread.id %>" target="_blank"><span class="uv-icon-attachment"></span> {{ 'Download (as .zip)'|trans }}</a>
                                             </div>
                                         </div>
                                     <% } %>
@@ -1270,25 +1270,25 @@
                                         <div class="uv-ticket-uploads-strip">
                                             <% _.each(lastReply.attachments, function(file) { %>
                                                 <% if(file.attachmentThumb){ %>
-                                                    <a class="uv-ticket-uploads-brick" href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%= file.id %>" target="_blank" data-toggle="tooltip" title="<%- file.name %>">
+                                                    {# <a class="uv-ticket-uploads-brick" href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%= file.id %>" target="_blank" data-toggle="tooltip" title="<%- file.name %>">
                                                         <img src="<%= file.attachmentThumb %>" data-url="<%= file.attachmentOrginal %>">
-                                                    </a>
+                                                    </a> #}
                                                 <% } else { %>
-                                                    <a class="uv-ticket-uploads-brick uv-template-file" href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%= file.id %>" target="_blank" data-toggle="tooltip" title="<%- file.name %>">
-                                                        <% if(fileDefaultImages[file.contentType]) { %>
+                                                    {# <a class="uv-ticket-uploads-brick uv-template-file" href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%= file.id %>" target="_blank" data-toggle="tooltip" title="<%- file.name %>"> #}
+                                                        {# <% if(fileDefaultImages[file.contentType]) { %>
                                                             <img src="<%- fileDefaultImages[file.contentType] %>">
                                                         <% } else { %>
                                                             <img src="<%= fileDefaultImages['unknown'] %>">
-                                                        <% } %>
+                                                        <% } %> #}
                                                     </a>
                                                 <% } %>
                                             <% }) %>
                                         </div>
-                                        <% if(lastReply.attachments.length > 1) { %>
+                                        <% if(lastReply.attachments.length> 1) { %>
                                             <div class="thread-attachments-zip pull-left">
                                                 <div class="uv-upload-actions">
-                                                    {#<a href="#"><span class="uv-icon-open-in-files"></span>Open in Files</a>#}
-                                                    <a href="{{ path('helpdesk_member_ticket_download_attachment_zip') }}/<%= id %>" target="_blank"><span class="uv-icon-attachment"></span> {{ 'Download (as .zip)'|trans }}</a>
+                                                    {# <a href="#"><span class="uv-icon-open-in-files"></span>Open in Files</a> #}
+                                                    <a href="{{ path('helpdesk_member_ticket_download_attachment_zip') }}/<%= lastReply.id %>" target="_blank"><span class="uv-icon-attachment"></span> {{ 'Download (as .zip)'|trans }}</a>
                                                 </div>
                                             </div>
                                         <% } %>
@@ -1418,7 +1418,7 @@
         var isPageJustLoaded = true;
         var globalMessageResponse = "";
         var pathToTicket = "{{ path('helpdesk_member_ticket', {'ticketId': 'replaceId' }) }}";
-
+        
         $(() => {
 
             $('#before-filter-input').datetimepicker({
@@ -2693,9 +2693,79 @@
             });
 
             var PageView = Backbone.View.extend({
-                el: '.uv-action-bar',
+                el: '.uv-paper',
                 events : {
                     'change .select-all-checkbox' : 'selectAll',
+                    'click .uv-quick-view-trigger, .quick-view-navigation .uv-btn-tag': 'navigateQuickView',
+                },
+                quickViewTemplate: _.template($("#ticket_quick_view_tmp").html()),
+                navigateQuickView : function(e) {
+                    e.preventDefault();
+                    //$("#quick-view-modal .uv-loader").hide()
+                    var currentElement = Backbone.$(e.currentTarget);
+                    ticketId = currentElement.attr('data-id');
+                    if(ticketId) {
+                        if(model = ticketQuickViewCollection.isModelSynced(ticketId)) {
+                            this.renderQuickView(model.toJSON())
+                        } else {
+                            var self = this;
+                            if(currentElement.hasClass("uv-quick-view-trigger"))
+                                app.appView.showLoader();
+
+                            if(ticketQuickViewCollection.get(ticketId)) {
+                                navData = ticketQuickViewCollection.getNextPrev(ticketId);
+                                requiredNext = (!navData.next && app.pager.paginationData.next) ? 1 : 0;
+                                requiredPrev = (!navData.previous && app.pager.paginationData.previous) ? 1 : 0;
+                            } else
+                                requiredNext = requiredPrev = 1;
+
+                            if(self.xhrReq)
+                                self.xhrReq.abort();
+
+                            $("#quick-view-modal .uv-loader").show()
+                            self.xhrReq = $.ajax({
+                                url : "{{ path('helpdesk_ticket_quick_view_xhr') }}",
+                                type : 'GET',
+                                data : {ticketId : ticketId, next: requiredNext, previous: requiredPrev},
+                                dataType : 'json',
+                                success : function(response) {
+                                    self.xhrReq = 0;
+                                    if(currentElement.hasClass("uv-quick-view-trigger"))
+                                        app.appView.hideLoader();
+
+                                    if(response.next == undefined)
+                                        response.next = navData.next
+                                    if(response.previous == undefined)
+                                        response.previous = navData.previous
+
+                                    response.isSynced = 1
+                                    response.path = pathToTicket.replace('replaceId', response.incrementId);
+
+                                    if(ticketQuickViewCollection.get(ticketId))
+                                        ticketQuickViewCollection.set(response,{remove: false})
+                                    else
+                                        ticketQuickViewCollection.add(new TicketQuickViewModel(response))
+
+                                    self.renderQuickView(response)
+                                },
+                                error: function (xhr) {
+                                    self.xhrReq = 0;
+                                    if(url = xhr.getResponseHeader('Location'))
+                                        window.location = url;
+                                    app.appView.hideLoader();
+                                }
+                            });
+                        }
+                    }
+                },
+                renderQuickView: function(response) {
+                    $('#quick-view-modal .uv-pop-up-box').html(this.quickViewTemplate(response));
+                    app.appView.openModal('quick-view-modal')
+                    $('#quick-view-modal .message').find('img').removeAttr('crossorigin');
+
+                    $('#quick-view-modal .message').find('.uv-icon-ellipsis').remove();
+                    $('#quick-view-modal .message').find('.helpdesk_blockquote').eq(0).before("<span class='uv-icon-ellipsis uv-ellipsis-mirror'></span>").hide();
+                    app.appView.relativeTime();
                 },
                 selectAll : function(e) {
                     if(Backbone.$(e.currentTarget).is(':checked')) {
