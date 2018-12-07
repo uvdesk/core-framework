@@ -143,36 +143,6 @@ class Thread
     {
         return $this->source;
     }
-
-    /**
-     * @var string
-     */
-    private $fullname;
-    /**
-     * Set fullname
-     *
-     * @param string $fullname
-     * @return Thread
-     */
-    public function setFullname($fullname)
-    {
-        $this->fullname = $fullname;
-
-        return $this;
-    }
-
-    /**
-     * Get fullname
-     *
-     * @return string 
-     */
-    public function getFullname()
-    {
-        return preg_replace('/[\d]/', '', $this->fullname);
-    }
-    /**
-     * @var boolean
-     */
     /**
      * Set messageId
      *
