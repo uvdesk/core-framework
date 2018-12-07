@@ -42,7 +42,6 @@ class MailCustomer extends WorkflowAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-
         switch (true) {
             case $entity instanceof CoreEntities\Ticket:
                 $currentThread = $entity->currentThread;
@@ -59,18 +58,17 @@ class MailCustomer extends WorkflowAction
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $ticketPlaceholders);
 
                 $emailHeaders = ['References' => $entity->getReferenceIds()];
-                // if (null != $currentThread->getMessageId()) {
-                //     $emailHeaders['In-Reply-To'] = $currentThread->getMessageId();
-                // }
+                if (null != $currentThread->getMessageId()) {
+                    $emailHeaders['In-Reply-To'] = $currentThread->getMessageId();
+                }
                 
                 $messageId = $container->get('uvdesk.core.mailbox')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $emailHeaders, $entity->getMailboxEmail());
                 
-                // if (!empty($messageId)) {
-                //      $createdThread->setMessageId($messageId);
-
-                //     $entityManager->persist($createdThread);
-                //     $entityManager->flush();
-                // }
+                if (!empty($messageId)) {
+                    $createdThread->setMessageId($messageId);
+                    $entityManager->persist($createdThread);
+                    $entityManager->flush();
+                }
                 break;
             default:
                 break;

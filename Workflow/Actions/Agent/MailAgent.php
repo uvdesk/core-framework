@@ -69,12 +69,9 @@ class MailAgent extends WorkflowAction
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $ticketPlaceholders);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $ticketPlaceholders);
 
-                dump($message);
-                die;
-
                 $messageId = $container->get('uvdesk.core.mailbox')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), [
-                    'In-Reply-To' => $object->getUniqueReplyTo(),
-                    'References' => $object->getReferenceIds(),
+                    'In-Reply-To' => $entity->getUniqueReplyTo(),
+                    'References'  => $entity->getReferenceIds(),
                 ]);
 
                 if (!empty($messageId)) {
