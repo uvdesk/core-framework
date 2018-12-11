@@ -133,6 +133,12 @@ SVG;
                     'brick_svg' => self::TICKET_TYPE_BRICK_SVG,
                     'permission'=>'ROLE_AGENT_MANAGE_TAG'
                 ],
+                [
+                    'name' => 'Saved Replies',
+                    'route' => 'helpdesk_member_Saved_Reply',
+                    'brick_svg' => self::TICKET_TYPE_BRICK_SVG,
+                    'permission'=>'ROLE_AGENT_MANAGE_SAVED_REPLIES'
+                ],
             ],
             HelpdeskSection::SETTINGS => [
                 [

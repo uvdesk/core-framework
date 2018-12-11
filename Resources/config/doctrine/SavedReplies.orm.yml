@@ -1,0 +1,73 @@
+Webkul\UVDesk\CoreBundle\Entity\SavedReplies:
+    type: entity
+    repositoryClass: Webkul\UVDesk\CoreBundle\Repository\SavedRepliesRepository
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+    fields:
+        templateId:
+            type: integer
+            column: template_id
+            nullable: true
+        name:
+            type: string
+            length: 255
+        subject:
+            type: string
+            length: 255
+            nullable: true
+        isPredefind:
+            type: boolean
+            nullable: true
+            column: is_predefind
+            options:
+                default: 1
+        templateFor:
+            type: string
+            nullable: true
+            options:
+                default: null
+        message:
+            type: text
+        messageInline:
+            type: text
+            nullable: true
+    manyToOne:
+        user:
+            targetEntity: UserInstance
+            inversedBy: userSaveReplies
+            joinColumn:
+                name: user_id
+                referencedColumnName: id
+                nullable: true
+                onDelete : cascade
+    manyToMany:
+        groups:
+            nullable: true        
+            targetEntity: SupportGroup
+            joinTable:
+                name: savedreply_groups
+                joinColumns:
+                    savedReply_id:
+                        referencedColumnName: id
+                        onDelete : cascade                        
+                inverseJoinColumns:
+                    group_id:
+                        referencedColumnName: id
+                        onDelete : cascade           
+        teams:
+            nullable: true        
+            targetEntity: SupportTeam
+            joinTable:
+                name: savedreply_team
+                joinColumns:
+                    savedReply_id:
+                        referencedColumnName: id
+                        onDelete : cascade                        
+                inverseJoinColumns:
+                    subgroup_id:
+                        referencedColumnName: id
+                        onDelete : cascade

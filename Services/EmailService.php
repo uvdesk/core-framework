@@ -40,9 +40,8 @@ class EmailService
         $placeHolders = [];
 
         $allEmailPlaceholders = [
-
+            
         ];
-
         if($default == 'template') {
             $placeHolders = [
                                 'ticket' => [
@@ -186,7 +185,7 @@ class EmailService
                                                             'info' => $this->trans('ticket.link.placeHolders.info'),
                                                         ],
                                             ],
-                                'global' => $allEmailPlaceholders['global'],
+                                //'global' => $allEmailPlaceholders['global'],
                             ];
         } elseif($default == 'taskNote') {
             $placeHolders = [
@@ -468,4 +467,33 @@ class EmailService
 
         return $twigTemplatingEngine->render($baseEmailTemplate, ['message' => $content]);
     }
+
+    public function getProcessedTemplate($body,$emailTempVariables, $isSavedReply = false)
+    {
+        if(!$isSavedReply && strpos($body, '<p>')) {
+            $delimiter = $this->getEmailDelimiter();
+            if($this->emailTrackingId && $company = $this->container->get('user.service')->getCurrentCompany())
+                $body = strstr($body,'<p>', true).'<img style="display: none" src="'.$this->container->get('default.service')->getUrl(['route' => 'thread_opent_tracking', 'params' => ['id' => $this->emailTrackingId]]).'"/>'.strstr($body,'<p>', false);
+            $body = strstr($body,'<p>', true).$delimiter.strstr($body,'<p>', false);
+            $body = str_replace('<p></p>', '', $body);
+
+            $body = str_replace('Delivered by <a href="https://uvdesk.com">UVdesk</a>.', '', $body);
+            $body = str_replace('Delivered by <a href="https://uvdesk.com" style="background-color:transparent">UVdesk</a>.', '', $body);
+        
+            $body = str_replace('This email is a service from ' . $this->container->get('user.service')->getCurrentCompany()->getName() . '.', '', $body);
+                
+        }
+        foreach ($emailTempVariables as $var => $value) {
+            $placeholder = "{%".$var."%}";
+            $body = str_replace($placeholder,$value,$body);
+        }
+        $result = stripslashes($body);
+        return $isSavedReply ? $result : htmlspecialchars_decode(preg_replace(['#&lt;script&gt;#', '#&lt;/script&gt;#'], ['&amp;lt;script&amp;gt;', '&amp;lt;/script&amp;gt;'] , $result));
+    }
+    protected function getEmailDelimiter()
+    {
+        $delimiter = '';
+        return '<p class="uv-delimiter-dXZkZXNr" style="font-size: 12px; color: #bdbdbd;">'.htmlentities($delimiter).'</p>';
+    }
+
 }

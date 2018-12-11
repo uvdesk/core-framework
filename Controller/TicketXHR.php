@@ -621,6 +621,18 @@ class TicketXHR extends Controller
         return new Response(json_encode([]), 404, ['Content-Type' => 'application/json']);
     }
 
+    public function loadTicketSavedReplies(Request $request) {
+        $json = array();
+        $data = $request->query->all();
+
+        if($request->isXmlHttpRequest()) {
+            $json['message'] = $this->get('ticket.service')->getSavedReplyContent($data['id'],$data['ticketId']);
+        }
+
+        $response = new Response(json_encode($json));
+        return $response;
+    }
+
     public function createTicketTagXHR(Request $request)
     {
         

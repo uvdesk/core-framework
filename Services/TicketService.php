@@ -1032,6 +1032,12 @@ class TicketService
         return $qb->getQuery()->getResult();
     }
 
+    public function getSavedReplies(){
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('DISTINCT sr')->from('UVDeskCoreBundle:SavedReplies', 'sr');
+        return $qb->getQuery()->getResult();
+    }
+
     public function getPriorities() {
         static $priorities;
         if (null !== $priorities)
@@ -1104,6 +1110,53 @@ class TicketService
             return $data;
         } else
             return null;
+    }
+
+    public function getSavedReplyContent($id,$ticketId) {
+        $savedReply = $this->entityManager->getRepository('UVDeskCoreBundle:SavedReplies')->find($id);
+        $ticket = $this->entityManager->getRepository('UVDeskCoreBundle:Ticket')->find($ticketId);
+
+        $placeHolderValues = $this->getSavedReplyPlaceholderValues($ticket,'customer');
+
+        $isSavedReply = true;
+        return $this->container->get('email.service')
+                               ->getProcessedTemplate($savedReply->getMessage(),$placeHolderValues, $isSavedReply);
+    }
+    public function getSavedReplyPlaceholderValues($ticket,$type = "customer") {
+        $variables = array();
+        $variables['ticket.id'] = $ticket->getId();
+        $variables['ticket.subject'] = $ticket->getSubject();
+
+        $variables['ticket.status'] = $ticket->getStatus()->getCode();
+        $variables['ticket.priority'] = $ticket->getPriority()->getCode();
+        if($ticket->getSupportGroup())
+            $variables['ticket.group'] = $ticket->getSupportGroups()->getName();
+        else
+            $variables['ticket.group'] = '';
+
+        $variables['ticket.team'] = ($ticket->getSupportTeam() ? $ticket->getSupportTeam()->getName() : '');
+
+        $customer = $this->container->get('user.service')->getCustomerPartialDetailById($ticket->getCustomer()->getId());
+        $variables['ticket.customerName'] = $customer['name'];
+        $userService = $this->container->get('user.service');
+      
+        $variables['ticket.agentName'] = '';
+        $variables['ticket.agentEmail'] = '';
+        if($ticket->getAgent()) {
+            $agent = $this->container->get('user.service')->getAgentDetailById($ticket->getAgent()->getId());
+            if($agent) {
+                $variables['ticket.agentName'] = $agent['name'];
+                $variables['ticket.agentEmail'] = $agent['email'];
+            }
+        }
+        $variables['ticket.link'] = sprintf("<a href='%s'>#".$ticket->getId()."</a>", $this->container->get('uvdesk.service')->getUrl(array(
+                    'params' => array('id' => $ticket->getId()),
+                    'route' => ($type == 'customer') ? "helpdesk_member_ticket_collection" : "helpdesk_customer_ticket_collection",
+                )
+            )
+        );
+
+        return $variables;
     }
 }
 

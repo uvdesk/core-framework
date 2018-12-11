@@ -223,36 +223,34 @@ class Ticket extends Controller
         }
         $errorContext = [];
         $em = $this->getDoctrine()->getManager();
-
         if($id = $request->attributes->get('ticketTypeId')) {
             $type = $em->getRepository('UVDeskCoreBundle:TicketType')->find($id);
-            if(!$type)
+            if (!$type) {
                 $this->noResultFound();
+            }
         } else {
             $type = new CoreBundleEntities\TicketType();
         }
-
         if ($request->getMethod() == "POST") {
             $data = $request->request->all();
-            $tickeTypeName = $em->getRepository('UVDeskCoreBundle:Ticket')->isTicketTypeNameExist($data['code'], $id);
-            if(!$tickeTypeName){
+            $ticketType = $em->getRepository('UVDeskCoreBundle:TicketType')->findOneByCode($data['code']);
+            if (!empty($ticketType) && $id != $ticketType->getId()) {
+                $this->addFlash('warning', sprintf('Error! Ticket type with same name already exist'));
+            } else {
                 $type->setCode($data['code']);
                 $type->setDescription($data['description']);
                 $type->setIsActive(isset($data['isActive']) ? 1 : 0);
+                
                 $em->persist($type);
                 $em->flush();
-
-                if(!$request->attributes->get('ticketTypeId')) {
+                if (!$request->attributes->get('ticketTypeId')) {
                     $this->addFlash('success', sprintf('Success! Ticket type saved successfully.'));
                 } else {
                     $this->addFlash('success', sprintf('Success! Ticket type updated successfully.'));
                 }
                 return $this->redirect($this->generateUrl('helpdesk_member_ticket_type_collection'));
-            }else {
-                $this->addFlash('warning', sprintf('Error! Ticket type with same name already exist'));
-           }
+            }
         }
-
         return $this->render('@UVDeskCore/ticketTypeAdd.html.twig', array(
             'type' => $type,
             'errors' => json_encode($errorContext)
@@ -326,7 +324,6 @@ class Ticket extends Controller
     {
         $threadId = $request->attributes->get('threadId');
         $attachmentRepository = $this->getDoctrine()->getManager()->getRepository('UVDeskCoreBundle:Attachment');
-
         $attachment = $attachmentRepository->findByThread($threadId);
 
         if (!$attachment) {
@@ -488,5 +485,38 @@ class Ticket extends Controller
         $this->addFlash('success', 'Success ! Prepared Response applied successfully.');
 
         return $this->redirect($this->generateUrl('helpdesk_member_ticket',['ticketId' => $ticketId]));
+    }
+
+    // Apply quick Response action
+    public function getTicketQuickViewDetailsXhr(Request $request)
+    {
+        $json = [];
+        if($request->isXmlHttpRequest()) {
+            $ticketId = $request->query->get('ticketId');
+            $json = $this->getDoctrine()->getRepository('UVDeskCoreBundle:Ticket')->getTicketDetails($request->query,$this->container);
+
+            // if (!$this->get('default.service')->hasPermissionForEmail($this->getCurrentUser()->getEmail())) {
+            //     if (!empty($json['customer'])) {
+            //         $json['customer']['email'] = $this->get('default.service')->applyWebkulFilter($json['customer']['email'], ['email']);
+            //         $json['customer']['contactNumber'] = $this->get('default.service')->applyWebkulFilter($json['customer']['contactNumber'], ['contact']);
+            //     }
+
+            //     if (!empty($json['createThread']['reply'])) {
+            //         $json['createThread']['reply'] = $this->get('default.service')->applyWebkulFilter($json['createThread']['reply'], ['email']);
+            //     }
+
+            //     if (!empty($json['lastReply']['reply'])) {
+            //         $json['lastReply']['reply'] = $this->get('default.service')->applyWebkulFilter($json['lastReply']['reply'], ['email']);
+            //     }
+
+            //     if (!empty($json['subject'])) {
+            //         $json['subject'] = $this->get('default.service')->applyWebkulFilter($json['subject'], ['email']);
+            //     }
+            // }
+        }
+
+        $response = new Response(json_encode($json));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
     }
 }

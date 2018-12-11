@@ -1069,7 +1069,7 @@
             <!-- Bottom Action Block -->
             <div class="uv-ticket-fixed-region">
                 <div class="uv-ticket-fixed-region-lt">
-                        {# <!-- Saved Replied-->
+                        <!-- Saved Replied-->
                         <div class="uv-dropdown saved-reply">
                             <div class="uv-dropdown-btn">{{ 'Saved Replies'|trans }}</div>
                             <div class="uv-dropdown-list uv-top-left">
@@ -1077,7 +1077,7 @@
                                     <label>{{ 'Saved Replies'|trans }}</label>
                                     <ul>
                                         <li data-id="">
-                                            <a href="" target="_blank" style="color: #2750C4">{{ 'Create New'|trans }}</a>
+                                            <a href="{{ path('helpdesk_member_Saved_Reply') }}" target="_blank" style="color: #2750C4">{{ 'Create New'|trans }}</a>
                                         </li>
                                         {% for savedReply in ticket_service.getSavedReplies() %}
                                             <li data-id="{{ savedReply.id }}">
@@ -1088,7 +1088,7 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- //Saved Replied--> #}
+                        <!-- //Saved Replied-->
 
                         <!--Code-->
                         <div class="uv-dropdown">

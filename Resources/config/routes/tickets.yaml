@@ -189,6 +189,27 @@ helpdesk_member_update_ticket_type:
     controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::ticketType
     defaults: { panelId: 'productivity' }
 
+# Saved Replies
+helpdesk_member_Saved_Reply:
+    path:     /saved-replies
+    controller: Webkul\UVDesk\CoreBundle\Controller\SavedReply::templates
+    defaults: { panelId: 'productivity' }
+
+helpdesk_saved_replies_xhraction:
+    path:     /saved-reply-ajax/{template}
+    controller: Webkul\UVDesk\CoreBundle\Controller\SavedReply::templatesxhr
+    defaults: {template: 0}
+
+helpdesk_saved_replies_editaction:
+    path:     /saved-reply/edit/{template}
+    controller: Webkul\UVDesk\CoreBundle\Controller\SavedReply::savedReplyForm
+    defaults: { panelId: 'productivity', template: 0}
+
+helpdesk_saved_replies_addaction:
+    path:     /saved-reply/add/{template}
+    controller: Webkul\UVDesk\CoreBundle\Controller\SavedReply::savedReplyForm
+    defaults: { panelId: 'productivity',  template: 0}
+
 # Apply Prepared Response 
 helpdesk_apply_ticket_prepared_response:
     path:     /ticket/apply-prepared-response/{ticketId}/{id}
