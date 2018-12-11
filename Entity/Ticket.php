@@ -143,11 +143,6 @@ class Ticket
     private $supportLabels;
 
     /**
-     * @var string
-     */
-    public $lastCollaborator;
-
-    /**
      * Constructor
      */
     public function __construct()
