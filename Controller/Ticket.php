@@ -215,7 +215,7 @@ class Ticket extends Controller
         if ($request->getMethod() == "POST") {
             $data = $request->request->all();
             $ticketType = $em->getRepository('UVDeskCoreBundle:TicketType')->findOneByCode($data['code']);
-
+            
             if (!empty($ticketType) && $id != $ticketType->getId()) {
                 $this->addFlash('warning', sprintf('Error! Ticket type with same name already exist'));
             } else {
@@ -310,7 +310,7 @@ class Ticket extends Controller
     {
         $threadId = $request->attributes->get('threadId');
         $attachmentRepository = $this->getDoctrine()->getManager()->getRepository('UVDeskCoreBundle:Attachment');
-
+        
         $attachment = $attachmentRepository->findByThread($threadId);
 
         if (!$attachment) {
@@ -450,6 +450,21 @@ class Ticket extends Controller
                 $json['alertClass'] = 'danger';
                 $json['alertMessage'] = $this->get('translator')->trans('Error ! Invalid Collaborator.');
             }
+        }
+
+        $response = new Response(json_encode($json));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
+    }
+
+    // Apply quick Response action
+    public function getTicketQuickViewDetailsXhr(Request $request)
+    {
+        $json = [];
+
+        if ($request->isXmlHttpRequest()) {
+            $ticketId = $request->query->get('ticketId');
+            $json = $this->getDoctrine()->getRepository('UVDeskCoreBundle:Ticket')->getTicketDetails($request->query,$this->container);
         }
 
         $response = new Response(json_encode($json));

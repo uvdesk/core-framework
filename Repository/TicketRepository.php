@@ -39,7 +39,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         return [];
     }
 
-    public function getAllTickets(\Symfony\Component\HttpFoundation\ParameterBag $obj = null, $container, $actAsUser = null)
+    public function getAllTickets(ParameterBag $obj = null, $container, $actAsUser = null)
     {
         $currentUser = $actAsUser ? : $container->get('user.service')->getCurrentUser();
   
@@ -124,8 +124,8 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         return $json;
     }
 
-    public function getAllCustomerTickets(\Symfony\Component\HttpFoundation\ParameterBag $obj = null, $container, $actAsUser = null) {
-       
+    public function getAllCustomerTickets(ParameterBag $obj = null, $container, $actAsUser = null)
+    {
         $currentUser = $actAsUser ? : $container->get('user.service')->getCurrentUser();
         $json = array();
         $qb = $this->getEntityManager()->createQueryBuilder();
@@ -531,5 +531,69 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         }
 
         return false;
+    }
+
+    public function getTicketDetails(ParameterBag $obj = null, $container)
+    {
+        $data = $obj->all();
+        $userService = $container->get('user.service');
+        $ticketService = $container->get('ticket.service');
+        $json = [];
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('DISTINCT t,gr.name as groupName,supportTeam.name as supportTeamName,tp.code as typeName,s,pr,a.id as agentId,c.id as customerId')->from($this->getEntityName(), 't')
+                ->leftJoin('t.agent', 'a')
+                ->leftJoin('t.status', 's')
+                ->leftJoin('t.customer', 'c')
+                ->leftJoin('t.supportGroup', 'gr')
+                ->leftJoin('t.supportTeam', 'supportTeam')
+                ->leftJoin('t.priority', 'pr')
+                ->leftJoin('t.type', 'tp')
+                ->leftJoin('c.userInstance', 'cd')
+                ->leftJoin('a.userInstance', 'ad')
+                ->leftJoin('t.supportTags', 'tg')
+                ->leftJoin('t.supportLabels', 'tl')
+                ->andwhere('t.id = :ticketId')
+                ->setParameter('ticketId', $data['ticketId']);
+
+        $results = $qb->getQuery()->getArrayResult();
+    
+        foreach ($results as $key => $ticket) {
+            $json = [
+                'id' => $ticket[0]['id'],
+                'subject' => $ticket[0]['subject'],
+                'isStarred' => $ticket[0]['isStarred'],
+                'isAgentView' => $ticket[0]['isAgentViewed'],
+                'isTrashed' => $ticket[0]['isTrashed'],
+                'status' => $ticket[0]['status'],
+                'groupName' => $ticket['groupName'],
+                'subGroupName' => $ticket['supportTeamName'],
+                'typeName' => $ticket['typeName'],
+                'priority' => $ticket[0]['priority'],
+                'formatedCreatedAt' => $ticket[0]['createdAt']->format('d-m-Y h:ia'),
+                'ticketLabels' => $ticketService->getTicketLabels($ticket[0]['id']),
+                'totalThreads' => $ticketService->getTicketTotalThreads($ticket[0]['id']),
+                'agent' => $ticket['agentId'] ? $userService->getAgentPartialDetailById($ticket['agentId']) : null,
+                'customer' => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
+                'lastReplyAgentName' => $ticketService->getlastReplyAgentName($ticket[0]['id']),
+                'createThread' => $ticketService->getCreateReply($ticket[0]['id']),
+                'lastReply' => $ticketService->getLastReply($ticket[0]['id']),
+            ];
+
+            if ($data['next'] || $data['previous']) {
+                $nextPrev = $ticketService->getNextPrevTicketids($data['id'], true);
+                
+                if ($data['next'] && $nextPrev['next']) {
+                    $json['next'] = $nextPrev['next'];
+                }
+
+                if ($data['previous'] && $nextPrev['prev']) {
+                    $json['previous'] = $nextPrev['prev'];
+                }
+            }
+
+            break;
+        }
+
+        return $json;
     }
 }
