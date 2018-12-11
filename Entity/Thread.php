@@ -25,11 +25,6 @@ class Thread
     /**
      * @var string
      */
-    private $fullname;
-
-    /**
-     * @var string
-     */
     private $threadType;
 
     /**
@@ -147,29 +142,6 @@ class Thread
     public function getSource()
     {
         return $this->source;
-    }
-
-    /**
-     * Set fullname
-     *
-     * @param string $fullname
-     * @return Thread
-     */
-    public function setFullname($fullname)
-    {
-        $this->fullname = $fullname;
-
-        return $this;
-    }
-
-    /**
-     * Get fullname
-     *
-     * @return string 
-     */
-    public function getFullname()
-    {
-        return preg_replace('/[\d]/', '', $this->fullname);
     }
     
     /**

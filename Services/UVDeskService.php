@@ -182,6 +182,13 @@ class UVDeskService
                             'isEnabled' => true,
                             'permission' => 'ROLE_AGENT_MANAGE_TICKET_TYPE',
                         ],
+                        [
+                            'name' => 'Saved Replies',
+                            'link' => $router->generate('helpdesk_member_saved_replies'),
+                            'isActive' => false,
+                            'isEnabled' => true,
+                            'permission' => 'ROLE_AGENT_MANAGE_SAVED_REPLIES',
+                        ],
                     ],
                 ];
                 break;
@@ -430,7 +437,7 @@ class UVDeskService
                 'ROLE_AGENT_MANAGE_WORKFLOW_AUTOMATIC' => $translator->trans('Can manage Automatic workflow'),
                 'ROLE_AGENT_MANAGE_TAG' => $translator->trans('Can manage tags'),
                 'ROLE_AGENT_MANAGE_KNOWLEDGEBASE' => $translator->trans('Can manage knowledgebase'),
-                // 'ROLE_AGENT_MANAGE_GROUP_SAVED_REPLY' => $translator->trans("Can manage Group's Saved Reply"),
+                'ROLE_AGENT_MANAGE_GROUP_SAVED_REPLY' => $translator->trans("Can manage Group's Saved Reply"),
             ]
         ];
     }
