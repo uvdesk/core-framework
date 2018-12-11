@@ -177,51 +177,8 @@ class EmailService
                         'info' => $this->trans('ticket.link.placeHolders.info'),
                     ],
                 ],
-                'global' => $allEmailPlaceholders['global'],
             ];
-        } elseif($template == 'taskNote') {
-            $placeHolders = [
-                'ticket' => [
-                    'id' => [
-                        'title' => $this->trans('Ticket Id'),
-                        'info' => $this->trans('ticket.id.placeHolders.info'),
-                    ],
-                    'subject' => [
-                        'title' => $this->trans('Ticket Subject'),
-                        'info' => $this->trans('ticket.subject.placeHolders.info'),
-                    ],
-                    'status' => [
-                        'title' => $this->trans('Ticket Status'),
-                        'info' => $this->trans('ticket.status.placeHolders.info'),
-                    ],
-                    'priority' => [
-                        'title' => $this->trans('Ticket Priority'),
-                        'info' => $this->trans('ticket.priority.placeHolders.info'),
-                    ],
-                    'group' => [
-                        'title' => $this->trans('Ticket Group'),
-                        'info' => $this->trans('ticket.group.placeHolders.info'),
-                    ],
-                    'customerName' => [
-                        'title' => $this->trans('Ticket Customer Name'),
-                        'info' => $this->trans('ticket.customerName.placeHolders.info'),
-                    ],
-                    'customerEmail' => [
-                        'title' => $this->trans('Ticket Customer Email'),
-                        'info' => $this->trans('ticket.customerEmail.placeHolders.info'),
-                    ],
-                    'agentName' => [
-                        'title' => $this->trans('Ticket Agent Name'),
-                        'info' => $this->trans('ticket.agentName.placeHolders.info'),
-                    ],
-                    'agentEmail' => [
-                        'title' => $this->trans('Ticket Agent Email'),
-                        'info' => $this->trans('ticket.agentEmail.placeHolders.info'),
-                    ],
-                ],
-                'global' => $allEmailPlaceholders['global'],
-            ];
-        } elseif($template == 'ticketNote') {
+        } elseif ($template == 'ticketNote') {
             $placeHolders = [
                 'type' => [
                     'previousType' => [
@@ -332,7 +289,6 @@ class EmailService
                         'info' => $this->trans('ticket.agentEmail.placeHolders.info'),
                     ],
                 ],
-                'global' => $allEmailPlaceholders['global'],
             ];
         }
 
