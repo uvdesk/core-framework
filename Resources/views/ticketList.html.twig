@@ -717,7 +717,7 @@
                                     <ul class="">
                                         {% set options = [] %}
                                         {% for priority in ticket_service.getPriorities() %}
-                                            {% set options = options|merge([{'id': priority.id, 'name': priority.code, 'color': priority.color}]) %}
+                                            {% set options = options|merge([{'id': priority.id, 'name': priority.code, 'color': priority.colorCode}]) %}
                                             <li data-id="{{priority.id}}">
                                                 {{priority.code}}
                                             </li>
