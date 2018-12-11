@@ -39,7 +39,7 @@
         "symfony/translation": "^3.4",
         "symfony/yaml": "^3.4",
         "symfony/serializer": "^3.4",
-        "knplabs/knp-paginator-bundle": "^2.8"
+        "knplabs/knp-paginator-bundle": "^2.6,!=2.8,!=2.8.x-dev"
     },
     "require-dev": {
         "symfony/var-dumper": "^3.4",
@@ -53,10 +53,7 @@
         "psr-4": { "Webkul\\UVDesk\\CoreBundle\\": "" }
     },
     "extra": {
-        "uvdesk-package-extension": "Webkul\\UVDesk\\CoreBundle\\Package\\Composer",
-        "branch-alias": {
-            "dev-master": "0.1.x-dev"
-        }
+        "uvdesk-package-extension": "Webkul\\UVDesk\\CoreBundle\\Package\\Composer"
     },
     "minimum-stability": "dev"
 }
