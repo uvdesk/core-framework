@@ -104,7 +104,7 @@ class SavedReplies extends Controller
                         'Success! Reply has been updated successfully.'
                         : 'Success! Reply has been added successfully.'
                     );
-                return $this->redirectToRoute('helhelpdesk_member_saved_repliespdesk_member_Saved_Reply');
+                return $this->redirectToRoute('helpdesk_member_saved_replies');
             // } else {
             //     $errors = $this->getFormErrors($form);
             // }
