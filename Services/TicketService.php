@@ -869,38 +869,68 @@ class TicketService
 
     public function getCreateReply($ticketId)
     {
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("DISTINCT th as thread")->from('UVDeskCoreBundle:Thread', 'th')
-            ->leftJoin('th.ticket','t')
-            ->leftJoin('th.attachments','a')
-            ->leftJoin('th.user','u')
-            ->andWhere('t.id = :ticketId')
-            ->andWhere('th.threadType = :threadType')
-            ->setParameter('threadType','create')
-            ->setParameter('ticketId', $ticketId)
-            ->orderBy('th.id', 'ASC')
-            ->setMaxResults(1);
+        // $qb = $this->entityManager->createQueryBuilder();
+        // $qb->select("DISTINCT th as thread, a")->from('UVDeskCoreBundle:Thread', 'th')
+        //     ->leftJoin('th.ticket','t')
+        //     ->leftJoin('th.attachments','a')
+        //     ->leftJoin('th.user','u')
+        //     ->andWhere('t.id = :ticketId')
+        //     ->andWhere('th.threadType = :threadType')
+        //     ->setParameter('threadType','create')
+        //     ->setParameter('ticketId', $ticketId)
+        //     ->orderBy('th.id', 'ASC')
+        //     ->setMaxResults(1);
        
-        $result = $qb->getQuery()->getOneOrNullResult();
-        $thread = is_array($result) ? current($result) : null;
+        // $result = $qb->getQuery()->getOneOrNullResult();
+        // $thread = is_array($result) ? current($result) : null;
+        // //dump($thread->getAttachments()); die;
 
-        if (!empty($thread)) {
-            $user = $thread->getUser();
+        // if (!empty($thread)) {
+        //     $user = $thread->getUser();
 
-            if ($thread->getCreatedBy() == 'agent') {
-                $data['user'] = $user->getAgentInstance()->getPartialDetails();
-            } else {
-                $data['user'] = $user->getCustomerInstance()->getPartialDetails();
-            }
+        //     if ($thread->getCreatedBy() == 'agent') {
+        //         $data['user'] = $user->getAgentInstance()->getPartialDetails();
+        //     } else {
+        //         $data['user'] = $user->getCustomerInstance()->getPartialDetails();
+        //     }
 
-            $data['attachments'] = $thread->getAttachments();
-            $data['formatedCreatedAt'] = $thread->getCreatedAt()->format('d-m-Y h:ia');
-            $data['reply'] = utf8_decode($thread->getMessage());
+        //     $data['attachments'] = $thread->getAttachments();
+        //     $data['formatedCreatedAt'] = $thread->getCreatedAt()->format('d-m-Y h:ia');
+        //     $data['reply'] = utf8_decode($thread->getMessage());
 
-            return $data;
-        }
+        //     return $data;
+        // }
         
-        return null;
+        // return null;
+
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select("th,a,u.id as userId")->from('UVDeskCoreBundle:Thread', 'th')
+                ->leftJoin('th.ticket','t')
+                ->leftJoin('th.attachments', 'a')
+                ->leftJoin('th.user','u')
+                ->andWhere('t.id = :ticketId')
+                ->andWhere('th.threadType = :threadType')
+                ->setParameter('threadType','create')
+                ->setParameter('ticketId',$ticketId)
+                ->orderBy('th.id', 'DESC')
+                ->getMaxResults(1);
+
+        $result = $qb->getQuery()->getArrayResult();
+
+        if($result) {
+            $userService = $this->container->get('user.service');
+            $data = $result[0][0];
+            if($data['createdBy'] == 'agent')
+                $data['user'] = $userService->getAgentDetailById($result[0]['userId']);
+            else
+                $data['user'] = $userService->getCustomerPartialDetailById($result[0]['userId']);
+            $data['formatedCreatedAt'] = $data['createdAt']->format('d-m-Y h:ia');
+            $data['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($data['createdAt']);
+            $data['attachments'] = $data['attachments'];
+            $data['reply'] = utf8_decode($data['message']);
+            return $data;
+        } else
+            return null;
     }
 
     public function hasAttachments($ticketId) {
@@ -1114,7 +1144,8 @@ class TicketService
                 ->andWhere('th.threadType = :threadType')
                 ->setParameter('threadType','reply')
                 ->setParameter('ticketId',$ticketId)
-                ->orderBy('th.id', 'DESC');
+                ->orderBy('th.id', 'DESC')
+                ->getMaxResults(1);
 
         if($userType) {
             $qb->andWhere('th.createdBy = :createdBy')
