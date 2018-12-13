@@ -140,7 +140,7 @@ class SavedReplies extends Controller
                 }
             }
 
-            $entityManager->remove($templateBase);
+            $entityManager->remove($savedReply);
             $entityManager->flush();
 
             $responseContent = [
