@@ -867,31 +867,33 @@ class TicketService
         return null;
     }
 
-    public function getCreateReply($ticketId,$cacheRequired = true)
+    public function getCreateReply($ticketId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("DISTINCT th, a, u.id as userId")->from('UVDeskCoreBundle:Thread', 'th')
-            ->leftJoin('th.ticket','t')
-            ->leftJoin('th.attachments','a')
-            ->leftJoin('th.user','u')
-            ->andWhere('t.id = :ticketId')
-            ->andWhere('th.threadType = :threadType')
-            ->setParameter('threadType','create')
-            ->setParameter('ticketId', $ticketId)
-            ->orderBy('th.id', 'ASC');
-       
+        $qb->select("th,a,u.id as userId")->from('UVDeskCoreBundle:Thread', 'th')
+                ->leftJoin('th.ticket','t')
+                ->leftJoin('th.attachments', 'a')
+                ->leftJoin('th.user','u')
+                ->andWhere('t.id = :ticketId')
+                ->andWhere('th.threadType = :threadType')
+                ->setParameter('threadType','create')
+                ->setParameter('ticketId',$ticketId)
+                ->orderBy('th.id', 'DESC')
+                ->getMaxResults(1);
+
         $result = $qb->getQuery()->getArrayResult();
+
         if($result) {
             $userService = $this->container->get('user.service');
             $data = $result[0][0];
-
-            if(isset($data['userType']) && $data['userType'] == 'agent')
-                $data['user'] = $userService->getAgentPartialDetailById($result[0]['userId']);
+            
+            if($data['createdBy'] == 'agent')
+                $data['user'] = $userService->getAgentDetailById($result[0]['userId']);
             else
                 $data['user'] = $userService->getCustomerPartialDetailById($result[0]['userId']);
-
-            $data['attachments'] = $data['attachments'];
             $data['formatedCreatedAt'] = $data['createdAt']->format('d-m-Y h:ia');
+            $data['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($data['createdAt']);
+            $data['attachments'] = $data['attachments'];
             $data['reply'] = utf8_decode($data['message']);
             return $data;
         } else
@@ -1109,7 +1111,8 @@ class TicketService
                 ->andWhere('th.threadType = :threadType')
                 ->setParameter('threadType','reply')
                 ->setParameter('ticketId',$ticketId)
-                ->orderBy('th.id', 'DESC');
+                ->orderBy('th.id', 'DESC')
+                ->getMaxResults(1);
 
         if($userType) {
             $qb->andWhere('th.createdBy = :createdBy')
