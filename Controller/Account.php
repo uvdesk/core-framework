@@ -26,11 +26,21 @@ class Account extends Controller
         $user = $this->getUser();
         $originalUser = clone $user;
         $errors = [];
+        $dataFiles = $request->files->get('user_form');
 
         if ($request->getMethod() == "POST") {
             $data     = $request->request->all();
             $dataFiles = $request->files->get('user_form');
-           
+
+            // Profile upload validation
+            $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
+            if(isset($dataFiles['profileImage'])){
+                if(!in_array($dataFiles['profileImage']->getMimeType(), $validMimeType)){
+                    $this->addFlash('warning', 'Error ! Profile image is not valid, please upload a valid format');
+                    return $this->redirect($this->generateUrl('helpdesk_member_profile'));
+                }
+            }
+
             $data = $data['user_form'];
             $checkUser = $em->getRepository('UVDeskCoreBundle:User')->findOneBy(array('email' => $data['email']));
            
@@ -50,13 +60,11 @@ class Account extends Controller
                 $encodedPassword = $this->container->get('security.password_encoder')->encodePassword($user, $data['password']['first']);
                 
                 if ($form->isValid()) {
-                   
                     if($data != null) {
                         if (!empty($encodedPassword) ) {
                             $user->setPassword($encodedPassword);
                         } else {
                             $this->addFlash('warning', 'Error! Given current password is incorrect.');
-
                             return $this->redirect($this->generateUrl('helpdesk_member_profile'));
                         }
                     } else {
@@ -130,7 +138,21 @@ class Account extends Controller
                 $formErrors = [];
                 $data      = $request->request->get('user_form');
                 $dataFiles = $request->files->get('user_form');
-                
+
+                // Agent Profile upload validation
+                $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
+                if(isset($dataFiles['profileImage'])){
+                    if(!in_array($dataFiles['profileImage']->getMimeType(), $validMimeType)){
+
+                    $this->addFlash('warning', 'Error ! Profile image is not valid, please upload a valid format');
+                    $response = $this->render('@UVDeskCore/Agents/updateSupportAgent.html.twig', [
+                            'user'         => $user,
+                            'instanceRole' => $instanceRole,
+                            'errors'       => json_encode([])
+                        ]);
+                        break;
+                    }
+                }
                 $checkUser = $em->getRepository('UVDeskCoreBundle:User')->findOneBy(array('email'=> $data['email']));
                 $errorFlag = 0;
                
@@ -257,7 +279,6 @@ class Account extends Controller
     
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
-
                     $this->addFlash('success', 'Success ! Agent updated successfully.');
                     return $this->redirect($this->generateUrl('helpdesk_member_account_collection'));
                 } else {
@@ -295,6 +316,15 @@ class Account extends Controller
             $formDetails = $request->request->get('user_form');
             $uploadedFiles = $request->files->get('user_form');
             $entityManager = $this->getDoctrine()->getManager();
+
+             // Profile upload validation
+             $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
+             if(isset($uploadedFiles['profileImage'])){
+                 if(!in_array($uploadedFiles['profileImage']->getMimeType(), $validMimeType)){
+                     $this->addFlash('warning', 'Error ! Profile image is not valid, please upload a valid format');
+                     return $this->redirect($this->generateUrl('helpdesk_member_create_account'));
+                 }
+             }
 
             $user = $entityManager->getRepository('UVDeskCoreBundle:User')->findOneByEmail($formDetails['email']);
             $agentInstance = !empty($user) ? $user->getAgentInstance() : null;

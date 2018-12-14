@@ -30,7 +30,16 @@ class Customer extends Controller
             $entityManager = $this->getDoctrine()->getManager();
             $formDetails = $request->request->get('customer_form');
             $uploadedFiles = $request->files->get('customer_form');
-            
+
+            // Profile upload validation
+            $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
+            if(isset($uploadedFiles['profileImage'])){
+                if(!in_array($uploadedFiles['profileImage']->getMimeType(), $validMimeType)){
+                    $this->addFlash('warning', 'Error ! Profile image is not valid, please upload a valid format');
+                    return $this->redirect($this->generateUrl('helpdesk_member_create_customer_account'));
+                }
+            }
+
             $user = $entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(array('email' => $formDetails['email']));
             $customerInstance = !empty($user) ? $user->getCustomerInstance() : null;
 
@@ -84,6 +93,15 @@ class Customer extends Controller
         }
         if ($request->getMethod() == "POST") {
             $contentFile = $request->files->get('customer_form');
+           
+            // Customer Profile upload validation
+            $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
+            if(isset($contentFile['profileImage'])){
+                if(!in_array($contentFile['profileImage']->getMimeType(), $validMimeType)){
+                    $this->addFlash('warning', 'Error ! Profile image is not valid, please upload a valid format');
+                    return $this->render('@UVDeskCore/Customers/updateSupportCustomer.html.twig', ['user' => $user,'errors' => json_encode([])]);
+                }
+            }
             if($userId) {
                 $data = $request->request->all();
                 $data = $data['customer_form'];
@@ -120,8 +138,10 @@ class Customer extends Controller
                         $fileName = $this->container->get('uvdesk.service')->getFileUploadManager()->upload($contentFile['profileImage']);
                         $userInstance->setProfileImagePath($fileName);
                     }
+
                     $em->persist($userInstance);
                     $em->flush();
+
                     $user->addUserInstance($userInstance);
                     $em->persist($user);
                     $em->flush();
@@ -139,21 +159,23 @@ class Customer extends Controller
                     $this->addFlash('warning', 'Error ! User with same email is already exist.');
                 }
             } 
-        }elseif($request->getMethod() == "PUT"){
+        } elseif($request->getMethod() == "PUT") {
             $content = json_decode($request->getContent(), true);
             $userId  = $content['id'];
             $user = $repository->findOneBy(['id' =>  $userId]);
-            if(!$user)
+            
+            if (!$user)
                 $this->noResultFound();
 
             $checkUser = $em->getRepository('UVDeskCoreBundle:User')->findOneBy(array('email' => $content['email']));
             $errorFlag = 0;
 
-            if($checkUser) {
+            if ($checkUser) {
                 if($checkUser->getId() != $userId)
                     $errorFlag = 1;
             }
-            if(!$errorFlag && 'hello@uvdesk.com' !== $user->getEmail()) {
+
+            if (!$errorFlag && 'hello@uvdesk.com' !== $user->getEmail()) {
                     $name = explode(' ', $content['name']);
                     $lastName = isset($name[1]) ? $name[1] : ' ';
                     $user->setFirstName($name[0]);
@@ -171,16 +193,17 @@ class Customer extends Controller
 
                     $json['alertClass']      = 'success';
                     $json['alertMessage']    = 'Success ! Customer updated successfully.';
-            }else{
+            } else {
                     $json['alertClass']      = 'error';
                     $json['alertMessage']    = 'Error ! Customer with same email already exist.';      
             }
+
             return new Response(json_encode($json), 200, []);
         }
 
         return $this->render('@UVDeskCore/Customers/updateSupportCustomer.html.twig', [
-                'user' => $user,
-                'errors' => json_encode([])
+            'user' => $user,
+            'errors' => json_encode([])
         ]);
     }
 
