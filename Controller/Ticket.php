@@ -4,11 +4,11 @@ namespace Webkul\UVDesk\CoreBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Webkul\UVDesk\CoreBundle\Form as CoreBundleForms;
 use Symfony\Component\EventDispatcher\GenericEvent;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Webkul\UVDesk\CoreBundle\Form as CoreBundleForms;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Webkul\UVDesk\CoreBundle\Entity as CoreBundleEntities;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreBundle\DataProxies as CoreBundleDataProxies;
 use Webkul\UVDesk\CoreBundle\Workflow\Events as CoreWorkflowEvents;
 
@@ -76,33 +76,9 @@ class Ticket extends Controller
             'ticketStatusCollection' => $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findAll(),
             'ticketTypeCollection' => $entityManager->getRepository('UVDeskCoreBundle:TicketType')->findAll(),
             'ticketPriorityCollection' => $entityManager->getRepository('UVDeskCoreBundle:TicketPriority')->findAll(),
-            'ticketNavigationIteration' => $ticketRepository->getTicketNavigationIteration($ticket),
+            'ticketNavigationIteration' => $ticketRepository->getTicketNavigationIteration($ticket, $this->container),
             'ticketLabelCollection' => $ticketRepository->getTicketLabelCollection($ticket, $user),
         ]);
-    }
-
-    public function getSearchFilterOptionsXhr(Request $request)
-    {
-        $json = [];
-        if($request->isXmlHttpRequest()) {
-            if($request->query->get('type') == 'agent') {
-                $json = $this->get('user.service')->getAgentsPartialDetails($request);
-            } elseif($request->query->get('type') == 'customer') {
-                $json = $this->get('user.service')->getCustomersPartial($request);
-            } elseif($request->query->get('type') == 'group') {
-                $json = $this->get('user.service')->getGroups($request);
-            } elseif($request->query->get('type') == 'team') {
-                $json = $this->get('user.service')->getSubGroups($request);
-            } elseif($request->query->get('type') == 'tag') {
-                $json = $this->get('ticket.service')->getTicketTags($request);
-            } elseif($request->query->get('type') == 'label') {
-                $json = $this->get('ticket.service')->getLabels($request);
-            }
-        }
-
-        $response = new Response(json_encode($json));
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
     }
     
     public function saveTicket(Request $request)
@@ -137,6 +113,7 @@ class Ticket extends Controller
 
         $ticketProxy = new CoreBundleDataProxies\CreateTicketDataClass();
         $form = $this->createForm(CoreBundleForms\CreateTicket::class, $ticketProxy);
+
         // Validate Ticket Details
         $form->submit($requestParams);
         if (false == $form->isSubmitted() || false == $form->isValid()) {
@@ -191,6 +168,7 @@ class Ticket extends Controller
         $event = new GenericEvent(CoreWorkflowEvents\Ticket\Create::getId(), [
             'entity' =>  $thread->getTicket(),
         ]);
+
         $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
         if (!empty($thread)) {
@@ -221,8 +199,10 @@ class Ticket extends Controller
         if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
+
         $errorContext = [];
         $em = $this->getDoctrine()->getManager();
+
         if($id = $request->attributes->get('ticketTypeId')) {
             $type = $em->getRepository('UVDeskCoreBundle:TicketType')->find($id);
             if (!$type) {
@@ -231,9 +211,11 @@ class Ticket extends Controller
         } else {
             $type = new CoreBundleEntities\TicketType();
         }
+
         if ($request->getMethod() == "POST") {
             $data = $request->request->all();
             $ticketType = $em->getRepository('UVDeskCoreBundle:TicketType')->findOneByCode($data['code']);
+            
             if (!empty($ticketType) && $id != $ticketType->getId()) {
                 $this->addFlash('warning', sprintf('Error! Ticket type with same name already exist'));
             } else {
@@ -243,14 +225,17 @@ class Ticket extends Controller
                 
                 $em->persist($type);
                 $em->flush();
+
                 if (!$request->attributes->get('ticketTypeId')) {
                     $this->addFlash('success', sprintf('Success! Ticket type saved successfully.'));
                 } else {
                     $this->addFlash('success', sprintf('Success! Ticket type updated successfully.'));
                 }
+
                 return $this->redirect($this->generateUrl('helpdesk_member_ticket_type_collection'));
             }
         }
+
         return $this->render('@UVDeskCore/ticketTypeAdd.html.twig', array(
             'type' => $type,
             'errors' => json_encode($errorContext)
@@ -309,12 +294,13 @@ class Ticket extends Controller
             $entityManager->persist($ticket);
             $entityManager->flush();
         }
+
         // Trigger ticket delete event
         $event = new GenericEvent(CoreWorkflowEvents\Ticket\Delete::getId(), [
             'entity' => $ticket,
         ]);
+        
         $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
-
         $this->addFlash('success','Success ! Ticket moved to trash successfully.');
 
         return $this->redirectToRoute('helpdesk_member_ticket_collection');
@@ -324,6 +310,7 @@ class Ticket extends Controller
     {
         $threadId = $request->attributes->get('threadId');
         $attachmentRepository = $this->getDoctrine()->getManager()->getRepository('UVDeskCoreBundle:Attachment');
+        
         $attachment = $attachmentRepository->findByThread($threadId);
 
         if (!$attachment) {
@@ -352,8 +339,8 @@ class Ticket extends Controller
         return $response;
     }
 
-    // Tag add for ticket
-    public function createTicketTagXHR(Request $request) { 
+    public function createTicketTagXHR(Request $request)
+    { 
         $json = [];
         $content = json_decode($request->getContent(), true);
 
@@ -406,12 +393,9 @@ class Ticket extends Controller
         $response->headers->set('Content-Type', 'application/json');
         return $response;
     }
-        /**
-     * ticketCollaboratorXhrAction "Ticket Collaborator controller action"
-     * @param Object $request "HTTP Request object"
-     */
-    public function updateCollaboratorXHR(Request $request) {
-
+    
+    public function updateCollaboratorXHR(Request $request)
+    {
         $json = [];
         $content = json_decode($request->getContent(), true);
         $em = $this->getDoctrine()->getManager();
@@ -439,10 +423,11 @@ class Ticket extends Controller
                    
                     $json['collaborator'] =  $this->get('user.service')->getCustomerPartialDetailById($collaborator->getId());
 
-                     // Trigger agent delete event
-                     $event = new GenericEvent(CoreWorkflowEvents\Ticket\Collaborator::getId(), [
+                    // Trigger agent delete event
+                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Collaborator::getId(), [
                         'entity' => $ticket,
                     ]);
+
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
                     
                     $json['alertClass'] = 'success';
@@ -471,48 +456,15 @@ class Ticket extends Controller
         $response->headers->set('Content-Type', 'application/json');
         return $response;
     }
-    
-    // Apply Prepared Response
-    public function applyPreparedResponse(Request $request) {
-
-        $em        = $this->getDoctrine()->getManager();
-        $id        = $request->attributes->get('id'); // Prepared response id
-        $ticketId  = $request->attributes->get('ticketId'); //Ticket Id
-        $ticket    = $em->getRepository('UVDeskCoreBundle:Ticket')->findOneBy(array('id' => $ticketId));
-
-        $event    = new GenericEvent($id, ['entity' =>  $ticket]);
-        $this->get('event_dispatcher')->dispatch('uvdesk.automation.prepared_response.execute', $event);
-        $this->addFlash('success', 'Success ! Prepared Response applied successfully.');
-
-        return $this->redirect($this->generateUrl('helpdesk_member_ticket',['ticketId' => $ticketId]));
-    }
 
     // Apply quick Response action
     public function getTicketQuickViewDetailsXhr(Request $request)
     {
         $json = [];
-        if($request->isXmlHttpRequest()) {
+
+        if ($request->isXmlHttpRequest()) {
             $ticketId = $request->query->get('ticketId');
             $json = $this->getDoctrine()->getRepository('UVDeskCoreBundle:Ticket')->getTicketDetails($request->query,$this->container);
-
-            // if (!$this->get('default.service')->hasPermissionForEmail($this->getCurrentUser()->getEmail())) {
-            //     if (!empty($json['customer'])) {
-            //         $json['customer']['email'] = $this->get('default.service')->applyWebkulFilter($json['customer']['email'], ['email']);
-            //         $json['customer']['contactNumber'] = $this->get('default.service')->applyWebkulFilter($json['customer']['contactNumber'], ['contact']);
-            //     }
-
-            //     if (!empty($json['createThread']['reply'])) {
-            //         $json['createThread']['reply'] = $this->get('default.service')->applyWebkulFilter($json['createThread']['reply'], ['email']);
-            //     }
-
-            //     if (!empty($json['lastReply']['reply'])) {
-            //         $json['lastReply']['reply'] = $this->get('default.service')->applyWebkulFilter($json['lastReply']['reply'], ['email']);
-            //     }
-
-            //     if (!empty($json['subject'])) {
-            //         $json['subject'] = $this->get('default.service')->applyWebkulFilter($json['subject'], ['email']);
-            //     }
-            // }
         }
 
         $response = new Response(json_encode($json));

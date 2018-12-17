@@ -53,10 +53,9 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $qb->leftJoin('t.supportGroup', 'gr');
         $qb->leftJoin('t.priority', 'pr');
         $qb->leftJoin('t.type', 'tp');
-        // $qb->leftJoin('t.collaborators', 'tc');
         $qb->addSelect("CONCAT(a.firstName,' ', a.lastName) AS name");
         $qb->andwhere("t.agent IS NULL OR ad.supportRole != 4");
-        $data = $obj->all();
+        $data = $obj ? $obj->all() : [];
         $data = array_reverse($data);
         foreach ($data as $key => $value) {
             if(!in_array($key,$this->safeFields)) {
@@ -467,33 +466,23 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         return (int) $totalThreads;
     }
 
-    public function getTicketNavigationIteration($ticketId)
+    public function getTicketNavigationIteration($ticket, $container)
     {
-        // $data = $this->container->get('default.service')->getParamsFromSessionUrl();
-        // $qb = $this->em->getRepository('UVDeskCoreBundle:Ticket')
-        //            ->getAllTicketsQuery($data, $this->container);
+        $ticketsCollection = $this->getEntityManager()->getRepository('UVDeskCoreBundle:Ticket')
+                   ->getAllTickets(null, $container);
 
-        // if($primaryKey)
-        //     $qb->select('DISTINCT t.id as ticketId');
-        // else
-        //     $qb->select('DISTINCT t.incrementId as ticketId');
-        // $qb->addSelect("CONCAT(ad.firstName,' ', ad.lastName) AS agentName");
-        // $qb->addSelect("CONCAT(cd.firstName,' ', cd.lastName) AS name");
+        if ($ticketsCollection)
+            $results = $ticketsCollection['tickets'];
 
-        // if(isset($data['sort']))
-        //     $qb->orderBy($data['sort'],strtoupper($data['direction']));
+        $nextPrevPage = array('next' => 0,'prev' => 0);
+        for ($i = 0; $i < count($results); $i++) {
+            if($results[$i]['id'] == $ticket->getId()) {
+                $nextPrevPage['next'] = isset($results[$i + 1]) ? $results[$i + 1]['id'] : 0;
+                $nextPrevPage['prev'] = isset($results[$i - 1]) ? $results[$i - 1]['id'] : 0;
+            }
+        }
 
-        // $results = $qb->getQuery()->getResult();
-        // $nextPrevPage = array('next' => 0,'prev' => 0);
-        // for ($i = 0; $i < count($results); $i++) {
-        //     if($results[$i]['ticketId'] == $ticketId) {
-        //         $nextPrevPage['next'] = isset($results[$i + 1]) ? $results[$i + 1]['ticketId'] : 0;
-        //         $nextPrevPage['prev'] = isset($results[$i - 1]) ? $results[$i - 1]['ticketId'] : 0;
-        //     }
-        // }
-        // return $nextPrevPage;
-
-        return ['next' => 0, 'prev' => 0];
+        return $nextPrevPage;
     }
 
     public function countCustomerTotalTickets(User $user)
