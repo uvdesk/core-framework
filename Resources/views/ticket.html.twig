@@ -737,7 +737,7 @@
                                 <div class="message">
                                     <p>
                                         {% if initialThread.message|striptags == initialThread.message %}
-                                            {{ initialThread.message|nl2br }}
+                                            {{ initialThread.message|raw }}
                                         {% else %}
                                             {{ initialThread.message|raw }}
                                         {% endif %}
@@ -893,9 +893,9 @@
                                                     {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}
                                                         <li data-id="1">Submit And Open</li>
                                                         <li data-id="2">Submit And Pending</li>
-                                                        <li data-id="6">Submit And Answered</li>
-                                                        <li data-id="3">Submit And Resolved</li>
-                                                        <li data-id="4">Submit And Closed</li>
+                                                        <li data-id="3">Submit And Answered</li>
+                                                        <li data-id="4">Submit And Resolved</li>
+                                                        <li data-id="5">Submit And Closed</li>
                                                     {% endif %}
                                                 </ul>
                                             </div>
@@ -1437,10 +1437,13 @@
             // Customer Model
             var CustomerModel = Backbone.Model.extend({
                 validation: {
-                    'name': {
+                    'name': [{
                         required: true,
-                        msg: 'This field is mandatory'
-                    },
+                        msg: '{{ "This field is mandatory" }}'
+                    }, {
+                        pattern: /^((?![!@#$%^&*()<_+]).)*$/,
+                        msg: '{{ "This field must have characters only"}}'
+                    }],
                     'email': [{
                         required: true,
                         msg: 'This field is mandatory'
