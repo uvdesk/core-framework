@@ -16,7 +16,6 @@ class Thread extends Controller
     {
         $entityManager = $this->getDoctrine()->getManager();
         $request = $this->container->get('request_stack')->getCurrentRequest();
-
         $params = $request->request->all();
         $ticket = $entityManager->getRepository('UVDeskCoreBundle:Ticket')->findOneById($ticketId);
 
@@ -59,6 +58,11 @@ class Thread extends Controller
             'message' => $params['reply'],
             'attachments' => $request->files->get('attachments')
         ];
+
+        if(isset($params['status'])){
+            $ticketStatus = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findOneById($params['status']);
+            $ticket->setStatus($ticketStatus);
+        }
         
         if (isset($params['to'])) {
             $threadDetails['to'] = $params['to'];

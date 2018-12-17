@@ -30,7 +30,16 @@ class Customer extends Controller
             $entityManager = $this->getDoctrine()->getManager();
             $formDetails = $request->request->get('customer_form');
             $uploadedFiles = $request->files->get('customer_form');
-            
+
+            // Profile upload validation
+            $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
+            if(isset($uploadedFiles['profileImage'])){
+                if(!in_array($uploadedFiles['profileImage']->getMimeType(), $validMimeType)){
+                    $this->addFlash('warning', 'Error ! Profile image is not valid, please upload a valid format');
+                    return $this->redirect($this->generateUrl('helpdesk_member_create_customer_account'));
+                }
+            }
+
             $user = $entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(array('email' => $formDetails['email']));
             $customerInstance = !empty($user) ? $user->getCustomerInstance() : null;
 
@@ -84,6 +93,15 @@ class Customer extends Controller
         }
         if ($request->getMethod() == "POST") {
             $contentFile = $request->files->get('customer_form');
+           
+            // Customer Profile upload validation
+            $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
+            if(isset($contentFile['profileImage'])){
+                if(!in_array($contentFile['profileImage']->getMimeType(), $validMimeType)){
+                    $this->addFlash('warning', 'Error ! Profile image is not valid, please upload a valid format');
+                    return $this->render('@UVDeskCore/Customers/updateSupportCustomer.html.twig', ['user' => $user,'errors' => json_encode([])]);
+                }
+            }
             if($userId) {
                 $data = $request->request->all();
                 $data = $data['customer_form'];
