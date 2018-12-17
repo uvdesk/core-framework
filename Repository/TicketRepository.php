@@ -39,7 +39,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         return [];
     }
 
-    public function getAllTickets(\Symfony\Component\HttpFoundation\ParameterBag $obj = null, $container, $actAsUser = null)
+    public function getAllTickets(ParameterBag $obj = null, $container, $actAsUser = null)
     {
         $currentUser = $actAsUser ? : $container->get('user.service')->getCurrentUser();
   
@@ -112,7 +112,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 'priority' => $ticket[0]['priority'],
                 'formatedCreatedAt' => $userService->convertToTimezone($ticket[0]['createdAt']),
                 'totalThreads' => $ticketService->getTicketTotalThreads($ticket[0]['id']),
-                'agent' => $ticket['agentId'] ? $userService->getAgentPartialDetailById($ticket['agentId']) : null,
+                'agent' => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
                 'customer' => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
                 // 'hasAttachments' => $ticketService->hasAttachments($ticket[0]['id'])
             ];
@@ -124,8 +124,8 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         return $json;
     }
 
-    public function getAllCustomerTickets(\Symfony\Component\HttpFoundation\ParameterBag $obj = null, $container, $actAsUser = null) {
-       
+    public function getAllCustomerTickets(ParameterBag $obj = null, $container, $actAsUser = null)
+    {
         $currentUser = $actAsUser ? : $container->get('user.service')->getCurrentUser();
         $json = array();
         $qb = $this->getEntityManager()->createQueryBuilder();
@@ -155,6 +155,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 }
             }
         }
+
         $qb->andwhere('t.customer = :customerId');
         $qb->setParameter('customerId', $currentUser->getId());
         $qb->andwhere('t.isTrashed != 1');
@@ -241,9 +242,11 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->where('customerInstance.supportRole = 4')
             ->andWhere("ticket.agent IS NULL OR agentInstance.supportRole != 4")
             ->andWhere('ticket.isTrashed = :isTrashed')->setParameter('isTrashed', isset($params['trashed']) ? true : false);
-        if($user->getRoles()[0] != 'ROLE_SUPER_ADMIN'){
-            $queryBuilder->andwhere('ticket.agent = '.$user->getId());
+        
+        if ($user->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
+            $queryBuilder->andwhere('ticket.agent = ' . $user->getId());
         }
+
         if (!isset($params['sort'])) {
             $queryBuilder->orderBy('ticket.updatedAt', Criteria::DESC);
         }
@@ -331,26 +334,6 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                         $queryBuilder->setParameter('beforeDate', $date);
                     }
                     break;
-                // case 'custom':
-                //     $queryBuilder->leftJoin('t.customFieldValues', 'tCfV');
-                //     $columnSeparator = '|';
-                //     $indexValueSeparator = '_';
-                //     $customFields = explode($columnSeparator, $fieldValue);
-                //     $query = [];
-                //     foreach ($customFields as $key => $customField) {
-                //         $idValue = explode($indexValueSeparator, $customField);
-                //         if(isset($idValue[1])){
-                //             $query[] = '(tCfV.ticketCustomFieldsValues = :customId'. $key .' AND (tCfV.value LIKE :customValue'. $key .' OR tCfV.ticketCustomFieldValueValues IN (:customValueId'. $key .')))';
-                //             $queryBuilder->setParameter('customId'.$key , $idValue[0]);
-                //             $queryBuilder->setParameter('customValue'.$key , '%'.$idValue[1].'%');
-                //             $queryBuilder->setParameter('customValueId'.$key , explode(',', $idValue[1]));
-                //         }
-                //     }
-
-                //     if($query) {
-                //         $queryBuilder->andwhere(implode(' OR ', $query));
-                //     }
-                //     break;
                 default:
                     break;
             }
@@ -364,12 +347,13 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select("ticketType")
             ->from('UVDeskCoreBundle:TicketType', 'ticketType');
-        
+
         // Apply filters
         foreach ($params as $field => $fieldValue) {
             if (in_array($field, $this->safeFields)) {
                 continue;
             }
+
             switch ($field) {
                 case 'search':
                     $queryBuilder->andwhere("ticketType.code LIKE :searchQuery OR ticketType.description LIKE :searchQuery");
@@ -378,7 +362,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 case 'isActive':
                     $queryBuilder->andwhere("ticketType.isActive LIKE :searchQuery");
                     $queryBuilder->setParameter('searchQuery', '%' . urldecode($fieldValue) . '%');
-                break;
+                    break;
                 default:
                     break;
             }
@@ -390,6 +374,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         } else {
             $queryBuilder->orderBy('ticketType.code', (empty($params['direction']) || 'ASC' == strtoupper($params['direction'])) ? Criteria::ASC : Criteria::DESC);
         }
+
         return $queryBuilder;
     }
 
@@ -534,16 +519,21 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
         return $qb->getQuery()->getSingleScalarResult() ? true : false;
     }
-    public function isTicketCollaborator($ticket,$collaboratorEmail) {
-        if($ticket->getCollaborators()) {
+
+    public function isTicketCollaborator($ticket, $collaboratorEmail)
+    {
+        if ($ticket->getCollaborators()) {
             foreach ($ticket->getCollaborators() as $collaborator) {
-                if(strtolower($collaborator->getEmail()) == strtolower($collaboratorEmail))
+                if (strtolower($collaborator->getEmail()) == strtolower($collaboratorEmail)) {
                     return true;
+                }
             }
         }
+
         return false;
     }
-    public function getTicketDetails(\Symfony\Component\HttpFoundation\ParameterBag $obj = null, $container)
+
+    public function getTicketDetails(ParameterBag $obj = null, $container)
     {
         $data = $obj->all();
         $userService = $container->get('user.service');
@@ -569,36 +559,41 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
     
         foreach ($results as $key => $ticket) {
             $json = [
-                    'id' => $ticket[0]['id'],
-                    'subject' => $ticket[0]['subject'],
-                    'isStarred' => $ticket[0]['isStarred'],
-                    //'rating' => $ticket[0]['rating'],
-                    'isAgentView' => $ticket[0]['isAgentViewed'],
-                    'isTrashed' => $ticket[0]['isTrashed'],
-                    'status' => $ticket[0]['status'],
-                    'groupName' => $ticket['groupName'],
-                    'subGroupName' => $ticket['supportTeamName'],
-                    'typeName' => $ticket['typeName'],
-                    'priority' => $ticket[0]['priority'],
-                    'formatedCreatedAt' => $ticket[0]['createdAt']->format('d-m-Y h:ia'),
-                    'ticketLabels' => $ticketService->getTicketLabels($ticket[0]['id']),
-                    'totalThreads' => $ticketService->getTicketTotalThreads($ticket[0]['id']),
-                    'agent' => $ticket['agentId'] ? $userService->getAgentPartialDetailById($ticket['agentId']) : null,
-                    'customer' => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
-                    'lastReplyAgentName' => $ticketService->getlastReplyAgentName($ticket[0]['id']),
-                    'createThread' => $ticketService->getCreateReply($ticket[0]['id']),
-                    'lastReply' => $ticketService->getLastReply($ticket[0]['id']),
-                ];
-            if($data['next'] || $data['previous']) {
+                'id' => $ticket[0]['id'],
+                'subject' => $ticket[0]['subject'],
+                'isStarred' => $ticket[0]['isStarred'],
+                'isAgentView' => $ticket[0]['isAgentViewed'],
+                'isTrashed' => $ticket[0]['isTrashed'],
+                'status' => $ticket[0]['status'],
+                'groupName' => $ticket['groupName'],
+                'subGroupName' => $ticket['supportTeamName'],
+                'typeName' => $ticket['typeName'],
+                'priority' => $ticket[0]['priority'],
+                'formatedCreatedAt' => $ticket[0]['createdAt']->format('d-m-Y h:ia'),
+                'ticketLabels' => $ticketService->getTicketLabels($ticket[0]['id']),
+                'totalThreads' => $ticketService->getTicketTotalThreads($ticket[0]['id']),
+                'agent' => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
+                'customer' => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
+                'lastReplyAgentName' => $ticketService->getlastReplyAgentName($ticket[0]['id']),
+                'createThread' => $ticketService->getCreateReply($ticket[0]['id']),
+                'lastReply' => $ticketService->getLastReply($ticket[0]['id']),
+            ];
+
+            if ($data['next'] || $data['previous']) {
                 $nextPrev = $ticketService->getNextPrevTicketids($data['id'], true);
-                if($data['next'] && $nextPrev['next'])
+                
+                if ($data['next'] && $nextPrev['next']) {
                     $json['next'] = $nextPrev['next'];
-                if($data['previous'] && $nextPrev['prev'])
+                }
+
+                if ($data['previous'] && $nextPrev['prev']) {
                     $json['previous'] = $nextPrev['prev'];
+                }
             }
 
             break;
         }
+
         return $json;
     }
 }

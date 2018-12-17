@@ -4,9 +4,9 @@ namespace Webkul\UVDesk\CoreBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Webkul\UVDesk\CoreBundle\Utils\HTMLFilter;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Webkul\UVDesk\CoreBundle\Utils\HTMLFilter;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Webkul\UVDesk\CoreBundle\Workflow\Events as CoreWorkflowEvents;
 
@@ -16,7 +16,6 @@ class Thread extends Controller
     {
         $entityManager = $this->getDoctrine()->getManager();
         $request = $this->container->get('request_stack')->getCurrentRequest();
-
         $params = $request->request->all();
         $ticket = $entityManager->getRepository('UVDeskCoreBundle:Ticket')->findOneById($ticketId);
 
@@ -59,15 +58,24 @@ class Thread extends Controller
             'message' => $params['reply'],
             'attachments' => $request->files->get('attachments')
         ];
+
+        if(isset($params['status'])){
+            $ticketStatus = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findOneById($params['status']);
+            $ticket->setStatus($ticketStatus);
+        }
         
-        if(isset($params['to']))
+        if (isset($params['to'])) {
             $threadDetails['to'] = $params['to'];
-        if(isset($params['cc'])){
+        }
+        
+        if (isset($params['cc'])) {
             $threadDetails['cc'] = $params['cc'];
         }
-        if(isset($params['bcc'])){
+
+        if (isset($params['bcc'])) {
             $threadDetails['bcc'] = $params['bcc'];
         }
+
         // Create Thread
         $thread = $this->get('ticket.service')->createThread($ticket, $threadDetails);
         // $this->addFlash('success', ucwords($params['threadType']) . " added successfully.");
@@ -106,19 +114,23 @@ class Thread extends Controller
         $request->getSession()->getFlashBag()->set('success', ('Success! Reply has been added successfully'));
         return $this->redirect($this->generateUrl('helpdesk_member_ticket', ['ticketId' => $ticket->getId()]));
     }
-    // Update ThreadXHR
-    public function updateThreadXHR(Request $request){
+
+    public function updateThreadXHR(Request $request)
+    {
         $json = [];
-        $content = json_decode($request->getContent(), true);
         $em = $this->getDoctrine()->getManager();
-        if($request->getMethod() == "PUT") {
-           // $this->isAuthorized('ROLE_AGENT_EDIT_THREAD_NOTE');
-            if(str_replace(' ','',str_replace('&nbsp;','',trim(strip_tags($content['reply'], '<img>')))) != "") {
-                $thread = $em->getRepository('UVDeskCoreBundle:Thread')->find($request->attributes->get('threadId'));
+        $content = json_decode($request->getContent(), true);
+        
+        if ($request->getMethod() == "PUT") {
+            // $this->isAuthorized('ROLE_AGENT_EDIT_THREAD_NOTE');
+            if (str_replace(' ','',str_replace('&nbsp;','',trim(strip_tags($content['reply'], '<img>')))) != "") {
                 $htmlFilter = new HTMLFilter();
-                $thread->setMessage($this->get('uvdesk.service')->convertStringToUrl($htmlFilter->HTMLFilter($content['reply'], '')));
+                $thread = $em->getRepository('UVDeskCoreBundle:Thread')->find($request->attributes->get('threadId'));
+                $thread->setMessage(autolink($htmlFilter->HTMLFilter($content['reply'], '')));
+
                 $em->persist($thread);
                 $em->flush();
+                
                 $ticket = $thread->getTicket();
                 $ticket->currentThread = $thread;
 
@@ -126,6 +138,7 @@ class Thread extends Controller
                 $event = new GenericEvent(CoreWorkflowEvents\Ticket\ThreadUpdate::getId(), [
                     'entity' =>  $ticket,
                 ]);
+
                 $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                 $json['alertMessage'] = 'Success ! Thread updated successfully.';
@@ -136,19 +149,20 @@ class Thread extends Controller
             }
         }  
 
-        $response = new Response(json_encode($json));
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
+        return new Response(json_encode($json), 200, ['Content-Type' => 'application/json']);
     }
 
-    public function threadXHR(Request $request){
+    public function threadXHR(Request $request)
+    {
         $json = array();
         $content = json_decode($request->getContent(), true);
         $em = $this->getDoctrine()->getManager();
-        if($request->getMethod() == "DELETE") {
+        
+        if ($request->getMethod() == "DELETE") {
             $thread = $em->getRepository('UVDeskCoreBundle:Thread')->findOneBy(array('id' => $request->attributes->get('threadId'), 'ticket' => $content['ticketId']));
-            if($thread) {
-                 // Trigger thread deleted event
+            
+            if ($thread) {
+                // Trigger thread deleted event
                 //  $event = new GenericEvent(CoreWorkflowEvents\Ticket\ThreadUpdate::getId(), [
                 //     'entity' =>  $ticket,
                 // ]);
@@ -162,26 +176,23 @@ class Thread extends Controller
                 $json['alertClass'] = 'danger';
                 $json['alertMessage'] = 'Error ! Invalid thread.';
             }
-        } elseif($request->getMethod() == "PATCH") {
+        } elseif ($request->getMethod() == "PATCH") {
             $thread = $em->getRepository('UVDeskCoreBundle:Thread')->findOneBy(array('id' => $request->attributes->get('threadId'), 'ticket' => $content['ticketId']));
-            if($thread) {
-                if($content['updateType'] == 'lock') { 
+
+            if ($thread) {
+                if ($content['updateType'] == 'lock') { 
                     $thread->setIsLocked($content['isLocked']);
                     $em->persist($thread);
                     $em->flush();
-                    if($content['isLocked'])
-                        $json['alertMessage'] = 'Success ! Thread locked successfully.';
-                    else
-                        $json['alertMessage'] = 'Success ! Thread unlocked successfully.';
+                    
+                    $json['alertMessage'] = $content['isLocked'] ? 'Success ! Thread locked successfully.' : 'Success ! Thread unlocked successfully.';
                     $json['alertClass'] = 'success';
-                } elseif($content['updateType'] == 'bookmark') {
+                } elseif ($content['updateType'] == 'bookmark') {
                     $thread->setIsBookmarked($content['bookmark']);
                     $em->persist($thread);
                     $em->flush();
-                    if($content['bookmark'])
-                        $json['alertMessage'] = 'Success ! Thread pinned successfully.';
-                    else
-                        $json['alertMessage'] = 'Success ! unpinned removed successfully.';
+
+                    $json['alertMessage'] = $content['bookmark'] ? 'Success ! Thread pinned successfully.' : 'Success ! unpinned removed successfully.';
                     $json['alertClass'] = 'success';
                 }
             } else {
@@ -190,8 +201,6 @@ class Thread extends Controller
             }
         }
 
-        $response = new Response(json_encode($json));
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
+        return new Response(json_encode($json), 200, ['Content-Type' => 'application/json']);
     }
 }

@@ -737,7 +737,7 @@
                                 <div class="message">
                                     <p>
                                         {% if initialThread.message|striptags == initialThread.message %}
-                                            {{ initialThread.message|nl2br }}
+                                            {{ initialThread.message|raw }}
                                         {% else %}
                                             {{ initialThread.message|raw }}
                                         {% endif %}
@@ -893,9 +893,9 @@
                                                     {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}
                                                         <li data-id="1">Submit And Open</li>
                                                         <li data-id="2">Submit And Pending</li>
-                                                        <li data-id="6">Submit And Answered</li>
-                                                        <li data-id="3">Submit And Resolved</li>
-                                                        <li data-id="4">Submit And Closed</li>
+                                                        <li data-id="3">Submit And Answered</li>
+                                                        <li data-id="4">Submit And Resolved</li>
+                                                        <li data-id="5">Submit And Closed</li>
                                                     {% endif %}
                                                 </ul>
                                             </div>
@@ -1007,6 +1007,7 @@
                                 </div>
                             </form>
                         </div>
+
                         {# Ticket Thread | Add Note #}
                         {% if user_service.isAccessAuthorized('ROLE_AGENT_ADD_NOTE') %}
                             <div class="uv-tab-view" id="note">
@@ -1066,6 +1067,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- Bottom Action Block -->
             <div class="uv-ticket-fixed-region">
                 <div class="uv-ticket-fixed-region-lt">
@@ -1077,7 +1079,7 @@
                                     <label>{{ 'Saved Replies'|trans }}</label>
                                     <ul>
                                         <li data-id="">
-                                            <a href="{{ path('helpdesk_member_Saved_Reply') }}" target="_blank" style="color: #2750C4">{{ 'Create New'|trans }}</a>
+                                            <a href="{{ path('helpdesk_member_saved_replies') }}" target="_blank" style="color: #2750C4">{{ 'Create New'|trans }}</a>
                                         </li>
                                         {% for savedReply in ticket_service.getSavedReplies() %}
                                             <li data-id="{{ savedReply.id }}">
@@ -1103,7 +1105,7 @@
                                     {% set preparedResponses = ticket_service.getManualWorkflow() %}
                                     {% for workflow in preparedResponses %}
                                         <li>
-                                            <a href="{{ path('helpdesk_apply_ticket_prepared_response') }}/{{ ticket.id }}/{{ workflow.id }}">
+                                            <a href="{{ path('helpdesk_member_ticket_prepared_response_xhr') }}/{{ ticket.id }}/{{ workflow.id }}">
                                                 {{ workflow.name }}
                                             </a>
                                         </li>
@@ -1435,10 +1437,13 @@
             // Customer Model
             var CustomerModel = Backbone.Model.extend({
                 validation: {
-                    'name': {
+                    'name': [{
                         required: true,
-                        msg: 'This field is mandatory'
-                    },
+                        msg: '{{ "This field is mandatory" }}'
+                    }, {
+                        pattern: /^((?![!@#$%^&*()<_+]).)*$/,
+                        msg: '{{ "This field must have characters only"}}'
+                    }],
                     'email': [{
                         required: true,
                         msg: 'This field is mandatory'
@@ -1609,6 +1614,7 @@
             var CollaboratorCollection = Backbone.PageableCollection.extend({
                 model : CollaboratorModel
             });
+
             // Ticket Tag Collection
             var TagCollection = Backbone.PageableCollection.extend({
                 model : TagModel,
@@ -1665,7 +1671,6 @@
                                 app.appView.hideLoader();
                                 currentElement.removeAttr("disabled");
                                 if(response.alertClass == "success") {
-                                    console.log(response);
                                     app.appView.renderResponseAlert(response);
                                     $('.uv-aside-customer-info').html("<span>" + self.model.attributes.name + "</span><span>" + self.model.attributes.email + "</span><span>" + self.model.attributes.contactNumber + "</span><span class='uv-customize'></span>")
                                     self.backToInfo();
@@ -2261,7 +2266,6 @@
                         }
                     });
                 },
-               
                 forwardThread : function(e) {
                     var element = Backbone.$(e.currentTarget);
                     tinymce.get('forward-area').setContent(this.model.attributes.reply);
@@ -2537,7 +2541,6 @@
                     this.$el.find(".collaborator-list").html('');
                     var self = this;
                     collaboratorOptionHtml = '';
-
                     
                     if(collaboratorCollection.length) {
                         _.each(collaboratorCollection.models, function (item) {
@@ -2567,8 +2570,8 @@
                         if (e.which === 13 && text) {
                             this.model = new CollaboratorModel();
                             self = this;
-                          
                             this.model.set({email: text})
+
                             if(this.model.isValid(true)) {
                                 app.appView.showLoader();
                                 this.model.save({},{
@@ -2764,6 +2767,7 @@
                 removeItem : function () {
                     self = this;
                     app.appView.showLoader();
+
                     this.model.destroy({
                         url : "{{ path('helpdesk_member_update_ticket_attributes_xhr') }}",
                         data : { attribute :'label', 'ticketId': ticketModel.id, 'labelId': this.model.get('id') },
@@ -2942,8 +2946,6 @@
             var labelCollection = new LabelCollection($.parseJSON('{{ ticket_service.getTicketLabels(ticket.id)|json_encode|raw }}'));
             var labelListView = new LabelList();
             labelListView.render();
-
-
 
             var router = new Router();
             Backbone.history.start({push_state:true});
