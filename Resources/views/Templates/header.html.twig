@@ -390,8 +390,8 @@
                     <p>{{ 'Folders'|trans }}</p>
                 </div>
             </a>
-
-            <a href="{{ path('helpdesk_knowledgebase_category_collection') }}">
+            
+            <a href="{{ path('helpdesk_member_knowledgebase_category_collection') }}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
@@ -414,31 +414,6 @@
                     <p>{{ 'Articles'|trans }}</p>
                 </div>
             </a>
-
-            <a href="">
-                <div class="uv-search-result-row">
-                    <div class="uv-brick-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
-                            <path fill-rule="evenodd" d="M6,53h9V26H6V53ZM53.985,28.255A3.936,3.936,0,0,0,50,24H36l1.932-10.515L38,12.766a3.437,3.437,0,0,0-.96-2.383l-2.312-2.36L20.375,22.837A4.526,4.526,0,0,0,19,26V49c0,2.473,2.051,3.983,4.45,3.983L43,53a4.458,4.458,0,0,0,4.093-2.759L53.68,34.392a4.559,4.559,0,0,0,.305-1.641V28.457l-0.022-.022Z"
-                            />
-                        </svg>
-                    </div>
-                    <p>{{ 'Kudos'|trans }}</p>
-                </div>
-            </a>
-
-            <a href="">
-                <div class="uv-search-result-row">
-                    <div class="uv-brick-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
-                            <path fill-rule="evenodd" d="M6,40h8v8H6V40Zm14,0H54v8H20V40ZM6,26h8v8H6V26Zm14,0H54v8H20V26ZM6,12h8v8H6V12Zm14,0H54v8H20V12Z"
-                            />
-                        </svg>
-                    </div>
-                    <p>{{ 'Tasks'|trans }}</p>
-                </div>
-            </a>
-
             <a href="{{ path('prepare_response_action')}}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
@@ -463,7 +438,7 @@
                 </div>
             </a>
 
-            <a href="">
+            <a href="{{ path('helpdesk_member_saved_replies') }}">
                 <div class="uv-search-result-row">
                     <div class="uv-brick-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
