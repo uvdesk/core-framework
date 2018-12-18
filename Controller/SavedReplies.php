@@ -31,16 +31,15 @@ class SavedReplies extends Controller
         if(!$template)
             $this->noResultFound();
 
-        if(!$template->getMessage())
-                $template->setMessage('<p><br></p>');
-
-
         $errors = [];
         if($request->getMethod() == 'POST') {
-            // $form = $this->createForm(new Form\EmailTemplates, $template, ['validation_groups' => ['savedReply']]);
-            // $form->handleRequest($request);
-
-            // if($form->isValid() && $form->isSubmitted()) {
+                if(empty($request->request->get('message'))){
+                    $this->addFlash('warning', 'Error! Saved reply body can not be blank');
+                    return $this->render('@UVDeskCore//savedReplyForm.html.twig', array(
+                        'template' => $template,
+                        'errors' => json_encode($errors)
+                    ));
+                }
                 $em = $this->getDoctrine()->getManager();
                 $template->setName($request->request->get('name'));
                 //if($this->get('user.service')->checkPermission('ROLE_ADMIN')) {
@@ -87,7 +86,6 @@ class SavedReplies extends Controller
                             }
                         }
                     }
-               // }
                $htmlFilter = new HTMLFilter();      
 
                 //htmlfilter these values
@@ -98,16 +96,8 @@ class SavedReplies extends Controller
                 $em->persist($template);
                 $em->flush();
 
-                $this->addFlash(
-                        'success',
-                        $request->attributes->get('template')?
-                        'Success! Reply has been updated successfully.'
-                        : 'Success! Reply has been added successfully.'
-                    );
+                $this->addFlash('success', $request->attributes->get('template') ? 'Success! Reply has been updated successfully.': 'Success! Reply has been added successfully.');
                 return $this->redirectToRoute('helpdesk_member_saved_replies');
-            // } else {
-            //     $errors = $this->getFormErrors($form);
-            // }
         }
 
         return $this->render('@UVDeskCore//savedReplyForm.html.twig', array(
@@ -139,6 +129,7 @@ class SavedReplies extends Controller
                     throw new \Exception(404);
                 }
             }
+
             $entityManager->remove($savedReply);
             $entityManager->flush();
 
