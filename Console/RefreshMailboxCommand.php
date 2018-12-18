@@ -103,7 +103,7 @@ class RefreshMailboxCommand extends Command
     public function pushMessage($message)
     {
         $router = $this->container->get('router');
-        $router->getContext()->setHost($this->container->getParameter('uvdesk.site_url') . ':8080');
+        $router->getContext()->setHost($this->container->getParameter('uvdesk.site_url'));
 
         $curlHandler = curl_init();
         curl_setopt($curlHandler, CURLOPT_HEADER, 0);

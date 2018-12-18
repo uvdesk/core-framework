@@ -9,7 +9,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Webkul\UVDesk\CoreBundle\Utils\HTMLFilter;
 use Webkul\UVDesk\CoreBundle\Utils\TokenGenerator;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreBundle\Workflow\Events as CoreWorkflowEvents;
 
 class MailboxService
 {
@@ -308,6 +310,13 @@ class MailboxService
 
             $this->addCollaboratorFlag = 1;
             $thread = $this->container->get('ticket.service')->createTicket($mailData);
+
+            // Trigger ticket created event
+            $event = new GenericEvent(CoreWorkflowEvents\Ticket\Create::getId(), [
+                'entity' =>  $thread->getTicket(),
+            ]);
+
+            $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
         } else if (false === $ticket->getIsTrashed() && strtolower($ticket->getStatus()->getCode()) != 'spam') {
             $thread = $this->entityManager->getRepository('UVDeskCoreBundle:Thread')->findOneByMessageId($mailData['messageId']);
 
@@ -340,13 +349,18 @@ class MailboxService
 
             $thread = $this->container->get('ticket.service')->createThread($ticket, $mailData);
 
-            // $this->container->get('event.manager')->trigger([
-            //         'event' => 'ticket.reply.added',
-            //         'entity' => $thread->getTicket(),
-            //         'targetEntity' => $thread,
-            //         'user' => $thread->getUser(),
-            //         'userType' => $thread->getUserType()
-            //     ]);
+            if ($thread->getCreatedBy() == 'customer') {
+                $event = new GenericEvent(CoreWorkflowEvents\Ticket\CustomerReply::getId(), [
+                    'entity' =>  $ticket,
+                ]);
+            } else {
+                $event = new GenericEvent(CoreWorkflowEvents\Ticket\AgentReply::getId(), [
+                    'entity' =>  $ticket,
+                ]);
+            }
+                
+            // Trigger thread reply event
+            $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
         }
 
         return;

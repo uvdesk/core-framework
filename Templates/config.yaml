@@ -10,7 +10,7 @@ parameters:
     uvdesk_site_path.knowledgebase_customer_prefix: customer
 
 uvdesk:
-    site_url: localhost    
+    site_url: 'localhost:8000'
     upload_manager:
         id: uvdesk.core.fs.upload.manager
     
@@ -36,6 +36,7 @@ uvdesk:
     mailboxes: ~
         # default:
         #     name: 'Sample Mailbox'
+        #     email: ~
         #     enabled: true
         
         #     # [SMTP] Outgoing mail server
@@ -47,5 +48,5 @@ uvdesk:
         #     # IMAP configurations to use for fetching emails from mailbox
         #     imap_server:
         #         host: ~
-        #         email: ~
+        #         username: ~
         #         password: ~
