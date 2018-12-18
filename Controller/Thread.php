@@ -59,12 +59,10 @@ class Thread extends Controller
             'attachments' => $request->files->get('attachments')
         ];
 
-        if(isset($params['status'])){
-            $status = $params['status'] ? $params['status'] : 1;
-            $ticketStatus = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findOneById($status);
+        if(!empty($params['status'])){
+            $ticketStatus = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findOneById($params['status']);
             $ticket->setStatus($ticketStatus);
         }
-        
         if (isset($params['to'])) {
             $threadDetails['to'] = $params['to'];
         }
