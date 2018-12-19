@@ -633,7 +633,6 @@
                                 <li for="default" data-type="reply">Replies</li>
                                 <li for="default" data-type="forward">Forwards</li>
                                 <li for="default" data-type="note">Notes</li>
-                                <li for="default" data-type="task">Attached Task</li>
                                 <li for="default" data-type="pinned">Pinned</li>
 
                                 {# Update Threads #}
@@ -1214,10 +1213,6 @@
                 <span class="uv-icon-locked"></span>
                 {{ 'Locked'|trans }}
             </span>
-            <span style="display: none">
-                <span class="uv-icon-marked-task"></span>
-                {{ 'Marked for Task'|trans }}
-            </span>
         </div>
         <div class="uv-ticket-main-lt">
             <span class="uv-thread-action">
@@ -1505,57 +1500,6 @@
                     return resp.label;
                 },
                 urlRoot : "{{ path('helpdesk_member_ticket_add_label_xhr') }}"
-            });
-
-            // Ticket Task Model
-            var TaskModel = Backbone.Model.extend({
-                idAttribute : "id",
-                validation: {
-                    'subject': {
-                        fn: function(value) {
-                            if(!$("#mergeTaskSelect").val()){
-                                if(!value)
-                                    return true;
-                            }
-                            return false;
-                        },
-                        msg: 'This field is mandatory'
-                    },
-                    'description': {
-                        required: true,
-                        msg: 'This field is mandatory'
-                    },
-                    'priority': {
-                        fn: function(value) {
-                            if(!$("#mergeTaskSelect").val()) {
-                                if(!value)
-                                    return true;
-                            }
-                            return false;
-                        },
-                        msg: 'This field is mandatory'
-                    },
-                    'deadline': {
-                        fn: function(value) {
-                            if(!$("#mergeTaskSelect").val()) {
-                                if(!value)
-                                    return true;
-                            }
-                            return false;
-                        },
-                        msg: 'This field is mandatory'
-                    },
-                    'assignedAgent': {
-                        fn: function(value) {
-                            if(!$("#mergeTaskSelect").val()) {
-                                if(!value)
-                                    return true;
-                            }
-                            return false;
-                        },
-                        msg: 'This field is mandatory'
-                    }
-                },
             });
 
             // Ticket Thread Collection
@@ -2135,10 +2079,6 @@
                     'blur .input-copy-thread-link': 'removeCopyThreadLink'
                 },
                 render : function () {
-                    {# for (var i = 0; i < taskTicketThreads.length; i++) {
-                        if(taskTicketThreads[i] == this.model.id)
-                            this.model.set('hasTask',1);
-                    } #}
                     this.$el.html(this.template(this.model.toJSON()));
 
                     this.$el.addClass("thread-" + this.model.id)
@@ -2422,59 +2362,6 @@
                 },
                 loadMore: function() {
                     threadCollection.syncData();
-                }
-            });
-
-            // Task View
-            var TaskView = Backbone.View.extend({
-                el: $("#uv-task-view"),
-                events: {
-                    'click .create-task': 'submit',
-                    'click .uv-agents-list li' : 'selectAgent',
-                    'change #mergeTaskSelect' : 'taskSelected',
-                    'blur input, textarea': 'formChanegd',
-                    'click .back-to-task': 'backToTasks'
-                },
-                initialize: function () {
-                    Backbone.Validation.bind(this);
-                },
-                formChanegd: function(e) {
-                    this.model.set(Backbone.$(e.currentTarget).attr('name'), Backbone.$(e.currentTarget).val())
-                    this.model.isValid([Backbone.$(e.currentTarget).attr('name')])
-                },
-                taskSelected : function(e) {
-                    var element = Backbone.$(e.currentTarget);
-                    if(element.val()) {
-                        this.$el.find('.uv-filter-edit-title').text("{% trans %}Update Task{% endtrans %}");
-                        this.$el.find('.uv-element-block').hide()
-                    } else {
-                        this.$el.find('.uv-filter-edit-title').text("{% trans %}Create Task{% endtrans %}");
-                        this.$el.find('.uv-element-block').show()
-                    }
-
-                    this.$el.find('#mergeTaskSelect').parents('.uv-element-block').show()
-                    this.$el.find("textarea[name='description']").parents('.uv-element-block').show()
-                },
-                selectAgent : function(e) {
-                    var element = Backbone.$(e.currentTarget);
-                    element.parents('.uv-dropdown').find("input[name='assignedAgent']").val(element.attr('data-index'))
-                    element.parents('.uv-dropdown').find('.uv-dropdown-btn').text(element.text())
-                    element.parents('.uv-element-block').find('.uv-field-message').remove()
-                },
-                submit: function (e) {
-                    e.preventDefault();
-
-                    this.$el.find('#thread-ids').val(threadIds)
-                    var data = this.$el.find('form').serializeObject();
-                    this.model.set(data);
-                    if(this.model.isValid(true)) {
-                        this.$el.find('form').submit();
-                        this.$el.find('.create-task').attr('disabled', 'disabled');
-                    }
-                },
-                backToTasks: function(e) {
-                    this.$el.find(".uv-create-task").hide()
-                    this.$el.find(".uv-task-list").show()
                 }
             });
 
@@ -2927,9 +2814,6 @@
                 model: ticketModel
             });
 
-            var taskView = new TaskView({
-                model: new TaskModel()
-            });
 
             threadCollection = new ThreadCollection();
             var threadList = new ThreadList();
