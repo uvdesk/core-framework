@@ -86,7 +86,7 @@ class HTMLFilter
      */
     public function tln_skipspace($body, $offset) {
         preg_match('/^(\s*)/s', substr($body, $offset), $matches);
-        if (sizeof($matches[1])) {
+        if (isset($matches[1]) && is_array($matches[1]) && sizeof($matches[1])) {
             $count = strlen($matches[1]);
             $offset += $count;
         }
