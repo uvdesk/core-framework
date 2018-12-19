@@ -750,8 +750,8 @@
                                         <div class="uv-ticket-uploads-strip">
                                             {% for file in initialThread.attachments %}
                                                 {% if file.path is defined and file.path %}
-                                                    <a class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="{{ file.name }}" data-placement="top">
-                                                        <img src="{{ file.path }}" title=""  data-url="" data-download="{{ file.path }}"  class="uv-auto-pointer-events"/>
+                                                    <a href ="{{ file.path }}" download="" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="{{ file.name }}" data-placement="top">
+                                                        <img src="{{ file.path }}"  data-url="{{ file.path }}"  data-download="{{ file.path }}"  class="uv-auto-pointer-events"/>
                                                     </a>
                                                 {% else %}
                                                     <a class="uv-ticket-uploads-brick uv-template-file" href="{{ path('helpdesk_member_ticket_download_attachment') }}/{{file.path}}" target="_blank" data-toggle="tooltip" title="{{ file.name }}">
@@ -768,7 +768,7 @@
                                         {% if initialThread.attachments|length > 0 %}
                                             <div class="uv-upload-actions">
                                                 <a href="#" class="uv-open-in-files" data-thread="{{ initialThread.id }}" style="display: none"><span class="uv-icon-open-in-files"></span>Open in Files</a>
-                                                {% if initialThread.attachments|length > 1 %}
+                                                {% if initialThread.attachments|length %}
                                                     <a href="{{ path('helpdesk_member_ticket_download_attachment_zip') }}/{{ initialThread.id }}" target="_blank"><span class="uv-icon-attachment"></span> Download (as .zip)</a>
                                                 {% endif %}
                                             </div>
