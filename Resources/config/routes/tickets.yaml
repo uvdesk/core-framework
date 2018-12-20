@@ -17,7 +17,7 @@ helpdesk_member_ticket_collection_load_filter_options_xhr:
 
 helpdesk_member_ticket_collection_search_filter_options_xhr:
     path:     /tickets/search-filter-options
-    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::getSearchFilterOptionsXhr
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::loadTicketCollectionSearchFilterOptionsXHR
 
 # Ticket Resources
 helpdesk_member_ticket:
@@ -75,14 +75,14 @@ helpdesk_member_update_ticket_attributes_xhr:
     defaults: { ticketId: 0 }
 
 helpdesk_member_ticket_download_attachment:
-    path:     /ticket/download/{id}
+    path:     /ticket/download/{fileId}
     controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::downloadAttachment
-    defaults: { id: 0 }
+    defaults: { fileId: 0}
 
 helpdesk_member_ticket_download_attachment_zip:
-    path:     /ticket/download-zip/{threadId}/{task}
+    path:     /ticket/download-zip/{threadId}
     controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::downloadZipAttachment
-    defaults: { threadId: 0, task: 0 }
+    defaults: { threadId: 0}
 
 helpdesk_member_ticket_manage_collaborators_xhr:
     path:     /ticket/collaborator/{id}
@@ -189,35 +189,34 @@ helpdesk_member_update_ticket_type:
     controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::ticketType
     defaults: { panelId: 'productivity' }
 
-# Saved Replies
-helpdesk_member_Saved_Reply:
-    path:     /saved-replies
-    controller: Webkul\UVDesk\CoreBundle\Controller\SavedReply::templates
-    defaults: { panelId: 'productivity' }
-
-helpdesk_saved_replies_xhraction:
-    path:     /saved-reply-ajax/{template}
-    controller: Webkul\UVDesk\CoreBundle\Controller\SavedReply::templatesxhr
-    defaults: {template: 0}
-
-helpdesk_saved_replies_editaction:
-    path:     /saved-reply/edit/{template}
-    controller: Webkul\UVDesk\CoreBundle\Controller\SavedReply::savedReplyForm
-    defaults: { panelId: 'productivity', template: 0}
-
-helpdesk_saved_replies_addaction:
-    path:     /saved-reply/add/{template}
-    controller: Webkul\UVDesk\CoreBundle\Controller\SavedReply::savedReplyForm
-    defaults: { panelId: 'productivity',  template: 0}
-
-# Apply Prepared Response 
-helpdesk_apply_ticket_prepared_response:
-    path:     /ticket/apply-prepared-response/{ticketId}/{id}
-    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::applyPreparedResponse
-    defaults: { ticketId: 0, id: 0 }
-
-#Ticket Quick view
-helpdesk_ticket_quick_view_xhr:
+helpdesk_member_ticket_quick_view_xhr:
     path:     /ticket/quick-view/{ticketId}
     controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::getTicketQuickViewDetailsXhr
     defaults: { ticketId: 0 }
+
+# Saved Replies
+helpdesk_member_saved_replies:
+    path:     /saved-replies
+    controller: Webkul\UVDesk\CoreBundle\Controller\SavedReplies::loadSavedReplies
+    defaults: { panelId: 'productivity' }
+
+helpdesk_member_saved_replies_xhr:
+    path:     /saved-replies/xhr/{template}
+    controller: Webkul\UVDesk\CoreBundle\Controller\SavedReplies::savedRepliesXHR
+    defaults: {template: 0}
+
+helpdesk_member_update_saved_replies:
+    path:     /saved-reply/edit/{template}
+    controller: Webkul\UVDesk\CoreBundle\Controller\SavedReplies::updateSavedReplies
+    defaults: { panelId: 'productivity', template: 0}
+
+helpdesk_member_create_saved_replies:
+    path:     /saved-reply/add/{template}
+    controller: Webkul\UVDesk\CoreBundle\Controller\SavedReplies::updateSavedReplies
+    defaults: { panelId: 'productivity',  template: 0}
+
+# Apply Prepared Response 
+helpdesk_member_ticket_prepared_response_xhr:
+    path:     /ticket/prepared-response/xhr/{ticketId}/{id}
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::applyTicketPreparedResponseXHR
+    defaults: { ticketId: 0, id: 0 }

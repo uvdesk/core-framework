@@ -62,6 +62,8 @@ class Ticket extends Controller
         $agent = $ticket->getAgent();
         $customer = $ticket->getCustomer();
         $user = $this->get('user.service')->getSessionUser();
+        $thread = $this->get('ticket.service')->getTicketInitialThreadDetails($ticket);
+        
 
         return $this->render('@UVDeskCore//ticket.html.twig', [
             'ticket' => $ticket,
@@ -79,6 +81,7 @@ class Ticket extends Controller
             'ticketNavigationIteration' => $ticketRepository->getTicketNavigationIteration($ticket, $this->container),
             'ticketLabelCollection' => $ticketRepository->getTicketLabelCollection($ticket, $user),
         ]);
+        
     }
     
     public function saveTicket(Request $request)
@@ -336,6 +339,29 @@ class Ticket extends Controller
         $response->sendHeaders();
         $response->setContent(readfile($zipname));
 
+        return $response;
+    }
+    public function downloadAttachment(Request $request)
+    {
+        $fileId = $request->attributes->get('fileId');
+        $attachmentRepository = $this->getDoctrine()->getManager()->getRepository('UVDeskCoreBundle:Attachment');
+        $attachment = $attachmentRepository->findOneBy(['id' => $fileId]);
+        $baseurl = $request->getScheme() . '://' . $request->getHttpHost() . $request->getBasePath();
+
+        if (!$attachment) {
+            $this->noResultFound();
+        }
+
+        $path = $this->get('kernel')->getProjectDir() . "/public". $attachment->getPath();
+
+        $response = new Response();
+        $response->setStatusCode(200);
+        
+        $response->headers->set('Content-type', $attachment->getContentType());
+        $response->headers->set('Content-Disposition', 'attachment');
+        $response->sendHeaders();
+        $response->setContent(readfile($path));
+        
         return $response;
     }
 
