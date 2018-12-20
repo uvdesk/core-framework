@@ -273,6 +273,7 @@ class MailboxService
         $htmlFilter = new HTMLFilter();
         $mailData['subject'] = $parser->getHeader('subject');
         $mailData['message'] = $htmlFilter->HTMLFilter(autolink($htmlFilter->addClassEmailReplyQuote($parser->getMessageBody('text'))), '');
+        $mailData['attachments'] = $parser->getAttachments();
 
         // $mailboxes = $this->getMailboxByEmail($data['replyTo']);
         // if(!count($mailboxes)) {
