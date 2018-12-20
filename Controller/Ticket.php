@@ -62,9 +62,7 @@ class Ticket extends Controller
         $agent = $ticket->getAgent();
         $customer = $ticket->getCustomer();
         $user = $this->get('user.service')->getSessionUser();
-        $thread = $this->get('ticket.service')->getTicketInitialThreadDetails($ticket);
         
-
         return $this->render('@UVDeskCore//ticket.html.twig', [
             'ticket' => $ticket,
             'totalReplies' => $ticketRepository->countTicketTotalThreads($ticket->getId()),
@@ -81,7 +79,6 @@ class Ticket extends Controller
             'ticketNavigationIteration' => $ticketRepository->getTicketNavigationIteration($ticket, $this->container),
             'ticketLabelCollection' => $ticketRepository->getTicketLabelCollection($ticket, $user),
         ]);
-        
     }
     
     public function saveTicket(Request $request)
@@ -341,11 +338,12 @@ class Ticket extends Controller
 
         return $response;
     }
+
     public function downloadAttachment(Request $request)
     {
-        $fileId = $request->attributes->get('fileId');
+        $attachmendId = $request->attributes->get('attachmendId');
         $attachmentRepository = $this->getDoctrine()->getManager()->getRepository('UVDeskCoreBundle:Attachment');
-        $attachment = $attachmentRepository->findOneBy(['id' => $fileId]);
+        $attachment = $attachmentRepository->findOneById($attachmendId);
         $baseurl = $request->getScheme() . '://' . $request->getHttpHost() . $request->getBasePath();
 
         if (!$attachment) {

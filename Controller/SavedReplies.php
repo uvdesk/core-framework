@@ -32,72 +32,74 @@ class SavedReplies extends Controller
             $this->noResultFound();
 
         $errors = [];
-        if($request->getMethod() == 'POST') {
-                if(empty($request->request->get('message'))){
-                    $this->addFlash('warning', 'Error! Saved reply body can not be blank');
-                    return $this->render('@UVDeskCore//savedReplyForm.html.twig', array(
-                        'template' => $template,
-                        'errors' => json_encode($errors)
-                    ));
+        if ($request->getMethod() == 'POST') {
+            if(empty($request->request->get('message'))){
+                $this->addFlash('warning', 'Error! Saved reply body can not be blank');
+                return $this->render('@UVDeskCore//savedReplyForm.html.twig', array(
+                    'template' => $template,
+                    'errors' => json_encode($errors)
+                ));
+            }
+
+            $em = $this->getDoctrine()->getManager();
+            $template->setName($request->request->get('name'));
+            //if($this->get('user.service')->checkPermission('ROLE_ADMIN')) {
+                /* groups */ 
+            $groups = explode(',', $request->request->get('tempGroups'));
+            $previousGroupIds = [];
+            if($template->getSupportGroups()) {
+                foreach($template->getSupportGroups() as $key => $group) {
+                    $previousGroupIds[] = $group->getId();
+                    if(!in_array($group->getId(), $groups ) ) {
+                        $template->removeSupportGroups($group);
+                        $em->persist($template);
+                    }
                 }
-                $em = $this->getDoctrine()->getManager();
-                $template->setName($request->request->get('name'));
-                //if($this->get('user.service')->checkPermission('ROLE_ADMIN')) {
-                    /* groups */ 
-                    $groups = explode(',', $request->request->get('tempGroups'));
-                    $previousGroupIds = [];
-                    if($template->getSupportGroups()) {
-                        foreach($template->getSupportGroups() as $key => $group) {
-                            $previousGroupIds[] = $group->getId();
-                            if(!in_array($group->getId(), $groups ) ) {
-                                $template->removeSupportGroups($group);
-                                $em->persist($template);
-                            }
-                        }
+            }
+            foreach($groups as $key => $groupId) {
+                if($groupId) {
+                    $group = $em->getRepository('UVDeskCoreBundle:SupportGroup')->findOneBy([ 'id' => $groupId ]);
+                    if($group && (empty($previousGroupIds) || !in_array($groupId, $previousGroupIds)) ) {
+                        $template->addSupportGroup($group);
+                        $em->persist($template);
                     }
-                    foreach($groups as $key => $groupId) {
-                        if($groupId) {
-                            $group = $em->getRepository('UVDeskCoreBundle:SupportGroup')->findOneBy([ 'id' => $groupId ]);
-                            if($group && (empty($previousGroupIds) || !in_array($groupId, $previousGroupIds)) ) {
-                                $template->addSupportGroup($group);
-                                $em->persist($template);
-                            }
-                        }
-                    }
-
-                    /* teams */
-                    $teams = explode(',', $request->request->get('tempTeams'));
-                    $previousTeamIds = [];
-                    if($template->getSupportTeams()) {
-                        foreach($template->getSupportTeams() as $key => $team) {
-                            $previousTeamIds[] = $team->getId();
-                            if(!in_array($team->getId(), $teams ) ) {
-                                $template->removeSupportTeam($team);
-                                $em->persist($template);
-                            }
-                        }
-                    }
-                    foreach($teams as $key => $teamId) {
-                        if($teamId) {
-                            $team = $em->getRepository('UVDeskCoreBundle:SupportTeam')->findOneBy([ 'id' => $teamId ]);
-                            if($team && (empty($previousTeamIds) || !in_array($teamId, $previousTeamIds)) ) {
-                                $template->addSupportTeam($team);
-                                $em->persist($template);
-                            }
-                        }
-                    }
-               $htmlFilter = new HTMLFilter();      
-
-                //htmlfilter these values
-                $template->setMessage($request->request->get('message'));
-                if(empty($template->getUser()))  {
-                    $template->setUser($this->getUser()->getAgentInstance());
                 }
-                $em->persist($template);
-                $em->flush();
+            }
 
-                $this->addFlash('success', $request->attributes->get('template') ? 'Success! Reply has been updated successfully.': 'Success! Reply has been added successfully.');
-                return $this->redirectToRoute('helpdesk_member_saved_replies');
+            /* teams */
+            $teams = explode(',', $request->request->get('tempTeams'));
+            $previousTeamIds = [];
+            if($template->getSupportTeams()) {
+                foreach($template->getSupportTeams() as $key => $team) {
+                    $previousTeamIds[] = $team->getId();
+                    if(!in_array($team->getId(), $teams ) ) {
+                        $template->removeSupportTeam($team);
+                        $em->persist($template);
+                    }
+                }
+            }
+            foreach($teams as $key => $teamId) {
+                if($teamId) {
+                    $team = $em->getRepository('UVDeskCoreBundle:SupportTeam')->findOneBy([ 'id' => $teamId ]);
+                    if($team && (empty($previousTeamIds) || !in_array($teamId, $previousTeamIds)) ) {
+                        $template->addSupportTeam($team);
+                        $em->persist($template);
+                    }
+                }
+            }
+            
+            $htmlFilter = new HTMLFilter();      
+
+            //htmlfilter these values
+            $template->setMessage($request->request->get('message'));
+            if(empty($template->getUser()))  {
+                $template->setUser($this->getUser()->getAgentInstance());
+            }
+            $em->persist($template);
+            $em->flush();
+
+            $this->addFlash('success', $request->attributes->get('template') ? 'Success! Reply has been updated successfully.': 'Success! Reply has been added successfully.');
+            return $this->redirectToRoute('helpdesk_member_saved_replies');
         }
 
         return $this->render('@UVDeskCore//savedReplyForm.html.twig', array(
