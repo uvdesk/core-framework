@@ -830,19 +830,19 @@
 
     {# Sort Ticket View Template #}
 	<script id="ticket_list_sorting_tmp" type="text/template">
-        <li class="<% if(sort == 't.id') { %>uv-drop-list-active<% } %>">
-            <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/t.id/<% if(sort == 't.id') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="t.id">
+        <li class="<% if(sort == 'ticket.id') { %>uv-drop-list-active<% } %>">
+            <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/ticket.id/<% if(sort == 'ticket.id') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="ticket.id">
                 {% trans %}Ticket Id{% endtrans %}
-                <% if(sort == 't.id') { %>
+                <% if(sort == 'ticket.id') { %>
 					<span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
 				<% } %>
             </a>
         </li>
 
-		<li class="<% if(sort == 't.updatedAt') { %>uv-drop-list-active<% } %>">
-            <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/t.updatedAt/<% if(sort == 't.updatedAt') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="t.updatedAt">
+		<li class="<% if(sort == 'ticket.updatedAt') { %>uv-drop-list-active<% } %>">
+            <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/ticket.updatedAt/<% if(sort == 'ticket.updatedAt') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="ticket.updatedAt">
                 {% trans %}Last Replied{% endtrans %}
-                <% if(sort == 't.updatedAt') { %>
+                <% if(sort == 'ticket.updatedAt') { %>
 					<span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
 				<% } %>
             </a>
@@ -857,19 +857,19 @@
             </a>
         </li>
 
-	    <li class="<% if(sort == 'c.email') { %>uv-drop-list-active<% } %>">
-            <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/c.email/<% if(sort == 'c.email') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="c.email">
+	    <li class="<% if(sort == 'customerEmail') { %>uv-drop-list-active<% } %>">
+            <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/customerEmail/<% if(sort == 'customerEmail') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="customerEmail">
                 {% trans %}Customer Email{% endtrans %}
-                <% if(sort == 'c.email') { %>
+                <% if(sort == 'customerEmail') { %>
 					<span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
 				<% } %>
             </a>
         </li>
 
-	    <li class="<% if(sort == 'name') { %>uv-drop-list-active<% } %>">
-            <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/name/<% if(sort == 'name') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="name">
+	    <li class="<% if(sort == 'customerName') { %>uv-drop-list-active<% } %>">
+            <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/customerName/<% if(sort == 'customerName') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="customerName">
                 {% trans %}Customer Name{% endtrans %}
-                <% if(sort == 'name') { %>
+                <% if(sort == 'customerName') { %>
 					<span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
 				<% } %>
             </a>
@@ -1656,7 +1656,7 @@
 
             // Filter
             var Filter = app.Filter.extend({
-				defaultSortIndex: 't.updatedAt',
+				defaultSortIndex: 'ticket.updatedAt',
 				sortText: "{% trans %}Sort By:{% endtrans %} ",
 				defaultSortText: "{% trans %}Sort By:{% endtrans %} {% trans %}Last Replied{% endtrans %}",
 				template : _.template($("#ticket_list_sorting_tmp").html()),

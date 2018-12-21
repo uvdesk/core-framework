@@ -762,6 +762,18 @@
                                                         <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/{{ file.id }}" target = "_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="{{ file.name }}" data-placement="top">
                                                             <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/icon-file-doc.png'))}}"  data-url=""  data-download=""  class="uv-auto-pointer-events"/>
                                                         </a>
+                                                    {% elseif (file.path|split('.')|last == 'pdf') %}
+                                                        <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/{{ file.id }}" target = "_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="{{ file.name }}" data-placement="top">
+                                                            <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/icon-file-pdf.png'))}}"  data-url=""  data-download=""  class="uv-auto-pointer-events"/>
+                                                        </a>
+                                                    {% elseif (file.path|split('.')|last == 'xls') %}
+                                                        <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/{{ file.id }}" target = "_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="{{ file.name }}" data-placement="top">
+                                                            <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/icon-file-xls.png'))}}"  data-url=""  data-download=""  class="uv-auto-pointer-events"/>
+                                                        </a>
+                                                    {% elseif (file.path|split('.')|last == 'csv') %}
+                                                        <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/{{ file.id }}" target = "_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="{{ file.name }}" data-placement="top">
+                                                            <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/csv.png'))}}"  data-url=""  data-download=""  class="uv-auto-pointer-events"/>
+                                                        </a>
                                                     {% else  %}
                                                         <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/{{ file.id }}" target = "_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="{{ file.name }}" data-placement="top">
                                                             <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/icon-file-unknown.png'))}}"  data-url=""  data-download=""  class="uv-auto-pointer-events"/>
@@ -1328,6 +1340,18 @@
                                 <% } else if(fileFormat == 'doc') { %>
                                     <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%-file.id %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
                                         <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/icon-file-doc.png'))}}" data-url="<%- file.attachmentOrginal %>" data-download="<%- file.id %>" class="uv-auto-pointer-events">
+                                    </a>
+                                <% } else if(fileFormat == 'pdf') { %>
+                                    <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%-file.id %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
+                                        <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/icon-file-pdf.png'))}}" data-url="<%- file.attachmentOrginal %>" data-download="<%- file.id %>" class="uv-auto-pointer-events">
+                                    </a>
+                                <% } else if(fileFormat == 'xls') { %>
+                                    <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%-file.id %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
+                                        <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/icon-file-xls.png'))}}" data-url="<%- file.attachmentOrginal %>" data-download="<%- file.id %>" class="uv-auto-pointer-events">
+                                    </a>
+                                <% } else if(fileFormat == 'csv') { %>
+                                    <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%-file.id %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
+                                        <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/csv.png'))}}" data-url="<%- file.attachmentOrginal %>" data-download="<%- file.id %>" class="uv-auto-pointer-events">
                                     </a>
                                 <% } else { %>
                                     <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%-file.id %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
