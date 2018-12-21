@@ -47,6 +47,15 @@ class MailAgent extends WorkflowAction
             'name' => 'Response Performing Agent',
         ]);
 
+        array_unshift($agentCollection, [
+            'id' => 'baseAgent',
+            'name' => 'me',
+        ]);
+        array_unshift($agentCollection, [
+            'id' => 'assignedAgent',
+            'name' => 'ASSIGNED AGENT',
+        ]);
+
         return [
             'partResults' => $agentCollection,
             'templates' => $emailTemplateCollection,
