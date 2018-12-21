@@ -521,6 +521,15 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
         return false;
     }
+    public function getAgentTickets($agentId,$container) {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('t')->from("UVDeskCoreBundle:Ticket", 't');
+
+        $qb->andwhere('t.agent = :agentId');
+        $qb->setParameter('agentId',$agentId);
+        
+        return $qb->getQuery()->getResult();
+    }
 
     public function getTicketDetails(ParameterBag $obj = null, $container)
     {
@@ -582,7 +591,6 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
             break;
         }
-
         return $json;
     }
 }
