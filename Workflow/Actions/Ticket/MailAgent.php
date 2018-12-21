@@ -45,6 +45,9 @@ class MailAgent extends WorkflowAction
         array_unshift($agentCollection, [
             'id' => 'responsePerforming',
             'name' => 'Response Performing Agent',
+        ], [
+            'id' => 'assignedAgent',
+            'name' => 'Assigned Agent',
         ]);
 
         return [
