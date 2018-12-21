@@ -45,15 +45,9 @@ class MailAgent extends PreparedResponseAction
         array_unshift($agentCollection, [
             'id' => 'responsePerforming',
             'name' => 'Response Performing Agent',
-        ]);
-
-        array_unshift($agentCollection, [
-            'id' => 'baseAgent',
-            'name' => 'me',
-        ]);
-        array_unshift($agentCollection, [
+        ], [
             'id' => 'assignedAgent',
-            'name' => 'ASSIGNED AGENT',
+            'name' => 'Assigned Agent',
         ]);
 
         return [
@@ -69,6 +63,7 @@ class MailAgent extends PreparedResponseAction
         if($entity instanceof Ticket) {
             $emailTemplate = $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findOneById($value['value']);
             $emails = self::getAgentMails($value['for'], (($ticketAgent = $entity->getAgent()) ? $ticketAgent->getEmail() : ''), $container);
+            
             if($emails && $emailTemplate) {
                 $mailData = array();
                 if($entity instanceof Ticket) {
