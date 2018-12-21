@@ -54,6 +54,16 @@ class MailCustomer extends WorkflowAction
                     break;
                 }
 
+
+                $attachmentPathCollection = [];
+                if (isset($entity->createdThread)) {
+                    $thread = $entity->createdThread;
+                    $attachments = $entityManager->getRepository('UVDeskCoreBundle:Attachment')->findByThread($thread);
+                    foreach ($attachments as $attachment) {
+                        array_push($attachmentPathCollection, $_SERVER['DOCUMENT_ROOT'] . $attachment->getPath());
+                    }
+                }
+
                 $ticketPlaceholders = $container->get('email.service')->getTicketPlaceholderValues($entity);
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $ticketPlaceholders);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $ticketPlaceholders);
@@ -64,7 +74,7 @@ class MailCustomer extends WorkflowAction
                     $emailHeaders['In-Reply-To'] = $currentThread->getMessageId();
                 }
 
-                $messageId = $container->get('uvdesk.core.mailbox')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $emailHeaders, $entity->getMailboxEmail());
+                $messageId = $container->get('uvdesk.core.mailbox')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $emailHeaders, $entity->getMailboxEmail(), $attachmentPathCollection);
                 
                 if (!empty($messageId)) {
                     $createdThread->setMessageId($messageId);
