@@ -151,7 +151,7 @@ class MailboxService
         return null;
     }
 
-    public function sendMail($subject, $content, $recipient, array $headers = [], $mailboxEmail = null)
+    public function sendMail($subject, $content, $recipient, array $headers = [], $mailboxEmail = null, $attachments = [])
     {
         if (empty($mailboxEmail)) {
             // Send email on behalf of support helpdesk
@@ -190,6 +190,10 @@ class MailboxService
             ->setFrom([$supportEmail => $supportEmailName])
             ->setTo($recipient)
             ->setBody($content, 'text/html');
+
+        foreach ($attachments as $attachmentPath) {
+            $message->attach(\Swift_Attachment::fromPath($attachmentPath));
+        }
 
         $messageHeaders = $message->getHeaders();
         foreach ($headers as $headerName => $headerValue) {
