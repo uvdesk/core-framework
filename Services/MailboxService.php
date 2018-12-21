@@ -151,7 +151,7 @@ class MailboxService
         return null;
     }
 
-    public function sendMail($subject, $content, $recipient, array $headers = [], $mailboxEmail = null, $attachments = [])
+    public function sendMail($subject, $content, $recipient, array $headers = [], $mailboxEmail = null, array $attachments = [])
     {
         if (empty($mailboxEmail)) {
             // Send email on behalf of support helpdesk
