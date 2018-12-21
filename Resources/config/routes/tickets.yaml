@@ -75,14 +75,14 @@ helpdesk_member_update_ticket_attributes_xhr:
     defaults: { ticketId: 0 }
 
 helpdesk_member_ticket_download_attachment:
-    path:     /ticket/download/{id}
+    path:     /ticket/download/{attachmendId}
     controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::downloadAttachment
-    defaults: { id: 0 }
+    defaults: { attachmendId: 0}
 
 helpdesk_member_ticket_download_attachment_zip:
-    path:     /ticket/download-zip/{threadId}/{task}
+    path:     /ticket/download-zip/{threadId}
     controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::downloadZipAttachment
-    defaults: { threadId: 0, task: 0 }
+    defaults: { threadId: 0}
 
 helpdesk_member_ticket_manage_collaborators_xhr:
     path:     /ticket/collaborator/{id}

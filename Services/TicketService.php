@@ -217,10 +217,14 @@ class TicketService
 
         // Uploading Attachments
         if (!empty($threadData['attachments'])) {
-            $fileNames['fileNames'] = $threadData['attachments'];
-            
-            if (!empty($fileNames['fileNames'])) {
-                $this->saveThreadAttachment($thread, $fileNames['fileNames']);
+            if ('email' == $threadData['source']) {
+                $this->saveThreadEmailAttachments($thread, $threadData['attachments']);
+            } else {
+                $fileNames['fileNames'] = $threadData['attachments'];
+                
+                if (!empty($fileNames['fileNames'])) {
+                    $this->saveThreadAttachment($thread, $fileNames['fileNames']);
+                }
             }
         }
 
@@ -245,6 +249,31 @@ class TicketService
             $this->entityManager->flush();
 
             $this->attachments[] = $attachment;
+        }
+    }
+
+    public function saveThreadEmailAttachments($thread, array $attachments)
+    {
+        $prefix = "threads/" . $thread->getId() . "/";
+        $fileManager = $this->container->get('uvdesk.service')->getFileUploadManager();
+
+        $fileManager->setRootProjectDirectory($this->container->get('kernel')->getProjectDir() . "/public");
+        
+        foreach ($attachments as $attachment) {
+            $file = $fileManager->uploadFromEmail($attachment, $prefix);
+
+            if (!empty($file['path'])) {
+                $threadAttachment = new Attachment();
+                $threadAttachment->setContentType($attachment->getContentType());
+                $threadAttachment->setSize($file['size']);
+                $threadAttachment->setPath($file['path']);
+                $threadAttachment->setThread($thread);
+                
+                $this->entityManager->persist($threadAttachment);
+                $this->entityManager->flush();
+
+                $this->attachments[] = $threadAttachment;
+            }
         }
     }
 
