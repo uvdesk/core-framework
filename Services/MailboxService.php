@@ -191,10 +191,6 @@ class MailboxService
             ->setTo($recipient)
             ->setBody($content, 'text/html');
 
-        foreach ($attachments as $attachmentPath) {
-            $message->attach(\Swift_Attachment::fromPath($attachmentPath));
-        }
-
         $messageHeaders = $message->getHeaders();
         foreach ($headers as $headerName => $headerValue) {
             $messageHeaders->addTextHeader($headerName, $headerName);
