@@ -1,12 +1,11 @@
 {% extends "@UVDeskCore/Templates/layout.html.twig" %}
 
-
 {% block title %}
-     {% if template.id %} 
-		 {{ 'Edit Email Template'|trans }} 
-	 {% else %} 
+    {% if template.id %}
+		{{ 'Edit Email Template'|trans }}
+	{% else %}
 		{{ 'Add Email Template'|trans }}
-	 {% endif %} 
+	{% endif %}
 {% endblock %}
 
 {% block pageContent %}
@@ -14,9 +13,9 @@
 		{{ include('@UVDeskCore/Templates/panel-sidebar.html.twig') }}
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
 			<h1>
-				{% if template.id %} 
-                	 {{ 'Edit Email Template'|trans }} 
-                {% else %} 
+				{% if template.id %}
+                    {{ 'Edit Email Template'|trans }}
+                {% else %}
                     {{ 'Add Email Template'|trans }}
                 {% endif %}
 			</h1>
@@ -44,7 +43,7 @@
 								{% for basekey, placeholders in email_service.getEmailPlaceHolders('template') %}
 									{% if placeholders is iterable %}
 										{% for fieldKey, fieldPlaceholder in placeholders %}
-											<option value='{{ "{%" ~ basekey ~ "." ~ fieldKey ~ "%}"}}' data-group='{{ basekey }}' class="mce-pitem mce-{{ basekey }}" {% if basekey != 'global' and template.templateType and (basekey != template.templateType) %} style="display: none;"{% endif %}>{{ fieldPlaceholder.title|raw }}</option>
+											<option value='{{ "{%" ~ basekey ~ "." ~ fieldKey ~ "%}"}}' data-group='{{ basekey }}' class="mce-pitem mce-{{ basekey }}" {% if basekey != 'global' and template.templateType is defined and (basekey != template.templateType) %} style="display: none;"{% endif %}>{{ fieldPlaceholder.title|raw }}</option>
 										{% endfor %}
 									{% endif %}
 								{% endfor %}
@@ -92,7 +91,6 @@
 {% block footer %}
 	{{ parent() }}
 	{{ include('@UVDeskCore/Templates/tinyMCE.html.twig') }}
-	
 	<script type="text/javascript">
 		var toolbarOptions = sfTinyMce.options.toolbar;
 
@@ -108,16 +106,14 @@
 					},
 					values: [
 					{% for basekey, placeholders in email_service.getEmailPlaceHolders('template') %}
-						{ text: '{{ basekey | trans | title }}' , menu: [
-							{ text: "{{ basekey | trans | title }}", value: '{{ basekey }}', disabled: true },
 							{% if placeholders is iterable %}
 								{% for fieldKey, fieldPlaceholder in placeholders %}
 									{ text: "{{ fieldPlaceholder.title|raw }}", value: '{{ "{%" ~ basekey ~ "." ~ fieldKey ~ "%}"}}', group: '{{ basekey }}'
-										, classes: 'pitem {{ basekey }}' {% if template.templateFor and (basekey != template.templateFor) %}, hidden: true{% endif %}
-									 },
+									{% if 'global' != basekey  %}
+										, classes: 'pitem {{ basekey }}' {% if template.templateType and (basekey != template.templateType) %}, hidden: true{% endif %}
+									{% endif %} },
 								{% endfor %}
 							{% endif %}
-						 ]},
 						{% endfor %}
 					],
 				});
@@ -195,6 +191,9 @@
 				},
 				initialize : function() {
 					Backbone.Validation.bind(this);
+		    		for (var field in jsonContext) {
+		    			Backbone.Validation.callbacks.invalid(this, field, jsonContext[field], 'input');
+					}
 				},
 				formChanegd: function(e) {
 			    	this.model.set(Backbone.$(e.currentTarget).attr('name'), Backbone.$(e.currentTarget).val())
