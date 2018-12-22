@@ -309,7 +309,7 @@ class EmailService
         $helpdeskWebsite = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneByCode('helpdesk');
 
         // Link to company knowledgebase
-        if (false == array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
+        if (false != array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
             $companyURL = $this->container->getParameter('uvdesk.site_url');
         } else {
             $companyURL = $router->generate('helpdesk_knowledgebase', [], UrlGeneratorInterface::ABSOLUTE_URL);
@@ -345,7 +345,7 @@ class EmailService
         $helpdeskWebsite = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneByCode('helpdesk');
 
         // Link to company knowledgebase
-        if (false == array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
+        if (false != array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
             $companyURL = $this->container->getParameter('uvdesk.site_url');
         } else {
             $companyURL = $router->generate('helpdesk_knowledgebase', [], UrlGeneratorInterface::ABSOLUTE_URL);
