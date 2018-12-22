@@ -491,7 +491,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->select('COUNT(ticket.id) as tickets')
             ->from('UVDeskCoreBundle:Ticket', 'ticket')
             ->where('ticket.customer = :user')->setParameter('user', $user)
-            ->andWhere('ticket.isTrashed != :isTrashed')->setParameter('isTrashed', false);
+            ->andWhere('ticket.isTrashed != :isTrashed')->setParameter('isTrashed', true);
 
         return (int) $queryBuilder->getQuery()->getSingleScalarResult();
     }
@@ -520,15 +520,6 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         }
 
         return false;
-    }
-    public function getAgentTickets($agentId,$container) {
-        $qb = $this->getEntityManager()->createQueryBuilder();
-        $qb->select('t')->from("UVDeskCoreBundle:Ticket", 't');
-
-        $qb->andwhere('t.agent = :agentId');
-        $qb->setParameter('agentId',$agentId);
-        
-        return $qb->getQuery()->getResult();
     }
 
     public function getTicketDetails(ParameterBag $obj = null, $container)
@@ -591,6 +582,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
             break;
         }
+
         return $json;
     }
 }
