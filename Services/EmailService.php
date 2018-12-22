@@ -30,320 +30,266 @@ class EmailService
 
     public function getEmailPlaceHolders($params)
     {
-        if(is_array($params))
-            $default = $params['match'].'Note';
-        elseif($params)
-            $default = $params;
-        else
-            $default = 'template';
-
         $placeHolders = [];
+        $allEmailPlaceholders = [];
+        $template = is_array($params) ? ($params['match'] . 'Note') : (!empty($params) ? $params : 'template');
 
-        $allEmailPlaceholders = [
-            
-        ];
-        if($default == 'template') {
+        if ($template == 'template') {
             $placeHolders = [
-                                'ticket' => [
-                                                'id' => [
-                                                            'title' => $this->trans('Ticket Id'),
-                                                            'info' => $this->trans('ticket.id.placeHolders.info'),
-                                                        ],
-                                                'subject' => [
-                                                            'title' => $this->trans('Ticket Subject'),
-                                                            'info' => $this->trans('ticket.subject.placeHolders.info'),
-                                                        ],
-                                                'message' => [
-                                                            'title' => $this->trans('Ticket Message'),
-                                                            'info' => $this->trans('ticket.message.placeHolders.info'),
-                                                        ],
-                                                'attachments' => [
-                                                            'title' => $this->trans('Ticket Attachments'),
-                                                            'info' => $this->trans('ticket.attachments.placeHolders.info'),
-                                                        ],
-                                                'threadMessage' => [
-                                                            'title' => $this->trans('Ticket Thread Message'),
-                                                            'info' => $this->trans('ticket.threadMessage.placeHolders.info'),
-                                                        ],
-                                                'tags' => [
-                                                            'title' => $this->trans('Ticket Tags'),
-                                                            'info' => $this->trans('ticket.tags.placeHolders.info'),
-                                                        ],
-                                                'source' => [
-                                                            'title' => $this->trans('Ticket Source'),
-                                                            'info' => $this->trans('ticket.source.placeHolders.info'),
-                                                        ],
-                                                'status' => [
-                                                            'title' => $this->trans('Ticket Status'),
-                                                            'info' => $this->trans('ticket.status.placeHolders.info'),
-                                                        ],
-                                                'priority' => [
-                                                            'title' => $this->trans('Ticket Priority'),
-                                                            'info' => $this->trans('ticket.priority.placeHolders.info'),
-                                                        ],
-                                                'group' => [
-                                                            'title' => $this->trans('Ticket Group'),
-                                                            'info' => $this->trans('ticket.group.placeHolders.info'),
-                                                        ],
-                                                'team' => [
-                                                            'title' => $this->trans('Ticket Team'),
-                                                            'info' => $this->trans('ticket.team.placeHolders.info'),
-                                                        ],
-                                                'customerName' => [
-                                                            'title' => $this->trans('Ticket Customer Name'),
-                                                            'info' => $this->trans('ticket.customerName.placeHolders.info'),
-                                                        ],
-                                                'customerEmail' => [
-                                                            'title' => $this->trans('Ticket Customer Email'),
-                                                            'info' => $this->trans('ticket.customerEmail.placeHolders.info'),
-                                                        ],
-                                                'agentName' => [
-                                                            'title' => $this->trans('Ticket Agent Name'),
-                                                            'info' => $this->trans('ticket.agentName.placeHolders.info'),
-                                                        ],
-                                                'agentEmail' => [
-                                                            'title' => $this->trans('Ticket Agent Email'),
-                                                            'info' => $this->trans('ticket.agentEmail.placeHolders.info'),
-                                                        ],
-                                                'link' => [
-                                                            'title' => $this->trans('Ticket Link'),
-                                                            'info' => $this->trans('ticket.link.placeHolders.info'),
-                                                        ],
-                                                'collaboratorName' => [
-                                                            'title' => $this->trans('Last Collaborator Name'),
-                                                            'info' => $this->trans('ticket.collaborator.name.placeHolders.info'),
-                                                        ],
-                                                'collaboratorEmail' => [
-                                                            'title' => $this->trans('Last Collaborator Email'),
-                                                            'info' => $this->trans('ticket.collaborator.email.placeHolders.info'),
-                                                        ],
-                                            ],
-                                'user'  => [
-                                                'userName' => [
-                                                            'title' => $this->trans('Agent/ Customer Name'),
-                                                            'info' => $this->trans('user.name.info'),
-                                                        ],
-                                                'userEmail' => [
-                                                            'title' => $this->trans('Email'),
-                                                            'info' => $this->trans('user.email.info'),
-                                                        ],
-                                                'accountValidationLink' => [
-                                                            'title' => $this->trans('Account Validation Link'),
-                                                            'info' => $this->trans('user.account.validate.link.info'),
-                                                        ],
-                                                'forgotPasswordLink' => [
-                                                            'title' => $this->trans('Password Forgot Link'),
-                                                            'info' => $this->trans('user.password.forgot.link.info'),
-                                                        ],
-                                            ],
-                            ];
-        } elseif($default == 'savedReply') {
+                'ticket' => [
+                    'id' => [
+                        'title' => $this->trans('Ticket Id'),
+                        'info' => $this->trans('ticket.id.placeHolders.info'),
+                    ],
+                    'subject' => [
+                        'title' => $this->trans('Ticket Subject'),
+                        'info' => $this->trans('ticket.subject.placeHolders.info'),
+                    ],
+                    'message' => [
+                        'title' => $this->trans('Ticket Message'),
+                        'info' => $this->trans('ticket.message.placeHolders.info'),
+                    ],
+                    'attachments' => [
+                        'title' => $this->trans('Ticket Attachments'),
+                        'info' => $this->trans('ticket.attachments.placeHolders.info'),
+                    ],
+                    'threadMessage' => [
+                        'title' => $this->trans('Ticket Thread Message'),
+                        'info' => $this->trans('ticket.threadMessage.placeHolders.info'),
+                    ],
+                    'tags' => [
+                        'title' => $this->trans('Ticket Tags'),
+                        'info' => $this->trans('ticket.tags.placeHolders.info'),
+                    ],
+                    'source' => [
+                        'title' => $this->trans('Ticket Source'),
+                        'info' => $this->trans('ticket.source.placeHolders.info'),
+                    ],
+                    'status' => [
+                        'title' => $this->trans('Ticket Status'),
+                        'info' => $this->trans('ticket.status.placeHolders.info'),
+                    ],
+                    'priority' => [
+                        'title' => $this->trans('Ticket Priority'),
+                        'info' => $this->trans('ticket.priority.placeHolders.info'),
+                    ],
+                    'group' => [
+                        'title' => $this->trans('Ticket Group'),
+                        'info' => $this->trans('ticket.group.placeHolders.info'),
+                    ],
+                    'team' => [
+                        'title' => $this->trans('Ticket Team'),
+                        'info' => $this->trans('ticket.team.placeHolders.info'),
+                    ],
+                    'customerName' => [
+                        'title' => $this->trans('Ticket Customer Name'),
+                        'info' => $this->trans('ticket.customerName.placeHolders.info'),
+                    ],
+                    'customerEmail' => [
+                        'title' => $this->trans('Ticket Customer Email'),
+                        'info' => $this->trans('ticket.customerEmail.placeHolders.info'),
+                    ],
+                    'agentName' => [
+                        'title' => $this->trans('Ticket Agent Name'),
+                        'info' => $this->trans('ticket.agentName.placeHolders.info'),
+                    ],
+                    'agentEmail' => [
+                        'title' => $this->trans('Ticket Agent Email'),
+                        'info' => $this->trans('ticket.agentEmail.placeHolders.info'),
+                    ],
+                    'link' => [
+                        'title' => $this->trans('Ticket Link'),
+                        'info' => $this->trans('ticket.link.placeHolders.info'),
+                    ],
+                    'collaboratorName' => [
+                        'title' => $this->trans('Last Collaborator Name'),
+                        'info' => $this->trans('ticket.collaborator.name.placeHolders.info'),
+                    ],
+                    'collaboratorEmail' => [
+                        'title' => $this->trans('Last Collaborator Email'),
+                        'info' => $this->trans('ticket.collaborator.email.placeHolders.info'),
+                    ],
+                ],
+                'user'  => [
+                    'userName' => [
+                        'title' => $this->trans('Agent/ Customer Name'),
+                        'info' => $this->trans('user.name.info'),
+                    ],
+                    'userEmail' => [
+                        'title' => $this->trans('Email'),
+                        'info' => $this->trans('user.email.info'),
+                    ],
+                    'accountValidationLink' => [
+                        'title' => $this->trans('Account Validation Link'),
+                        'info' => $this->trans('user.account.validate.link.info'),
+                    ],
+                    'forgotPasswordLink' => [
+                        'title' => $this->trans('Password Forgot Link'),
+                        'info' => $this->trans('user.password.forgot.link.info'),
+                    ],
+                ],
+            ];
+        } elseif ($template == 'savedReply') {
             $placeHolders = [
-                                'ticket' => [
-                                                'id' => [
-                                                            'title' => $this->trans('Ticket Id'),
-                                                            'info' => $this->trans('ticket.id.placeHolders.info'),
-                                                        ],
-                                                'subject' => [
-                                                            'title' => $this->trans('Ticket Subject'),
-                                                            'info' => $this->trans('ticket.subject.placeHolders.info'),
-                                                        ],
-                                                'status' => [
-                                                            'title' => $this->trans('Ticket Status'),
-                                                            'info' => $this->trans('ticket.status.placeHolders.info'),
-                                                        ],
-                                                'priority' => [
-                                                            'title' => $this->trans('Ticket Priority'),
-                                                            'info' => $this->trans('ticket.priority.placeHolders.info'),
-                                                        ],
-                                                'group' => [
-                                                            'title' => $this->trans('Ticket Group'),
-                                                            'info' => $this->trans('ticket.group.placeHolders.info'),
-                                                        ],
-                                                'team' => [
-                                                            'title' => $this->trans('Ticket Team'),
-                                                            'info' => $this->trans('ticket.team.placeHolders.info'),
-                                                        ],
-                                                'customerName' => [
-                                                            'title' => $this->trans('Ticket Customer Name'),
-                                                            'info' => $this->trans('ticket.customerName.placeHolders.info'),
-                                                        ],
-                                                'customerEmail' => [
-                                                            'title' => $this->trans('Ticket Customer Email'),
-                                                            'info' => $this->trans('ticket.customerEmail.placeHolders.info'),
-                                                        ],
-                                                'agentName' => [
-                                                            'title' => $this->trans('Ticket Agent Name'),
-                                                            'info' => $this->trans('ticket.agentName.placeHolders.info'),
-                                                        ],
-                                                'agentEmail' => [
-                                                            'title' => $this->trans('Ticket Agent Email'),
-                                                            'info' => $this->trans('ticket.agentEmail.placeHolders.info'),
-                                                        ],
-                                                'link' => [
-                                                            'title' => $this->trans('Ticket Link'),
-                                                            'info' => $this->trans('ticket.link.placeHolders.info'),
-                                                        ],
-                                            ],
-                                //'global' => $allEmailPlaceholders['global'],
-                            ];
-        } elseif($default == 'taskNote') {
+                'ticket' => [
+                    'id' => [
+                        'title' => $this->trans('Ticket Id'),
+                        'info' => $this->trans('ticket.id.placeHolders.info'),
+                    ],
+                    'subject' => [
+                        'title' => $this->trans('Ticket Subject'),
+                        'info' => $this->trans('ticket.subject.placeHolders.info'),
+                    ],
+                    'status' => [
+                        'title' => $this->trans('Ticket Status'),
+                        'info' => $this->trans('ticket.status.placeHolders.info'),
+                    ],
+                    'priority' => [
+                        'title' => $this->trans('Ticket Priority'),
+                        'info' => $this->trans('ticket.priority.placeHolders.info'),
+                    ],
+                    'group' => [
+                        'title' => $this->trans('Ticket Group'),
+                        'info' => $this->trans('ticket.group.placeHolders.info'),
+                    ],
+                    'team' => [
+                        'title' => $this->trans('Ticket Team'),
+                        'info' => $this->trans('ticket.team.placeHolders.info'),
+                    ],
+                    'customerName' => [
+                        'title' => $this->trans('Ticket Customer Name'),
+                        'info' => $this->trans('ticket.customerName.placeHolders.info'),
+                    ],
+                    'customerEmail' => [
+                        'title' => $this->trans('Ticket Customer Email'),
+                        'info' => $this->trans('ticket.customerEmail.placeHolders.info'),
+                    ],
+                    'agentName' => [
+                        'title' => $this->trans('Ticket Agent Name'),
+                        'info' => $this->trans('ticket.agentName.placeHolders.info'),
+                    ],
+                    'agentEmail' => [
+                        'title' => $this->trans('Ticket Agent Email'),
+                        'info' => $this->trans('ticket.agentEmail.placeHolders.info'),
+                    ],
+                    'link' => [
+                        'title' => $this->trans('Ticket Link'),
+                        'info' => $this->trans('ticket.link.placeHolders.info'),
+                    ],
+                ],
+            ];
+        } elseif ($template == 'ticketNote') {
             $placeHolders = [
-                                $this->trans('ticket') => [
-                                                'id' => [
-                                                            'title' => $this->trans('Ticket Id'),
-                                                            'info' => $this->trans('ticket.id.placeHolders.info'),
-                                                        ],
-                                                'subject' => [
-                                                            'title' => $this->trans('Ticket Subject'),
-                                                            'info' => $this->trans('ticket.subject.placeHolders.info'),
-                                                        ],
-                                                'status' => [
-                                                            'title' => $this->trans('Ticket Status'),
-                                                            'info' => $this->trans('ticket.status.placeHolders.info'),
-                                                        ],
-                                                'priority' => [
-                                                            'title' => $this->trans('Ticket Priority'),
-                                                            'info' => $this->trans('ticket.priority.placeHolders.info'),
-                                                        ],
-                                                'group' => [
-                                                            'title' => $this->trans('Ticket Group'),
-                                                            'info' => $this->trans('ticket.group.placeHolders.info'),
-                                                        ],
-                                                'customerName' => [
-                                                            'title' => $this->trans('Ticket Customer Name'),
-                                                            'info' => $this->trans('ticket.customerName.placeHolders.info'),
-                                                        ],
-                                                'customerEmail' => [
-                                                            'title' => $this->trans('Ticket Customer Email'),
-                                                            'info' => $this->trans('ticket.customerEmail.placeHolders.info'),
-                                                        ],
-                                                'agentName' => [
-                                                            'title' => $this->trans('Ticket Agent Name'),
-                                                            'info' => $this->trans('ticket.agentName.placeHolders.info'),
-                                                        ],
-                                                'agentEmail' => [
-                                                            'title' => $this->trans('Ticket Agent Email'),
-                                                            'info' => $this->trans('ticket.agentEmail.placeHolders.info'),
-                                                        ],
-                                            ],
-                                $this->trans('global') => $allEmailPlaceholders['global'],
-                            ];
-        } elseif($default == 'ticketNote') {
+                'type' => [
+                    'previousType' => [
+                        'title' => $this->trans('Previous Type'),
+                        'info' => $this->trans('type.previous.placeHolders.info'),
+                    ],
+                    'updatedType' => [
+                        'title' => $this->trans('Updated Type'),
+                        'info' => $this->trans('type.updated.placeHolders.info'),
+                    ],
+                ],
+                'status' => [
+                    'previousStatus' => [
+                        'title' => $this->trans('Previous Status'),
+                        'info' => $this->trans('status.previous.placeHolders.info'),
+                    ],
+                    'updatedStatus' => [
+                        'title' => $this->trans('Updated Status'),
+                        'info' => $this->trans('status.updated.placeHolders.info'),
+                    ],
+                ],
+                'group' => [
+                    'previousGroup' => [
+                        'title' => $this->trans('Previous Group'),
+                        'info' => $this->trans('group.previous.placeHolders.info'),
+                    ],
+                    'updatedGroup' => [
+                        'title' => $this->trans('Updated Group'),
+                        'info' => $this->trans('group.updated.placeHolders.info'),
+                    ],
+                ],
+                'team' => [
+                    'previousTeam' => [
+                        'title' => $this->trans('Previous Team'),
+                        'info' => $this->trans('team.previous.placeHolders.info'),
+                    ],
+                    'updatedTeam' => [
+                        'title' => $this->trans('Updated Team'),
+                        'info' => $this->trans('team.updated.placeHolders.info'),
+                    ],
+                ],
+                'priority' => [
+                    'previousPriority' => [
+                        'title' => $this->trans('Previous Priority'),
+                        'info' => $this->trans('priority.previous.placeHolders.info'),
+                    ],
+                    'updatedPriority' => [
+                        'title' => $this->trans('Updated Priority'),
+                        'info' => $this->trans('priority.updated.placeHolders.info'),
+                    ],
+                ],
+                'agent' => [
+                    'previousAgent' => [
+                        'title' => $this->trans('Previous Agent'),
+                        'info' => $this->trans('agent.previous.placeHolders.info'),
+                    ],
+                    'updatedAgent' => [
+                        'title' => $this->trans('Updated Agent'),
+                        'info' => $this->trans('agent.updated.placeHolders.info'),
+                    ],
+                    'responsePerformingAgent' => [
+                        'title' => $this->trans('Response Performing Agent'),
+                        'info' => $this->trans('agent.response.placeHolders.info'),
+                    ],
+                ],
+            ];
+        } elseif($template == 'manualNote') {
             $placeHolders = [
-                                $this->trans('type') => [
-                                                'previousType' => [
-                                                            'title' => $this->trans('Previous Type'),
-                                                            'info' => $this->trans('type.previous.placeHolders.info'),
-                                                        ],
-                                                'updatedType' => [
-                                                            'title' => $this->trans('Updated Type'),
-                                                            'info' => $this->trans('type.updated.placeHolders.info'),
-                                                        ],
-                                            ],
-                                $this->trans('status') => [
-                                                'previousStatus' => [
-                                                            'title' => $this->trans('Previous Status'),
-                                                            'info' => $this->trans('status.previous.placeHolders.info'),
-                                                        ],
-                                                'updatedStatus' => [
-                                                            'title' => $this->trans('Updated Status'),
-                                                            'info' => $this->trans('status.updated.placeHolders.info'),
-                                                        ],
-                                            ],
-                                $this->trans('group') => [
-                                                'previousGroup' => [
-                                                            'title' => $this->trans('Previous Group'),
-                                                            'info' => $this->trans('group.previous.placeHolders.info'),
-                                                        ],
-                                                'updatedGroup' => [
-                                                            'title' => $this->trans('Updated Group'),
-                                                            'info' => $this->trans('group.updated.placeHolders.info'),
-                                                        ],
-                                            ],
-                                $this->trans('team') => [
-                                                'previousTeam' => [
-                                                            'title' => $this->trans('Previous Team'),
-                                                            'info' => $this->trans('team.previous.placeHolders.info'),
-                                                        ],
-                                                'updatedTeam' => [
-                                                            'title' => $this->trans('Updated Team'),
-                                                            'info' => $this->trans('team.updated.placeHolders.info'),
-                                                        ],
-                                            ],
-                                $this->trans('priority') => [
-                                                'previousPriority' => [
-                                                            'title' => $this->trans('Previous Priority'),
-                                                            'info' => $this->trans('priority.previous.placeHolders.info'),
-                                                        ],
-                                                'updatedPriority' => [
-                                                            'title' => $this->trans('Updated Priority'),
-                                                            'info' => $this->trans('priority.updated.placeHolders.info'),
-                                                        ],
-                                            ],
-                                $this->trans('agent') => [
-                                                'previousAgent' => [
-                                                            'title' => $this->trans('Previous Agent'),
-                                                            'info' => $this->trans('agent.previous.placeHolders.info'),
-                                                        ],
-                                                'updatedAgent' => [
-                                                            'title' => $this->trans('Updated Agent'),
-                                                            'info' => $this->trans('agent.updated.placeHolders.info'),
-                                                        ],
-                                                'responsePerformingAgent' => [
-                                                            'title' => $this->trans('Response Performing Agent'),
-                                                            'info' => $this->trans('agent.response.placeHolders.info'),
-                                                        ],
-                                            ],
-                            ];
-
-        } elseif($default == 'manualNote') {
-            $placeHolders = [
-                                $this->trans('ticket') => [
-                                                'id' => [
-                                                            'title' => $this->trans('Ticket Id'),
-                                                            'info' => $this->trans('ticket.id.placeHolders.info'),
-                                                        ],
-                                                'subject' => [
-                                                            'title' => $this->trans('Ticket Subject'),
-                                                            'info' => $this->trans('ticket.subject.placeHolders.info'),
-                                                        ],
-                                                'status' => [
-                                                            'title' => $this->trans('Ticket Status'),
-                                                            'info' => $this->trans('ticket.status.placeHolders.info'),
-                                                        ],
-                                                'priority' => [
-                                                            'title' => $this->trans('Ticket Priority'),
-                                                            'info' => $this->trans('ticket.priority.placeHolders.info'),
-                                                        ],
-                                                'group' => [
-                                                            'title' => $this->trans('Ticket Group'),
-                                                            'info' => $this->trans('ticket.group.placeHolders.info'),
-                                                        ],
-                                                'team' => [
-                                                            'title' => $this->trans('Ticket Team'),
-                                                            'info' => $this->trans('ticket.team.placeHolders.info'),
-                                                        ],
-                                                'customerName' => [
-                                                            'title' => $this->trans('Ticket Customer Name'),
-                                                            'info' => $this->trans('ticket.customerName.placeHolders.info'),
-                                                        ],
-                                                'customerEmail' => [
-                                                            'title' => $this->trans('Ticket Customer Email'),
-                                                            'info' => $this->trans('ticket.customerEmail.placeHolders.info'),
-                                                        ],
-                                                'agentName' => [
-                                                            'title' => $this->trans('Ticket Agent Name'),
-                                                            'info' => $this->trans('ticket.agentName.placeHolders.info'),
-                                                        ],
-                                                'agentEmail' => [
-                                                            'title' => $this->trans('Ticket Agent Email'),
-                                                            'info' => $this->trans('ticket.agentEmail.placeHolders.info'),
-                                                        ],
-                                            ],
-                                $this->trans('global') => $allEmailPlaceholders['global'],
-                            ];
-
+                'ticket' => [
+                    'id' => [
+                        'title' => $this->trans('Ticket Id'),
+                        'info' => $this->trans('ticket.id.placeHolders.info'),
+                    ],
+                    'subject' => [
+                        'title' => $this->trans('Ticket Subject'),
+                        'info' => $this->trans('ticket.subject.placeHolders.info'),
+                    ],
+                    'status' => [
+                        'title' => $this->trans('Ticket Status'),
+                        'info' => $this->trans('ticket.status.placeHolders.info'),
+                    ],
+                    'priority' => [
+                        'title' => $this->trans('Ticket Priority'),
+                        'info' => $this->trans('ticket.priority.placeHolders.info'),
+                    ],
+                    'group' => [
+                        'title' => $this->trans('Ticket Group'),
+                        'info' => $this->trans('ticket.group.placeHolders.info'),
+                    ],
+                    'team' => [
+                        'title' => $this->trans('Ticket Team'),
+                        'info' => $this->trans('ticket.team.placeHolders.info'),
+                    ],
+                    'customerName' => [
+                        'title' => $this->trans('Ticket Customer Name'),
+                        'info' => $this->trans('ticket.customerName.placeHolders.info'),
+                    ],
+                    'customerEmail' => [
+                        'title' => $this->trans('Ticket Customer Email'),
+                        'info' => $this->trans('ticket.customerEmail.placeHolders.info'),
+                    ],
+                    'agentName' => [
+                        'title' => $this->trans('Ticket Agent Name'),
+                        'info' => $this->trans('ticket.agentName.placeHolders.info'),
+                    ],
+                    'agentEmail' => [
+                        'title' => $this->trans('Ticket Agent Email'),
+                        'info' => $this->trans('ticket.agentEmail.placeHolders.info'),
+                    ],
+                ],
+            ];
         }
 
         return $placeHolders;
@@ -394,19 +340,20 @@ class EmailService
         $supportTeam = $ticket->getSupportTeam();
         $supportGroup = $ticket->getSupportGroup();
         $supportTags = array_map(function ($supportTag) { return $supportTag->getName(); }, $ticket->getSupportTags()->toArray());
+        
         $router = $this->container->get('router');
-
         $helpdeskWebsite = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneByCode('helpdesk');
-         // Link to company knowledgebase
-         if (false == array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
+
+        // Link to company knowledgebase
+        if (false == array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
             $companyURL = $this->container->getParameter('uvdesk.site_url');
         } else {
             $companyURL = $router->generate('helpdesk_knowledgebase', [], UrlGeneratorInterface::ABSOLUTE_URL);
         }
+
         $customerPartialDetails = $ticket->getCustomer()->getCustomerInstance()->getPartialDetails();
         $agentPartialDetails = $ticket->getAgent() ? $ticket->getAgent()->getAgentInstance()->getPartialDetails() : null;
-
-        if (false == array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
+        if (false != array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
             $viewTicketURL = $router->generate('helpdesk_customer_ticket', [
                 'id' => $ticket->getId(),
             ], UrlGeneratorInterface::ABSOLUTE_URL);
@@ -467,33 +414,4 @@ class EmailService
 
         return $twigTemplatingEngine->render($baseEmailTemplate, ['message' => $content]);
     }
-
-    public function getProcessedTemplate($body,$emailTempVariables, $isSavedReply = false)
-    {
-        if(!$isSavedReply && strpos($body, '<p>')) {
-            $delimiter = $this->getEmailDelimiter();
-            if($this->emailTrackingId && $company = $this->container->get('user.service')->getCurrentCompany())
-                $body = strstr($body,'<p>', true).'<img style="display: none" src="'.$this->container->get('default.service')->getUrl(['route' => 'thread_opent_tracking', 'params' => ['id' => $this->emailTrackingId]]).'"/>'.strstr($body,'<p>', false);
-            $body = strstr($body,'<p>', true).$delimiter.strstr($body,'<p>', false);
-            $body = str_replace('<p></p>', '', $body);
-
-            $body = str_replace('Delivered by <a href="https://uvdesk.com">UVdesk</a>.', '', $body);
-            $body = str_replace('Delivered by <a href="https://uvdesk.com" style="background-color:transparent">UVdesk</a>.', '', $body);
-        
-            $body = str_replace('This email is a service from ' . $this->container->get('user.service')->getCurrentCompany()->getName() . '.', '', $body);
-                
-        }
-        foreach ($emailTempVariables as $var => $value) {
-            $placeholder = "{%".$var."%}";
-            $body = str_replace($placeholder,$value,$body);
-        }
-        $result = stripslashes($body);
-        return $isSavedReply ? $result : htmlspecialchars_decode(preg_replace(['#&lt;script&gt;#', '#&lt;/script&gt;#'], ['&amp;lt;script&amp;gt;', '&amp;lt;/script&amp;gt;'] , $result));
-    }
-    protected function getEmailDelimiter()
-    {
-        $delimiter = '';
-        return '<p class="uv-delimiter-dXZkZXNr" style="font-size: 12px; color: #bdbdbd;">'.htmlentities($delimiter).'</p>';
-    }
-
 }
