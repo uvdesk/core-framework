@@ -346,8 +346,7 @@ class UserService
     public function getCustomersPartial(Request $request = null)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        
-        if ($this->getCurrentUser()->getCustomerInstance()->getSupportRole()->getCode() == "ROLE_AGENT") {
+        if ($this->getCurrentUser()->getRoles()[0] == "ROLE_AGENT") {
             $qb->from('UVDeskCoreBundle:Ticket', 't')->leftJoin('t.customer', 'u');
             $this->entityManager->getRepository('UVDeskCoreBundle:Ticket')->addPermissionFilter($qb, $this->container, false);
         } else {
