@@ -133,13 +133,6 @@ class Ticket extends Controller
                     'source' => 'website',
                     'active' => true
                 ]);
-                
-                // Trigger ticket created event
-                $event = new GenericEvent(CoreWorkflowEvents\Customer\Create::getId(), [
-                    'entity' => $customer,
-                ]);
-
-                $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
             }
         }
 

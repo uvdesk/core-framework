@@ -10,7 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Webkul\UVDesk\CoreBundle\Entity\SupportRole;
 use Webkul\UVDesk\CoreBundle\Entity\UserInstance;
+use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreBundle\Workflow\Events as CoreWorkflowEvents;
 
 class UserService
 {
@@ -180,6 +182,13 @@ class UserService
 
             $this->entityManager->persist($user);
             $this->entityManager->flush();
+
+            // Trigger customer created event
+            $event = new GenericEvent(CoreWorkflowEvents\Customer\Create::getId(), [
+                'entity' => $user,
+            ]);
+
+            $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
         }
         
         $userInstance = 'ROLE_CUSTOMER' == $role->getCode() ? $user->getCustomerInstance() : $user->getAgentInstance();
