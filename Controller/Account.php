@@ -57,18 +57,19 @@ class Account extends Controller
                 $form->handleRequest($request);
                 $form->submit(true);
                 
-                $encodedPassword = $this->container->get('security.password_encoder')->encodePassword($user, $data['password']['first']);
                 
                 if ($form->isValid()) {
                     if($data != null) {
+                        // save previous password if password is blank or null provided
+                        $encodedPassword = ($data['password']['first'] == "" || $data['password']['first'] == null) ? $password
+                            : $this->container->get('security.password_encoder')->encodePassword($user, $data['password']['first']);
+                            
                         if (!empty($encodedPassword) ) {
                             $user->setPassword($encodedPassword);
                         } else {
                             $this->addFlash('warning', 'Error! Given current password is incorrect.');
                             return $this->redirect($this->generateUrl('helpdesk_member_profile'));
                         }
-                    } else {
-                        $user->setPassword($password);
                     }
                    
                     $user->setFirstName($data['firstName']);
