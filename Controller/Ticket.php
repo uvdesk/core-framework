@@ -144,7 +144,7 @@ class Ticket extends Controller
                 
                 // Trigger ticket created event
                 $event = new GenericEvent(CoreWorkflowEvents\Ticket\Create::getId(), [
-                    'entity' =>  $thread->getTicket(),
+                    'entity' =>  $customer,
                 ]);
 
                 $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
