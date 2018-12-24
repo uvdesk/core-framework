@@ -36,6 +36,7 @@ class TicketXHR extends Controller
 
             return new Response(json_encode(['alertClass' => 'success']), 200, ['Content-Type' => 'application/json']);
         }
+
         return new Response(json_encode([]), 404, ['Content-Type' => 'application/json']);
     }
 
@@ -169,10 +170,12 @@ class TicketXHR extends Controller
             ];
             return new Response(json_encode($responseContent), 400, ['Content-Type' => 'application/json']);
         }
+
         // Update attribute
         switch ($requestContent['attribute']) {
             case 'agent':
                 $agent = $entityManager->getRepository('UVDeskCoreBundle:User')->findOneById($requestContent['value']);
+                
                 if (empty($agent)) {
                     // User does not exist
                     return new Response(json_encode([
@@ -202,6 +205,7 @@ class TicketXHR extends Controller
                     ]), 200, ['Content-Type' => 'application/json']);
                 } else {
                     $ticket->setAgent($agent);
+
                     $entityManager->persist($ticket);
                     $entityManager->flush();
 
@@ -209,7 +213,9 @@ class TicketXHR extends Controller
                     $event = new GenericEvent(CoreWorkflowEvents\Ticket\Agent::getId(), [
                         'entity' => $ticket,
                     ]);
+
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                    
                     return new Response(json_encode([
                         'alertClass' => 'success',
                         'alertMessage' => 'Ticket successfully assigned to ' . $agentDetails['name'],
@@ -218,6 +224,7 @@ class TicketXHR extends Controller
                 break;
             case 'status':
                 $ticketStatus = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findOneById((int) $requestContent['value']);
+                
                 if (empty($ticketStatus)) {
                     // Selected ticket status does not exist
                     return new Response(json_encode([
@@ -233,6 +240,7 @@ class TicketXHR extends Controller
                     ]), 200, ['Content-Type' => 'application/json']);
                 } else {
                     $ticket->setStatus($ticketStatus);
+                    
                     $entityManager->persist($ticket);
                     $entityManager->flush();
                 
@@ -240,6 +248,7 @@ class TicketXHR extends Controller
                     $event = new GenericEvent(CoreWorkflowEvents\Ticket\Status::getId(), [
                         'entity' => $ticket,
                     ]);
+                    
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     return new Response(json_encode([
@@ -271,10 +280,11 @@ class TicketXHR extends Controller
                     $entityManager->persist($ticket);
                     $entityManager->flush();
 
-                     // Trigger ticket Priority event
-                     $event = new GenericEvent(CoreWorkflowEvents\Ticket\Priority::getId(), [
+                    // Trigger ticket Priority event
+                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Priority::getId(), [
                         'entity' => $ticket,
                     ]);
+
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     return new Response(json_encode([
@@ -284,15 +294,19 @@ class TicketXHR extends Controller
                 }
                 break;
             case 'group':
-                // $this->isAuthorized('ROLE_AGENT_ASSIGN_TICKET_GROUP');
-                $supportGroup = $entityManager->getRepository('UVDeskCoreBundle:SupportGroup')->findOneById($requestContent['value']);
 
+                $supportGroup = $entityManager->getRepository('UVDeskCoreBundle:SupportGroup')->findOneById($requestContent['value']);
                 if (empty($supportGroup)) {
-                    // Selected ticket priority does not exist
-                    return new Response(json_encode([
-                        'alertClass' => 'danger',
-                        'alertMessage' => 'Unable to retrieve support group details',
-                    ]), 404, ['Content-Type' => 'application/json']);
+                    if ($requestContent['value'] == "") {
+                        $ticket->setSupportGroup(null);
+                        $entityManager->persist($ticket);
+                        $entityManager->flush();
+
+                        return new Response(json_encode([
+                            'alertClass' => 'success',
+                            'alertMessage' => 'Ticket support group updated successfully',
+                        ]), 200, ['Content-Type' => 'application/json']);
+                    }
                 }
 
                 if ($ticket->getSupportGroup() != null && $supportGroup->getId() === $ticket->getSupportGroup()->getId()) {
@@ -305,10 +319,11 @@ class TicketXHR extends Controller
                     $entityManager->persist($ticket);
                     $entityManager->flush();
                     
-                     // Trigger Support group event
-                     $event = new GenericEvent(CoreWorkflowEvents\Ticket\Group::getId(), [
+                    // Trigger Support group event
+                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Group::getId(), [
                         'entity' => $ticket,
                     ]);
+
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     return new Response(json_encode([
@@ -321,11 +336,16 @@ class TicketXHR extends Controller
                 $supportTeam = $entityManager->getRepository('UVDeskCoreBundle:SupportTeam')->findOneById($requestContent['value']);
 
                 if (empty($supportTeam)) {
-                    // Selected ticket priority does not exist
-                    return new Response(json_encode([
-                        'alertClass' => 'danger',
-                        'alertMessage' => 'Unable to retrieve support team details',
-                    ]), 404, ['Content-Type' => 'application/json']);
+                    if ($requestContent['value'] == "") {
+                        $ticket->setSupportTeam(null);
+                        $entityManager->persist($ticket);
+                        $entityManager->flush();
+
+                        return new Response(json_encode([
+                            'alertClass' => 'success',
+                            'alertMessage' => 'Ticket support team updated successfully',
+                        ]), 200, ['Content-Type' => 'application/json']);
+                    }
                 }
 
                 if ($ticket->getSupportTeam() != null && $supportTeam->getId() === $ticket->getSupportTeam()->getId()) {
@@ -342,6 +362,7 @@ class TicketXHR extends Controller
                     $event = new GenericEvent(CoreWorkflowEvents\Ticket\Team::getId(), [
                         'entity' => $ticket,
                     ]);
+
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     return new Response(json_encode([
@@ -353,6 +374,7 @@ class TicketXHR extends Controller
             case 'type':
                 // $this->isAuthorized('ROLE_AGENT_UPDATE_TICKET_TYPE');
                 $ticketType = $entityManager->getRepository('UVDeskCoreBundle:TicketType')->findOneById($requestContent['value']);
+                
                 if (empty($ticketType)) {
                     // Selected ticket priority does not exist
                     return new Response(json_encode([
@@ -360,6 +382,7 @@ class TicketXHR extends Controller
                         'alertMessage' => 'Unable to retrieve ticket type details',
                     ]), 404, ['Content-Type' => 'application/json']);
                 }
+
                 if ($ticketType->getId() === $ticket->getType()->getId()) {
                     return new Response(json_encode([
                         'alertClass' => 'success',
@@ -367,6 +390,7 @@ class TicketXHR extends Controller
                     ]), 200, ['Content-Type' => 'application/json']);
                 } else {
                     $ticket->setType($ticketType);
+
                     $entityManager->persist($ticket);
                     $entityManager->flush();
 
@@ -374,6 +398,7 @@ class TicketXHR extends Controller
                     $event = new GenericEvent(CoreWorkflowEvents\Ticket\Type::getId(), [
                         'entity' => $ticket,
                     ]);
+
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     return new Response(json_encode([
@@ -443,6 +468,7 @@ class TicketXHR extends Controller
                 'user' => $user->getId(),
                 'name' => $requestContent['name'],
             ]);
+            
             if (empty($supportLabel)) {
                 $supportLabel = new SupportLabel();
                 $supportLabel->setName($requestContent['name']);
@@ -554,12 +580,30 @@ class TicketXHR extends Controller
                     break;
             }
         }
+
         return new Response(json_encode([]), 404, ['Content-Type' => 'application/json']);
     }
-    public function loadTicketCollectionSearchFilterOptions(Request $request)
-    {
 
-        return new Response(json_encode([]), 404);
+    public function loadTicketCollectionSearchFilterOptionsXHR(Request $request)
+    {
+        $json = [];
+        if ($request->isXmlHttpRequest()) {
+            if ($request->query->get('type') == 'agent') {
+                $json = $this->get('user.service')->getAgentsPartialDetails($request);
+            } elseif ($request->query->get('type') == 'customer') {
+                $json = $this->get('user.service')->getCustomersPartial($request);
+            } elseif ($request->query->get('type') == 'group') {
+                $json = $this->get('user.service')->getGroups($request);
+            } elseif ($request->query->get('type') == 'team') {
+                $json = $this->get('user.service')->getSubGroups($request);
+            } elseif ($request->query->get('type') == 'tag') {
+                $json = $this->get('ticket.service')->getTicketTags($request);
+            } elseif ($request->query->get('type') == 'label') {
+                $json = $this->get('ticket.service')->getLabels($request);
+            }
+        }
+
+        return new Response(json_encode($json), 200, ['Content-Type' => 'application/json']);
     }
 
     public function listTicketTypeCollectionXHR(Request $request)
@@ -621,11 +665,28 @@ class TicketXHR extends Controller
         return new Response(json_encode([]), 404, ['Content-Type' => 'application/json']);
     }
 
-    public function loadTicketSavedReplies(Request $request) {
+    public function applyTicketPreparedResponseXHR(Request $request)
+    {
+        $id = $request->attributes->get('id');
+        $ticketId = $request->attributes->get('ticketId');
+        $ticket = $this->getDoctrine()->getManager()->getRepository('UVDeskCoreBundle:Ticket')->findOneById($ticketId);
+
+        $event = new GenericEvent($id, [
+            'entity' =>  $ticket
+        ]);
+        
+        $this->get('event_dispatcher')->dispatch('uvdesk.automation.prepared_response.execute', $event);
+        $this->addFlash('success', 'Success ! Prepared Response applied successfully.');
+
+        return $this->redirect($this->generateUrl('helpdesk_member_ticket',['ticketId' => $ticketId]));
+    }
+    
+    public function loadTicketSavedReplies(Request $request)
+    {
         $json = array();
         $data = $request->query->all();
 
-        if($request->isXmlHttpRequest()) {
+        if ($request->isXmlHttpRequest()) {
             $json['message'] = $this->get('ticket.service')->getSavedReplyContent($data['id'],$data['ticketId']);
         }
 
