@@ -504,6 +504,7 @@
                                         </div>
                                     </div>
                                     <ul class="uv-search-list group" data-action="group">
+                                        <li data-index=""><a href="#">Not Assigned</a></li>
                                         {% for group in supportGroupCollection %}
                                             <li data-index="{{ group.id }}"><a href="#">{{ group.name }}</a></li>
                                         {% endfor %}
@@ -533,6 +534,7 @@
                                         </div>
                                     </div>
                                     <ul class="uv-search-list team" data-action="team">
+                                        <li data-index=""><a href="#">{{ 'Not Assigned'|trans }}</a></li>
                                         {% for team in supportTeamCollection %}
                                             <li data-index="{{ team.id }}"><a href="#">{{ team.name }}</a></li>
                                         {% endfor %}
