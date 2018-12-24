@@ -491,7 +491,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->select('COUNT(ticket.id) as tickets')
             ->from('UVDeskCoreBundle:Ticket', 'ticket')
             ->where('ticket.customer = :user')->setParameter('user', $user)
-            ->andWhere('ticket.isTrashed != :isTrashed')->setParameter('isTrashed', false);
+            ->andWhere('ticket.isTrashed != :isTrashed')->setParameter('isTrashed', true);
 
         return (int) $queryBuilder->getQuery()->getSingleScalarResult();
     }

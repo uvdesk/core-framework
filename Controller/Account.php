@@ -57,18 +57,20 @@ class Account extends Controller
                 $form->handleRequest($request);
                 $form->submit(true);
                 
-                $encodedPassword = $this->container->get('security.password_encoder')->encodePassword($user, $data['password']['first']);
-                
                 if ($form->isValid()) {
-                    if($data != null) {
+                    if ($data != null) {
+                        $submittedPassword = $data['password']['first'];
+                        $encoder = $this->container->get('security.password_encoder');
+
+                        // save previous password if password is blank or null provided
+                        $encodedPassword = empty($submittedPassword) ? $password : $encoder->encodePassword($user, $submittedPassword);
+                            
                         if (!empty($encodedPassword) ) {
                             $user->setPassword($encodedPassword);
                         } else {
                             $this->addFlash('warning', 'Error! Given current password is incorrect.');
                             return $this->redirect($this->generateUrl('helpdesk_member_profile'));
                         }
-                    } else {
-                        $user->setPassword($password);
                     }
                    
                     $user->setFirstName($data['firstName']);
@@ -80,10 +82,11 @@ class Account extends Controller
 
                     $userInstance = $this->container->get('user.service')->getUserDetailById($user->getId());
 
-                    if(isset($dataFiles['profileImage'])){
+                    if (isset($dataFiles['profileImage'])) {
                         $fileName  = $this->container->get('uvdesk.service')->getFileUploadManager()->upload($dataFiles['profileImage']);
                         $userInstance->setProfileImagePath($fileName);
                     }
+                    
                     $userInstance  = $userInstance->setContactNumber($data['contactNumber']);
                     $userInstance  = $userInstance->setSignature($data['signature']);
                     $em->persist($userInstance);

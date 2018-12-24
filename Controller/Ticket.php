@@ -27,14 +27,6 @@ class Ticket extends Controller
 
     public function loadTicket($ticketId)
     {
-        // $this->get('event.manager')->trigger([
-        //     'subject' => ($thread->getThreadType() == 'forward') ? $data['subject'] : '',
-        //     'event' => 'ticket.'.$thread->getThreadType().'.added',
-        //     'entity' => $thread->getTicket(),
-        //     'targetEntity' => $thread,
-        //     'socialMedium' => (!empty($data['threadProcess']) && $data['threadProcess'] == 'social-reply') ? true : false,
-        // ]);
-
         $entityManager = $this->getDoctrine()->getManager();
         $request = $this->container->get('request_stack')->getCurrentRequest();
         $userRepository = $entityManager->getRepository('UVDeskCoreBundle:User');
@@ -66,7 +58,7 @@ class Ticket extends Controller
         return $this->render('@UVDeskCore//ticket.html.twig', [
             'ticket' => $ticket,
             'totalReplies' => $ticketRepository->countTicketTotalThreads($ticket->getId()),
-            'totalCustomerTickets' => $ticketRepository->countCustomerTotalTickets($user),
+            'totalCustomerTickets' => $ticketRepository->countCustomerTotalTickets($customer),
             'initialThread' => $this->get('ticket.service')->getTicketInitialThreadDetails($ticket),
             'ticketAgent' => !empty($agent) ? $agent->getAgentInstance()->getPartialDetails() : null,
             'customer' => $customer->getCustomerInstance()->getPartialDetails(),
@@ -141,6 +133,13 @@ class Ticket extends Controller
                     'source' => 'website',
                     'active' => true
                 ]);
+                
+                // Trigger ticket created event
+                $event = new GenericEvent(CoreWorkflowEvents\Customer\Create::getId(), [
+                    'entity' => $customer,
+                ]);
+
+                $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
             }
         }
 

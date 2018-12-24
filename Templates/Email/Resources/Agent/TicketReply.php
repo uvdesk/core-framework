@@ -69,8 +69,6 @@ abstract class TicketReply implements UVDeskEmailTemplateInterface
     <p></p>
     <p></p>
     <p></p>
-    <p style="border-top: 1px solid #ddd;text-align: center;margin-top: 15px;font-size: 12px;padding-top: 5px;color: #aaa">This email is a service from %companyNamePlaceholder%. Delivered by
-        <a href="https://uvdesk.com" style="background-color:transparent">UVdesk</a>.</p>
 MESSAGE;
 
     public static function getName()

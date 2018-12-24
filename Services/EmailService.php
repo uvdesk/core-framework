@@ -354,7 +354,7 @@ class EmailService
         $customerPartialDetails = $ticket->getCustomer()->getCustomerInstance()->getPartialDetails();
         $agentPartialDetails = $ticket->getAgent() ? $ticket->getAgent()->getAgentInstance()->getPartialDetails() : null;
 
-        if (false == array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
+        if (false != array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
             $viewTicketURL = $router->generate('helpdesk_customer_ticket', [
                 'id' => $ticket->getId(),
             ], UrlGeneratorInterface::ABSOLUTE_URL);
