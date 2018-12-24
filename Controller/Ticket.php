@@ -27,14 +27,6 @@ class Ticket extends Controller
 
     public function loadTicket($ticketId)
     {
-        // $this->get('event.manager')->trigger([
-        //     'subject' => ($thread->getThreadType() == 'forward') ? $data['subject'] : '',
-        //     'event' => 'ticket.'.$thread->getThreadType().'.added',
-        //     'entity' => $thread->getTicket(),
-        //     'targetEntity' => $thread,
-        //     'socialMedium' => (!empty($data['threadProcess']) && $data['threadProcess'] == 'social-reply') ? true : false,
-        // ]);
-
         $entityManager = $this->getDoctrine()->getManager();
         $request = $this->container->get('request_stack')->getCurrentRequest();
         $userRepository = $entityManager->getRepository('UVDeskCoreBundle:User');

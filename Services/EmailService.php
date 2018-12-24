@@ -309,7 +309,7 @@ class EmailService
         $helpdeskWebsite = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneByCode('helpdesk');
 
         // Link to company knowledgebase
-        if (false != array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
+        if (false == array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
             $companyURL = $this->container->getParameter('uvdesk.site_url');
         } else {
             $companyURL = $router->generate('helpdesk_knowledgebase', [], UrlGeneratorInterface::ABSOLUTE_URL);
@@ -337,9 +337,6 @@ class EmailService
 
     public function getTicketPlaceholderValues(Ticket $ticket, $type = "")
     {
-        
-        $roleUser = $ticket->createdThread ? $ticket->createdThread->getuser()->getRoles()[0] : '';
-
         $supportTeam = $ticket->getSupportTeam();
         $supportGroup = $ticket->getSupportGroup();
         $supportTags = array_map(function ($supportTag) { return $supportTag->getName(); }, $ticket->getSupportTags()->toArray());
@@ -357,30 +354,16 @@ class EmailService
         $customerPartialDetails = $ticket->getCustomer()->getCustomerInstance()->getPartialDetails();
         $agentPartialDetails = $ticket->getAgent() ? $ticket->getAgent()->getAgentInstance()->getPartialDetails() : null;
 
-        $isRoleCustomer = 0;
         if (false != array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
-            if ($roleUser == 'ROLE_CUSTOMER') {
-                $isRoleCustomer = 1;
-                $viewTicketURL = $router->generate('helpdesk_customer_ticket', [
-                    'id' => $ticket->getId(),
-                ], UrlGeneratorInterface::ABSOLUTE_URL);
-    
-                $generateTicketURL = $router->generate('helpdesk_customer_create_ticket', [], UrlGeneratorInterface::ABSOLUTE_URL);
-            }
-            
+            $viewTicketURL = $router->generate('helpdesk_customer_ticket', [
+                'id' => $ticket->getId(),
+            ], UrlGeneratorInterface::ABSOLUTE_URL);
+
+            $generateTicketURL = $router->generate('helpdesk_customer_create_ticket', [], UrlGeneratorInterface::ABSOLUTE_URL);
         } else {
             $viewTicketURL = '';
             $generateTicketURL = '';
         }
-
-        if (!$isRoleCustomer) {
-            $viewTicketURL = $router->generate('helpdesk_member_ticket', [
-                'id' => $ticket->getId(),
-            ], UrlGeneratorInterface::ABSOLUTE_URL);
-            
-            $generateTicketURL = $router->generate('helpdesk_member_create_ticket', [], UrlGeneratorInterface::ABSOLUTE_URL);
-        }
-
 
         $placeholderParams = [
             'ticket.id' => $ticket->getId(),

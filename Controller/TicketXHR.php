@@ -296,8 +296,9 @@ class TicketXHR extends Controller
             case 'group':
 
                 $supportGroup = $entityManager->getRepository('UVDeskCoreBundle:SupportGroup')->findOneById($requestContent['value']);
+                
                 if (empty($supportGroup)) {
-                    if ($requestContent['value'] == "") {
+                    if ($ticket->getSupportGroup() != null && $requestContent['value'] == "") {
                         $ticket->setSupportGroup(null);
                         $entityManager->persist($ticket);
                         $entityManager->flush();
@@ -306,6 +307,11 @@ class TicketXHR extends Controller
                             'alertClass' => 'success',
                             'alertMessage' => 'Ticket support group updated successfully',
                         ]), 200, ['Content-Type' => 'application/json']);
+                    } else {
+                        return new Response(json_encode([
+                            'alertClass' => 'danger',
+                            'alertMessage' => 'Unable to retrieve support group details',
+                        ]), 404, ['Content-Type' => 'application/json']);
                     }
                 }
 
@@ -336,16 +342,23 @@ class TicketXHR extends Controller
                 $supportTeam = $entityManager->getRepository('UVDeskCoreBundle:SupportTeam')->findOneById($requestContent['value']);
 
                 if (empty($supportTeam)) {
-                    if ($requestContent['value'] == "") {
+                    if ($ticket->getSupportTeam() != null && $requestContent['value'] == "") {
                         $ticket->setSupportTeam(null);
                         $entityManager->persist($ticket);
                         $entityManager->flush();
 
-                        return new Response(json_encode([
+                        $response = new Response(json_encode([
                             'alertClass' => 'success',
                             'alertMessage' => 'Ticket support team updated successfully',
                         ]), 200, ['Content-Type' => 'application/json']);
+                    } else {
+                        $response = new Response(json_encode([
+                            'alertClass' => 'danger',
+                            'alertMessage' => 'Unable to retrieve support team details',
+                        ]), 404, ['Content-Type' => 'application/json']);
                     }
+
+                    return $response;
                 }
 
                 if ($ticket->getSupportTeam() != null && $supportTeam->getId() === $ticket->getSupportTeam()->getId()) {

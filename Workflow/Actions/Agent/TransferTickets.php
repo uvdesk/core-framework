@@ -45,20 +45,22 @@ class TransferTickets extends WorkflowAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        if($entity instanceof User) {
-            if($value == 'responsePerforming')
-                $user = $entityManager->getRepository('UVDeskCoreBundle:User')->find($container->get('security.tokenstorage')->getToken()->getUser()->getId());
-            else
+        
+        if ($entity instanceof User) {
+            if ($value == 'responsePerforming') {
+                $user = $container->get('security.tokenstorage')->getToken()->getUser();
+            } else {
                 $user = $entityManager->getRepository('UVDeskCoreBundle:User')->find($value);
-            $tickets = $entityManager->getRepository('UVDeskCoreBundle:Ticket')->getAgentTickets($entity->getId(), $container);
-            if($user) {
+            }
+            
+            if (!empty($user) && $user != 'anon.') {
+                $tickets = $entityManager->getRepository('UVDeskCoreBundle:Ticket')->getAgentTickets($entity->getId(), $container);
+
                 foreach ($tickets as $ticket) {
                     $ticket->setAgent($user);
                     $entityManager->persist($ticket);
                     $entityManager->flush();
                 }
-            } else {
-                // Transferrable User Not Found. Disable Workflow/Prepared Response
             }
         }
     }
