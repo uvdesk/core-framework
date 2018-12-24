@@ -287,7 +287,8 @@
                     e.preventDefault();
                     var data = this.$el.serializeObject();
                     this.model.set(data);
-			        if(this.model.isValid(true)) {
+
+			        if (this.model.isValid(true)) {
                         this.$el.find('.uv-btn').attr('disabled', 'disabled');
                         this.$el.submit();
 			        }

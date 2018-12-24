@@ -57,12 +57,13 @@ class Account extends Controller
                 $form->handleRequest($request);
                 $form->submit(true);
                 
-                
                 if ($form->isValid()) {
-                    if($data != null) {
+                    if ($data != null) {
+                        $submittedPassword = $data['password']['first'];
+                        $encoder = $this->container->get('security.password_encoder');
+
                         // save previous password if password is blank or null provided
-                        $encodedPassword = ($data['password']['first'] == "" || $data['password']['first'] == null) ? $password
-                            : $this->container->get('security.password_encoder')->encodePassword($user, $data['password']['first']);
+                        $encodedPassword = empty($submittedPassword) ? $password : $encoder->encodePassword($user, $submittedPassword);
                             
                         if (!empty($encodedPassword) ) {
                             $user->setPassword($encodedPassword);
@@ -81,10 +82,11 @@ class Account extends Controller
 
                     $userInstance = $this->container->get('user.service')->getUserDetailById($user->getId());
 
-                    if(isset($dataFiles['profileImage'])){
+                    if (isset($dataFiles['profileImage'])) {
                         $fileName  = $this->container->get('uvdesk.service')->getFileUploadManager()->upload($dataFiles['profileImage']);
                         $userInstance->setProfileImagePath($fileName);
                     }
+                    
                     $userInstance  = $userInstance->setContactNumber($data['contactNumber']);
                     $userInstance  = $userInstance->setSignature($data['signature']);
                     $em->persist($userInstance);
