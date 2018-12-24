@@ -294,15 +294,19 @@ class TicketXHR extends Controller
                 }
                 break;
             case 'group':
-                // $this->isAuthorized('ROLE_AGENT_ASSIGN_TICKET_GROUP');
-                $supportGroup = $entityManager->getRepository('UVDeskCoreBundle:SupportGroup')->findOneById($requestContent['value']);
 
+                $supportGroup = $entityManager->getRepository('UVDeskCoreBundle:SupportGroup')->findOneById($requestContent['value']);
                 if (empty($supportGroup)) {
-                    // Selected ticket priority does not exist
-                    return new Response(json_encode([
-                        'alertClass' => 'danger',
-                        'alertMessage' => 'Unable to retrieve support group details',
-                    ]), 404, ['Content-Type' => 'application/json']);
+                    if ($requestContent['value'] == "") {
+                        $ticket->setSupportGroup(null);
+                        $entityManager->persist($ticket);
+                        $entityManager->flush();
+
+                        return new Response(json_encode([
+                            'alertClass' => 'success',
+                            'alertMessage' => 'Ticket support group updated successfully',
+                        ]), 200, ['Content-Type' => 'application/json']);
+                    }
                 }
 
                 if ($ticket->getSupportGroup() != null && $supportGroup->getId() === $ticket->getSupportGroup()->getId()) {
@@ -332,11 +336,16 @@ class TicketXHR extends Controller
                 $supportTeam = $entityManager->getRepository('UVDeskCoreBundle:SupportTeam')->findOneById($requestContent['value']);
 
                 if (empty($supportTeam)) {
-                    // Selected ticket priority does not exist
-                    return new Response(json_encode([
-                        'alertClass' => 'danger',
-                        'alertMessage' => 'Unable to retrieve support team details',
-                    ]), 404, ['Content-Type' => 'application/json']);
+                    if ($requestContent['value'] == "") {
+                        $ticket->setSupportTeam(null);
+                        $entityManager->persist($ticket);
+                        $entityManager->flush();
+
+                        return new Response(json_encode([
+                            'alertClass' => 'success',
+                            'alertMessage' => 'Ticket support team updated successfully',
+                        ]), 200, ['Content-Type' => 'application/json']);
+                    }
                 }
 
                 if ($ticket->getSupportTeam() != null && $supportTeam->getId() === $ticket->getSupportTeam()->getId()) {

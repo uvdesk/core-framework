@@ -17,7 +17,8 @@ class DefaultManager extends UVDeskFileUploadManager
 
     public function upload(UploadedFile $file)
     {
-        $fileName = md5(uniqid()) . '.' . $file->guessExtension();
+        $extension = explode('.', $file->getClientOriginalName());
+        $fileName = md5(uniqid()) . '.' . $extension[1];
         $directory = $file->move(self::TARGET_DIRECTORY, $fileName);
 
         return self::PREFIX . $directory->getPathname();
