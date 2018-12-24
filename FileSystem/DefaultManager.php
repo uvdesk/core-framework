@@ -34,7 +34,10 @@ class DefaultManager extends UVDeskFileUploadManager
             $resolvedPath .= $prefix;
         }
         
-        mkdir($directory, 0777, true);
+        if (!is_dir($directory)) {
+            mkdir($directory, 0777, true);
+        }
+        
         $path = $directory . $attachment->getFilename();
         $resolvedPath .= $attachment->getFilename();
 
