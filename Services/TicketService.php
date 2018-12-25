@@ -345,9 +345,8 @@ class TicketService
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreBundle:Ticket');
 
         // Get base query
-        // dump($params);die;
         $baseQuery = $ticketRepository->prepareBaseTicketQuery($activeUser, $params);
-        $ticketTabs = $ticketRepository->getTicketTabDetails($params);
+        $ticketTabs = $ticketRepository->getTicketTabDetails($baseQuery, $params);
 
         // Add reply count filter to base query
         if (array_key_exists('repliesLess', $params) || array_key_exists('repliesMore', $params)) {
@@ -363,6 +362,9 @@ class TicketService
                 $baseQuery->andHaving('count(th.id) > :threadValueGreater')->setParameter('threadValueGreater', intval($params['repliesMore']));
             }
         }
+
+        // filter by status
+        $baseQuery->andWhere('ticket.status = :status')->setParameter('status', isset($params['status']) ? $params['status'] : 1);
 
         // Apply Pagination
         $pageNumber = !empty($params['page']) ? (int) $params['page'] : 1;
@@ -459,7 +461,7 @@ class TicketService
         return [
             'tickets' => $ticketCollection,
             'pagination' => $paginationData,
-            'tabs'=>$ticketTabs,
+            'tabs' => $ticketTabs,
             'labels' => [
                 'predefind' => $this->getPredefindLabelDetails($this->container),
                 'custom' => $this->getCustomLabelDetails($this->container),

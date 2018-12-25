@@ -52,7 +52,12 @@
     opacity: .85;
     }
 
-    .uv-sidebar ul.uv-menubar li a:hover,
+    li.uv-active-sidebar {
+		color: {{ brandColor }};
+		border-left: solid 3px {{ brandColor }};
+    }
+
+    .uv-sidebar ul.uv-menubar li:not(.uv-active-sidebar) a:hover,
     .uv-sidebar ul.uv-menubar li .uv-item-active {
         color: {{ brandColor }};
         border-left: solid 3px {{ brandColor }};

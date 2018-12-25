@@ -19,6 +19,7 @@ Webkul\UVDesk\CoreBundle\Entity\Website:
         logo:
             type: string
             length: 191
+            nullable: true
         themeColor:
             type: string
             length: 191

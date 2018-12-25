@@ -111,8 +111,8 @@ class TicketXHR extends Controller
     public function updateTicketDetails(Request $request)
     {
         $ticketId = $request->attributes->get('ticketId');
-        $em = $this->getDoctrine()->getManager();
-        $ticket = $em->getRepository('UVDeskCoreBundle:Ticket')->find($ticketId);
+        $entityManager = $this->getDoctrine()->getManager();
+        $ticket = $entityManager->getRepository('UVDeskCoreBundle:Ticket')->find($ticketId);
        
         if (!$ticket)
             $this->noResultFound();
@@ -130,12 +130,12 @@ class TicketXHR extends Controller
         if (!$error) {
             $ticket->setSubject($request->request->get('subject'));
             $createThread = $this->get('ticket.service')->getCreateReply($ticket->getId(), false);
-            $createThread = $em->getRepository('UVDeskCoreBundle:Thread')->find($createThread['id']);
+            $createThread = $entityManager->getRepository('UVDeskCoreBundle:Thread')->find($createThread['id']);
             $createThread->setMessage($request->request->get('reply'));
 
-            $em->persist($createThread);
-            $em->persist($ticket);
-            $em->flush();
+            $entityManager->persist($createThread);
+            $entityManager->persist($ticket);
+            $entityManager->flush();
 
             $this->addFlash('success', 'Success ! Ticket has been updated successfully.');
         } else {
@@ -294,11 +294,10 @@ class TicketXHR extends Controller
                 }
                 break;
             case 'group':
-
                 $supportGroup = $entityManager->getRepository('UVDeskCoreBundle:SupportGroup')->findOneById($requestContent['value']);
                 
                 if (empty($supportGroup)) {
-                    if ($ticket->getSupportGroup() != null && $requestContent['value'] == "") {
+                    if ($supportGroup == null && $requestContent['value'] == "") {
                         $ticket->setSupportGroup(null);
                         $entityManager->persist($ticket);
                         $entityManager->flush();
@@ -342,7 +341,7 @@ class TicketXHR extends Controller
                 $supportTeam = $entityManager->getRepository('UVDeskCoreBundle:SupportTeam')->findOneById($requestContent['value']);
 
                 if (empty($supportTeam)) {
-                    if ($ticket->getSupportTeam() != null && $requestContent['value'] == "") {
+                    if ($supportTeam == null && $requestContent['value'] == "") {
                         $ticket->setSupportTeam(null);
                         $entityManager->persist($ticket);
                         $entityManager->flush();
