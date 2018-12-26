@@ -297,21 +297,27 @@ class TicketXHR extends Controller
                 $supportGroup = $entityManager->getRepository('UVDeskCoreBundle:SupportGroup')->findOneById($requestContent['value']);
                 
                 if (empty($supportGroup)) {
-                    if ($supportGroup == null && $requestContent['value'] == "") {
-                        $ticket->setSupportGroup(null);
-                        $entityManager->persist($ticket);
-                        $entityManager->flush();
+                    if ($requestContent['value'] == "") {
+                        if ($ticket->getSupportGroup() != null) {
+                            $ticket->getSupportGroup(null);
+                            $entityManager->persist($ticket);
+                            $entityManager->flush();
+                        }
 
-                        return new Response(json_encode([
+                        $responseCode = 200;
+                        $response = [
                             'alertClass' => 'success',
                             'alertMessage' => 'Ticket support group updated successfully',
-                        ]), 200, ['Content-Type' => 'application/json']);
+                        ];
                     } else {
-                        return new Response(json_encode([
+                        $responseCode = 404;
+                        $response = [
                             'alertClass' => 'danger',
-                            'alertMessage' => 'Unable to retrieve support group details',
-                        ]), 404, ['Content-Type' => 'application/json']);
+                            'alertMessage' => 'Unable to retrieve support team details',
+                        ];
                     }
+
+                    return new Response(json_encode($response), $responseCode, ['Content-Type' => 'application/json']);;
                 }
 
                 if ($ticket->getSupportGroup() != null && $supportGroup->getId() === $ticket->getSupportGroup()->getId()) {
@@ -341,23 +347,27 @@ class TicketXHR extends Controller
                 $supportTeam = $entityManager->getRepository('UVDeskCoreBundle:SupportTeam')->findOneById($requestContent['value']);
 
                 if (empty($supportTeam)) {
-                    if ($supportTeam == null && $requestContent['value'] == "") {
-                        $ticket->setSupportTeam(null);
-                        $entityManager->persist($ticket);
-                        $entityManager->flush();
+                    if ($requestContent['value'] == "") {
+                        if ($ticket->getSupportTeam() != null) {
+                            $ticket->setSupportTeam(null);
+                            $entityManager->persist($ticket);
+                            $entityManager->flush();
+                        }
 
-                        $response = new Response(json_encode([
+                        $responseCode = 200;
+                        $response = [
                             'alertClass' => 'success',
-                            'alertMessage' => 'Ticket support team updated successfully',
-                        ]), 200, ['Content-Type' => 'application/json']);
+                            'alertMessage' => 'Ticket support group updated successfully',
+                        ];
                     } else {
-                        $response = new Response(json_encode([
+                        $responseCode = 404;
+                        $response = [
                             'alertClass' => 'danger',
                             'alertMessage' => 'Unable to retrieve support team details',
-                        ]), 404, ['Content-Type' => 'application/json']);
+                        ];
                     }
 
-                    return $response;
+                    return new Response(json_encode($response), $responseCode, ['Content-Type' => 'application/json']);;
                 }
 
                 if ($ticket->getSupportTeam() != null && $supportTeam->getId() === $ticket->getSupportTeam()->getId()) {
