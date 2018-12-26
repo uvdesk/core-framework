@@ -309,11 +309,18 @@ class EmailService
         $helpdeskWebsite = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneByCode('helpdesk');
 
         // Link to company knowledgebase
-        if (false != array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
+        if (false == array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
             $companyURL = $this->container->getParameter('uvdesk.site_url');
         } else {
             $companyURL = $router->generate('helpdesk_knowledgebase', [], UrlGeneratorInterface::ABSOLUTE_URL);
         }
+
+        $helpdeskWebsiteKnowledgebase = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneByCode('Knowledgebase');
+        $logo  =  $helpdeskWebsiteKnowledgebase->getLogo(); 
+        if(!empty($logo))
+            $logoSrc = $router->generate('helpdesk_server_information', [], UrlGeneratorInterface::ABSOLUTE_URL) . $helpdeskWebsiteKnowledgebase->getLogo();
+        else
+            $logoSrc = $router->generate('helpdesk_server_information', [], UrlGeneratorInterface::ABSOLUTE_URL) . "bundles/uvdeskcore/images/uv-avatar-uvdesk.png";
 
         // Link to update account login credentials
         $updateCredentialsURL = $router->generate(('customer' == $userType) ? 'helpdesk_customer_update_account_credentials' : 'helpdesk_member_update_account_credentials', [
@@ -328,27 +335,30 @@ class EmailService
             'user.forgotPasswordLink' => "<a href='$updateCredentialsURL'>$updateCredentialsURL</a>",
             'user.accountValidationLink' => "<a href='$updateCredentialsURL'>$updateCredentialsURL</a>",
             'global.companyName' => $helpdeskWebsite->getName(),
-            'global.companyLogo' => "<img style='max-height:60px' src='https://cdn.uvdesk.com/uvdesk/images/7c5ce25.png'/>",
+            'global.companyLogo' => "<img style='max-height:60px' src='$logoSrc'/>",
             'global.companyUrl' => "<a href='$companyURL'>$companyURL</a>",
         ];
-
         return $placeholderParams;
     }
 
     public function getTicketPlaceholderValues(Ticket $ticket, $type = "")
     {
-        
-        $roleUser = $ticket->createdThread ? $ticket->createdThread->getuser()->getRoles()[0] : '';
-
         $supportTeam = $ticket->getSupportTeam();
-        $supportGroup = $ticket->getSupportGroup();
+        $supportGroup = $ticket-z>getSupportGroup();
         $supportTags = array_map(function ($supportTag) { return $supportTag->getName(); }, $ticket->getSupportTags()->toArray());
         
         $router = $this->container->get('router');
-        $helpdeskWebsite = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneByCode('helpdesk');
 
+        $helpdeskWebsite = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneByCode('helpdesk');
+        
+        $helpdeskWebsiteKnowledgebase = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneByCode('Knowledgebase');
+        $logo  =  $helpdeskWebsiteKnowledgebase->getLogo(); 
+        if(!empty($logo))
+            $logoSrc = $router->generate('helpdesk_server_information', [], UrlGeneratorInterface::ABSOLUTE_URL) . $helpdeskWebsiteKnowledgebase->getLogo();
+        else
+            $logoSrc = $router->generate('helpdesk_server_information', [], UrlGeneratorInterface::ABSOLUTE_URL) . "bundles/uvdeskcore/images/uv-avatar-uvdesk.png";
         // Link to company knowledgebase
-        if (false != array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
+        if (false == array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
             $companyURL = $this->container->getParameter('uvdesk.site_url');
         } else {
             $companyURL = $router->generate('helpdesk_knowledgebase', [], UrlGeneratorInterface::ABSOLUTE_URL);
@@ -357,30 +367,16 @@ class EmailService
         $customerPartialDetails = $ticket->getCustomer()->getCustomerInstance()->getPartialDetails();
         $agentPartialDetails = $ticket->getAgent() ? $ticket->getAgent()->getAgentInstance()->getPartialDetails() : null;
 
-        $isRoleCustomer = 0;
         if (false != array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
-            if ($roleUser == 'ROLE_CUSTOMER') {
-                $isRoleCustomer = 1;
-                $viewTicketURL = $router->generate('helpdesk_customer_ticket', [
-                    'id' => $ticket->getId(),
-                ], UrlGeneratorInterface::ABSOLUTE_URL);
-    
-                $generateTicketURL = $router->generate('helpdesk_customer_create_ticket', [], UrlGeneratorInterface::ABSOLUTE_URL);
-            }
-            
+            $viewTicketURL = $router->generate('helpdesk_customer_ticket', [
+                'id' => $ticket->getId(),
+            ], UrlGeneratorInterface::ABSOLUTE_URL);
+
+            $generateTicketURL = $router->generate('helpdesk_customer_create_ticket', [], UrlGeneratorInterface::ABSOLUTE_URL);
         } else {
             $viewTicketURL = '';
             $generateTicketURL = '';
         }
-
-        if (!$isRoleCustomer) {
-            $viewTicketURL = $router->generate('helpdesk_member_ticket', [
-                'id' => $ticket->getId(),
-            ], UrlGeneratorInterface::ABSOLUTE_URL);
-            
-            $generateTicketURL = $router->generate('helpdesk_member_create_ticket', [], UrlGeneratorInterface::ABSOLUTE_URL);
-        }
-
 
         $placeholderParams = [
             'ticket.id' => $ticket->getId(),
@@ -403,7 +399,7 @@ class EmailService
             'ticket.link' => sprintf("<a href='%s'>#%s</a>", $viewTicketURL, $ticket->getId()),
             'ticket.ticketGenerateUrl' => sprintf("<a href='%s'>click here</a>", $generateTicketURL),
             'global.companyName' => $helpdeskWebsite->getName(),
-            'global.companyLogo' => "<img style='max-height:60px' src='https://cdn.uvdesk.com/uvdesk/images/7c5ce25.png'/>",
+            'global.companyLogo' => "<img style='max-height:60px' src='$logoSrc'/>",
             'global.companyUrl' => "<a href='$companyURL'>$companyURL</a>",
         ];
 
