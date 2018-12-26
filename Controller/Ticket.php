@@ -27,14 +27,6 @@ class Ticket extends Controller
 
     public function loadTicket($ticketId)
     {
-        // $this->get('event.manager')->trigger([
-        //     'subject' => ($thread->getThreadType() == 'forward') ? $data['subject'] : '',
-        //     'event' => 'ticket.'.$thread->getThreadType().'.added',
-        //     'entity' => $thread->getTicket(),
-        //     'targetEntity' => $thread,
-        //     'socialMedium' => (!empty($data['threadProcess']) && $data['threadProcess'] == 'social-reply') ? true : false,
-        // ]);
-
         $entityManager = $this->getDoctrine()->getManager();
         $request = $this->container->get('request_stack')->getCurrentRequest();
         $userRepository = $entityManager->getRepository('UVDeskCoreBundle:User');
@@ -62,7 +54,7 @@ class Ticket extends Controller
         $agent = $ticket->getAgent();
         $customer = $ticket->getCustomer();
         $user = $this->get('user.service')->getSessionUser();
-
+        
         return $this->render('@UVDeskCore//ticket.html.twig', [
             'ticket' => $ticket,
             'totalReplies' => $ticketRepository->countTicketTotalThreads($ticket->getId()),
@@ -141,6 +133,13 @@ class Ticket extends Controller
                     'source' => 'website',
                     'active' => true
                 ]);
+                
+                // Trigger ticket created event
+                $event = new GenericEvent(CoreWorkflowEvents\Customer\Create::getId(), [
+                    'entity' => $customer,
+                ]);
+
+                $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
             }
         }
 
@@ -360,6 +359,28 @@ class Ticket extends Controller
         $response->sendHeaders();
         $response->setContent(readfile($path));
         
+        return $response;
+    }
+    public function getSearchFilterOptionsXhr(Request $request)
+    {
+        $json = [];
+        if($request->isXmlHttpRequest()) {
+            if($request->query->get('type') == 'agent') {
+                $json = $this->get('user.service')->getAgentsPartialDetails($request);
+            } elseif($request->query->get('type') == 'customer') {
+                $json = $this->get('user.service')->getCustomersPartial($request);
+            } elseif($request->query->get('type') == 'group') {
+                $json = $this->get('user.service')->getSupportGroups($request);
+            } elseif($request->query->get('type') == 'team') {
+                $json = $this->get('user.service')->getSupportTeams($request);
+            } elseif($request->query->get('type') == 'tag') {
+                $json = $this->get('ticket.service')->getTicketTags($request);
+            } elseif($request->query->get('type') == 'label') {
+                $json = $this->get('ticket.service')->getLabels($request);
+            }
+        }
+        $response = new Response(json_encode($json));
+        $response->headers->set('Content-Type', 'application/json');
         return $response;
     }
 
