@@ -72,11 +72,14 @@ class UserService
 
     public function checkPermission($role)
     {
-        $securityContext = $this->container->get('security.token_storage')->getToken();
+        $securityContext = $this->container->get('security.token_storage')->getToken()->getUser();
+        $roles = $securityContext->getRoles();
         
-        if ($this->isGranted('ROLE_SUPER_ADMIN') || $this->isGranted('ROLE_ADMIN')) {
+        $isGranted = in_array('ROLE_SUPER_ADMIN', $roles);
+
+        if (in_array('ROLE_SUPER_ADMIN', $roles) || in_array('ROLE_ADMIN', $roles)) {
             return true;
-        } else if ($this->isGranted('ROLE_AGENT')) {
+        } else if (in_array('ROLE_AGENT', $roles)) {
             $agentPrivileges = $this->getUserPrivileges($this->getCurrentUser()->getId());
             $agentPrivileges = array_merge($agentPrivileges, ['saved_filters_action', 'saved_replies']);
             
@@ -105,6 +108,7 @@ class UserService
         }
         
         $agentPrivilege[$userId] = $this->agentPrivilege[$userId] = $userPrivileges;  
+
         return $userPrivileges;
     }
 
