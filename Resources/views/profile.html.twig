@@ -146,6 +146,7 @@
                         <label class="uv-field-label">{{ 'Password'|trans }}</label>
                         <div class="uv-field-block">
                             <input type="password" name="user_form[password][first]" class="uv-field"  />
+                            <span class="uv-field-info">{{ 'Password will remain same if you are not entering something in this field'|trans }}</span>
                         </div>
                     </div>
 
@@ -196,9 +197,16 @@
                         required: true,
                         msg: '{{ "This field is mandatory"|trans }}'
                     },
-                    'user_form[lastName]': {
-                        required: true,
-                        msg: '{{ "This field is mandatory"|trans }}'
+                    'user_form[lastName]': function(value) {
+                        if(value != undefined && value !== '') {
+                            [{
+                                pattern: /^((?![!@#$%^&*()<_+]).)*$/,
+                                msg: 'This field must have characters only'
+                            },{
+                                maxLength:40,
+                                msg:'Maximum character length is 40'
+                            }]
+                        }
                     },
                     'user_form[email]': [{
                         required: true,
@@ -213,10 +221,12 @@
                                 return '{{ "Contact number is invalid"|trans }}';
                         }
                     },
-                    'user_form[password][first]' : function(value) {                       
-                            if(value.length < 8)
-                                return '{{ "Password must contains 8 Characters"|trans }}';
-                        
+                    'user_form[password][first]' : function(value) { 
+                        if(value != undefined && value !== '') {
+                             if(value.length < 8)
+                            return '{{ "Password must contains 8 Characters"|trans }}';
+                        }                      
+                       
                     },
                     'user_form[password][second]': {
                         equalTo: 'user_form[password][first]',
@@ -228,7 +238,7 @@
 			var UserForm = Backbone.View.extend({
 				events : {
 					'click #uv-save-profile' : "saveUser",
-					'blur input, textarea': 'formChanegd',
+					'blur input, textarea': 'formChanged',
                     'click a.select': 'selectAll',
                     'click a.deselect': 'deselectAll',
                     'click #confirm-password .proceed': 'confirmChange',
@@ -265,7 +275,7 @@
                         }
                     }
                 },
-				formChanegd: function(e) {
+				formChanged: function(e) {
                     var fieldName = Backbone.$(e.currentTarget).attr('name');
                     if(fieldName == 'user_form[password][second]') {
                         if($("input[name='user_form[password][first]']").val().length) {
@@ -291,16 +301,10 @@
                     e.preventDefault();
                     var data = this.$el.serializeObject();
                     this.model.set(data);
-                    //console.log(data);
-			        if(this.model.isValid(true)) {
-                        {# if(data['user_form[password][first]'] && !data['user_form[oldPassword]']) {
-                            $('#confirm-password').show();                         
-                            $('body').addClass('uv-pop-up-body');
-                        } else { #}
-                           
-                            this.$el.find('.uv-btn').attr('disabled', 'disabled');
-                            this.$el.submit();
-                       {# / } #}
+
+			        if (this.model.isValid(true)) {
+                        this.$el.find('.uv-btn').attr('disabled', 'disabled');
+                        this.$el.submit();
 			        }
 				},
                 selectAll: function (e) {
