@@ -197,6 +197,17 @@
                         required: true,
                         msg: '{{ "This field is mandatory"|trans }}'
                     },
+                    'user_form[lastName]': function(value) {
+                        if(value != undefined && value !== '') {
+                            [{
+                                pattern: /^((?![!@#$%^&*()<_+]).)*$/,
+                                msg: 'This field must have characters only'
+                            },{
+                                maxLength:40,
+                                msg:'Maximum character length is 40'
+                            }]
+                        }
+                    },
                     'user_form[email]': [{
                         required: true,
                         msg: '{{ "This field is mandatory"|trans }}'
@@ -210,9 +221,11 @@
                                 return '{{ "Contact number is invalid"|trans }}';
                         }
                     },
-                    'user_form[password][first]' : function(value) {                       
-                        if(value.length < 8)
+                    'user_form[password][first]' : function(value) { 
+                        if(value != undefined && value !== '') {
+                             if(value.length < 8)
                             return '{{ "Password must contains 8 Characters"|trans }}';
+                        }                      
                     },
                     'user_form[password][second]': {
                         equalTo: 'user_form[password][first]',

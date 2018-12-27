@@ -95,11 +95,11 @@
                 <span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
             <% } %>
         </li>
-        <li class="<% if(sort == 'ticketCount') { %>uv-drop-list-active<% } %>">
-            <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/ticketCount/<% if(sort == 'ticketCount') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="ticketCount">
+        <li class="<% if(sort == 'totalTickets') { %>uv-drop-list-active<% } %>">
+            <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/totalTickets/<% if(sort == 'totalTickets') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="totalTickets">
                 {{ 'Ticket Count'|trans }}
             </a>
-            <% if(sort == 'ticketCount') { %>
+            <% if(sort == 'totalTickets') { %>
                 <span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
             <% } %>
         </li>

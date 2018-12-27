@@ -135,16 +135,17 @@
                         maxLength:40,
                         msg:'Maximum character length is 40'
                     }],
-                    'customer_form[lastName]': [{
-                        required: true,
-                        msg: 'This field is mandatory'
-                    }, {
-                        pattern: /^((?![!@#$%^&*()<_+]).)*$/,
-                        msg: 'This field must have characters only'
-                    },{
-                        maxLength:40,
-                        msg:'Maximum character length is 40'
-                    }],
+					'customer_form[lastName]': function(value) {
+                        if(value != undefined && value !== '') {
+                            [{
+                                pattern: /^((?![!@#$%^&*()<_+]).)*$/,
+                                msg: 'This field must have characters only'
+                            },{
+                                maxLength:40,
+                                msg:'Maximum character length is 40'
+                            }]
+                        }
+                    },
                     'customer_form[email]': [{
                         required: true,
                         msg: '{{ "This field is mandatory"|trans }}'
