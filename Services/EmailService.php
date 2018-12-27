@@ -318,9 +318,9 @@ class EmailService
         $helpdeskWebsiteKnowledgebase = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneByCode('Knowledgebase');
         $logo  =  $helpdeskWebsiteKnowledgebase->getLogo(); 
         if(!empty($logo))
-            $logoSrc = $router->generate('helpdesk_server_information', [], UrlGeneratorInterface::ABSOLUTE_URL) . $helpdeskWebsiteKnowledgebase->getLogo();
+            $logoSrc = $this->container->getParameter('uvdesk.site_url') . $helpdeskWebsiteKnowledgebase->getLogo();
         else
-            $logoSrc = $router->generate('helpdesk_server_information', [], UrlGeneratorInterface::ABSOLUTE_URL) . "bundles/uvdeskcore/images/uv-avatar-uvdesk.png";
+            $logoSrc = $this->container->getParameter('uvdesk.site_url') . "/bundles/uvdeskcore/images/uv-avatar-uvdesk.png";
 
         // Link to update account login credentials
         $updateCredentialsURL = $router->generate(('customer' == $userType) ? 'helpdesk_customer_update_account_credentials' : 'helpdesk_member_update_account_credentials', [
@@ -344,19 +344,18 @@ class EmailService
     public function getTicketPlaceholderValues(Ticket $ticket, $type = "")
     {
         $supportTeam = $ticket->getSupportTeam();
-        $supportGroup = $ticket-z>getSupportGroup();
+        $supportGroup = $ticket->getSupportGroup();
         $supportTags = array_map(function ($supportTag) { return $supportTag->getName(); }, $ticket->getSupportTags()->toArray());
         
         $router = $this->container->get('router');
 
         $helpdeskWebsite = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneByCode('helpdesk');
-        
         $helpdeskWebsiteKnowledgebase = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneByCode('Knowledgebase');
         $logo  =  $helpdeskWebsiteKnowledgebase->getLogo(); 
         if(!empty($logo))
-            $logoSrc = $router->generate('helpdesk_server_information', [], UrlGeneratorInterface::ABSOLUTE_URL) . $helpdeskWebsiteKnowledgebase->getLogo();
+            $logoSrc = $this->container->getParameter('uvdesk.site_url') . $helpdeskWebsiteKnowledgebase->getLogo();
         else
-            $logoSrc = $router->generate('helpdesk_server_information', [], UrlGeneratorInterface::ABSOLUTE_URL) . "bundles/uvdeskcore/images/uv-avatar-uvdesk.png";
+            $logoSrc = $this->container->getParameter('uvdesk.site_url') . "/bundles/uvdeskcore/images/uv-avatar-uvdesk.png";
         // Link to company knowledgebase
         if (false == array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
             $companyURL = $this->container->getParameter('uvdesk.site_url');
