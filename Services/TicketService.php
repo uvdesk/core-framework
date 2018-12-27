@@ -102,9 +102,8 @@ class TicketService
                 // Create User Instance
                 $user = $this->container->get('user.service')->createUserInstance($params['from'], $params['name'], $role, [
                     'source' => strtolower($params['source']),
-		    'active' => true,
+                    'active' => true,
                 ]);
-
             }
 
             $params['role'] = 4;
@@ -347,7 +346,7 @@ class TicketService
 
         // Get base query
         $baseQuery = $ticketRepository->prepareBaseTicketQuery($activeUser, $params);
-        $ticketTabs = $ticketRepository->getTicketTabDetails($baseQuery, $params);
+        $ticketTabs = $ticketRepository->getTicketTabDetails($params);
 
         // Add reply count filter to base query
         if (array_key_exists('repliesLess', $params) || array_key_exists('repliesMore', $params)) {
@@ -363,9 +362,6 @@ class TicketService
                 $baseQuery->andHaving('count(th.id) > :threadValueGreater')->setParameter('threadValueGreater', intval($params['repliesMore']));
             }
         }
-
-        // filter by status
-        $baseQuery->andWhere('ticket.status = :status')->setParameter('status', isset($params['status']) ? $params['status'] : 1);
 
         // Apply Pagination
         $pageNumber = !empty($params['page']) ? (int) $params['page'] : 1;

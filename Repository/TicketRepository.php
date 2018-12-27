@@ -251,6 +251,10 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             $queryBuilder->orderBy('ticket.updatedAt', Criteria::DESC);
         }
 
+        if ($filterByStatus) {
+            $queryBuilder->andWhere('ticket.status = :status')->setParameter('status', isset($params['status']) ? $params['status'] : 1);
+        }
+
         foreach ($params as $field => $fieldValue) {
             if (in_array($field, $this->safeFields)) {
                 continue;
@@ -406,14 +410,33 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         return $queryBuilder;
     }
 
-    public function getTicketTabDetails($baseQuery, array $params)
+    public function getTicketTabDetails(array $params)
     {
         $data = array(1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0);
-        $queryBuilder = clone $baseQuery;
+        
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder()
+            ->select("
+                COUNT(DISTINCT ticket.id) as countTicket, 
+                status.id as statusId, 
+                status.code as tab
+            ")
+            ->from('UVDeskCoreBundle:Ticket', 'ticket')
+            ->leftJoin('ticket.agent', 'agent')
+            ->leftJoin('ticket.status', 'status')
+            ->leftJoin('ticket.customer', 'customer')
+            ->leftJoin('ticket.supportGroup', 'supportGroup')
+            ->leftJoin('ticket.supportTeam', 'supportTeam')
+            ->leftJoin('ticket.priority', 'priority')
+            ->leftJoin('ticket.supportLabels', 'supportLabel')
+            ->leftJoin('ticket.supportTags', 'supportTags')
+            ->leftJoin('ticket.type', 'type')
+            ->leftJoin('customer.userInstance', 'customerInstance')
+            ->leftJoin('agent.userInstance', 'agentInstance')
+            ->where('customerInstance.supportRole = 4')
+            ->andWhere("ticket.agent IS NULL OR agentInstance.supportRole != 4")
+            ->andWhere('ticket.isTrashed = :isTrashed')->setParameter('isTrashed', isset($params['trashed']) ? true : false)
+            ->groupBy('ticket.status');   
 
-        $queryBuilder->select('COUNT(DISTINCT ticket.id) as countTicket,s.id as statusId,s.code as tab')
-                        ->leftJoin('ticket.status', 's')
-                        ->groupBy('ticket.status');       
         $results = $queryBuilder->getQuery()->getResult();
 
         foreach($results as $status) {

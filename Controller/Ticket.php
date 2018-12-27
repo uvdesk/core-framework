@@ -425,20 +425,20 @@ class Ticket extends Controller
                     'from' => $content['email'],
                     'firstName' => ($firstName = ucfirst(current(explode('@', $content['email'])))),
                     'lastName' => ' ',
-                    'role' => 3,
+                    'role' => 4,
                 );
                 
                 $collaborator = $this->get('user.service')->getUserDetails($data);
                 $checkTicket = $em->getRepository('UVDeskCoreBundle:Ticket')->isTicketCollaborator($ticket, $content['email']);
                 
-                if (!($collaborator->getCustomerInstance() || $checkTicket)) {
+                if ($checkTicket) {
                     $ticket->addCollaborator($collaborator);
                     $em->persist($ticket);
                     $em->flush();
     
                     $ticket->lastCollaborator = $collaborator;
                    
-                    $json['collaborator'] =  $this->get('user.service')->getAgentDetailById($collaborator->getId());
+                    $json['collaborator'] = $collaborator->getCustomerInstance()->getPartialDetails();
     
                     // Trigger agent delete event
                     $event = new GenericEvent(CoreWorkflowEvents\Ticket\Collaborator::getId(), [
