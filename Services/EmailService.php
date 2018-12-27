@@ -315,6 +315,14 @@ class EmailService
             $companyURL = $router->generate('helpdesk_knowledgebase', [], UrlGeneratorInterface::ABSOLUTE_URL);
         }
 
+        // Resolve path to helpdesk brand image
+        $companyLogoURL = sprintf('http://%s%s', $this->container->getParameter('uvdesk.site_url'), '/bundles/uvdeskcore/images/uv-avatar-uvdesk.png');
+        $helpdeskKnowledgebaseWebsite = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneByCode('knowledgebase');
+
+        if (!empty($helpdeskKnowledgebaseWebsite) && null != $helpdeskKnowledgebaseWebsite->getLogo()) {
+            $companyLogoURL = sprintf('http://%s%s', $this->container->getParameter('uvdesk.site_url'), $helpdeskKnowledgebaseWebsite->getLogo());
+        }
+        
         // Link to update account login credentials
         $updateCredentialsURL = $router->generate(('customer' == $userType) ? 'helpdesk_customer_update_account_credentials' : 'helpdesk_member_update_account_credentials', [
             'email' => $user->getEmail(),
@@ -328,10 +336,10 @@ class EmailService
             'user.forgotPasswordLink' => "<a href='$updateCredentialsURL'>$updateCredentialsURL</a>",
             'user.accountValidationLink' => "<a href='$updateCredentialsURL'>$updateCredentialsURL</a>",
             'global.companyName' => $helpdeskWebsite->getName(),
-            'global.companyLogo' => "<img style='max-height:60px' src='https://cdn.uvdesk.com/uvdesk/images/7c5ce25.png'/>",
+            'global.companyLogo' => "<img style='max-height:60px' src='$companyLogoURL'/>",
             'global.companyUrl' => "<a href='$companyURL'>$companyURL</a>",
         ];
-
+        
         return $placeholderParams;
     }
 
@@ -343,7 +351,15 @@ class EmailService
         
         $router = $this->container->get('router');
         $helpdeskWebsite = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneByCode('helpdesk');
+        
+        // Resolve path to helpdesk brand image
+        $companyLogoURL = sprintf('http://%s%s', $this->container->getParameter('uvdesk.site_url'), '/bundles/uvdeskcore/images/uv-avatar-uvdesk.png');
+        $helpdeskKnowledgebaseWebsite = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneByCode('knowledgebase');
 
+        if (!empty($helpdeskKnowledgebaseWebsite) && null != $helpdeskKnowledgebaseWebsite->getLogo()) {
+            $companyLogoURL = sprintf('http://%s%s', $this->container->getParameter('uvdesk.site_url'), $helpdeskKnowledgebaseWebsite->getLogo());
+        }
+        
         // Link to company knowledgebase
         if (false == array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
             $companyURL = $this->container->getParameter('uvdesk.site_url');
@@ -386,7 +402,7 @@ class EmailService
             'ticket.link' => sprintf("<a href='%s'>#%s</a>", $viewTicketURL, $ticket->getId()),
             'ticket.ticketGenerateUrl' => sprintf("<a href='%s'>click here</a>", $generateTicketURL),
             'global.companyName' => $helpdeskWebsite->getName(),
-            'global.companyLogo' => "<img style='max-height:60px' src='https://cdn.uvdesk.com/uvdesk/images/7c5ce25.png'/>",
+            'global.companyLogo' => "<img style='max-height:60px' src='$companyLogoURL'/>",
             'global.companyUrl' => "<a href='$companyURL'>$companyURL</a>",
         ];
 
