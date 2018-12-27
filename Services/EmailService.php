@@ -318,10 +318,10 @@ class EmailService
         $helpdeskWebsiteKnowledgebase = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneByCode('Knowledgebase');
         $logo  =  $helpdeskWebsiteKnowledgebase->getLogo(); 
         if(!empty($logo))
-            $logoSrc = $this->container->getParameter('uvdesk.site_url') . $helpdeskWebsiteKnowledgebase->getLogo();
+            $logoSrc = 'http://'.$this->container->getParameter('uvdesk.site_url') . $helpdeskWebsiteKnowledgebase->getLogo();
         else
-            $logoSrc = $this->container->getParameter('uvdesk.site_url') . "/bundles/uvdeskcore/images/uv-avatar-uvdesk.png";
-
+            $logoSrc = 'http://'.$this->container->getParameter('uvdesk.site_url') . "/bundles/uvdeskcore/images/uv-avatar-uvdesk.png";
+        
         // Link to update account login credentials
         $updateCredentialsURL = $router->generate(('customer' == $userType) ? 'helpdesk_customer_update_account_credentials' : 'helpdesk_member_update_account_credentials', [
             'email' => $user->getEmail(),
@@ -353,9 +353,9 @@ class EmailService
         $helpdeskWebsiteKnowledgebase = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneByCode('Knowledgebase');
         $logo  =  $helpdeskWebsiteKnowledgebase->getLogo(); 
         if(!empty($logo))
-            $logoSrc = $this->container->getParameter('uvdesk.site_url') . $helpdeskWebsiteKnowledgebase->getLogo();
+            $logoSrc = 'http://'.$this->container->getParameter('uvdesk.site_url') . $helpdeskWebsiteKnowledgebase->getLogo();
         else
-            $logoSrc = $this->container->getParameter('uvdesk.site_url') . "/bundles/uvdeskcore/images/uv-avatar-uvdesk.png";
+            $logoSrc = 'http://'.$this->container->getParameter('uvdesk.site_url') . "/bundles/uvdeskcore/images/uv-avatar-uvdesk.png";
         // Link to company knowledgebase
         if (false == array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
             $companyURL = $this->container->getParameter('uvdesk.site_url');
