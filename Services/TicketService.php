@@ -573,7 +573,7 @@ class TicketService
                 'id' => $threadDetails['id'],
                 'user' => null,
                 'fullname' => null,
-				'reply' => utf8_decode($threadDetails['message']),
+				'reply' => html_entity_decode($threadDetails['message']),
 				'source' => $threadDetails['source'],
                 'threadType' => $threadDetails['threadType'],
                 'userType' => $threadDetails['createdBy'],
