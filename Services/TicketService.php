@@ -102,6 +102,7 @@ class TicketService
                 // Create User Instance
                 $user = $this->container->get('user.service')->createUserInstance($params['from'], $params['name'], $role, [
                     'source' => strtolower($params['source']),
+		    'active' => true,
                 ]);
 
             }
