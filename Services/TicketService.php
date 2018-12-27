@@ -102,8 +102,8 @@ class TicketService
                 // Create User Instance
                 $user = $this->container->get('user.service')->createUserInstance($params['from'], $params['name'], $role, [
                     'source' => strtolower($params['source']),
+                    'active' => true,
                 ]);
-
             }
 
             $params['role'] = 4;
@@ -345,7 +345,6 @@ class TicketService
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreBundle:Ticket');
 
         // Get base query
-        // dump($params);die;
         $baseQuery = $ticketRepository->prepareBaseTicketQuery($activeUser, $params);
         $ticketTabs = $ticketRepository->getTicketTabDetails($params);
 
@@ -459,7 +458,7 @@ class TicketService
         return [
             'tickets' => $ticketCollection,
             'pagination' => $paginationData,
-            'tabs'=>$ticketTabs,
+            'tabs' => $ticketTabs,
             'labels' => [
                 'predefind' => $this->getPredefindLabelDetails($this->container),
                 'custom' => $this->getCustomLabelDetails($this->container),
