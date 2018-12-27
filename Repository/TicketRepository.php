@@ -234,6 +234,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->leftJoin('ticket.supportGroup', 'supportGroup')
             ->leftJoin('ticket.supportTeam', 'supportTeam')
             ->leftJoin('ticket.priority', 'priority')
+            ->leftJoin('ticket.supportLabels', 'supportLabel')
             ->leftJoin('ticket.supportTags', 'supportTags')
             ->leftJoin('ticket.type', 'type')
             ->leftJoin('customer.userInstance', 'customerInstance')
@@ -250,21 +251,16 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             $queryBuilder->orderBy('ticket.updatedAt', Criteria::DESC);
         }
 
-        if ($filterByStatus) {
-            $queryBuilder->andWhere('ticket.status = :status')->setParameter('status', isset($params['status']) ? $params['status'] : 1);
-        }
-
         foreach ($params as $field => $fieldValue) {
             if (in_array($field, $this->safeFields)) {
                 continue;
             }
 
             switch ($field) {
-                // case 'label':
-                //     $queryBuilder->leftJoin('t.ticketLabels', 'tl');
-                //     $queryBuilder->andwhere('tl.id IN (:labelIds)');
-                //     $queryBuilder->setParameter('labelIds', array($value));
-                //     break;
+                case 'label':
+                    $queryBuilder->andwhere('supportLabel.id IN (:labelIds)');
+                    $queryBuilder->setParameter('labelIds', array($fieldValue));
+                    break;
                 case 'starred':
                     $queryBuilder->andWhere('ticket.isStarred = 1');
                     break;
@@ -410,37 +406,10 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         return $queryBuilder;
     }
 
-    public function getTicketTabDetails( array $params)
+    public function getTicketTabDetails($baseQuery, array $params)
     {
         $data = array(1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0);
-       
-        $queryBuilder = $this->getEntityManager()->createQueryBuilder()
-            ->select("
-            DISTINCT ticket,
-            supportGroup.name as groupName, 
-            supportTeam.name as teamName, 
-            priority, 
-            type.code as typeName, 
-            agent.id as agentId, 
-            agentInstance.profileImagePath as smallThumbnail, 
-            customer.id as customerId, 
-            customer.email as customerEmail, 
-            customerInstance.profileImagePath as customersmallThumbnail, 
-            CONCAT(customer.firstName, ' ', customer.lastName) AS customerName, 
-            CONCAT(agent.firstName,' ', agent.lastName) AS agentName
-        ")
-        ->from('UVDeskCoreBundle:Ticket', 'ticket')
-        ->leftJoin('ticket.agent', 'agent')
-        ->leftJoin('ticket.customer', 'customer')
-        ->leftJoin('ticket.supportGroup', 'supportGroup')
-        ->leftJoin('ticket.supportTeam', 'supportTeam')
-        ->leftJoin('ticket.priority', 'priority')
-        ->leftJoin('ticket.type', 'type')
-        ->leftJoin('customer.userInstance', 'customerInstance')
-        ->leftJoin('agent.userInstance', 'agentInstance')
-        ->where('customerInstance.supportRole = 4')
-        ->andWhere("ticket.agent IS NULL OR agentInstance.supportRole != 4")
-        ->andWhere('ticket.isTrashed = :isTrashed')->setParameter('isTrashed', isset($params['trashed']) ? true : false);
+        $queryBuilder = clone $baseQuery;
 
         $queryBuilder->select('COUNT(DISTINCT ticket.id) as countTicket,s.id as statusId,s.code as tab')
                         ->leftJoin('ticket.status', 's')
@@ -450,6 +419,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         foreach($results as $status) {
             $data[$status['statusId']] = $status['countTicket'];
         }
+
         return $data;
     }
 

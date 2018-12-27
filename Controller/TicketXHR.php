@@ -111,8 +111,8 @@ class TicketXHR extends Controller
     public function updateTicketDetails(Request $request)
     {
         $ticketId = $request->attributes->get('ticketId');
-        $em = $this->getDoctrine()->getManager();
-        $ticket = $em->getRepository('UVDeskCoreBundle:Ticket')->find($ticketId);
+        $entityManager = $this->getDoctrine()->getManager();
+        $ticket = $entityManager->getRepository('UVDeskCoreBundle:Ticket')->find($ticketId);
        
         if (!$ticket)
             $this->noResultFound();
@@ -130,12 +130,12 @@ class TicketXHR extends Controller
         if (!$error) {
             $ticket->setSubject($request->request->get('subject'));
             $createThread = $this->get('ticket.service')->getCreateReply($ticket->getId(), false);
-            $createThread = $em->getRepository('UVDeskCoreBundle:Thread')->find($createThread['id']);
+            $createThread = $entityManager->getRepository('UVDeskCoreBundle:Thread')->find($createThread['id']);
             $createThread->setMessage($request->request->get('reply'));
 
-            $em->persist($createThread);
-            $em->persist($ticket);
-            $em->flush();
+            $entityManager->persist($createThread);
+            $entityManager->persist($ticket);
+            $entityManager->flush();
 
             $this->addFlash('success', 'Success ! Ticket has been updated successfully.');
         } else {
@@ -294,25 +294,30 @@ class TicketXHR extends Controller
                 }
                 break;
             case 'group':
-
                 $supportGroup = $entityManager->getRepository('UVDeskCoreBundle:SupportGroup')->findOneById($requestContent['value']);
                 
                 if (empty($supportGroup)) {
-                    if ($ticket->getSupportGroup() != null && $requestContent['value'] == "") {
-                        $ticket->setSupportGroup(null);
-                        $entityManager->persist($ticket);
-                        $entityManager->flush();
+                    if ($requestContent['value'] == "") {
+                        if ($ticket->getSupportGroup() != null) {
+                            $ticket->getSupportGroup(null);
+                            $entityManager->persist($ticket);
+                            $entityManager->flush();
+                        }
 
-                        return new Response(json_encode([
+                        $responseCode = 200;
+                        $response = [
                             'alertClass' => 'success',
                             'alertMessage' => 'Ticket support group updated successfully',
-                        ]), 200, ['Content-Type' => 'application/json']);
+                        ];
                     } else {
-                        return new Response(json_encode([
+                        $responseCode = 404;
+                        $response = [
                             'alertClass' => 'danger',
-                            'alertMessage' => 'Unable to retrieve support group details',
-                        ]), 404, ['Content-Type' => 'application/json']);
+                            'alertMessage' => 'Unable to retrieve support team details',
+                        ];
                     }
+
+                    return new Response(json_encode($response), $responseCode, ['Content-Type' => 'application/json']);;
                 }
 
                 if ($ticket->getSupportGroup() != null && $supportGroup->getId() === $ticket->getSupportGroup()->getId()) {
@@ -342,23 +347,27 @@ class TicketXHR extends Controller
                 $supportTeam = $entityManager->getRepository('UVDeskCoreBundle:SupportTeam')->findOneById($requestContent['value']);
 
                 if (empty($supportTeam)) {
-                    if ($ticket->getSupportTeam() != null && $requestContent['value'] == "") {
-                        $ticket->setSupportTeam(null);
-                        $entityManager->persist($ticket);
-                        $entityManager->flush();
+                    if ($requestContent['value'] == "") {
+                        if ($ticket->getSupportTeam() != null) {
+                            $ticket->setSupportTeam(null);
+                            $entityManager->persist($ticket);
+                            $entityManager->flush();
+                        }
 
-                        $response = new Response(json_encode([
+                        $responseCode = 200;
+                        $response = [
                             'alertClass' => 'success',
-                            'alertMessage' => 'Ticket support team updated successfully',
-                        ]), 200, ['Content-Type' => 'application/json']);
+                            'alertMessage' => 'Ticket support group updated successfully',
+                        ];
                     } else {
-                        $response = new Response(json_encode([
+                        $responseCode = 404;
+                        $response = [
                             'alertClass' => 'danger',
                             'alertMessage' => 'Unable to retrieve support team details',
-                        ]), 404, ['Content-Type' => 'application/json']);
+                        ];
                     }
 
-                    return $response;
+                    return new Response(json_encode($response), $responseCode, ['Content-Type' => 'application/json']);;
                 }
 
                 if ($ticket->getSupportTeam() != null && $supportTeam->getId() === $ticket->getSupportTeam()->getId()) {

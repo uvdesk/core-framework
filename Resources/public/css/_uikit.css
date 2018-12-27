@@ -2217,12 +2217,6 @@ kbd {
   vertical-align: middle;
   margin-left: 5px;
 }
-.uv-sidebar ul.uv-menubar li a:hover,
-.uv-sidebar ul.uv-menubar li .uv-item-active {
-  color: #7C70F4;
-  background: #FAFAFA;
-  border-left: solid 3px #7C70F4;
-}
 .uv-sidebar ul.uv-menubar li a:hover .uv-icon svg path,
 .uv-sidebar ul.uv-menubar li .uv-item-active .uv-icon svg path {
   fill: #7C70F4;

@@ -7,10 +7,12 @@ use Doctrine\Common\Collections\Criteria;
 use Webkul\UVDesk\CoreBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Webkul\UVDesk\CoreBundle\Entity\SupportRole;
 use Webkul\UVDesk\CoreBundle\Entity\UserInstance;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreBundle\Workflow\Events as CoreWorkflowEvents;
 
 class UserService
 {
@@ -70,11 +72,14 @@ class UserService
 
     public function checkPermission($role)
     {
-        $securityContext = $this->container->get('security.token_storage')->getToken();
+        $securityContext = $this->container->get('security.token_storage')->getToken()->getUser();
+        $roles = $securityContext->getRoles();
         
-        if ($this->isGranted('ROLE_SUPER_ADMIN') || $this->isGranted('ROLE_ADMIN')) {
+        $isGranted = in_array('ROLE_SUPER_ADMIN', $roles);
+
+        if (in_array('ROLE_SUPER_ADMIN', $roles) || in_array('ROLE_ADMIN', $roles)) {
             return true;
-        } else if ($this->isGranted('ROLE_AGENT')) {
+        } else if (in_array('ROLE_AGENT', $roles)) {
             $agentPrivileges = $this->getUserPrivileges($this->getCurrentUser()->getId());
             $agentPrivileges = array_merge($agentPrivileges, ['saved_filters_action', 'saved_replies']);
             
@@ -103,6 +108,7 @@ class UserService
         }
         
         $agentPrivilege[$userId] = $this->agentPrivilege[$userId] = $userPrivileges;  
+
         return $userPrivileges;
     }
 
@@ -180,6 +186,13 @@ class UserService
 
             $this->entityManager->persist($user);
             $this->entityManager->flush();
+
+            // Trigger customer created event
+            $event = new GenericEvent(CoreWorkflowEvents\Customer\Create::getId(), [
+                'entity' => $user,
+            ]);
+
+            $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
         }
         
         $userInstance = 'ROLE_CUSTOMER' == $role->getCode() ? $user->getCustomerInstance() : $user->getAgentInstance();
@@ -340,7 +353,8 @@ class UserService
             ->setParameter('customerId', $customerId);
 
         $result = $qb->getQuery()->getResult();
-        return ($result ? $result[0] : null);
+
+        return $result ? $result[0] : null;
     }
 
     public function getCustomersPartial(Request $request = null)
@@ -519,51 +533,9 @@ class UserService
         $user = $this->entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(['email' => $data['from']]);
         $role = $this->entityManager->getRepository('UVDeskCoreBundle:SupportRole')->find($data['role']);
 
-        if(!$user) {
+        if (!$user) {
             //create user
             $user = $this->createUserInstance($data['from'], $data['fullname'] = '', $role, $data);
-        } else {
-            $checkCustomer = $this->entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(['email' => $data['from']]);
-
-            if(!$checkCustomer) {
-                $role = $this->entityManager->getRepository('UVDeskCoreBundle:Role')->find($data['role']);
-                $userData = new UserData();
-                $userData->setUserRole($role);
-                $userData->setUser($user);
-                $userData->setFirstName($data['firstName']);
-                $userData->setLastName($data['lastName']);
-                if(isset($data['isActive']))
-                    $userData->setIsActive($data['isActive']);
-                else
-                    $userData->setIsActive(1);
-                $userData->setIsVerified(0);
-                if(isset($data['source']))
-                    $userData->setSource($data['source']);
-                else
-                    $userData->setSource('website');
-                if(isset($data['contactNumber']))
-                    $userData->setContactNumber($data['contactNumber']);
-                $this->entityManager->persist($userData);
-                $this->entityManager->flush();
-
-                $user->addData($userData);
-                $user->setValidationCode($key = str_shuffle(time()));
-                $user->setIsEmailPending(1);
-                if(isset($data['profileImage']) && $data['profileImage']) {
-                    $user->setProfileImage($data['profileImage']);
-                }
-                $this->entityManager->persist($user);
-                $this->entityManager->flush();
-
-                $user->setUserName($userData->getName());
-
-                if(!(isset($data['skipWorkflow']) && $data['skipWorkflow'])) {
-                    $this->container->get('event.manager')->trigger([
-                            'event' => 'customer.created',
-                            'entity' => $user
-                        ]);
-                }
-            }
         }
 
         return $user;
