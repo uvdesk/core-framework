@@ -365,7 +365,7 @@ class MailboxService
             }
                 
             // Trigger thread reply event
-            $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+            $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
         }
 
         return;
