@@ -422,35 +422,37 @@ class Ticket extends Controller
                 $json['alertMessage'] = $this->get('translator')->trans('Error ! Can not add customer as a collaborator.');
             } else {
                 $data = array(
-                        'from' => $content['email'],
-                        'firstName' => ($firstName = ucfirst(current(explode('@', $content['email'])))),
-                        'lastName' => ' ',
-                        'role' => 4,
-                    );
+                    'from' => $content['email'],
+                    'firstName' => ($firstName = ucfirst(current(explode('@', $content['email'])))),
+                    'lastName' => ' ',
+                    'role' => 3,
+                );
                 
                 $collaborator = $this->get('user.service')->getUserDetails($data);
-                $checkTicket = $em->getRepository('UVDeskCoreBundle:Ticket')->isTicketCollaborator($ticket,$content['email']);
-                if(!$checkTicket) {
+                $checkTicket = $em->getRepository('UVDeskCoreBundle:Ticket')->isTicketCollaborator($ticket, $content['email']);
+                
+                if (!($collaborator->getCustomerInstance() || $checkTicket)) {
                     $ticket->addCollaborator($collaborator);
                     $em->persist($ticket);
                     $em->flush();
-
+    
                     $ticket->lastCollaborator = $collaborator;
                    
-                    $json['collaborator'] =  $this->get('user.service')->getCustomerPartialDetailById($collaborator->getId());
-
+                    $json['collaborator'] =  $this->get('user.service')->getAgentDetailById($collaborator->getId());
+    
                     // Trigger agent delete event
                     $event = new GenericEvent(CoreWorkflowEvents\Ticket\Collaborator::getId(), [
                         'entity' => $ticket,
                     ]);
-
+    
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
                     
                     $json['alertClass'] = 'success';
                     $json['alertMessage'] = $this->get('translator')->trans('Success ! Collaborator added successfully.');
                 } else {
                     $json['alertClass'] = 'danger';
-                    $json['alertMessage'] = $this->get('translator')->trans('Error ! Collaborator is already added.');
+                    $message = $checkTicket ? "Collaborator is already added." : "Customer can not be added as a collaborator.";
+                    $json['alertMessage'] = $this->get('translator')->trans('Error ! ' . $message); 
                 }
             }
         } elseif($request->getMethod() == "DELETE") {

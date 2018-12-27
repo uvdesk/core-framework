@@ -353,7 +353,8 @@ class UserService
             ->setParameter('customerId', $customerId);
 
         $result = $qb->getQuery()->getResult();
-        return ($result ? $result[0] : null);
+
+        return $result ? $result[0] : null;
     }
 
     public function getCustomersPartial(Request $request = null)
@@ -532,51 +533,9 @@ class UserService
         $user = $this->entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(['email' => $data['from']]);
         $role = $this->entityManager->getRepository('UVDeskCoreBundle:SupportRole')->find($data['role']);
 
-        if(!$user) {
+        if (!$user) {
             //create user
             $user = $this->createUserInstance($data['from'], $data['fullname'] = '', $role, $data);
-        } else {
-            $checkCustomer = $this->entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(['email' => $data['from']]);
-
-            if(!$checkCustomer) {
-                $role = $this->entityManager->getRepository('UVDeskCoreBundle:Role')->find($data['role']);
-                $userData = new UserData();
-                $userData->setUserRole($role);
-                $userData->setUser($user);
-                $userData->setFirstName($data['firstName']);
-                $userData->setLastName($data['lastName']);
-                if(isset($data['isActive']))
-                    $userData->setIsActive($data['isActive']);
-                else
-                    $userData->setIsActive(1);
-                $userData->setIsVerified(0);
-                if(isset($data['source']))
-                    $userData->setSource($data['source']);
-                else
-                    $userData->setSource('website');
-                if(isset($data['contactNumber']))
-                    $userData->setContactNumber($data['contactNumber']);
-                $this->entityManager->persist($userData);
-                $this->entityManager->flush();
-
-                $user->addData($userData);
-                $user->setValidationCode($key = str_shuffle(time()));
-                $user->setIsEmailPending(1);
-                if(isset($data['profileImage']) && $data['profileImage']) {
-                    $user->setProfileImage($data['profileImage']);
-                }
-                $this->entityManager->persist($user);
-                $this->entityManager->flush();
-
-                $user->setUserName($userData->getName());
-
-                if(!(isset($data['skipWorkflow']) && $data['skipWorkflow'])) {
-                    $this->container->get('event.manager')->trigger([
-                            'event' => 'customer.created',
-                            'entity' => $user
-                        ]);
-                }
-            }
         }
 
         return $user;
