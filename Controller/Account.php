@@ -392,12 +392,6 @@ class Account extends Controller
                     $entityManager->persist($userInstance);
                     $entityManager->flush();
                     
-                    // Trigger customer created event
-                    $event = new GenericEvent(CoreWorkflowEvents\Agent\Create::getId(), [
-                        'entity' => $user,
-                    ]);
-    
-                    $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
                     $this->addFlash('success', 'Success ! Agent added successfully.');
                     return $this->redirect($this->generateUrl('helpdesk_member_account_collection'));
                 }
