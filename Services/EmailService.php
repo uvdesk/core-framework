@@ -97,8 +97,12 @@ class EmailService
                         'title' => $this->trans('Ticket Agent Email'),
                         'info' => $this->trans('ticket.agentEmail.placeHolders.info'),
                     ],
-                    'link' => [
-                        'title' => $this->trans('Ticket Link'),
+                    'agentLink' => [
+                        'title' => $this->trans('Ticket Agent Link'),
+                        'info' => $this->trans('ticket.link.placeHolders.info'),
+                    ],
+                    'customerLink' => [
+                        'title' => $this->trans('Ticket Customer Link'),
                         'info' => $this->trans('ticket.link.placeHolders.info'),
                     ],
                     'collaboratorName' => [
@@ -370,24 +374,22 @@ class EmailService
         $customerPartialDetails = $ticket->getCustomer()->getCustomerInstance()->getPartialDetails();
         $agentPartialDetails = $ticket->getAgent() ? $ticket->getAgent()->getAgentInstance()->getPartialDetails() : null;
 
-        if ($type == "agent") {
-            //viewTicketUrl for agent
-            $viewTicketURL = $router->generate('helpdesk_member_ticket', [
-                'ticketId' => $ticket->getId(),
-            ], UrlGeneratorInterface::ABSOLUTE_URL);
+        //Ticket Url and create ticket url for agent
+        $viewTicketURLAgent = $router->generate('helpdesk_member_ticket', [
+            'ticketId' => $ticket->getId(),
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
+        $generateTicketURLAgent = $router->generate('helpdesk_member_create_ticket', [], UrlGeneratorInterface::ABSOLUTE_URL);
 
-            $generateTicketURL = $router->generate('helpdesk_member_create_ticket', [], UrlGeneratorInterface::ABSOLUTE_URL);
-        } else if ($type == "customer") {
-            if (false != array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
+
+        if (false != array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
                 $viewTicketURL = $router->generate('helpdesk_customer_ticket', [
                     'id' => $ticket->getId(),
                 ], UrlGeneratorInterface::ABSOLUTE_URL);
     
-                $generateTicketURL = $router->generate('helpdesk_customer_create_ticket', [], UrlGeneratorInterface::ABSOLUTE_URL);
-            }
+                $generateTicketURLCustomer = $router->generate('helpdesk_customer_create_ticket', [], UrlGeneratorInterface::ABSOLUTE_URL);
         } else {
             $viewTicketURL = '';
-            $generateTicketURL = '';
+            $generateTicketURLCustomer = '';
         }
 
         $placeholderParams = [
@@ -408,8 +410,10 @@ class EmailService
             'ticket.attachments' => '',
             'ticket.collaboratorName' => '',
             'ticket.collaboratorEmail' => '',
-            'ticket.link' => sprintf("<a href='%s'>#%s</a>", $viewTicketURL, $ticket->getId()),
-            'ticket.ticketGenerateUrl' => sprintf("<a href='%s'>click here</a>", $generateTicketURL),
+            'ticket.agentLink' => sprintf("<a href='%s'>#%s</a>", $viewTicketURLAgent, $ticket->getId()),
+            'ticket.ticketGenerateUrlAgent' => sprintf("<a href='%s'>click here</a>", $generateTicketURLAgent),
+            'ticket.customerLink' => sprintf("<a href='%s'>#%s</a>", $viewTicketURL, $ticket->getId()),
+            'ticket.ticketGenerateUrlCustomer' => sprintf("<a href='%s'>click here</a>", $generateTicketURLCustomer),
             'global.companyName' => $helpdeskWebsite->getName(),
             'global.companyLogo' => "<img style='max-height:60px' src='$companyLogoURL'/>",
             'global.companyUrl' => "<a href='$companyURL'>$companyURL</a>",
