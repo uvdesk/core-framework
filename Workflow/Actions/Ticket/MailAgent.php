@@ -45,15 +45,9 @@ class MailAgent extends WorkflowAction
         array_unshift($agentCollection, [
             'id' => 'responsePerforming',
             'name' => 'Response Performing Agent',
-        ]);
-
-        array_unshift($agentCollection, [
-            'id' => 'baseAgent',
-            'name' => 'me',
-        ]);
-        array_unshift($agentCollection, [
+        ], [
             'id' => 'assignedAgent',
-            'name' => 'ASSIGNED AGENT',
+            'name' => 'Assigned Agent',
         ]);
 
         return [
@@ -76,7 +70,7 @@ class MailAgent extends WorkflowAction
                     $mailData['references'] = $createThread['messageId'];
                 }
                 $mailData['email'] = $emails;
-                $placeHolderValues   = $container->get('email.service')->getTicketPlaceholderValues($entity);
+                $placeHolderValues   = $container->get('email.service')->getTicketPlaceholderValues($entity, 'agent');
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(),$placeHolderValues);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(),$placeHolderValues);
 

@@ -42,34 +42,47 @@ class MailCustomer extends WorkflowAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
+       
         switch (true) {
             case $entity instanceof CoreEntities\Ticket:
                 $currentThread = $entity->currentThread;
                 $createdThread = $entity->createdThread;
 
+                
                 $emailTemplate = $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findOneById($value);
 
                 if (empty($emailTemplate)) {
                     break;
                 }
 
-                $ticketPlaceholders = $container->get('email.service')->getTicketPlaceholderValues($entity);
-                $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $ticketPlaceholders);
-                $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $ticketPlaceholders);
+                $attachments = [];
+                if (!empty($createdThread)) {
+                    $threadAttachments = $entityManager->getRepository('UVDeskCoreBundle:Attachment')->findByThread($createdThread);
 
-                $emailHeaders = ['References' => $entity->getReferenceIds()];
-                if($currentThread){
-                    if (null != $currentThread->getMessageId()) {
-                        $emailHeaders['In-Reply-To'] = $currentThread->getMessageId();
+                    foreach ($threadAttachments as $attachment) {
+                        $attachments[] = $_SERVER['DOCUMENT_ROOT'] . $attachment->getPath();
                     }
                 }
-                $messageId = $container->get('uvdesk.core.mailbox')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $emailHeaders, $entity->getMailboxEmail());
+
+                $ticketPlaceholders = $container->get('email.service')->getTicketPlaceholderValues($entity , 'customer');
+                $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $ticketPlaceholders);
+  
+                $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $ticketPlaceholders);
+   
+                $emailHeaders = ['References' => $entity->getReferenceIds()];
+                
+                if (!empty($currentThread) && null != $currentThread->getMessageId()) {
+                    $emailHeaders['In-Reply-To'] = $currentThread->getMessageId();
+                }
+
+                $messageId = $container->get('uvdesk.core.mailbox')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $emailHeaders, $entity->getMailboxEmail(), $attachments);
                 
                 if (!empty($messageId)) {
                     $createdThread->setMessageId($messageId);
                     $entityManager->persist($createdThread);
                     $entityManager->flush();
                 }
+
                 break;
             default:
                 break;
