@@ -524,19 +524,6 @@ class UserService
         return $website ? $website : false;
     }
 
-    public function getUserDetails($data)
-    {
-        $user = $this->entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(['email' => $data['from']]);
-        $role = $this->entityManager->getRepository('UVDeskCoreBundle:SupportRole')->find($data['role']);
-
-        if (!$user) {
-            //create user
-            $user = $this->createUserInstance($data['from'], $data['fullname'] = '', $role, $data);
-        }
-
-        return $user;
-    }
-
     public function convertToTimezone($date, $format = "d-m-Y h:ia")
     {
         if(!$date)

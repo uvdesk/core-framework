@@ -452,7 +452,7 @@ class Ticket extends Controller
                     'role' => 4,
                 );
                 
-                $collaborator = $this->get('user.service')->getUserDetails($data);
+                $collaborator = $this->get('user.service')->createUserInstance($data);
                 $checkTicket = $em->getRepository('UVDeskCoreBundle:Ticket')->isTicketCollaborator($ticket, $content['email']);
                 
                 if (!$checkTicket) {
