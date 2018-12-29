@@ -1107,3 +1107,22 @@ body {
 .insights-chart-custom-legend-circle.agent-performance-graph-label > ul > li:nth-child(3) > span {
     background-color: #f4c000;
 }
+
+.dropdown-menu {
+    left:0;
+    top:100%;
+    float:left;
+    display:none;
+    z-index:1000;
+    padding:5px 0;
+    margin:2px 0 0;
+    font-size:14px;
+    min-width:160px;
+    text-align:left;
+    border-radius:4px;
+    position:absolute;
+    background-color:#fff;
+    background-clip:padding-box;
+    border:1px solid rgba(0,0,0,.15);
+    box-shadow:0 6px 12px rgba(0,0,0,.176);
+}
