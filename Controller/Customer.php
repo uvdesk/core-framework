@@ -13,7 +13,7 @@ class Customer extends Controller
 {
     public function listCustomers(Request $request) 
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_CUSTOMER')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')){          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -22,7 +22,7 @@ class Customer extends Controller
 
     public function createCustomer(Request $request)
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_CUSTOMER')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')){          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -72,7 +72,7 @@ class Customer extends Controller
 
     public function editCustomer(Request $request)
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_CUSTOMER')) {          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -210,7 +210,7 @@ class Customer extends Controller
     
     public function bookmarkCustomer(Request $request)
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_CUSTOMER')) {          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 

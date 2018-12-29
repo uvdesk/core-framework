@@ -555,10 +555,10 @@
                     <label>Create New</label>
                     <ul>
                         <li data-action="create" class="uv-open-popup" data-target="create-ticket-modal">Ticket</li>
-						{% if user_service.checkPermission('ROLE_AGENT_MANAGE_AGENT') %}
+						{% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT') %}
                             <li><a href="{{ path('helpdesk_member_create_account') }}">Agent</a></li>
                         {% endif %}
-						{% if user_service.checkPermission('ROLE_AGENT_MANAGE_CUSTOMER') %}                        
+						{% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER') %}                        
                             <li><a href="{{ path('helpdesk_member_create_customer_account') }}">Customer</a></li>
                         {% endif %}
                     </ul>

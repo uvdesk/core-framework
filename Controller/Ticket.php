@@ -179,7 +179,7 @@ class Ticket extends Controller
 
     public function listTicketTypeCollection(Request $request)
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -188,7 +188,7 @@ class Ticket extends Controller
 
     public function ticketType(Request $request)
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -236,7 +236,7 @@ class Ticket extends Controller
 
     public function listTagCollection(Request $request)
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_TAG')) {
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_TAG')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -249,7 +249,7 @@ class Ticket extends Controller
 
     public function removeTicketTagXHR($tagId, Request $request)
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_TAG')) {
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_TAG')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -455,16 +455,18 @@ class Ticket extends Controller
                 $collaborator = $this->get('user.service')->getUserDetails($data);
                 $checkTicket = $em->getRepository('UVDeskCoreBundle:Ticket')->isTicketCollaborator($ticket, $content['email']);
                 
-                if (false == $checkTicket) {
+                if (!$checkTicket) {
                     $ticket->addCollaborator($collaborator);
                     $em->persist($ticket);
                     $em->flush();
     
                     $ticket->lastCollaborator = $collaborator;
                    
-                    $json['collaborator'] = $collaborator->getCustomerInstance()->getPartialDetails();
-    
-                    // Trigger agent delete event
+                    if ($collaborator->getCustomerInstance())
+                        $json['collaborator'] = $collaborator->getCustomerInstance()->getPartialDetails();
+                    else
+                        $json['collaborator'] = $collaborator->getAgentInstance()->getPartialDetails();
+                    
                     $event = new GenericEvent(CoreWorkflowEvents\Ticket\Collaborator::getId(), [
                         'entity' => $ticket,
                     ]);
@@ -475,7 +477,7 @@ class Ticket extends Controller
                     $json['alertMessage'] = $this->get('translator')->trans('Success ! Collaborator added successfully.');
                 } else {
                     $json['alertClass'] = 'danger';
-                    $message = $checkTicket ? "Collaborator is already added." : "Customer can not be added as a collaborator.";
+                    $message = "Customer can not be added as a collaborator.";
                     $json['alertMessage'] = $this->get('translator')->trans('Error ! ' . $message); 
                 }
             }

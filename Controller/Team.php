@@ -14,7 +14,7 @@ class Team extends Controller
 {
     public function listTeams(Request $request)
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_SUB_GROUP')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -23,7 +23,7 @@ class Team extends Controller
 
     public function createTeam(Request $request)
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_SUB_GROUP')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
     
@@ -94,7 +94,7 @@ class Team extends Controller
 
     public function editTeam(Request $request)
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_SUB_GROUP')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 

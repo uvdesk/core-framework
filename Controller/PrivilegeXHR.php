@@ -13,7 +13,7 @@ class PrivilegeXHR extends Controller
 {
     public function listPrivilegeXHR(Request $request) 
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')){          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -28,7 +28,7 @@ class PrivilegeXHR extends Controller
 
     public function deletePrivilegeXHR($supportPrivilegeId)
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')){          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
         

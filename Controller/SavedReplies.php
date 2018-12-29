@@ -44,7 +44,7 @@ class SavedReplies extends Controller
             $em = $this->getDoctrine()->getManager();
             $template->setName($request->request->get('name'));
             //if($this->get('user.service')->checkPermission('ROLE_ADMIN')) {
-                /* groups */ 
+            /* groups */ 
             $groups = explode(',', $request->request->get('tempGroups'));
             $previousGroupIds = [];
             if($template->getSupportGroups()) {

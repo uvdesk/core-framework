@@ -74,7 +74,7 @@
         {% set route = app.request.attributes.get('_route') %}
 
 		{% for navigationItem in uvdesk_service.getHelpdeskNavigationSidebarItems() %}
-			<li data-toggle="tooltip" data-placement="right" title="{{ navigationItem.name }}" class="{{ app.request.pathinfo == path(navigationItem.route) ? 'uv-active-sidebar' }}">
+			<li data-toggle="tooltip" data-placement="right" title="{{ navigationItem.name }}" class="{{ (route == navigationItem.route) or (navigationItem.route == "helpdesk_member_ticket_collection" and route == "helpdesk_member_ticket") or (navigationItem.route == "helpdesk_member_knowledgebase_folders_collection" and (route == "helpdesk_member_knowledgebase_category_collection" or route == "helpdesk_member_knowledgebase_article_collection")) ? 'uv-active-sidebar' }}">
 				<a href="{{ path(navigationItem.route) }}">
 					<span class="uv-icon">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20px" height="18px">
