@@ -1,5 +1,5 @@
 {
-    "name": "uvdesk/core-framework",
+    "name": "uv/core-framework",
     "description": "UVDesk Community Helpdesk Core Framework Bundle",
     "type": "symfony-bundle",
     "license": "MIT",
@@ -11,7 +11,7 @@
     ],
     "require": {
         "php": "^7.0",
-        "uvdesk/composer-package-manager": "^0.1",
+        "uv/composer-package-manager": "^0.1",
         "doctrine/orm": "^2.5.11",
         "doctrine/doctrine-bundle": "^1.6.10",
         "doctrine/doctrine-migrations-bundle": "^1.3",
@@ -46,8 +46,8 @@
         "symfony/web-server-bundle": "^3.4"
     },
     "suggest": {
-        "uvdesk/automation-bundle": "Automate operations within your UVDesk Community Helpdesk System based on pre-defined events triggered from your application",
-        "uvdesk/support-center-bundle": "Provide your customers with convenience by introducing the Support Center Portal to your UVDesk Community Helpdesk System"
+        "uv/automation-bundle": "Automate operations within your UVDesk Community Helpdesk System based on pre-defined events triggered from your application",
+        "uv/support-center-bundle": "Provide your customers with convenience by introducing the Support Center Portal to your UVDesk Community Helpdesk System"
     },
     "autoload": {
         "psr-4": { "Webkul\\UVDesk\\CoreBundle\\": "" }
