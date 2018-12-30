@@ -345,7 +345,7 @@
                         required: true,
                         msg: 'This field is mandatory'
                     }, {
-                        pattern: /^((?![!@#$%^&*()<_+]).)*$/,
+                        pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
                         msg: 'This field must have characters only'
                     },{
                         maxLength:40,
@@ -355,23 +355,12 @@
                         required: true,
                         msg: 'This field is mandatory'
                     }, {
-                        pattern: /^((?![!@#$%^&*()<_+]).)*$/,
+                        pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
                         msg: 'This field must have characters only'
                     },{
                         maxLength:40,
                         msg:'Maximum character length is 40'
                     }],
-                    'user_form[lastName]': function(value) {
-                        if(value != undefined && value !== '') {
-                            [{
-                                pattern: /^((?![!@#$%^&*()<_+]).)*$/,
-                                msg: 'This field must have characters only'
-                            },{
-                                maxLength:40,
-                                msg:'Maximum character length is 40'
-                            }]
-                        }
-                    },
                     'user_form[email]': [{
                         required: true,
                         msg: 'This field is mandatory'

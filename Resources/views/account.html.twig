@@ -413,13 +413,13 @@
                         required: true,
                         msg: '{{ "This field is mandatory"|trans }}'
                     }, {
-                        pattern: /^((?![!@#$%^&*()<_+]).)*$/,
+                        pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
                         msg: '{{ "This field must have characters only"|trans }}'
                     }],
                     'user_form[lastName]': function(value) {
                         if(value != undefined && value !== '') {
                             [{
-                                pattern: /^((?![!@#$%^&*()<_+]).)*$/,
+                                pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
                                 msg: 'This field must have characters only'
                             },{
                                 maxLength:40,
