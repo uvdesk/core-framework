@@ -102,8 +102,8 @@ class TicketService
                 // Create User Instance
                 $user = $this->container->get('user.service')->createUserInstance($params['from'], $params['name'], $role, [
                     'source' => strtolower($params['source']),
+                    'active' => true,
                 ]);
-
             }
 
             $params['role'] = 4;
@@ -217,10 +217,14 @@ class TicketService
 
         // Uploading Attachments
         if (!empty($threadData['attachments'])) {
-            $fileNames['fileNames'] = $threadData['attachments'];
-            
-            if (!empty($fileNames['fileNames'])) {
-                $this->saveThreadAttachment($thread, $fileNames['fileNames']);
+            if ('email' == $threadData['source']) {
+                $this->saveThreadEmailAttachments($thread, $threadData['attachments']);
+            } else {
+                $fileNames['fileNames'] = $threadData['attachments'];
+                
+                if (!empty($fileNames['fileNames'])) {
+                    $this->saveThreadAttachment($thread, $fileNames['fileNames']);
+                }
             }
         }
 
@@ -232,19 +236,44 @@ class TicketService
         foreach ($fileNames as $file) {
             $size        = $file->getSize();
             $contentType = $file->getMimeType(); 
-            
             // Attachment upload
             $fileName  = $this->container->get('uvdesk.service')->getFileUploadManager()->upload($file);
             $attachment = new Attachment();
             $attachment->setContentType($contentType);
             $attachment->setSize($size);
             $attachment->setPath($fileName);
+            $attachment->setName($file->getClientOriginalName());
             $attachment->setThread($thread);
             
             $this->entityManager->persist($attachment);
             $this->entityManager->flush();
 
             $this->attachments[] = $attachment;
+        }
+    }
+
+    public function saveThreadEmailAttachments($thread, array $attachments)
+    {
+        $prefix = "threads/" . $thread->getId() . "/";
+        $fileManager = $this->container->get('uvdesk.service')->getFileUploadManager();
+
+        $fileManager->setRootProjectDirectory($this->container->get('kernel')->getProjectDir() . "/public");
+        
+        foreach ($attachments as $attachment) {
+            $file = $fileManager->uploadFromEmail($attachment, $prefix);
+            if (!empty($file['path'])) {
+                $threadAttachment = new Attachment();
+                $threadAttachment->setContentType($attachment->getContentType());
+                $threadAttachment->setSize($file['size']);
+                $threadAttachment->setPath($file['path']);
+                $threadAttachment->setName($file['filename']);
+                $threadAttachment->setThread($thread);
+                
+                $this->entityManager->persist($threadAttachment);
+                $this->entityManager->flush();
+
+                $this->attachments[] = $threadAttachment;
+            }
         }
     }
 
@@ -316,7 +345,6 @@ class TicketService
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreBundle:Ticket');
 
         // Get base query
-        // dump($params);die;
         $baseQuery = $ticketRepository->prepareBaseTicketQuery($activeUser, $params);
         $ticketTabs = $ticketRepository->getTicketTabDetails($params);
 
@@ -430,7 +458,7 @@ class TicketService
         return [
             'tickets' => $ticketCollection,
             'pagination' => $paginationData,
-            'tabs'=>$ticketTabs,
+            'tabs' => $ticketTabs,
             'labels' => [
                 'predefind' => $this->getPredefindLabelDetails($this->container),
                 'custom' => $this->getCustomLabelDetails($this->container),
@@ -849,7 +877,7 @@ class TicketService
         if (!empty($initialThread)) {
             $author = $initialThread->getUser();
             $authorInstance = 'agent' == $initialThread->getCreatedBy() ? $author->getAgentInstance() : $author->getCustomerInstance();
-            
+        
             return [
                 'id' => $initialThread->getId(),
                 'source' => $initialThread->getSource(),
@@ -869,40 +897,6 @@ class TicketService
 
     public function getCreateReply($ticketId)
     {
-        // $qb = $this->entityManager->createQueryBuilder();
-        // $qb->select("DISTINCT th as thread, a")->from('UVDeskCoreBundle:Thread', 'th')
-        //     ->leftJoin('th.ticket','t')
-        //     ->leftJoin('th.attachments','a')
-        //     ->leftJoin('th.user','u')
-        //     ->andWhere('t.id = :ticketId')
-        //     ->andWhere('th.threadType = :threadType')
-        //     ->setParameter('threadType','create')
-        //     ->setParameter('ticketId', $ticketId)
-        //     ->orderBy('th.id', 'ASC')
-        //     ->setMaxResults(1);
-       
-        // $result = $qb->getQuery()->getOneOrNullResult();
-        // $thread = is_array($result) ? current($result) : null;
-        // //dump($thread->getAttachments()); die;
-
-        // if (!empty($thread)) {
-        //     $user = $thread->getUser();
-
-        //     if ($thread->getCreatedBy() == 'agent') {
-        //         $data['user'] = $user->getAgentInstance()->getPartialDetails();
-        //     } else {
-        //         $data['user'] = $user->getCustomerInstance()->getPartialDetails();
-        //     }
-
-        //     $data['attachments'] = $thread->getAttachments();
-        //     $data['formatedCreatedAt'] = $thread->getCreatedAt()->format('d-m-Y h:ia');
-        //     $data['reply'] = utf8_decode($thread->getMessage());
-
-        //     return $data;
-        // }
-        
-        // return null;
-
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select("th,a,u.id as userId")->from('UVDeskCoreBundle:Thread', 'th')
                 ->leftJoin('th.ticket','t')
@@ -920,6 +914,7 @@ class TicketService
         if($result) {
             $userService = $this->container->get('user.service');
             $data = $result[0][0];
+            
             if($data['createdBy'] == 'agent')
                 $data['user'] = $userService->getAgentDetailById($result[0]['userId']);
             else

@@ -18,7 +18,7 @@ class DefaultManager extends UVDeskFileUploadManager
     public function upload(UploadedFile $file)
     {
         $extension = explode('.', $file->getClientOriginalName());
-        $fileName = md5(uniqid()) . '.' . $extension[1];
+        $fileName = md5(uniqid()) . '.' . array_pop($extension);
         $directory = $file->move(self::TARGET_DIRECTORY, $fileName);
 
         return self::PREFIX . $directory->getPathname();
@@ -35,12 +35,15 @@ class DefaultManager extends UVDeskFileUploadManager
             $resolvedPath .= $prefix;
         }
         
-        mkdir($directory, 0777, true);
+        if (!is_dir($directory)) {
+            mkdir($directory, 0777, true);
+        }
+        
         $path = $directory . $attachment->getFilename();
         $resolvedPath .= $attachment->getFilename();
 
         file_put_contents($path, $attachment->getStream());
 
-        return ['path' => $resolvedPath, 'size' => filesize($path)];
+        return ['path' => $resolvedPath, 'size' => filesize($path),'filename' => $attachment->getFilename()];
     }
 }
