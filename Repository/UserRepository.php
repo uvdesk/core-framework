@@ -78,7 +78,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         ];
     }
 
-    public function getAllAgentsForChoice(\Symfony\Component\HttpFoundation\ParameterBag $obj = null, $container) {
+    public function getAllAgentsForChoice(ParameterBag $obj = null, $container) {
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->select('a')->from($this->getEntityName(), 'a')
                 ->leftJoin('a.userInstance', 'userInstance')
@@ -89,7 +89,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         return $qb;
     }
 
-    public function getAllCustomer(\Symfony\Component\HttpFoundation\ParameterBag $obj = null, $container) {
+    public function getAllCustomer(ParameterBag $obj = null, $container) {
         
         $json = array();
         $qb = $this->getEntityManager()->createQueryBuilder();
@@ -145,7 +145,6 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
 
         $this->container = $container;
         $data = array();
-        //dump($results); die;
         foreach ($results as $key => $customer) {
             $data[] = array(
                                 'id' => $customer[0]['id'],
