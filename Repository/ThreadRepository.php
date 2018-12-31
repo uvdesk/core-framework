@@ -48,7 +48,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
     }
 
     public function prepareBasePaginationRecentThreadsQuery($ticket, array $params, $enabledLockedThreads = true)
-    {   
+    {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select("thread, attachments, user")
             ->from('UVDeskCoreBundle:Thread', 'thread')
@@ -62,6 +62,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
         if (false === $enabledLockedThreads) {
             $queryBuilder->andWhere('thread.isLocked = :isThreadLocked')->setParameter('isThreadLocked', false);
         }
+
         // Filter threads by their type
         switch (!empty($params['threadType']) ? $params['threadType'] : 'reply') {
             case 'reply':
@@ -83,6 +84,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
             default:
                 break;
         }
+
         return $queryBuilder;
     }
 
@@ -127,7 +129,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
                 'id' => $thread['id'],
                 'user' => $row['userId'] ? ['id' => $row['userId']] : null,
                 'fullname' => $row['fullname'],
-                'reply' =>  strip_tags(preg_replace("/\s|&nbsp;/",'    ',$thread['message'])),
+                'reply' => utf8_decode($thread['message']),
                 'source' => $thread['source'],
                 'threadType' => $thread['threadType'],
                 'userType' => 'customer',
@@ -138,6 +140,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
                 'attachments' => $thread['attachments'],
             ];
         }
+        
         $json['threads'] = $data;
         $json['pagination'] = $paginationData;
 
