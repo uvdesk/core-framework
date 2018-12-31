@@ -242,10 +242,6 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->where('customerInstance.supportRole = 4')
             ->andWhere("agent.id IS NULL OR agentInstance.supportRole != 4")
             ->andWhere('ticket.isTrashed = :isTrashed')->setParameter('isTrashed', isset($params['trashed']) ? true : false);
-        
-        if ($user->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
-            $queryBuilder->andwhere('agent = ' . $user->getId());
-        }
 
         if (!isset($params['sort'])) {
             $queryBuilder->orderBy('ticket.updatedAt', Criteria::DESC);
@@ -256,7 +252,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         }
 
         // applyFilter according to params
-        return $this->prepareTicketListQueryWithParams($queryBuilder, $params);
+        return $this->prepareTicketListQueryWithParams($user, $queryBuilder, $params);
     }
 
     public function prepareBasePaginationTicketTypesQuery(array $params)
@@ -328,7 +324,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         return $queryBuilder;
     }
 
-    public function getTicketTabDetails(array $params)
+    public function getTicketTabDetails($user, array $params)
     {
         $data = array(1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0);
         
@@ -354,7 +350,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->groupBy('status');
 
         // applyFilter according to params
-        $queryBuilder = $this->prepareTicketListQueryWithParams($queryBuilder, $params);
+        $queryBuilder = $this->prepareTicketListQueryWithParams($user, $queryBuilder, $params);
         $results = $queryBuilder->getQuery()->getResult();
 
         foreach($results as $status) {
@@ -446,7 +442,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 ->leftJoin('t.customer', 'c')
                 ->leftJoin('t.supportGroup', 'gr')
                 ->leftJoin('t.supportTeam', 'supportTeam')
-                ->leftJoin('t.priority', 'pr')
+                ->leftJoin('priority', 'pr')
                 ->leftJoin('t.type', 'tp')
                 ->leftJoin('c.userInstance', 'cd')
                 ->leftJoin('a.userInstance', 'ad')
@@ -497,7 +493,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         return $json;
     }
 
-    public function prepareTicketListQueryWithParams ($queryBuilder, $params)
+    public function prepareTicketListQueryWithParams ($user, $queryBuilder, $params)
     {
         foreach ($params as $field => $fieldValue) {
             if (in_array($field, $this->safeFields)) {
@@ -580,6 +576,10 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 default:
                     break;
             }
+        }
+                
+        if ($user->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
+            $queryBuilder->andwhere('agent = ' . $user->getId());
         }
 
         return $queryBuilder;
