@@ -15,7 +15,7 @@ class Composer extends ComposerPackageExtension
             ->movePackageConfig('templates/mail.html.twig', 'Templates/Email/base.html.twig')
             ->movePackageConfig('config/packages/security.yaml', 'Templates/security.yaml')
             ->combineProjectConfig('config/packages/twig.yaml', 'Templates/twig.yaml')
-            ->combineProjectConfig('config/packages/doctrine.yaml', 'Templates/doctrine.yaml')
+            // ->combineProjectConfig('config/packages/doctrine.yaml', 'Templates/doctrine.yaml')
             ->writeToConsole(require __DIR__ . "/../Templates/CLI/on-boarding.php");
         
         return $composerPackage;
