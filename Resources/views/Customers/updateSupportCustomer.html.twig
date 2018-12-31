@@ -132,7 +132,7 @@
                         required: true,
                         msg: 'This field is mandatory'
                     },{
-                        pattern: /^((?![!@#$%^&*()<_+]).)*$/,
+                        pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
                         msg: 'This field must have characters only'
                     },{
                         maxLength:40,
@@ -141,7 +141,7 @@
 					'customer_form[lastName]': function(value) {
                         if(value != undefined && value !== '') {
                             [{
-                                pattern: /^((?![!@#$%^&*()<_+]).)*$/,
+                                pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
                                 msg: 'This field must have characters only'
                             },{
                                 maxLength:40,

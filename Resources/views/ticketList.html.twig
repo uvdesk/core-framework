@@ -325,7 +325,7 @@
                         <div class="mass-action">
                             <div class="property-block">
                                 {# Update Assigned Support Agent #}
-                                {% if user_service.checkPermission('ROLE_AGENT_ASSIGN_TICKET') %}
+                                {% if user_service.isAccessAuthorized('ROLE_AGENT_ASSIGN_TICKET') %}
                                     <div class="uv-dropdown">
                                         <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Agent</div>
                                         <div class="uv-dropdown-list uv-bottom-left">
@@ -353,7 +353,7 @@
                                 {% endif %}
 
                                 {# Update Assigned Support Group #}
-                                {% if user_service.checkPermission('ROLE_AGENT_ASSIGN_TICKET_GROUP') %}
+                                {% if user_service.isAccessAuthorized('ROLE_AGENT_ASSIGN_TICKET_GROUP') %}
                                     <div class="uv-dropdown">
                                         <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Group</div>
                                         <div class="uv-dropdown-list uv-bottom-left">
@@ -374,7 +374,7 @@
                                 {% endif %}
 
                                 {# Update Assigned Support Team #}
-                                {% if user_service.checkPermission('ROLE_AGENT_ASSIGN_TICKET_GROUP') %}
+                                {% if user_service.isAccessAuthorized('ROLE_AGENT_ASSIGN_TICKET_GROUP') %}
                                     <div class="uv-dropdown">
                                         <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Team</div>
                                         <div class="uv-dropdown-list uv-bottom-left">
@@ -395,7 +395,7 @@
                                 {% endif %}
 
                                 {# Update Ticket Status #}
-                                {% if user_service.checkPermission('ROLE_AGENT_UPDATE_TICKET_STATUS') %}
+                                {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}
                                     <div class="uv-dropdown">
                                         <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Status</div>
                                         <div class="uv-dropdown-list uv-bottom-left">
@@ -413,7 +413,7 @@
                                 {% endif %}
 
                                 {# Update Ticket Type #}
-                                {% if user_service.checkPermission('ROLE_AGENT_UPDATE_TICKET_TYPE') %}
+                                {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_TYPE') %}
                                     <div class="uv-dropdown">
                                         <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Type</div>
                                         <div class="uv-dropdown-list uv-bottom-left">
@@ -434,7 +434,7 @@
                                 {% endif %}
 
                                 {# Update Priority #}
-                                {% if user_service.checkPermission('ROLE_AGENT_UPDATE_TICKET_PRIORITY') %}
+                                {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_PRIORITY') %}
                                     <div class="uv-dropdown">
                                         <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Priority</div>
                                         <div class="uv-dropdown-list uv-bottom-left">
@@ -468,7 +468,7 @@
                                 </div>
 
                                 {# Trashe Tickets #}
-                                {% if user_service.checkPermission('ROLE_AGENT_DELETE_TICKET') %}
+                                {% if user_service.isAccessAuthorized('ROLE_AGENT_DELETE_TICKET') %}
                                     <a class="uv-btn-stroke uv-margin-right-5" id="mass-delete" data-action="trashed" style="margin-left: 5px;">Delete</a>
                                 {% endif %}
                             </div>

@@ -12,7 +12,7 @@ class TeamXHR extends Controller
 {
     public function listTeamsXHR(Request $request)
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_SUB_GROUP')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -27,7 +27,7 @@ class TeamXHR extends Controller
 
     public function deleteTeamXHR($supportTeamId)
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_SUB_GROUP')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 

@@ -32,7 +32,7 @@
 				</div>
 				<!-- //Field -->
 
-				{% if user_service.checkPermission('ROLE_ADMIN') %}
+				{% if user_service.isAccessAuthorized('ROLE_ADMIN') %}
 					<!-- Field -->
 					<div class="uv-element-block">
 						<label class="uv-field-label">{{ 'Groups'|trans }}</label>

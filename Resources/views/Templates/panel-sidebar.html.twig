@@ -12,7 +12,7 @@
         <div class="uv-aside-nav">
             <ul>
                 {% for route in navigationPanel.routes %}
-                    {% if route.isEnabled and route.permission is not defined or route.permission is empty or user_service.checkPermission(route.permission) %}
+                    {% if route.isEnabled and route.permission is not defined or route.permission is empty or user_service.isAccessAuthorized(route.permission) %}
                         <li>
                             <a {{ route.isActive ? 'class="uv-aside-nav-active"' : '' }} {{ route.link is not empty ? 'href=' ~ route.link ~ '' : '' }}>{{ route.name|raw }}</a>
                         </li>

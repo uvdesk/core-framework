@@ -48,7 +48,7 @@ Webkul\UVDesk\CoreBundle\Entity\SavedReplies:
             nullable: true        
             targetEntity: SupportGroup
             joinTable:
-                name: savedReply_groups
+                name: uv_saved_replies_groups
                 joinColumns:
                     savedReply_id:
                         referencedColumnName: id
@@ -61,7 +61,7 @@ Webkul\UVDesk\CoreBundle\Entity\SavedReplies:
             nullable: true        
             targetEntity: SupportTeam
             joinTable:
-                name: savedReply_team
+                name: uv_saved_replies_teams
                 joinColumns:
                     savedReply_id:
                         referencedColumnName: id

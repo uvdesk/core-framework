@@ -758,7 +758,7 @@
                                                         <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/{{ file.id }}" target = "_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="{{ file.name }}" data-placement="top">
                                                             <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/icon-file-zip.png'))}}"  data-url=""  data-download=""  class="uv-auto-pointer-events"/>
                                                         </a>
-                                                    {% elseif (file.path|split('.')|last == 'doc') %}
+                                                    {% elseif ((file.path|split('.')|last == 'doc') or (file.path|split('.')|last == 'docx')) %}
                                                         <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/{{ file.id }}" target = "_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="{{ file.name }}" data-placement="top">
                                                             <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/icon-file-doc.png'))}}"  data-url=""  data-download=""  class="uv-auto-pointer-events"/>
                                                         </a>
@@ -774,10 +774,15 @@
                                                         <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/{{ file.id }}" target = "_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="{{ file.name }}" data-placement="top">
                                                             <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/csv.png'))}}"  data-url=""  data-download=""  class="uv-auto-pointer-events"/>
                                                         </a>
+                                                    {% elseif ((file.path|split('.')|last == 'ppt') or (file.path|split('.')|last == 'pptx')) %}
+                                                        <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/{{ file.id }}" target = "_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="{{ file.name }}" data-placement="top">
+                                                            <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/icon-file-ppt.png'))}}"  data-url=""  data-download=""  class="uv-auto-pointer-events"/>
+                                                        </a>
                                                     {% else  %}
                                                         <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/{{ file.id }}" target = "_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="{{ file.name }}" data-placement="top">
                                                             <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/icon-file-unknown.png'))}}"  data-url=""  data-download=""  class="uv-auto-pointer-events"/>
                                                         </a>
+                                                        
                                                     {% endif %}
                                                 {% else %}
                                                     <a class="uv-ticket-uploads-brick uv-template-file" href="{{ path('helpdesk_member_ticket_download_attachment') }}/{{file.id}}" target="_blank" data-toggle="tooltip" title="{{ file.name }}">
@@ -1077,9 +1082,9 @@
                                                         {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}
                                                             <li data-id="1">Submit And Open</li>
                                                             <li data-id="2">Submit And Pending</li>
-                                                            <li data-id="6">Submit And Answered</li>
-                                                            <li data-id="3">Submit And Resolved</li>
-                                                            <li data-id="4">Submit And Closed</li>
+                                                            <li data-id="3">Submit And Answered</li>
+                                                            <li data-id="4">Submit And Resolved</li>
+                                                            <li data-id="5">Submit And Closed</li>
                                                         {% endif %}
                                                     </ul>
                                                 </div>
@@ -1337,7 +1342,7 @@
                                     <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%-file.id %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
                                         <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/icon-file-zip.png'))}}" data-url="<%- file.attachmentOrginal %>" data-download="<%- file.id %>" class="uv-auto-pointer-events">
                                     </a>
-                                <% } else if(fileFormat == 'doc') { %>
+                                <% } else if(fileFormat == 'doc' || fileFormat == 'docx') { %>
                                     <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%-file.id %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
                                         <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/icon-file-doc.png'))}}" data-url="<%- file.attachmentOrginal %>" data-download="<%- file.id %>" class="uv-auto-pointer-events">
                                     </a>
@@ -1352,6 +1357,10 @@
                                 <% } else if(fileFormat == 'csv') { %>
                                     <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%-file.id %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
                                         <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/csv.png'))}}" data-url="<%- file.attachmentOrginal %>" data-download="<%- file.id %>" class="uv-auto-pointer-events">
+                                    </a>
+                                <% } else if(fileFormat == 'ppt' || fileFormat == 'pptx') { %>
+                                    <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%-file.id %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
+                                        <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/icon-file-ppt.png'))}}" data-url="<%- file.attachmentOrginal %>" data-download="<%- file.id %>" class="uv-auto-pointer-events">
                                     </a>
                                 <% } else { %>
                                     <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%-file.id %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
