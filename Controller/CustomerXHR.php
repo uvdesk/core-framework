@@ -14,7 +14,7 @@ class CustomerXHR extends Controller
 {
     public function listCustomersXHR(Request $request) 
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_CUSTOMER')) {          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
         
@@ -32,7 +32,7 @@ class CustomerXHR extends Controller
 
     public function removeCustomerXHR(Request $request) 
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_CUSTOMER')) {          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
         

@@ -31,7 +31,7 @@
 				<div class="uv-action-bar-col-rt">
 					<input type="text" class="uv-search-inline uv-vertical-align uv-margin-right-15" placeholder="{{ 'Search'|trans }}">
 					<!-- Add Button -->
-					{% if (user_service.checkPermission('email_templates_addaction')) %}
+					{% if (user_service.isAccessAuthorized('email_templates_addaction')) %}
 						<a href="{{ path('email_templates_addaction') }}" type="button" class="uv-btn-action">
 							<span class="uv-icon-add"></span>
 							{{ "New Template"|trans }}

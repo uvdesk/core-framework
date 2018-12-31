@@ -58,35 +58,30 @@ class UserService
     public function isAccessAuthorized($scope, User $user = null)
     {
         // Return false if no user is provided
-        if (empty($user) && null == $this->getSessionUser()) {
+        if (empty($user) && !($user = $this->getSessionUser())) {
             return false;
         }
-        
-        switch ($scope) {
+
+        try {
+            $userRole = $user->getAgentInstance()->getSupportRole()->getCode();
+        } catch (\Exception $error) {
+            $userRole = '';
+        }
+
+        switch ($userRole) {
+            case 'ROLE_SUPER_ADMIN':
+            case 'ROLE_ADMIN':
+                return true;
+            case 'ROLE_AGENT':
+                $agentPrivileges = $this->getUserPrivileges($this->getCurrentUser()->getId());
+                $agentPrivileges = array_merge($agentPrivileges, ['saved_filters_action', 'saved_replies']);
+                
+                return in_array($scope, $agentPrivileges) ? true : false;
             default:
                 break;
         }
 
         return true;
-    }
-
-    public function checkPermission($role)
-    {
-        $securityContext = $this->container->get('security.token_storage')->getToken()->getUser();
-        $roles = $securityContext->getRoles();
-        
-        $isGranted = in_array('ROLE_SUPER_ADMIN', $roles);
-
-        if (in_array('ROLE_SUPER_ADMIN', $roles) || in_array('ROLE_ADMIN', $roles)) {
-            return true;
-        } else if (in_array('ROLE_AGENT', $roles)) {
-            $agentPrivileges = $this->getUserPrivileges($this->getCurrentUser()->getId());
-            $agentPrivileges = array_merge($agentPrivileges, ['saved_filters_action', 'saved_replies']);
-            
-            return in_array($role, $agentPrivileges) ? true : false;
-        } else {
-            return false;
-        }
     }
 
     public function getUserPrivileges($userId)
@@ -186,13 +181,6 @@ class UserService
 
             $this->entityManager->persist($user);
             $this->entityManager->flush();
-
-            // Trigger customer created event
-            $event = new GenericEvent(CoreWorkflowEvents\Customer\Create::getId(), [
-                'entity' => $user,
-            ]);
-
-            $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
         }
         
         $userInstance = 'ROLE_CUSTOMER' == $role->getCode() ? $user->getCustomerInstance() : $user->getAgentInstance();
@@ -224,6 +212,14 @@ class UserService
             $this->entityManager->flush();
 
             $user->addUserInstance($userInstance);
+
+
+            // Trigger user created event
+            $userId = 'ROLE_CUSTOMER' == $role->getCode() ? CoreWorkflowEvents\Customer\Create::getId() : CoreWorkflowEvents\Agent\Create::getId();
+
+            $event = new GenericEvent($userId, ['entity' => $user]);
+
+            $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
         }
 
         return $user;
@@ -526,19 +522,6 @@ class UserService
         $website = $websiteRepo->findOneBy(['code' => $currentUser]);
 
         return $website ? $website : false;
-    }
-
-    public function getUserDetails($data)
-    {
-        $user = $this->entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(['email' => $data['from']]);
-        $role = $this->entityManager->getRepository('UVDeskCoreBundle:SupportRole')->find($data['role']);
-
-        if (!$user) {
-            //create user
-            $user = $this->createUserInstance($data['from'], $data['fullname'] = '', $role, $data);
-        }
-
-        return $user;
     }
 
     public function convertToTimezone($date, $format = "d-m-Y h:ia")

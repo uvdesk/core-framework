@@ -346,7 +346,7 @@ class TicketService
 
         // Get base query
         $baseQuery = $ticketRepository->prepareBaseTicketQuery($activeUser, $params);
-        $ticketTabs = $ticketRepository->getTicketTabDetails($params);
+        $ticketTabs = $ticketRepository->getTicketTabDetails($activeUser, $params);
 
         // Add reply count filter to base query
         if (array_key_exists('repliesLess', $params) || array_key_exists('repliesMore', $params)) {
@@ -460,65 +460,61 @@ class TicketService
             'pagination' => $paginationData,
             'tabs' => $ticketTabs,
             'labels' => [
-                'predefind' => $this->getPredefindLabelDetails($this->container),
+                'predefind' => $this->getPredefindLabelDetails($this->container, $params),
                 'custom' => $this->getCustomLabelDetails($this->container),
             ],
           
         ];
     }
     
-    public function getPredefindLabelDetails($container)
+    public function getPredefindLabelDetails($container, $params)
     {
         $currentUser = $container->get('user.service')->getCurrentUser();
         $data = array();
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('COUNT(DISTINCT t.id) as ticketCount')->from('UVDeskCoreBundle:Ticket', 't');
-        $qb->andwhere('t.isTrashed != 1');
+        $queryBuilder = $this->entityManager->createQueryBuilder();
+        $ticketRepository = $this->entityManager->getRepository('UVDeskCoreBundle:Ticket');
+        $queryBuilder->select('COUNT(DISTINCT ticket.id) as ticketCount')->from('UVDeskCoreBundle:Ticket', 'ticket')
+            ->leftJoin('ticket.agent', 'agent');
+        $queryBuilder = $ticketRepository->prepareTicketListQueryWithParams($currentUser, $queryBuilder, $params);
+        $queryBuilder->andwhere('ticket.isTrashed != 1');
 
-        //Can be reomved
-        // $qb->andwhere('t.status != 3 AND t.status != 4  AND t.status != 5 ');
-        $data['all'] = $qb->getQuery()->getSingleScalarResult();
-        $newCount = 0;
-        $newQb = clone $qb;
-        $newQb->andwhere('t.isNew = 1');
+
+        // for all tickets count
+        $data['all'] = $queryBuilder->getQuery()->getSingleScalarResult();
+
+        // for new tickets count
+        $newQb = clone $queryBuilder;
+        $newQb->andwhere('ticket.isNew = 1');
         $data['new'] = $newQb->getQuery()->getSingleScalarResult();
 
-        $qb->andwhere("t.agent is NULL");
-        $data['unassigned'] = $qb->getQuery()->getSingleScalarResult();
+        // for unassigned tickets count
+        $unassignedQb = clone $queryBuilder;
+        $unassignedQb->andwhere("ticket.agent is NULL");
+        $data['unassigned'] = $unassignedQb->getQuery()->getSingleScalarResult();
 
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('COUNT(DISTINCT t.id) as ticketCount')->from('UVDeskCoreBundle:Ticket', 't');
-        $qb->andwhere('t.isTrashed != 1');
-        $qb->andwhere('t.isReplied = 0');
-        $qb->andwhere('t.status != 5');
-        $data['notreplied'] = $qb->getQuery()->getSingleScalarResult();
+        // for unanswered ticket count
+        $unansweredQb = clone $queryBuilder;
+        $unansweredQb->andwhere('ticket.isReplied = 0')
+                    ->andwhere('ticket.status != 5');
+        $data['notreplied'] = $unansweredQb->getQuery()->getSingleScalarResult();
 
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('COUNT(t.id) as ticketCount')->from('UVDeskCoreBundle:Ticket', 't')
-                ->andwhere('t.status != 3 AND t.status != 4  AND t.status != 5 ')
-                ->andWhere("t.agent = :agentId")
-                ->andwhere('t.isTrashed != 1')
+        // for my tickets count
+        $mineQb = clone $queryBuilder;
+        $mineQb->andwhere('ticket.status != 3 AND ticket.status != 4  AND ticket.status != 5 ')
+                ->andWhere("agent = :agentId")
                 ->setParameter('agentId', $currentUser->getId());
-
-        $data['mine'] = $qb->getQuery()->getSingleScalarResult();
-
-
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('COUNT(t.id) as ticketCount')->from('UVDeskCoreBundle:Ticket', 't');
-                $qb->andwhere('t.isStarred = 1')
-                ->andwhere('t.isTrashed != 1');
-
-        //Can be reomved
-        $qb->andwhere('t.status != 3 AND t.status != 4  AND t.status != 5 ');
-        $data['starred'] = $qb->getQuery()->getSingleScalarResult();
+        $data['mine'] = $mineQb->getQuery()->getSingleScalarResult();
 
 
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('COUNT(t.id) as ticketCount')->from('UVDeskCoreBundle:Ticket', 't');
-        $qb->andwhere('t.isTrashed = 1');
+        // for starred tickets count
+        $starredQb = clone $queryBuilder;
+        $starredQb->andwhere('ticket.isStarred = 1');
+        $data['starred'] = $starredQb->getQuery()->getSingleScalarResult();
 
-        $result = $qb->getQuery()->getResult();
-        $data['trashed'] = $qb->getQuery()->getSingleScalarResult();
+        // for trashed tickets count
+        $trashedQb = clone $queryBuilder;
+        $trashedQb->andwhere('ticket.isTrashed = 1');
+        $data['trashed'] = $trashedQb->getQuery()->getSingleScalarResult();
 
         return $data;
     }
