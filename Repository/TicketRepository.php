@@ -251,8 +251,12 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             $queryBuilder->andWhere('ticket.status = :status')->setParameter('status', isset($params['status']) ? $params['status'] : 1);
         }
 
+        if ($user->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
+            $queryBuilder->andwhere('agent = ' . $user->getId());
+        }
+
         // applyFilter according to params
-        return $this->prepareTicketListQueryWithParams($user, $queryBuilder, $params);
+        return $this->prepareTicketListQueryWithParams($queryBuilder, $params);
     }
 
     public function prepareBasePaginationTicketTypesQuery(array $params)
@@ -350,7 +354,11 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->groupBy('status');
 
         // applyFilter according to params
-        $queryBuilder = $this->prepareTicketListQueryWithParams($user, $queryBuilder, $params);
+        if ($user->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
+            $queryBuilder->andwhere('agent = ' . $user->getId());
+        }
+        
+        $queryBuilder = $this->prepareTicketListQueryWithParams($queryBuilder, $params);
         $results = $queryBuilder->getQuery()->getResult();
 
         foreach($results as $status) {
@@ -442,7 +450,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 ->leftJoin('t.customer', 'c')
                 ->leftJoin('t.supportGroup', 'gr')
                 ->leftJoin('t.supportTeam', 'supportTeam')
-                ->leftJoin('priority', 'pr')
+                ->leftJoin('t.priority', 'pr')
                 ->leftJoin('t.type', 'tp')
                 ->leftJoin('c.userInstance', 'cd')
                 ->leftJoin('a.userInstance', 'ad')
@@ -493,7 +501,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         return $json;
     }
 
-    public function prepareTicketListQueryWithParams ($user, $queryBuilder, $params)
+    public function prepareTicketListQueryWithParams($queryBuilder, $params)
     {
         foreach ($params as $field => $fieldValue) {
             if (in_array($field, $this->safeFields)) {
@@ -576,10 +584,6 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 default:
                     break;
             }
-        }
-                
-        if ($user->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
-            $queryBuilder->andwhere('agent = ' . $user->getId());
         }
 
         return $queryBuilder;

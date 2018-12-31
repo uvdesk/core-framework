@@ -475,9 +475,13 @@ class TicketService
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreBundle:Ticket');
         $queryBuilder->select('COUNT(DISTINCT ticket.id) as ticketCount')->from('UVDeskCoreBundle:Ticket', 'ticket')
             ->leftJoin('ticket.agent', 'agent');
-        $queryBuilder = $ticketRepository->prepareTicketListQueryWithParams($currentUser, $queryBuilder, $params);
+        
+        if ($currentUser->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
+            $queryBuilder->andwhere('agent = ' . $currentUser->getId());
+        }
+        
+        $queryBuilder = $ticketRepository->prepareTicketListQueryWithParams($queryBuilder, $params);
         $queryBuilder->andwhere('ticket.isTrashed != 1');
-
 
         // for all tickets count
         $data['all'] = $queryBuilder->getQuery()->getSingleScalarResult();
