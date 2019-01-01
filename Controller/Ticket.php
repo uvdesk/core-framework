@@ -348,7 +348,7 @@ class Ticket extends Controller
         $response->setStatusCode(200);
         
         $response->headers->set('Content-type', $attachment->getContentType());
-        $response->headers->set('Content-Disposition', 'attachment');
+        $response->headers->set('Content-Disposition', 'attachment; filename='. $attachment->getName());
         $response->sendHeaders();
         $response->setContent(readfile($path));
         

@@ -65,12 +65,13 @@ class MailAgent extends WorkflowAction
            
             if($emails && $emailTemplate) {
                 $mailData = array();
-                if($entity instanceof Ticket) {
+                if ($entity instanceof Ticket) {
                     $createThread = $container->get('ticket.service')->getCreateReply($entity->getId(), false);
                     $mailData['references'] = $createThread['messageId'];
                 }
+
                 $mailData['email'] = $emails;
-                $placeHolderValues   = $container->get('email.service')->getTicketPlaceholderValues($entity);
+                $placeHolderValues   = $container->get('email.service')->getTicketPlaceholderValues($entity, 'agent');
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(),$placeHolderValues);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(),$placeHolderValues);
 

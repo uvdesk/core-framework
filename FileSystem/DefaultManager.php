@@ -44,6 +44,10 @@ class DefaultManager extends UVDeskFileUploadManager
 
         file_put_contents($path, $attachment->getStream());
 
-        return ['path' => $resolvedPath, 'size' => filesize($path)];
+        return [
+            'path' => $resolvedPath,
+            'size' => filesize($path), 
+            'filename' => $attachment->getFilename(),
+        ];
     }
 }

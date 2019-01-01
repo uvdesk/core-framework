@@ -11,7 +11,7 @@ helpdesk_member_profile:
 helpdesk_member_account_xhr:
     path:     /agent/xhr/{agentId}
     controller: Webkul\UVDesk\CoreBundle\Controller\AccountXHR::deleteAgent
-    defaults: { panelId: 'users', agentId: 0 }
+    defaults: { agentId: 0 }
 
 helpdesk_member_account:
     path:     /agent/{agentId}
@@ -46,7 +46,6 @@ helpdesk_member_support_group_collection:
 helpdesk_member_support_group_collection_xhr:
     path:     /groups/xhr
     controller: Webkul\UVDesk\CoreBundle\Controller\GroupXHR::listGroupsXHR
-    defaults: { panelId: 'users' }
 
 helpdesk_member_create_support_group:
     path:     /create/group
@@ -61,7 +60,7 @@ helpdesk_member_update_support_group:
 helpdesk_member_remove_support_group_xhr:
     path:      /group/delete/xhr/{supportGroupId}
     controller: Webkul\UVDesk\CoreBundle\Controller\GroupXHR::deleteGroupXHR
-    defaults:  {panelId: 'users', supportGroupId: 0 }
+    defaults:  { supportGroupId: 0 }
 
 # Support Team Resources
 helpdesk_member_support_team_collection:
@@ -72,7 +71,6 @@ helpdesk_member_support_team_collection:
 helpdesk_member_support_team_collection_xhr:
     path:     /teams/xhr
     controller: Webkul\UVDesk\CoreBundle\Controller\TeamXHR::listTeamsXHR
-    defaults: { panelId: 'users' }
 
 helpdesk_member_create_support_team:
     path:     /create/team
@@ -87,7 +85,7 @@ helpdesk_member_update_support_team:
 helpdesk_member_remove_support_team_xhr:
     path:     /team/delete/xhr/{supportTeamId}
     controller: Webkul\UVDesk\CoreBundle\Controller\TeamXHR::deleteTeamXHR
-    defaults: { panelId: 'users', supportTeamId: 0 }
+    defaults: { supportTeamId: 0 }
 
 # Support Privilege Resources
 helpdesk_member_privilege_collection:
@@ -113,7 +111,7 @@ helpdesk_member_update_privilege:
 helpdesk_member_remove_privilege_xhr:
     path:     /privilege/delete/xhr/{supportPrivilegeId}
     controller: Webkul\UVDesk\CoreBundle\Controller\PrivilegeXHR::deletePrivilegeXHR
-    defaults: { panelId: 'users', supportPrivilegeId: 0 }
+    defaults: { supportPrivilegeId: 0 }
 
 # User Profile
 edit_profile:

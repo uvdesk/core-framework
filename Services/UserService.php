@@ -63,7 +63,7 @@ class UserService
         }
 
         try {
-            $userRole = $user->getAgentInstance()->getSupportRole()->getCode();
+            $userRole = $user->getCurrentInstance()->getSupportRole()->getCode();
         } catch (\Exception $error) {
             $userRole = '';
         }
@@ -77,6 +77,7 @@ class UserService
                 $agentPrivileges = array_merge($agentPrivileges, ['saved_filters_action', 'saved_replies']);
                 
                 return in_array($scope, $agentPrivileges) ? true : false;
+            case 'ROLE_CUSTOMER':
             default:
                 break;
         }
@@ -215,9 +216,8 @@ class UserService
 
 
             // Trigger user created event
-            $userId = 'ROLE_CUSTOMER' == $role->getCode() ? CoreWorkflowEvents\Customer\Create::getId() : CoreWorkflowEvents\Agent\Create::getId();
-
-            $event = new GenericEvent($userId, ['entity' => $user]);
+            $eventId = 'ROLE_CUSTOMER' == $role->getCode() ? CoreWorkflowEvents\Customer\Create::getId() : CoreWorkflowEvents\Agent\Create::getId();
+            $event = new GenericEvent($eventId, ['entity' => $user]);
 
             $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
         }

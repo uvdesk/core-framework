@@ -235,7 +235,7 @@ class TicketService
     {
         foreach ($fileNames as $file) {
             $size        = $file->getSize();
-            $contentType = $file->getMimeType(); 
+            $contentType = $file->getMimeType();
             
             // Attachment upload
             $fileName  = $this->container->get('uvdesk.service')->getFileUploadManager()->upload($file);
@@ -243,6 +243,7 @@ class TicketService
             $attachment->setContentType($contentType);
             $attachment->setSize($size);
             $attachment->setPath($fileName);
+            $attachment->setName($file->getClientOriginalName());
             $attachment->setThread($thread);
             
             $this->entityManager->persist($attachment);
@@ -261,12 +262,13 @@ class TicketService
         
         foreach ($attachments as $attachment) {
             $file = $fileManager->uploadFromEmail($attachment, $prefix);
-
+            
             if (!empty($file['path'])) {
                 $threadAttachment = new Attachment();
                 $threadAttachment->setContentType($attachment->getContentType());
                 $threadAttachment->setSize($file['size']);
                 $threadAttachment->setPath($file['path']);
+                $threadAttachment->setName($file['filename']);
                 $threadAttachment->setThread($thread);
                 
                 $this->entityManager->persist($threadAttachment);
@@ -475,9 +477,13 @@ class TicketService
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreBundle:Ticket');
         $queryBuilder->select('COUNT(DISTINCT ticket.id) as ticketCount')->from('UVDeskCoreBundle:Ticket', 'ticket')
             ->leftJoin('ticket.agent', 'agent');
-        $queryBuilder = $ticketRepository->prepareTicketListQueryWithParams($currentUser, $queryBuilder, $params);
+        
+        if ($currentUser->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
+            $queryBuilder->andwhere('agent = ' . $currentUser->getId());
+        }
+        
+        $queryBuilder = $ticketRepository->prepareTicketListQueryWithParams($queryBuilder, $params);
         $queryBuilder->andwhere('ticket.isTrashed != 1');
-
 
         // for all tickets count
         $data['all'] = $queryBuilder->getQuery()->getSingleScalarResult();
@@ -873,7 +879,7 @@ class TicketService
         if (!empty($initialThread)) {
             $author = $initialThread->getUser();
             $authorInstance = 'agent' == $initialThread->getCreatedBy() ? $author->getAgentInstance() : $author->getCustomerInstance();
-            
+        
             return [
                 'id' => $initialThread->getId(),
                 'source' => $initialThread->getSource(),
