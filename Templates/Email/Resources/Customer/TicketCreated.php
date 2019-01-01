@@ -6,6 +6,7 @@ use Webkul\UVDesk\CoreBundle\Templates\Email\UVDeskEmailTemplateInterface;
 
 abstract class TicketCreated implements UVDeskEmailTemplateInterface
 {
+    private static $type = "ticket";
     private static $name = 'Customer ticket generated';
     private static $subject = 'New ticket #{% ticket.id %} generated';
     private static $message = <<<MESSAGE
@@ -71,6 +72,11 @@ MESSAGE;
     public static function getName()
     {
         return self::$name;
+    }
+
+    public static function getTemplateType()
+    {
+        return self::$type;
     }
 
     public static function getSubject()

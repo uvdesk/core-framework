@@ -6,6 +6,7 @@ use Webkul\UVDesk\CoreBundle\Templates\Email\UVDeskEmailTemplateInterface;
 
 abstract class AccountCreated implements UVDeskEmailTemplateInterface
 {
+    private static $type = "user";
     private static $name = 'Agent Account Created';
     private static $subject = 'Welcome to {%global.companyName%} Helpdesk Support System';
     private static $message = <<<MESSAGE
@@ -55,6 +56,11 @@ MESSAGE;
     public static function getName()
     {
         return self::$name;
+    }
+
+    public static function getTemplateType()
+    {
+        return self::$type;
     }
 
     public static function getSubject()
