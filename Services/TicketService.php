@@ -482,7 +482,6 @@ class TicketService
             $queryBuilder->andwhere('agent = ' . $currentUser->getId());
         }
         
-        $queryBuilder = $ticketRepository->prepareTicketListQueryWithParams($queryBuilder, $params);
         $queryBuilder->andwhere('ticket.isTrashed != 1');
 
         // for all tickets count
