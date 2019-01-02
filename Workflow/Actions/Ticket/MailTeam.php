@@ -76,7 +76,7 @@ class MailTeam extends WorkflowAction
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(),$placeHolderValues);
 
                 foreach($mailData['email'] as $email){
-                    $messageId = $container->get('uvdesk.core.mailbox')->sendMail($subject, $message, $email);
+                    $messageId = $container->get('uvdesk.mailbox')->sendMail($subject, $message, $email);
                 }
             }
         } else {

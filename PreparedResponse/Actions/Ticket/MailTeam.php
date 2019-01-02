@@ -77,7 +77,7 @@ class MailTeam extends PreparedResponseAction
 
 
                 foreach($mailData['email'] as $email){
-                    $messageId = $container->get('uvdesk.core.mailbox')->sendMail($subject, $message, $email);
+                    $messageId = $container->get('uvdesk.mailbox')->sendMail($subject, $message, $email);
                 }
             }
         } else {

@@ -81,19 +81,6 @@ class ORMLifecycle
         $timestamp = new \DateTime('now');
 
         switch (true) {
-            case $entity instanceof CoreEntities\Mailbox:
-                if (true === $entity->getIsLocalized()) {
-                    foreach ($this->container->getParameter('uvdesk.mailboxes') as $localizedConfig) {
-                        if ($entity->getEmail() === $localizedConfig['email']) {
-                            $entity->setHost($localizedConfig['host']);
-                            $entity->setPassword($localizedConfig['password']);
-
-                            break;
-                        }
-                    }
-                }
-                
-                break;
             default:
                 break;
         }

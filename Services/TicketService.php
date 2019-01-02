@@ -120,7 +120,7 @@ class TicketService
     {
         if ('email' == $ticketData['source']) {
             try {
-                $mailbox = $this->container->get('uvdesk.core.mailbox')->getMailboxByEmail($ticketData['mailboxEmail']);
+                $mailbox = $this->container->get('uvdesk.mailbox')->getMailboxByEmail($ticketData['mailboxEmail']);
                 $ticketData['mailboxEmail'] = $mailbox['email'];
             } catch (\Exception $e) {
                 // No mailbox found for this email. Skip ticket creation.

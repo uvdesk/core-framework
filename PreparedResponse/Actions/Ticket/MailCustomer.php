@@ -61,7 +61,7 @@ class MailCustomer extends PreparedResponseAction
                 //     $emailHeaders['In-Reply-To'] = $currentThread->getMessageId();
                 // }
 
-                $messageId = $container->get('uvdesk.core.mailbox')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $emailHeaders, $entity->getMailboxEmail());
+                $messageId = $container->get('uvdesk.mailbox')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $emailHeaders, $entity->getMailboxEmail());
                 // if (!empty($messageId)) {
                 //     $createdThread->setMessageId($messageId);
 
