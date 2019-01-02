@@ -276,7 +276,7 @@ class MailboxService
         // Process Mail - Content
         $htmlFilter = new HTMLFilter();
         $mailData['subject'] = $parser->getHeader('subject');
-        $mailData['message'] = $htmlFilter->HTMLFilter(autolink($htmlFilter->addClassEmailReplyQuote($parser->getMessageBody('text'))), '');
+        $mailData['message'] = autolink($htmlFilter->addClassEmailReplyQuote($parser->getMessageBody('html')));
         $mailData['attachments'] = $parser->getAttachments();
 
         // $mailboxes = $this->getMailboxByEmail($data['replyTo']);
