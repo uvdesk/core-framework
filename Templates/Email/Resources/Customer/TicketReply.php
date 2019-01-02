@@ -35,7 +35,7 @@ abstract class TicketReply implements UVDeskEmailTemplateInterface
     <p></p>
     <p></p>
     <p>
-        <span style="line-height: 1.42857143;">New reply have been added to ticket #{%ticket.id%} you can login to ticket system through this link&nbsp;{%ticket.link%}.</span>
+        <span style="line-height: 1.42857143;">New reply have been added to ticket #{%ticket.id%} you can login to ticket system through this link&nbsp;{%ticket.customerLink%}.</span>
     </p>
     <p>
         <span style="line-height: 1.42857143;">&nbsp;</span>
