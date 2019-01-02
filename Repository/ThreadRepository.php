@@ -129,7 +129,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
                 'id' => $thread['id'],
                 'user' => $row['userId'] ? ['id' => $row['userId']] : null,
                 'fullname' => $row['fullname'],
-                'reply' => strip_tags($thread['message']),
+                'reply' => html_entity_decode($thread['message']),
                 'source' => $thread['source'],
                 'threadType' => $thread['threadType'],
                 'userType' => 'customer',
