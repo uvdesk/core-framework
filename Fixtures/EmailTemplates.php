@@ -29,6 +29,7 @@ class EmailTemplates extends DoctrineFixture
             foreach (self::$seeds as $coreEmailTemplate) {
                 ($emailTemplate = new CoreEntities\EmailTemplates())
                     ->setName($coreEmailTemplate::getName())
+                    ->setTemplateType($coreEmailTemplate::getTemplateType())
                     ->setSubject($coreEmailTemplate::getSubject())
                     ->setMessage($coreEmailTemplate::getMessage());
 
