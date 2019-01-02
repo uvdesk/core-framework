@@ -60,7 +60,7 @@ class Thread extends Controller
         ];
 
         if(!empty($params['status'])){
-            $ticketStatus = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findOneById($params['status']);
+            $ticketStatus = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findOneByCode($params['status']);
             $ticket->setStatus($ticketStatus);
         }
         if (isset($params['to'])) {
