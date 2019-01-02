@@ -2308,7 +2308,7 @@
                     parent.find('.uv-field-message').remove()
 
                     var html = tinyMCE.get("uv-edit-thread").getContent();
-                    if(app.appView.htmlText(html) != '') {
+                    if(app.appView.stripHTML(html) != '') {
                         var self = this;
                         currentElement.attr("disabled", "disabled");
                         this.model.set('reply', html);
