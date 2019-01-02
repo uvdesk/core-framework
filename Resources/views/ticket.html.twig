@@ -563,8 +563,8 @@
                                 <div class="uv-dropdown-container">
                                     <label>Filter With</label>
                                     <ul class="">
-                                        <li class="uv-filter-info">Type atleast 2 letters</li>
-                                        <li class="uv-no-results" style="display: none;">No result found</li>
+                                        <span class="uv-filter-info">Type atleast 2 letters</span>
+                                        <span class="uv-no-results" style="display: none;">No result found</span>
                                     </ul>
                                 </div>
                             </div>
@@ -604,8 +604,8 @@
                                     <div class="uv-dropdown-container">
                                         <label>Filter With</label>
                                         <ul class="">
-                                            <li class="uv-filter-info">Type atleast 2 letters</li>
-                                            <li class="uv-no-results" style="display: none;">No result found</li>
+                                            <span class="uv-filter-info">Type atleast 2 letters</span>
+                                            <span class="uv-no-results" style="display: none;">No result found</span>
                                         </ul>
                                     </div>
                                 </div>
@@ -2072,7 +2072,6 @@
                     var parent = currentElement.parent();
                     if($('.uv-dropdown-other.uv-dropdown-btn-active').parent().attr('id') != parent.attr('id'))
                         return;
-
                     parent.find("li:not(.uv-no-results, .uv-filter-info)").remove();
                     parent.find(".uv-filter-info").show()
                     if(currentElement.val().length > 1) {
@@ -2091,7 +2090,8 @@
                                 parent.find('.uv-loader').remove()
                                 parent.find('.uv-filter-info').text("{{ 'Type atleast 2 letters'|trans }}").hide();
                                 if(response.length == 0) {
-                                    parent.find('.uv-no-results').show()
+                                    parent.find('.uv-no-results').show();
+                                    parent.find('.uv-no-results').disabled = true;
                                 } else {
                                     parent.find('.uv-no-results').hide();
                                     _.each(response, function(item) {

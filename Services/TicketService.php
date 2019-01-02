@@ -511,7 +511,6 @@ class TicketService
                 ->setParameter('agentId', $currentUser->getId());
         $data['mine'] = $mineQb->getQuery()->getSingleScalarResult();
 
-
         // for starred tickets count
         $starredQb = clone $queryBuilder;
         $starredQb->andwhere('ticket.isStarred = 1');
@@ -924,7 +923,7 @@ class TicketService
             $data['formatedCreatedAt'] = $data['createdAt']->format('d-m-Y h:ia');
             $data['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($data['createdAt']);
             $data['attachments'] = $data['attachments'];
-            $data['reply'] = utf8_decode($data['message']);
+            $data['reply'] = html_entity_decode($data['message']);
             return $data;
         } else
             return null;
