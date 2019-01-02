@@ -132,6 +132,20 @@ class EmailService
                         'info' => $this->trans('user.password.forgot.link.info'),
                     ],
                 ],
+                'global' => [
+                    'companyName' => [
+                        'title' => $this->trans('Company Name'),
+                        'info' => $this->trans('global.companyName'),
+                    ],
+                    'companyLogo' => [
+                        'title' => $this->trans('Company Logo'),
+                        'info' => $this->trans('global.companyLogo'),
+                    ],
+                    'companyUrl' => [
+                        'title' => $this->trans('Company URL'),
+                        'info' => $this->trans('global.companyUrl'),
+                    ],
+                ],
             ];
         } elseif ($template == 'savedReply') {
             $placeHolders = [
