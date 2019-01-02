@@ -1475,6 +1475,7 @@
     <script type="text/javascript">
         var isPageJustLoaded = true;
         var globalMessageResponse = "";
+        var currentUserId = "{{ user_service.getCurrentUser().id }}";
         var pathToTicket = "{{ path('helpdesk_member_ticket', {'ticketId': 'replaceId' }) }}";
         
         $(() => {
@@ -2902,7 +2903,7 @@
 
                 },
                 filterMine : function(status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','',1,'','',status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','',currentUserId,'','',status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterstarred : function(status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {

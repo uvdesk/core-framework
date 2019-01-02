@@ -532,7 +532,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                     $queryBuilder->andWhere('ticket.isReplied = 0');
                     break;
                 case 'mine':
-                    $queryBuilder->andWhere('agent = :agentId')->setParameter('agentId', $user->getId());
+                    $queryBuilder->andWhere('agent = :agentId')->setParameter('agentId', $fieldValue);
                     break;
                 case 'new':
                     $queryBuilder->andwhere('ticket.isNew = 1');

@@ -499,14 +499,12 @@ class TicketService
 
         // for unanswered ticket count
         $unansweredQb = clone $queryBuilder;
-        $unansweredQb->andwhere('ticket.isReplied = 0')
-                    ->andwhere('ticket.status != 5');
+        $unansweredQb->andwhere('ticket.isReplied = 0');
         $data['notreplied'] = $unansweredQb->getQuery()->getSingleScalarResult();
 
         // for my tickets count
         $mineQb = clone $queryBuilder;
-        $mineQb->andwhere('ticket.status != 3 AND ticket.status != 4  AND ticket.status != 5 ')
-                ->andWhere("agent = :agentId")
+        $mineQb->andWhere("agent = :agentId")
                 ->setParameter('agentId', $currentUser->getId());
         $data['mine'] = $mineQb->getQuery()->getSingleScalarResult();
 
