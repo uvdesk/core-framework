@@ -54,7 +54,7 @@ class MailAgent extends PreparedResponseAction
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $emailPlaceholders);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $emailPlaceholders);
                 
-                $messageId = $container->get('uvdesk.mailbox')->sendMail($subject, $message, $entity->getEmail(), []);
+                $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getEmail(), []);
                 break;
             // Ticket created
             case $entity instanceof CoreEntities\Ticket:
@@ -71,7 +71,7 @@ class MailAgent extends PreparedResponseAction
                 dump($message);
                 die;
 
-                $messageId = $container->get('uvdesk.mailbox')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), [
+                $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), [
                     'In-Reply-To' => $object->getUniqueReplyTo(),
                     'References' => $object->getReferenceIds(),
                 ]);
