@@ -482,7 +482,6 @@ class TicketService
             $queryBuilder->andwhere('agent = ' . $currentUser->getId());
         }
         
-        $queryBuilder = $ticketRepository->prepareTicketListQueryWithParams($queryBuilder, $params);
         $queryBuilder->andwhere('ticket.isTrashed != 1');
 
         // for all tickets count
@@ -500,17 +499,14 @@ class TicketService
 
         // for unanswered ticket count
         $unansweredQb = clone $queryBuilder;
-        $unansweredQb->andwhere('ticket.isReplied = 0')
-                    ->andwhere('ticket.status != 5');
+        $unansweredQb->andwhere('ticket.isReplied = 0');
         $data['notreplied'] = $unansweredQb->getQuery()->getSingleScalarResult();
 
         // for my tickets count
         $mineQb = clone $queryBuilder;
-        $mineQb->andwhere('ticket.status != 3 AND ticket.status != 4  AND ticket.status != 5 ')
-                ->andWhere("agent = :agentId")
+        $mineQb->andWhere("agent = :agentId")
                 ->setParameter('agentId', $currentUser->getId());
         $data['mine'] = $mineQb->getQuery()->getSingleScalarResult();
-
 
         // for starred tickets count
         $starredQb = clone $queryBuilder;
@@ -886,7 +882,7 @@ class TicketService
                 'messageId' => $initialThread->getMessageId(),
                 'threadType' => $initialThread->getThreadType(),
                 'createdBy' => $initialThread->getCreatedBy(),
-                'message' => $initialThread->getMessage(),
+                'message' => html_entity_decode($initialThread->getMessage()),
                 'attachments' => $initialThread->getAttachments(),
                 'timestamp' => $initialThread->getCreatedAt()->getTimestamp(),
                 'createdAt' => $initialThread->getCreatedAt()->format('d-m-Y h:ia'),
