@@ -619,26 +619,46 @@ $(function() {
         e.preventDefault();
     })
 
-    document.addEventListener("DOMContentLoaded",  function(){
-        var uvHamburger =  document.querySelector(".uv-hamburger");
-        if (uvHamburger) {
-            var uvSidebar =  document.querySelector(".uv-sidebar");
-            var uvSlideIn =  function() {
-                if (window.innerWidth <= 768) {
-                    uvSidebar.classList.add("slide-in");
-                } else {
-                    uvSidebar.classList.remove("slide-in");
-                }
+    var uvHamburger =  document.querySelector(".uv-hamburger");
+	if (uvHamburger) {
+	    var uvSidebar =  document.querySelector(".uv-sidebar");
+	    var uvWrapper =  document.querySelector(".uv-wrapper");
+	    var uvSlideIn = () => {
+            if (window.innerWidth <= 768) {
+                uvSidebar.classList.add("slide-in");
+            } else {
+                uvSidebar.classList.remove("slide-in");
             }
-    
-            window.onresize = function(){
-                uvSlideIn();
-            }
+	    }
+
+	    window.onresize = () => {
             uvSlideIn();
-    
-            uvHamburger.addEventListener("click", function() {
-                uvSidebar.classList.toggle("uv-sidebar-active");
-            });
+	    }
+	    uvSlideIn();
+
+        var getCookie = name => {
+            var value = "; " + document.cookie;
+            var parts = value.split("; " + name + "=");
+
+            return parseInt(parts.pop().split(";").shift());
         }
-    });
+
+        let sidebarCookieValue = getCookie('uv-sidebar');
+        if (sidebarCookieValue) {
+            uvSidebar.classList.remove('uv-sidebar-active');
+            uvWrapper.classList.add('uv-wrapper-gap');
+        } else {
+            uvSidebar.classList.add('uv-sidebar-active');
+            uvWrapper.classList.remove('uv-wrapper-gap');
+        }
+
+	    uvHamburger.addEventListener("click", () => {
+            uvSidebar.classList.toggle("uv-sidebar-active");
+            uvWrapper.classList.toggle("uv-wrapper-gap");
+            if (uvWrapper.classList.contains("uv-wrapper-gap"))
+                document.cookie = "uv-sidebar=1; uv-wrapper-status=1;";
+            else
+                document.cookie = "uv-sidebar=0; uv-wrapper-status=0;"
+        });
+	}
 });
