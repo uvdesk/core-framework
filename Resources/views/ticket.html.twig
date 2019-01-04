@@ -736,7 +736,7 @@
                                 <div class="message">
                                     <p>
                                         {% if initialThread.message|striptags == initialThread.message %}
-                                            {{ initialThread.message|raw }}
+                                            {{ initialThread.message|nl2br }}
                                         {% else %}
                                             {{ initialThread.message|raw }}
                                         {% endif %}

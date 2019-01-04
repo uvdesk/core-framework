@@ -882,7 +882,7 @@ class TicketService
                 'messageId' => $initialThread->getMessageId(),
                 'threadType' => $initialThread->getThreadType(),
                 'createdBy' => $initialThread->getCreatedBy(),
-                'message' => $initialThread->getMessage(),
+                'message' => html_entity_decode($initialThread->getMessage()),
                 'attachments' => $initialThread->getAttachments(),
                 'timestamp' => $initialThread->getCreatedAt()->getTimestamp(),
                 'createdAt' => $initialThread->getCreatedAt()->format('d-m-Y h:ia'),
