@@ -15,7 +15,6 @@ use Webkul\UVDesk\CoreBundle\Entity\Ticket;
 class ThreadRepository extends \Doctrine\ORM\EntityRepository
 {
     const DEFAULT_PAGINATION_LIMIT = 15;
-    const LIMIT = 10;
 
     public function findTicketBySubject($email, $subject)
     {

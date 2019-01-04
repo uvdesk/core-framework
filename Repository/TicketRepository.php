@@ -460,120 +460,28 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 ->setParameter('ticketId', $data['ticketId']);
 
         $results = $qb->getQuery()->getArrayResult();
+        $ticket = array_shift($results);
 
-        foreach ($results as $key => $ticket) {
-            $json = [
-                'id' => $ticket[0]['id'],
-                'subject' => $ticket[0]['subject'],
-                'isStarred' => $ticket[0]['isStarred'],
-                'isAgentView' => $ticket[0]['isAgentViewed'],
-                'isTrashed' => $ticket[0]['isTrashed'],
-                'status' => $ticket[0]['status'],
-                'groupName' => $ticket['groupName'],
-                'subGroupName' => $ticket['supportTeamName'],
-                'typeName' => $ticket['typeName'],
-                'priority' => $ticket[0]['priority'],
-                'formatedCreatedAt' => $ticket[0]['createdAt']->format('d-m-Y h:ia'),
-                'ticketLabels' => $ticketService->getTicketLabels($ticket[0]['id']),
-                'totalThreads' => $ticketService->getTicketTotalThreads($ticket[0]['id']),
-                'agent' => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
-                'customer' => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
-                'lastReplyAgentName' => $ticketService->getlastReplyAgentName($ticket[0]['id']),
-                'createThread' => $ticketService->getCreateReply($ticket[0]['id']),
-                'lastReply' => $ticketService->getLastReply($ticket[0]['id']),
-            ];
-            
-            break;
-        }
-        return $json;
-    }
-
-    public function prepareTicketListQueryWithParams($queryBuilder, $params)
-    {
-        foreach ($params as $field => $fieldValue) {
-            if (in_array($field, $this->safeFields)) {
-                continue;
-            }
-
-            switch ($field) {
-                case 'label':
-                    $queryBuilder->andwhere('supportLabel.id = :labelIds');
-                    $queryBuilder->setParameter('labelIds', $fieldValue);
-                    break;
-                case 'starred':
-                    $queryBuilder->andWhere('ticket.isStarred = 1');
-                    break;
-                case 'search':
-                    $queryBuilder->andwhere("ticket.subject LIKE :subject OR ticket.id  LIKE :ticketId OR customer.email LIKE :customerEmail OR CONCAT(customer.firstName,' ', customer.lastName) LIKE :customerName OR agent.email LIKE :agentEmail OR CONCAT(agent.firstName,' ', agent.lastName) LIKE :agentName");
-                    $queryBuilder->setParameter('subject', '%'.urldecode($fieldValue).'%');
-                    $queryBuilder->setParameter('customerName', '%'.urldecode($fieldValue).'%');
-                    $queryBuilder->setParameter('customerEmail', '%'.urldecode($fieldValue).'%');
-                    $queryBuilder->setParameter('agentName', '%'.urldecode($fieldValue).'%');
-                    $queryBuilder->setParameter('agentEmail', '%'.urldecode($fieldValue).'%');
-                    $queryBuilder->setParameter('ticketId', '%'.urldecode(trim($fieldValue)).'%');
-                    break;
-                case 'unassigned':
-                    $queryBuilder->andWhere("agent.id is NULL");
-                    break;
-                case 'notreplied':
-                    $queryBuilder->andWhere('ticket.isReplied = 0');
-                    break;
-                case 'mine':
-                    $queryBuilder->andWhere('agent = :agentId')->setParameter('agentId', $fieldValue);
-                    break;
-                case 'new':
-                    $queryBuilder->andwhere('ticket.isNew = 1');
-                    break;
-                case 'priority':
-                    $queryBuilder->andwhere('priority.id IN (:priorities)')->setParameter('priorities', explode(',', $fieldValue));
-                    break;
-                case 'type':
-                    $queryBuilder->andwhere('type.id IN (:typeCollection)')->setParameter('typeCollection', explode(',', $fieldValue));
-                    break;
-                case 'agent':
-                    $queryBuilder->andwhere('agent.id IN (:agentCollection)')->setParameter('agentCollection', explode(',', $fieldValue));
-                    break;
-                case 'customer':
-                    $queryBuilder->andwhere('customer.id IN (:customerCollection)')->setParameter('customerCollection', explode(',', $fieldValue));
-                    break;
-                case 'group':
-                    $queryBuilder->andwhere('supportGroup.id IN (:groupIds)');
-                    $queryBuilder->setParameter('groupIds', explode(',', $fieldValue));
-                    break;
-                case 'team':
-                    $queryBuilder->andwhere("supportTeam.id In(:subGrpKeys)");
-                    $queryBuilder->setParameter('subGrpKeys', explode(',', $fieldValue));
-                    break;
-                case 'tag':
-                    $queryBuilder->andwhere("supportTags.id In(:tagIds)");
-                    $queryBuilder->setParameter('tagIds', explode(',', $fieldValue));
-                    break;
-                case 'source':
-                    $queryBuilder->andwhere('ticket.source IN (:sources)');
-                    $queryBuilder->setParameter('sources', explode(',', $fieldValue));
-                    break;
-                case 'after':
-                    $date = \DateTime::createFromFormat('d-m-Y H:i', $fieldValue.' 23:59');
-                    if($date) {
-                       // $date = \DateTime::createFromFormat('d-m-Y H:i', $this->container->get('user.service')->convertTimezoneToServer($date, 'd-m-Y H:i'));
-                        $queryBuilder->andwhere('ticket.createdAt > :afterDate');
-                        $queryBuilder->setParameter('afterDate', $date);
-                    }
-                    break;
-                case 'before':
-                    $date = \DateTime::createFromFormat('d-m-Y H:i', $fieldValue.' 23:59');
-                    if($date) {
-                        //$date = \DateTime::createFromFormat('d-m-Y H:i', $container->get('user.service')->convertTimezoneToServer($date, 'd-m-Y H:i'));
-                        $queryBuilder->andwhere('ticket.createdAt < :beforeDate');
-                        $queryBuilder->setParameter('beforeDate', $date);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        return $queryBuilder;
+        return [
+            'id' => $ticket[0]['id'],
+            'subject' => $ticket[0]['subject'],
+            'isStarred' => $ticket[0]['isStarred'],
+            'isAgentView' => $ticket[0]['isAgentViewed'],
+            'isTrashed' => $ticket[0]['isTrashed'],
+            'status' => $ticket[0]['status'],
+            'groupName' => $ticket['groupName'],
+            'subGroupName' => $ticket['supportTeamName'],
+            'typeName' => $ticket['typeName'],
+            'priority' => $ticket[0]['priority'],
+            'formatedCreatedAt' => $ticket[0]['createdAt']->format('d-m-Y h:ia'),
+            'ticketLabels' => $ticketService->getTicketLabels($ticket[0]['id']),
+            'totalThreads' => $ticketService->getTicketTotalThreads($ticket[0]['id']),
+            'agent' => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
+            'customer' => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
+            'lastReplyAgentName' => $ticketService->getlastReplyAgentName($ticket[0]['id']),
+            'createThread' => $ticketService->getCreateReply($ticket[0]['id']),
+            'lastReply' => $ticketService->getLastReply($ticket[0]['id']),
+        ];
     }
 
     public function prepareTicketListQueryWithParams($queryBuilder, $params)
