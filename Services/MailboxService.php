@@ -37,7 +37,7 @@ class MailboxService
         return $this->parser;
     }
 
-    public function getRegisteredMailboxes()
+    private function getRegisteredMailboxes()
     {
         if (empty($this->mailboxCollection)) {
             $this->mailboxCollection = array_map(function ($mailboxId) {
