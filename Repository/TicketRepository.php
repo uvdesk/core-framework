@@ -460,45 +460,28 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 ->setParameter('ticketId', $data['ticketId']);
 
         $results = $qb->getQuery()->getArrayResult();
-    
-        foreach ($results as $key => $ticket) {
-            $json = [
-                'id' => $ticket[0]['id'],
-                'subject' => $ticket[0]['subject'],
-                'isStarred' => $ticket[0]['isStarred'],
-                'isAgentView' => $ticket[0]['isAgentViewed'],
-                'isTrashed' => $ticket[0]['isTrashed'],
-                'status' => $ticket[0]['status'],
-                'groupName' => $ticket['groupName'],
-                'subGroupName' => $ticket['supportTeamName'],
-                'typeName' => $ticket['typeName'],
-                'priority' => $ticket[0]['priority'],
-                'formatedCreatedAt' => $ticket[0]['createdAt']->format('d-m-Y h:ia'),
-                'ticketLabels' => $ticketService->getTicketLabels($ticket[0]['id']),
-                'totalThreads' => $ticketService->getTicketTotalThreads($ticket[0]['id']),
-                'agent' => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
-                'customer' => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
-                'lastReplyAgentName' => $ticketService->getlastReplyAgentName($ticket[0]['id']),
-                'createThread' => $ticketService->getCreateReply($ticket[0]['id']),
-                'lastReply' => $ticketService->getLastReply($ticket[0]['id']),
-            ];
+        $ticket = array_shift($results);
 
-            if ($data['next'] || $data['previous']) {
-                $nextPrev = $ticketService->getNextPrevTicketids($data['id'], true);
-                
-                if ($data['next'] && $nextPrev['next']) {
-                    $json['next'] = $nextPrev['next'];
-                }
-
-                if ($data['previous'] && $nextPrev['prev']) {
-                    $json['previous'] = $nextPrev['prev'];
-                }
-            }
-
-            break;
-        }
-
-        return $json;
+        return [
+            'id' => $ticket[0]['id'],
+            'subject' => $ticket[0]['subject'],
+            'isStarred' => $ticket[0]['isStarred'],
+            'isAgentView' => $ticket[0]['isAgentViewed'],
+            'isTrashed' => $ticket[0]['isTrashed'],
+            'status' => $ticket[0]['status'],
+            'groupName' => $ticket['groupName'],
+            'subGroupName' => $ticket['supportTeamName'],
+            'typeName' => $ticket['typeName'],
+            'priority' => $ticket[0]['priority'],
+            'formatedCreatedAt' => $ticket[0]['createdAt']->format('d-m-Y h:ia'),
+            'ticketLabels' => $ticketService->getTicketLabels($ticket[0]['id']),
+            'totalThreads' => $ticketService->getTicketTotalThreads($ticket[0]['id']),
+            'agent' => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
+            'customer' => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
+            'lastReplyAgentName' => $ticketService->getlastReplyAgentName($ticket[0]['id']),
+            'createThread' => $ticketService->getCreateReply($ticket[0]['id']),
+            'lastReply' => $ticketService->getLastReply($ticket[0]['id']),
+        ];
     }
 
     public function prepareTicketListQueryWithParams($queryBuilder, $params)
