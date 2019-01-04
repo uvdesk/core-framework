@@ -110,8 +110,8 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
         $results = $paginator->paginate(
             $qb->getQuery()->setHydrationMode(Query::HYDRATE_ARRAY)->setHint('knp_paginator.count', $newQb->getQuery()->getSingleScalarResult()),
             isset($data['page']) ? $data['page'] : 1,
-            self::LIMIT,
-            array('distinct' => false)
+            self::DEFAULT_PAGINATION_LIMIT,
+            array('distinct' => true)
         );
 
         $paginationData = $results->getPaginationData();
