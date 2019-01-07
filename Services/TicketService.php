@@ -590,7 +590,6 @@ class TicketService
                 $threadResponse['user'] = [
                     'id' => $threadDetails['user']['id'],
                     'name' => $threadResponse['fullname'],
-                    // 'smallThumbnail' => $threadDetails['smallThumbnail'],
                 ];
             }
 
@@ -969,7 +968,7 @@ class TicketService
 
     public function getAllSources()
     {
-        $sources = ['email' => 'Email', 'website' => 'Website', 'facebook' => 'Facebook', 'twitter' => 'Twitter', 'disqus-engage' => 'Disqus Engage', 'ebay' => 'EBay', 'api' => 'API', 'formbuilder' => 'FormBuilder', 'knock' => 'Binaka', 'mercadolibre' => 'Mercadolibre', 'youtube' => 'Youtube', 'amazon' => 'Amazon'];
+        $sources = ['email' => 'Email', 'website' => 'Website'];
         return $sources;
     }
 
