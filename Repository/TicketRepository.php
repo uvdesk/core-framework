@@ -217,7 +217,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 DISTINCT ticket,
                 supportGroup.name as groupName,
                 supportTeam.name as teamName, 
-                priority, 
+                priority,
                 type.code as typeName, 
                 agent.id as agentId,
                 agent.email as agentEmail,
@@ -270,7 +270,6 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             if (in_array($field, $this->safeFields)) {
                 continue;
             }
-
             switch ($field) {
                 case 'search':
                     $queryBuilder->andwhere("ticketType.code LIKE :searchQuery OR ticketType.description LIKE :searchQuery");
@@ -341,6 +340,8 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->from('UVDeskCoreBundle:Ticket', 'ticket')
             ->leftJoin('ticket.status', 'status')
             ->leftJoin('ticket.agent', 'agent')
+            ->leftJoin('ticket.priority', 'priority')
+            ->leftJoin('ticket.type',   'type')
             ->leftJoin('ticket.customer', 'customer')
             ->leftJoin('ticket.supportTeam', 'supportTeam')
             ->leftJoin('ticket.supportTags', 'supportTags')
@@ -494,7 +495,6 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             if (in_array($field, $this->safeFields)) {
                 continue;
             }
-
             switch ($field) {
                 case 'label':
                     $queryBuilder->andwhere('supportLabel.id = :labelIds');
@@ -525,7 +525,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                     $queryBuilder->andwhere('ticket.isNew = 1');
                     break;
                 case 'priority':
-                    $queryBuilder->andwhere('priority.id IN (:priorities)')->setParameter('priorities', explode(',', $fieldValue));
+                    $queryBuilder->andwhere('priority.id = :priority')->setParameter('priority', $fieldValue);
                     break;
                 case 'type':
                     $queryBuilder->andwhere('type.id IN (:typeCollection)')->setParameter('typeCollection', explode(',', $fieldValue));

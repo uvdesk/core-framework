@@ -111,8 +111,8 @@ class TicketXHR extends Controller
     public function updateTicketDetails(Request $request)
     {
         $ticketId = $request->attributes->get('ticketId');
-        $em = $this->getDoctrine()->getManager();
-        $ticket = $em->getRepository('UVDeskCoreBundle:Ticket')->find($ticketId);
+        $entityManager = $this->getDoctrine()->getManager();
+        $ticket = $entityManager->getRepository('UVDeskCoreBundle:Ticket')->find($ticketId);
        
         if (!$ticket)
             $this->noResultFound();
@@ -130,12 +130,12 @@ class TicketXHR extends Controller
         if (!$error) {
             $ticket->setSubject($request->request->get('subject'));
             $createThread = $this->get('ticket.service')->getCreateReply($ticket->getId(), false);
-            $createThread = $em->getRepository('UVDeskCoreBundle:Thread')->find($createThread['id']);
+            $createThread = $entityManager->getRepository('UVDeskCoreBundle:Thread')->find($createThread['id']);
             $createThread->setMessage($request->request->get('reply'));
 
-            $em->persist($createThread);
-            $em->persist($ticket);
-            $em->flush();
+            $entityManager->persist($createThread);
+            $entityManager->persist($ticket);
+            $entityManager->flush();
 
             $this->addFlash('success', 'Success ! Ticket has been updated successfully.');
         } else {
@@ -294,19 +294,30 @@ class TicketXHR extends Controller
                 }
                 break;
             case 'group':
-
                 $supportGroup = $entityManager->getRepository('UVDeskCoreBundle:SupportGroup')->findOneById($requestContent['value']);
+                
                 if (empty($supportGroup)) {
                     if ($requestContent['value'] == "") {
-                        $ticket->setSupportGroup(null);
-                        $entityManager->persist($ticket);
-                        $entityManager->flush();
+                        if ($ticket->getSupportGroup() != null) {
+                            $ticket->getSupportGroup(null);
+                            $entityManager->persist($ticket);
+                            $entityManager->flush();
+                        }
 
-                        return new Response(json_encode([
+                        $responseCode = 200;
+                        $response = [
                             'alertClass' => 'success',
                             'alertMessage' => 'Ticket support group updated successfully',
-                        ]), 200, ['Content-Type' => 'application/json']);
+                        ];
+                    } else {
+                        $responseCode = 404;
+                        $response = [
+                            'alertClass' => 'danger',
+                            'alertMessage' => 'Unable to retrieve support team details',
+                        ];
                     }
+
+                    return new Response(json_encode($response), $responseCode, ['Content-Type' => 'application/json']);;
                 }
 
                 if ($ticket->getSupportGroup() != null && $supportGroup->getId() === $ticket->getSupportGroup()->getId()) {
@@ -337,15 +348,26 @@ class TicketXHR extends Controller
 
                 if (empty($supportTeam)) {
                     if ($requestContent['value'] == "") {
-                        $ticket->setSupportTeam(null);
-                        $entityManager->persist($ticket);
-                        $entityManager->flush();
+                        if ($ticket->getSupportTeam() != null) {
+                            $ticket->setSupportTeam(null);
+                            $entityManager->persist($ticket);
+                            $entityManager->flush();
+                        }
 
-                        return new Response(json_encode([
+                        $responseCode = 200;
+                        $response = [
                             'alertClass' => 'success',
-                            'alertMessage' => 'Ticket support team updated successfully',
-                        ]), 200, ['Content-Type' => 'application/json']);
+                            'alertMessage' => 'Ticket support group updated successfully',
+                        ];
+                    } else {
+                        $responseCode = 404;
+                        $response = [
+                            'alertClass' => 'danger',
+                            'alertMessage' => 'Unable to retrieve support team details',
+                        ];
                     }
+
+                    return new Response(json_encode($response), $responseCode, ['Content-Type' => 'application/json']);;
                 }
 
                 if ($ticket->getSupportTeam() != null && $supportTeam->getId() === $ticket->getSupportTeam()->getId()) {
@@ -382,8 +404,7 @@ class TicketXHR extends Controller
                         'alertMessage' => 'Unable to retrieve ticket type details',
                     ]), 404, ['Content-Type' => 'application/json']);
                 }
-
-                if ($ticketType->getId() === $ticket->getType()->getId()) {
+                if (!empty($ticket->getType()) && $ticketType->getId() === $ticket->getType()->getId()) {
                     return new Response(json_encode([
                         'alertClass' => 'success',
                         'alertMessage' => 'Ticket type already set to ' . $ticketType->getDescription(),
@@ -608,7 +629,7 @@ class TicketXHR extends Controller
 
     public function listTicketTypeCollectionXHR(Request $request)
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -623,7 +644,7 @@ class TicketXHR extends Controller
 
     public function removeTicketTypeXHR($typeId, Request $request)
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -652,7 +673,7 @@ class TicketXHR extends Controller
 
     public function listTagCollectionXHR(Request $request)
     {
-        if (!$this->get('user.service')->checkPermission('ROLE_AGENT_MANAGE_TAG')) {
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_TAG')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
