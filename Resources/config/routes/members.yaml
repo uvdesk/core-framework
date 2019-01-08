@@ -11,7 +11,7 @@ helpdesk_member_profile:
 helpdesk_member_account_xhr:
     path:     /agent/xhr/{agentId}
     controller: Webkul\UVDesk\CoreBundle\Controller\AccountXHR::deleteAgent
-    defaults: {agentId: 0 }
+    defaults: { agentId: 0 }
 
 helpdesk_member_account:
     path:     /agent/{agentId}
@@ -60,7 +60,7 @@ helpdesk_member_update_support_group:
 helpdesk_member_remove_support_group_xhr:
     path:      /group/delete/xhr/{supportGroupId}
     controller: Webkul\UVDesk\CoreBundle\Controller\GroupXHR::deleteGroupXHR
-    defaults:  {supportGroupId: 0 }
+    defaults:  { supportGroupId: 0 }
 
 # Support Team Resources
 helpdesk_member_support_team_collection:
@@ -85,7 +85,7 @@ helpdesk_member_update_support_team:
 helpdesk_member_remove_support_team_xhr:
     path:     /team/delete/xhr/{supportTeamId}
     controller: Webkul\UVDesk\CoreBundle\Controller\TeamXHR::deleteTeamXHR
-    defaults: {supportTeamId: 0 }
+    defaults: { supportTeamId: 0 }
 
 # Support Privilege Resources
 helpdesk_member_privilege_collection:
@@ -111,7 +111,7 @@ helpdesk_member_update_privilege:
 helpdesk_member_remove_privilege_xhr:
     path:     /privilege/delete/xhr/{supportPrivilegeId}
     controller: Webkul\UVDesk\CoreBundle\Controller\PrivilegeXHR::deletePrivilegeXHR
-    defaults: {supportPrivilegeId: 0 }
+    defaults: { supportPrivilegeId: 0 }
 
 # User Profile
 edit_profile:
@@ -130,8 +130,33 @@ helpdesk_member_saved_filters_xhr:
     controller: Webkul\UVDesk\CoreBundle\Controller\AccountXHR::savedFiltersXHR
     defaults: { filterId: 0 }
 
-#  Theme
+# Theme
 helpdesk_member_helpdesk_theme:
     path:   /theme/helpdesk
     controller: Webkul\UVDesk\CoreBundle\Controller\Theme::updateHelpdeskTheme
     defaults: { panelId: 'themes', id: 0 }
+
+# Swiftmailer
+helpdesk_member_swiftmailer_collection:
+    path: /swiftmailer/collection
+    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::collectionSwiftmailer
+    defaults: { panelId: 'settings'}
+
+helpdesk_member_swiftmailer_collection_Xhr:
+    path: /swiftmailer/collection/xhr
+    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::collectionSwiftmailerXHR
+
+helpdesk_member_swiftmailer_add:
+    path: /swiftmailer/add
+    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::addSwiftmailer
+    defaults: { panelId: 'settings'}
+
+helpdesk_member_swiftmailer_edit:
+    path: /swiftmailer/edit/{swiftmailerId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::editSwiftmailer
+    defaults: { panelId: 'settings'}
+
+
+helpdesk_member_swiftmailer_remove_Xhr:
+    path: /swiftmailer/remove
+    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::removeExistingSwiftmailer

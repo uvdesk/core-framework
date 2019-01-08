@@ -54,6 +54,10 @@ SVG;
     const TICKET_TYPE_BRICK_SVG = <<<SVG
 <path fill-rule="evenodd" d="M6,44v5H22V44H6ZM6,11v5H33V11H6ZM33,54V49H54V44H33V39H28V54h5ZM17,23v5H6v5H17v5h5V23H17ZM54,33V28H28v5H54ZM39,21h5V16H54V11H44V6H39V21Z" />
 SVG;
+
+    const SAVED_REPLIES_BRICK_SVG = <<<SVG
+<path fill-rule="evenodd" d="M49.206,6.014H10.789a4.794,4.794,0,0,0-4.778,4.8L5.987,54,15,45H49c2.641,0,5.008-1.753,5.008-4.393V10.813A4.815,4.815,0,0,0,49.206,6.014ZM45,36H15V31H45v5Zm0-8H15V23H45v5Zm0-8H15V15H45v5Z" />
+SVG;
     
     const TAG_BRICK_SVG = <<<SVG
 <path fill-rule="evenodd" d="M42.935,14.247A4.683,4.683,0,0,0,39,12H11a5.182,5.182,0,0,0-5.015,5.313V43.74A5.164,5.164,0,0,0,11.036,49l27.782,0.026a4.972,4.972,0,0,0,4.117-2.22L53.972,30.526Z" />
@@ -130,13 +134,13 @@ SVG;
                 [
                     'name' => 'Tags',
                     'route' => 'helpdesk_member_ticket_tag_collection',
-                    'brick_svg' => self::TICKET_TYPE_BRICK_SVG,
+                    'brick_svg' => self::TAG_BRICK_SVG,
                     'permission'=>'ROLE_AGENT_MANAGE_TAG'
                 ],
                 [
                     'name' => 'Saved Replies',
-                    'route' => 'helpdesk_member_Saved_Reply',
-                    'brick_svg' => self::TICKET_TYPE_BRICK_SVG,
+                    'route' => 'helpdesk_member_saved_replies',
+                    'brick_svg' => self::SAVED_REPLIES_BRICK_SVG,
                     'permission'=>'ROLE_AGENT_MANAGE_SAVED_REPLIES'
                 ],
             ],
@@ -153,6 +157,12 @@ SVG;
                     'brick_svg' => self::EMAIL_TEMPLATES_BRICK_SVG,
                     'permission'=>'ROLE_AGENT_MANAGE_EMAIL_TEMPLATE'
                     
+                ],
+                [
+                    'name' => 'Swiftmailer',
+                    'route' => 'helpdesk_member_swiftmailer_collection',
+                    'brick_svg' => self::EMAIL_TEMPLATES_BRICK_SVG,
+                    'permission'=>'ROLE_AGENT_MANAGE_SWIFTMAILER_TEMPLATE'
                 ],
             ],
         ];

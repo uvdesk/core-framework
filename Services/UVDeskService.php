@@ -3,6 +3,7 @@
 namespace Webkul\UVDesk\CoreBundle\Services;
 
 use Doctrine\ORM\EntityManager;
+use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Webkul\UVDesk\CoreBundle\Utils\TokenGenerator;
@@ -184,7 +185,7 @@ class UVDeskService
                         ],
                         [
                             'name' => 'Saved Replies',
-                            'link' => $router->generate('helpdesk_member_Saved_Reply'),
+                            'link' => $router->generate('helpdesk_member_saved_replies'),
                             'isActive' => false,
                             'isEnabled' => true,
                             'permission' => 'ROLE_AGENT_MANAGE_SAVED_REPLIES',
@@ -217,6 +218,14 @@ class UVDeskService
                             'isEnabled' => true,
                             'permission' => 'ROLE_ADMIN',
                         ],
+                        [
+                            'name' => 'Swiftmailer',
+                            'link' => $router->generate('helpdesk_member_swiftmailer_collection'),
+                            'isActive' => false,
+                            'isEnabled' => true,
+                            'permission' => 'ROLE_AGENT_MANAGE_EMAIL_TEMPLATE',
+                        ],
+
                     ],
                 ];
                 break;
@@ -469,38 +478,30 @@ class UVDeskService
     {
         return headers_sent() ? true : false;
     }
-
-    public function convertStringToUrl($string)
-    {
-        return autolink($string);
-        
-        return(preg_replace(
-                    array(
-                        '/(?(?=<a[^>]*>.+<\/a>)
-                                (?:<a[^>]*>.+<\/a>)
-                                |
-                                ([^="\']?)((?:https?|ftp|bf2|):\/\/[^<> \n\r]+)
-                            )/iex',
-                        ),
-                    array(
-                        "stripslashes((strlen('\\2')>0?'\\1<a href=\"\\2\">\\2</a>\\3':'\\0'))",
-                        ),
-                        $string
-                    )
-                );
+    
+    //Get All Swiftmailer Ids
+    public function getSwiftmailerIds(){
+        $file_content_array = $this->getYamlContentAsArray(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml');
+        $listSwiftmailer = $file_content_array['swiftmailer']['mailers'];
+        $swiftmailerIDs = [];
+        if(!empty($listSwiftmailer)){
+            foreach($listSwiftmailer as  $key => $value){
+                $swiftmailerIDs[] = $key;
+            }
+        }
+        return $swiftmailerIDs;
     }
 
-    public function getUrl($data)
+    private function getYamlContentAsArray ($filePath)
     {
-        $website = $this->entityManager->getRepository('UVDeskSupportCenterBundle:KnowledgebaseWebsite')->findOneBy(
-                                                array('status' => 1));
-                                                
-        $host = $this->container->get('router')->getContext()->getHost();
-
-        $host = str_replace("www.", "", $host);
-
-        $url = str_replace("www.", "", $this->container->get('router')->generate($data['route'],$data['params'], true));
-        
-        return $url;
+        // Fetch existing content in file
+        $file_content = '';
+        if ($fh = fopen($filePath, 'r')) {
+            while (!feof($fh)) {
+                $file_content = $file_content.fgets($fh);
+            }
+        }
+        // Convert yaml file content into array and merge existing mailbox and new mailbox
+        return Yaml::parse($file_content, 6);
     }
 }
