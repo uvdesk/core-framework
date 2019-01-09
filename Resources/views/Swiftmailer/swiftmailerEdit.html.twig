@@ -26,7 +26,7 @@
 
 				<div class="uv-element-block">
 					<label class="uv-field-label">{{ 'Transport'|trans }}</label>
-					<select name="transport" class="uv-select create-ticket uv-field-error" id="type">
+					<select name="transport" class="uv-select create-ticket" id="type">
 						<option value="">Select type</option>
 						<option value="gmail" {% if (swiftmailerDetails.transport == 'gmail') %} selected = 'selected' {% endif %}>gmail</option>
 					</select>

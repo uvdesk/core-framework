@@ -26,7 +26,7 @@
 
 				<div class="uv-element-block">
 					<label class="uv-field-label">{{ 'Transport'|trans }}</label>
-					<select name="transport" class="uv-select create-ticket uv-field-error" id="type">
+					<select name="transport" class="uv-select create-ticket" id="type">
 						<option value="">Select type</option>
 						<option value="gmail">gmail</option>
 					</select>
@@ -67,28 +67,24 @@
 	<script type="text/javascript">
 		$(function () {
 			var SavedReplyModel = Backbone.Model.extend({
-
 				validation: {
 					'name': [{
-						required: true,
-						msg: "{{ 'This field is mandatory'|trans }}"
-					}
-					,{
-						pattern: '^(?!.*[!@#$%^&*()<_+])',
-						msg: "{{ 'Name must have characters only' }}"
-					}
+							required: true,
+							msg: "{{ 'This field is mandatory'|trans }}"
+						},
+						{
+							pattern: '^(?!.*[!@#$%^&*()<_+])',
+							msg: "{{ 'Name must have characters only' }}"
+						}
 					],
-					'username': {
-						required: true,
-						msg: "{{ 'This field is mandatory'|trans }}"
-					},
 					'username': [{
-                        required: true,
-                        msg: '{{ "This field is mandatory"|trans }}'
-                    },{
-                        pattern: /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/,
-                        msg: '{{ "Email address is invalid"|trans }}'
-                    }],
+							required: true,
+							msg: '{{ "This field is mandatory"|trans }}'
+						},{
+							pattern: /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/,
+							msg: '{{ "Email address is invalid"|trans }}'
+						}
+					],
 					'transport': {
 						required: true,
 						msg: "{{ 'This field is mandatory'|trans }}"
