@@ -22,33 +22,7 @@
             {# Ticket Types Action Bar #}
 			<div class="uv-action-bar">
                 <div class="uv-action-bar-col-lt">
-                    {# Sort Ticket Types #}
-                    {# <div class="uv-dropdown sort">
-                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">
-                            {{ 'Sort By:'|trans }} {{ 'Id'|trans }}
-                        </div>
-                        <div class="uv-dropdown-list uv-bottom-left">
-							<div class="uv-dropdown-container">
-								<label>{{ 'Sort By'|trans }}</label>
-								<ul></ul>
-							</div>
-                        </div>
-                    </div> #}
-
-                    {# Filter Ticket Types #}
-                    {# <div class="uv-dropdown filter-by-status">
-                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Status: All</div>
-                        <div class="uv-dropdown-list uv-bottom-left">
-							<div class="uv-dropdown-container">
-								<label>Status</label>
-								<ul>
-									<li class="uv-drop-list-active"><a href="#">All</a></li>
-									<li><a href="#" data-id="1">Active</a></li>
-									<li><a href="#" data-id="0">Inactive</a></li>
-								</ul>
-							</div>
-                        </div>
-                    </div> #}
+       
                 </div>
 
 				<div class="uv-action-bar-col-rt">
@@ -191,7 +165,7 @@
 				removeItem : function (e) {
 					app.appView.showLoader();
 					self = this;
-				
+					
 					$.ajax({
 						url: "{{ path('helpdesk_member_swiftmailer_remove_Xhr') }}?id="+this.model.id,
 						success : function (response) {
@@ -199,8 +173,15 @@
 							globalMessageResponse = response;
 							typeCollection.syncData();
 						},
-						error: function () {
+						error: function (model, xhr, options) {
+							if(url = xhr.getResponseHeader('Location'))
+								window.location = url;
+							var response = warningResponse;
+							if(xhr.responseJSON)
+								response = xhr.responseJSON;
 
+							app.appView.hideLoader();
+							app.appView.renderResponseAlert(response);
 						}
 					});
 					{# this.model.destroy({
