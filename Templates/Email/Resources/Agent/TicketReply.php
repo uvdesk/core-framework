@@ -39,7 +39,7 @@ abstract class TicketReply implements UVDeskEmailTemplateInterface
         </span>
     </p>
     <p>
-        <span style="line-height: 1.42857">A reply has been added by the </span>{%ticket.agentName%} on your ticket {%ticket.id%}. Kindly follow this link {%ticket.agentLink%}
+        <span style="line-height: 1.42857">A reply has been added by the </span>{%ticket.agentName%} on your ticket {%ticket.id%}. Kindly follow this link {%ticket.customerLink%}
         to get the insight of the message.
         <span style="line-height: 1.42857"> </span>
     </p>

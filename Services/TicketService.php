@@ -508,7 +508,6 @@ class TicketService
                 ->setParameter('agentId', $currentUser->getId());
         $data['mine'] = $mineQb->getQuery()->getSingleScalarResult();
 
-
         // for starred tickets count
         $starredQb = clone $queryBuilder;
         $starredQb->andwhere('ticket.isStarred = 1');
@@ -591,7 +590,6 @@ class TicketService
                 $threadResponse['user'] = [
                     'id' => $threadDetails['user']['id'],
                     'name' => $threadResponse['fullname'],
-                    // 'smallThumbnail' => $threadDetails['smallThumbnail'],
                 ];
             }
 
@@ -883,7 +881,7 @@ class TicketService
                 'messageId' => $initialThread->getMessageId(),
                 'threadType' => $initialThread->getThreadType(),
                 'createdBy' => $initialThread->getCreatedBy(),
-                'message' => $initialThread->getMessage(),
+                'message' => html_entity_decode($initialThread->getMessage()),
                 'attachments' => $initialThread->getAttachments(),
                 'timestamp' => $initialThread->getCreatedAt()->getTimestamp(),
                 'createdAt' => $initialThread->getCreatedAt()->format('d-m-Y h:ia'),
@@ -921,7 +919,7 @@ class TicketService
             $data['formatedCreatedAt'] = $data['createdAt']->format('d-m-Y h:ia');
             $data['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($data['createdAt']);
             $data['attachments'] = $data['attachments'];
-            $data['reply'] = utf8_decode($data['message']);
+            $data['reply'] = html_entity_decode($data['message']);
             return $data;
         } else
             return null;
@@ -970,7 +968,7 @@ class TicketService
 
     public function getAllSources()
     {
-        $sources = ['email' => 'Email', 'website' => 'Website', 'facebook' => 'Facebook', 'twitter' => 'Twitter', 'disqus-engage' => 'Disqus Engage', 'ebay' => 'EBay', 'api' => 'API', 'formbuilder' => 'FormBuilder', 'knock' => 'Binaka', 'mercadolibre' => 'Mercadolibre', 'youtube' => 'Youtube', 'amazon' => 'Amazon'];
+        $sources = ['email' => 'Email', 'website' => 'Website'];
         return $sources;
     }
 

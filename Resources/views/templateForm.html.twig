@@ -43,7 +43,7 @@
 								{% for basekey, placeholders in email_service.getEmailPlaceHolders('template') %}
 									{% if placeholders is iterable %}
 										{% for fieldKey, fieldPlaceholder in placeholders %}
-											<option value='{{ "{%" ~ basekey ~ "." ~ fieldKey ~ "%}"}}' data-group='{{ basekey }}' class="mce-pitem mce-{{ basekey }}" {% if basekey != 'global' and template.templateType is defined and (basekey != template.templateType) %} style="display: none;"{% endif %}>{{ fieldPlaceholder.title|raw }}</option>
+											<option value='{{ "{%" ~ basekey ~ "." ~ fieldKey ~ "%}"}}' data-group='{{ basekey }}' class="mce-pitem mce-{{ basekey }}" {% if basekey != 'global' and template.templateType and (basekey != template.templateType) %} style="display: none;"{% endif %}>{{ fieldPlaceholder.title|raw }}</option>
 										{% endfor %}
 									{% endif %}
 								{% endfor %}
