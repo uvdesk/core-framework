@@ -75,7 +75,7 @@ class Swiftmailer extends Controller
                     $existingSwiftmailerCount = sizeof($file_content_array['swiftmailer']['mailers']);
                     $file_content_array['swiftmailer']['mailers'] = array_merge($file_content_array['swiftmailer']['mailers'], $newSwiftMailer);
                 } else {
-                    $file_content_array['swiftmailer']['mailboxes'] = $newSwiftMailer;
+                    $file_content_array['swiftmailer']['mailers'] = $newSwiftMailer;
                 }
                 $updateFile = $this->setYamlContent($filePath, $file_content_array);
                 $this->addFlash('success', 'Swifmailer detail added successfully.');
@@ -126,7 +126,7 @@ class Swiftmailer extends Controller
                 $existingSwiftmailerCount = sizeof($file_content_array['swiftmailer']['mailers']);
                 $file_content_array['swiftmailer']['mailers'] = array_merge($file_content_array['swiftmailer']['mailers'], $newSwiftMailer);
             } else {
-                $file_content_array['swiftmailer']['mailboxes'] = $newSwiftMailer;
+                $file_content_array['swiftmailer']['mailers'] = $newSwiftMailer;
             }
             $updateFile = $this->setYamlContent($filePath, $file_content_array);
 
