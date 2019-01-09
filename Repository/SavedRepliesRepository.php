@@ -5,13 +5,15 @@ namespace Webkul\UVDesk\CoreBundle\Repository;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\Common\Collections\Criteria;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
 class SavedRepliesRepository extends EntityRepository
 {
     const LIMIT = 10;
 	public $safeFields = array('page','limit','sort','order','direction');
 
-    public function getSavedReplies(\Symfony\Component\HttpFoundation\ParameterBag $obj = null, $container) {
+    public function getSavedReplies(ParameterBag $obj = null, $container)
+    {
         $json = array();
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->select('DISTINCT sr.id, sr.name')->from($this->getEntityName(), 'sr');
@@ -26,7 +28,7 @@ class SavedRepliesRepository extends EntityRepository
                 } else {
                     if($key == 'search') {
                         $qb->andwhere('sr.name'.' LIKE :name');
-                        $qb->setParameter('name', '%'.urldecode($value).'%');    
+                        $qb->setParameter('name', '%'.urldecode(trim($value)).'%');    
                     }
                 }
             }
@@ -59,9 +61,9 @@ class SavedRepliesRepository extends EntityRepository
        
         return $json;
     }
-    public function getSavedReply( $id , $container)
+
+    public function getSavedReply($id, $container)
     {
-        $json = array();
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->select('sr')->from($this->getEntityName(), 'sr')
             ->andWhere('sr.id = :id')
