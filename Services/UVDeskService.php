@@ -480,10 +480,15 @@ class UVDeskService
     }
     
     //Get All Swiftmailer Ids
-    public function getSwiftmailerIds(){
-        $file_content_array = $this->getYamlContentAsArray(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml');
-        $listSwiftmailer = $file_content_array['swiftmailer']['mailers'];
+    public function getSwiftmailerIds()
+    {
+        $listSwiftmailer = '';
         $swiftmailerIDs = [];
+
+        $file_content_array = $this->getYamlContentAsArray(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml');
+        if(isset($file_content_array['swiftmailer']['mailers'])){
+            $listSwiftmailer = $file_content_array['swiftmailer']['mailers'];
+        }
         if(!empty($listSwiftmailer)){
             foreach($listSwiftmailer as  $key => $value){
                 $swiftmailerIDs[] = $key;
