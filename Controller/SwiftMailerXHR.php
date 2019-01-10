@@ -14,6 +14,7 @@ class SwiftMailerXHR extends Controller
         if (true === $request->isXmlHttpRequest()) {
             $file_content_array = Yaml::parse(file_get_contents(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml'), 6);
             $listSwiftmailer = isset($file_content_array['swiftmailer']['mailers']) ? $file_content_array['swiftmailer']['mailers']: '';
+
             return new Response(json_encode($listSwiftmailer), 200, ['Content-Type' => 'application/json']);
         } 
         return new Response(json_encode([]), 404);
@@ -30,8 +31,10 @@ class SwiftMailerXHR extends Controller
                 $swiftmailers = null;
             $file_content_array['swiftmailer']['mailers'] = $swiftmailers;
         }
-        // Final write the content with new swiftmailer details in file
-        $updateFile = $this->setYamlContent(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml',$file_content_array);
+
+        // Write the content with new swiftmailer details in file
+        $updateFile = file_put_contents(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml', Yaml::dump($file_content_array, 6));
+
         if($updateFile) {
             $json['alertClass'] = 'success';
             $json['alertMessage'] = 'Success ! Swift Mailer removed successfully.';
@@ -44,7 +47,7 @@ class SwiftMailerXHR extends Controller
         $response->headers->set('Content-Type', 'application/json');
         return $response;
     }
- 
+  
     private function setYamlContent($filePath, $arrayContent)
     {
         // Write the content with new swiftmailer details in file
@@ -68,7 +71,7 @@ class SwiftMailerXHR extends Controller
         return $isExist;
     }
 
-    private function getswiftmailerDetails($swiftmailerId)
+    private function getSwiftmailerDetails($swiftmailerId)
     {
         $file_content_array = Yaml::parse(file_get_contents(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml'), 6);
         $swiftmailers = $file_content_array['swiftmailer']['mailers'];
