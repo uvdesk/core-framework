@@ -158,6 +158,12 @@ SVG;
                     'permission'=>'ROLE_AGENT_MANAGE_EMAIL_TEMPLATE'
                     
                 ],
+                [
+                    'name' => 'Swiftmailer',
+                    'route' => 'helpdesk_member_swiftmailer_collection',
+                    'brick_svg' => self::EMAIL_TEMPLATES_BRICK_SVG,
+                    'permission'=>'ROLE_AGENT_MANAGE_SWIFTMAILER_TEMPLATE'
+                ],
             ],
         ];
     }

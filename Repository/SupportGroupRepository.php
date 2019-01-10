@@ -29,7 +29,7 @@ class SupportGroupRepository extends \Doctrine\ORM\EntityRepository
                         $qb->orwhere('a.name'.' LIKE :name');
                         $qb->setParameter('name', '%'.urldecode($value).'%');    
                         $qb->orwhere('a.description'.' LIKE :description');
-                        $qb->setParameter('description', '%'.urldecode($value).'%');
+                        $qb->setParameter('description', '%'.urldecode(trim($value)).'%');
                     }
                 }
             }

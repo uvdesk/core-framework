@@ -130,8 +130,33 @@ helpdesk_member_saved_filters_xhr:
     controller: Webkul\UVDesk\CoreBundle\Controller\AccountXHR::savedFiltersXHR
     defaults: { filterId: 0 }
 
-#  Theme
+# Theme
 helpdesk_member_helpdesk_theme:
     path:   /theme/helpdesk
     controller: Webkul\UVDesk\CoreBundle\Controller\Theme::updateHelpdeskTheme
     defaults: { panelId: 'themes', id: 0 }
+
+# Swiftmailer
+helpdesk_member_swiftmailer_collection:
+    path: /swiftmailer/collection
+    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::collectionSwiftmailer
+    defaults: { panelId: 'settings'}
+
+helpdesk_member_swiftmailer_collection_Xhr:
+    path: /swiftmailer/collection/xhr
+    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::collectionSwiftmailerXHR
+
+helpdesk_member_swiftmailer_add:
+    path: /swiftmailer/add
+    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::addSwiftmailer
+    defaults: { panelId: 'settings'}
+
+helpdesk_member_swiftmailer_edit:
+    path: /swiftmailer/edit/{swiftmailerId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::editSwiftmailer
+    defaults: { panelId: 'settings'}
+
+
+helpdesk_member_swiftmailer_remove_Xhr:
+    path: /swiftmailer/remove
+    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::removeExistingSwiftmailer

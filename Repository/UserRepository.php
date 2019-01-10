@@ -37,8 +37,8 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
             } else {
                 if ('search' == $field) {
                     $queryBuilder->andwhere("user.firstName LIKE :fullName OR user.email LIKE :email")
-                        ->setParameter('fullName', '%' . urldecode($fieldValue) . '%')
-                        ->setParameter('email', '%' . urldecode($fieldValue) . '%');
+                        ->setParameter('fullName', '%' . urldecode(trim($fieldValue)) . '%')
+                        ->setParameter('email', '%' . urldecode(trim($fieldValue)) . '%');
                 } else if ('isActive' == $field) {
                     $queryBuilder->andWhere('userInstance.isActive = :isActive')->setParameter('isActive', $fieldValue);
                 }
