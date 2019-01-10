@@ -270,6 +270,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             if (in_array($field, $this->safeFields)) {
                 continue;
             }
+
             switch ($field) {
                 case 'search':
                     $queryBuilder->andwhere("ticketType.code LIKE :searchQuery OR ticketType.description LIKE :searchQuery");
@@ -491,6 +492,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             if (in_array($field, $this->safeFields)) {
                 continue;
             }
+
             switch ($field) {
                 case 'label':
                     $queryBuilder->andwhere('supportLabel.id = :labelIds');
@@ -500,14 +502,9 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                     $queryBuilder->andWhere('ticket.isStarred = 1');
                     break;
                 case 'search':
-                    $value  = trim($fieldValue);
-                    $queryBuilder->andwhere("ticket.subject LIKE :subject OR ticket.id  LIKE :ticketId OR customer.email LIKE :customerEmail OR CONCAT(customer.firstName,' ', customer.lastName) LIKE :customerName OR agent.email LIKE :agentEmail OR CONCAT(agent.firstName,' ', agent.lastName) LIKE :agentName");
-                    $queryBuilder->setParameter('subject', '%'.urldecode($value).'%');
-                    $queryBuilder->setParameter('customerName', '%'.urldecode($value).'%');
-                    $queryBuilder->setParameter('customerEmail', '%'.urldecode($value).'%');
-                    $queryBuilder->setParameter('agentName', '%'.urldecode($value).'%');
-                    $queryBuilder->setParameter('agentEmail', '%'.urldecode($value).'%');
-                    $queryBuilder->setParameter('ticketId', '%'.urldecode($value).'%');
+                    $value = trim($fieldValue);
+                    $queryBuilder->andwhere("ticket.subject LIKE :search OR ticket.id  LIKE :search OR customer.email LIKE :search OR CONCAT(customer.firstName,' ', customer.lastName) LIKE :search OR agent.email LIKE :search OR CONCAT(agent.firstName,' ', agent.lastName) LIKE :search");
+                    $queryBuilder->setParameter('search', '%'.urldecode($value).'%');
                     break;
                 case 'unassigned':
                     $queryBuilder->andWhere("agent.id is NULL");

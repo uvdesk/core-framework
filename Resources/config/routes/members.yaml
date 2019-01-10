@@ -132,31 +132,30 @@ helpdesk_member_saved_filters_xhr:
 
 # Theme
 helpdesk_member_helpdesk_theme:
-    path:   /theme/helpdesk
+    path:     /theme/helpdesk
     controller: Webkul\UVDesk\CoreBundle\Controller\Theme::updateHelpdeskTheme
     defaults: { panelId: 'themes', id: 0 }
 
 # Swiftmailer
-helpdesk_member_swiftmailer_collection:
-    path: /swiftmailer/collection
-    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::collectionSwiftmailer
+helpdesk_member_swiftmailer_settings:
+    path:     /settings/swiftmailer
+    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::loadSettings
     defaults: { panelId: 'settings'}
 
-helpdesk_member_swiftmailer_collection_Xhr:
-    path: /swiftmailer/collection/xhr
-    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::collectionSwiftmailerXHR
+helpdesk_member_swiftmailer_settings_xhr:
+    path:     /settings/swiftmailer/xhr
+    controller: Webkul\UVDesk\CoreBundle\Controller\SwiftMailerXHR::loadSettingsXHR
 
-helpdesk_member_swiftmailer_add:
-    path: /swiftmailer/add
-    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::addSwiftmailer
+helpdesk_member_swiftmailer_create_mailer:
+    path:     /settings/swiftmailer/create
+    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::createMailer
     defaults: { panelId: 'settings'}
 
-helpdesk_member_swiftmailer_edit:
-    path: /swiftmailer/edit/{swiftmailerId}
-    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::editSwiftmailer
+helpdesk_member_swiftmailer_update_mailer:
+    path:     /settings/swiftmailer/update/{swiftmailerId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::updateMailer
     defaults: { panelId: 'settings'}
 
-
-helpdesk_member_swiftmailer_remove_Xhr:
-    path: /swiftmailer/remove
-    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::removeExistingSwiftmailer
+helpdesk_member_swiftmailer_remove_mailer_xhr:
+    path:     /settings/swiftmailer/xhr/remove
+    controller: Webkul\UVDesk\CoreBundle\Controller\SwiftMailerXHR::removeMailer

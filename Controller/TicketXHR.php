@@ -404,7 +404,8 @@ class TicketXHR extends Controller
                         'alertMessage' => 'Unable to retrieve ticket type details',
                     ]), 404, ['Content-Type' => 'application/json']);
                 }
-                if (!empty($ticket->getType()) && $ticketType->getId() === $ticket->getType()->getId()) {
+
+                if (null != $ticket->getType() && $ticketType->getId() === $ticket->getType()->getId()) {
                     return new Response(json_encode([
                         'alertClass' => 'success',
                         'alertMessage' => 'Ticket type already set to ' . $ticketType->getDescription(),

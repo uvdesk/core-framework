@@ -27,7 +27,7 @@
 
 				<div class="uv-action-bar-col-rt">
 					{# <input type="text" class="uv-search-inline uv-vertical-align uv-margin-right-15" placeholder="{{ 'Search'|trans }}"> #}
-					<a href="{{ path('helpdesk_member_swiftmailer_add') }}" type="button" class="uv-btn-action"><span class="uv-icon-add"></span>Add New</a>
+					<a href="{{ path('helpdesk_member_swiftmailer_create_mailer') }}" type="button" class="uv-btn-action"><span class="uv-icon-add"></span>Add New</a>
 				</div>
             </div>
 
@@ -95,7 +95,7 @@
 	<!-- //Type list item template -->
 
 	<script type="text/javascript">
-		var path = "{{ path('helpdesk_member_swiftmailer_edit', {'swiftmailerId': 'replaceId' }) }}";
+		var path = "{{ path('helpdesk_member_swiftmailer_update_mailer', {'swiftmailerId': 'replaceId' }) }}";
 
 		$(function () {
 			var globalMessageResponse = "";
@@ -106,7 +106,7 @@
 
 			var TypeCollection = AppCollection.extend({
 				model : TypeModel,
-				url : "{{ path('helpdesk_member_swiftmailer_collection_Xhr') }}",
+				url : "{{ path('helpdesk_member_swiftmailer_settings_xhr') }}",
 				filterParameters : {
 					"isActive" : "",
 					"search" : ""
@@ -167,7 +167,7 @@
 					self = this;
 					
 					$.ajax({
-						url: "{{ path('helpdesk_member_swiftmailer_remove_Xhr') }}?id="+this.model.id,
+						url: "{{ path('helpdesk_member_swiftmailer_remove_mailer_xhr') }}?id="+this.model.id,
 						success : function (response) {
 							app.appView.hideLoader();
 							globalMessageResponse = response;
@@ -185,7 +185,7 @@
 						}
 					});
 					{# this.model.destroy({
-						url : "{{ path('helpdesk_member_swiftmailer_remove_Xhr') }}/"+this.model.id,
+						url : "{{ path('helpdesk_member_swiftmailer_remove_mailer_xhr') }}/"+this.model.id,
 						success : function (model, response, options) {
 							app.appView.hideLoader();
 							globalMessageResponse = response;

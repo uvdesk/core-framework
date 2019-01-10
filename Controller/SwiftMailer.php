@@ -2,54 +2,19 @@
 
 namespace Webkul\UVDesk\CoreBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Yaml\Yaml;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
-class Swiftmailer extends Controller
+class SwiftMailer extends Controller
 {
-    public function collectionSwiftmailer()
+    public function loadSettings()
     {
-        return $this->render('@UVDeskCore//Swiftmailer//swiftmailerList.html.twig');
+        return $this->render('@UVDeskCore//Swiftmailer//settings.html.twig');
     }
-
-    public function collectionSwiftmailerXHR(Request $request)
-    {
-        if (true === $request->isXmlHttpRequest()) {
-            $file_content_array = $this->getYamlContentAsArray(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml');
-            $listSwiftmailer = $file_content_array['swiftmailer']['mailers'];
-            return new Response(json_encode($listSwiftmailer), 200, ['Content-Type' => 'application/json']);
-        } 
-        return new Response(json_encode([]), 404);
-    }
-    public function removeExistingSwiftmailer (Request $request)
-    {
-        $swiftmailerId = $request->query->get('id');
-        $file_content_array = $this->getYamlContentAsArray(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml');
-        if (isset($file_content_array['swiftmailer']['mailers'])) {
-            $swiftmailers = $file_content_array['swiftmailer']['mailers'];
-            unset($swiftmailers[$swiftmailerId]);
-            if (empty($swiftmailers))
-                $swiftmailers = null;
-            $file_content_array['swiftmailer']['mailers'] = $swiftmailers;
-        }
-        // Final write the content with new swiftmailer details in file
-        $updateFile = $this->setYamlContent(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml',$file_content_array);
-        if($updateFile) {
-            $json['alertClass'] = 'success';
-            $json['alertMessage'] = 'Success ! Swiftmailer removed successfully.';
-        }else{
-            $json['alertClass'] = 'error';
-            $json['alertMessage'] = 'File not found';
-        }
-
-        $response = new Response(json_encode($json));
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
-    }
-    // Adding Swiftmailer
-    public function addSwiftmailer(Request $request)
+    
+    public function createMailer(Request $request)
     {
         $data = $request->request->all();
         $errors = [];
@@ -79,20 +44,19 @@ class Swiftmailer extends Controller
                 $updateFile = $this->setYamlContent($filePath, $file_content_array);
 
                 $this->addFlash('success', 'Swifmailer details added successfully.');
-                return $this->redirectToRoute('helpdesk_member_swiftmailer_collection');
+                return $this->redirectToRoute('helpdesk_member_swiftmailer_settings');
 
             } else {
                 $this->addFlash('warning', 'Swifmailer with same name or email already exist.');
             }
         }
 
-        return $this->render('@UVDeskCore//Swiftmailer//swiftmailerAdd.html.twig', array(
+        return $this->render('@UVDeskCore//Swiftmailer//createMailer.html.twig', array(
             'errors' => json_encode($errors)
         ));
     }
 
-    // Edit Swiftmailer
-    public function editSwiftmailer($swiftmailerId, Request $request)
+    public function updateMailer($swiftmailerId, Request $request)
     {
         $data = $request->request->all();
         $errors = [];
@@ -132,13 +96,13 @@ class Swiftmailer extends Controller
                 $updateFile = $this->setYamlContent($filePath, $file_content_array);
     
                 $this->addFlash('success', 'Swifmailer details updated successfully.');
-                return $this->redirectToRoute('helpdesk_member_swiftmailer_collection');
+                return $this->redirectToRoute('helpdesk_member_swiftmailer_settings');
             } else {
                 $this->addFlash('warning', 'Swifmailer with same email already exist.');
             }
         }
 
-        return $this->render('@UVDeskCore//Swiftmailer//swiftmailerEdit.html.twig', array(
+        return $this->render('@UVDeskCore//Swiftmailer//updateMailer.html.twig', array(
             'errors' => json_encode($errors),
             'swiftmailerDetails' => $swiftmailerDetails
         ));
@@ -164,21 +128,6 @@ class Swiftmailer extends Controller
         return Yaml::parse($file_content, 6);
     }
 
-    public function arrayToString($array)
-    {
-        return implode(PHP_EOL, array_map(
-            function ($v, $k) {
-                if(is_array($v)){
-                    return $k.'[]='.implode('&'.$k.'[]=', $v);
-                }else{
-                    return $k.': '.$v;
-                }
-            }, 
-            $array, 
-            array_keys($array)
-        ));
-    }
-
     private function checkExistingSwiftmailer($uniqueId = null, $email = null, $currentswiftmailer =null)
     {
         $isExist = false;
@@ -188,7 +137,7 @@ class Swiftmailer extends Controller
         if ($existingSwiftmailer) {
             foreach ($existingSwiftmailer as $index => $swiftmailerDetails) {
                 if ($index == $uniqueId || $swiftmailerDetails['username'] == $email && $currentswiftmailer['username'] != $swiftmailerDetails['username']) {
-                        $isExist = true;
+                    $isExist = true;
                 }
             }
         }
@@ -196,15 +145,16 @@ class Swiftmailer extends Controller
         return $isExist;
     }
 
-    private function getswiftmailerDetails ($swiftmailerId)
+    private function getSwiftmailerDetails ($swiftmailerId)
     {
         $file_content_array = $this->getYamlContentAsArray(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml');
         $swiftmailers = $file_content_array['swiftmailer']['mailers'];
 
         if ($swiftmailers && $swiftmailerId) {
             foreach ($swiftmailers as $index => $swiftmailerDetails) {
-                if($index == $swiftmailerId) {
+                if ($index == $swiftmailerId) {
                     $swiftmailer['name'] = $swiftmailerId;
+                    
                     foreach($swiftmailerDetails as $details => $value) {
                         $swiftmailer[$details] = $value;
                     }
