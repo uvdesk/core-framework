@@ -20,7 +20,7 @@ class Ticket extends Controller
         
         return $this->render('@UVDeskCore//ticketList.html.twig', [
             'ticketStatusCollection' => $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findAll(),
-            'ticketTypeCollection' => $entityManager->getRepository('UVDeskCoreBundle:TicketType')->findAll(),
+            'ticketTypeCollection' => $entityManager->getRepository('UVDeskCoreBundle:TicketType')->findBy(array('isActive' => 1)),
             'ticketPriorityCollection' => $entityManager->getRepository('UVDeskCoreBundle:TicketPriority')->findAll(),
         ]);
     }
@@ -54,7 +54,7 @@ class Ticket extends Controller
         $agent = $ticket->getAgent();
         $customer = $ticket->getCustomer();
         $user = $this->get('user.service')->getSessionUser();
-        
+       
         return $this->render('@UVDeskCore//ticket.html.twig', [
             'ticket' => $ticket,
             'totalReplies' => $ticketRepository->countTicketTotalThreads($ticket->getId()),
@@ -66,7 +66,7 @@ class Ticket extends Controller
             'supportGroupCollection' => $userRepository->getSupportGroups(),
             'supportTeamCollection' => $userRepository->getSupportTeams(),
             'ticketStatusCollection' => $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findAll(),
-            'ticketTypeCollection' => $entityManager->getRepository('UVDeskCoreBundle:TicketType')->findAll(),
+            'ticketTypeCollection' => $entityManager->getRepository('UVDeskCoreBundle:TicketType')->findBy(array('isActive' => 1)),
             'ticketPriorityCollection' => $entityManager->getRepository('UVDeskCoreBundle:TicketPriority')->findAll(),
             'ticketNavigationIteration' => $ticketRepository->getTicketNavigationIteration($ticket, $this->container),
             'ticketLabelCollection' => $ticketRepository->getTicketLabelCollection($ticket, $user),
