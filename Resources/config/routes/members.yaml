@@ -32,11 +32,6 @@ helpdesk_member_create_account:
     controller: Webkul\UVDesk\CoreBundle\Controller\Account::createAgent
     defaults: { panelId: 'users' }
 
-helpdesk_member_saved_filters_xhr:
-    path:     /saved-filter-xhr/{filterId}
-    controller: Webkul\UVDesk\CoreBundle\Controller\AccountXHR::savedFiltersXHR
-    defaults: { filterId: 0 }
-
 # Support Group Resources
 helpdesk_member_support_group_collection:
     path:     /groups
