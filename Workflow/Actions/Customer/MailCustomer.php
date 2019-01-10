@@ -55,7 +55,7 @@ class MailCustomer extends WorkflowAction
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $emailPlaceholders);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $emailPlaceholders);
                 
-                $messageId = $container->get('uvdesk.core.mailbox')->sendMail($subject, $message, $entity->getEmail());
+                $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getEmail());
                 break;
             default:
                 break;

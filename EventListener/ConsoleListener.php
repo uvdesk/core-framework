@@ -64,7 +64,7 @@ class ConsoleListener
         }
 
         $output = $event->getOutput();
-        $mailboxes = $this->container->getParameter('uvdesk.mailboxes');
+        // $mailboxes = $this->container->getParameter('uvdesk.mailboxes');
         // $mailboxRepository = $this->entityManager->getRepository('UVDeskCoreBundle:Mailbox');
 
         // // Check for any duplicate mailboxes for an email

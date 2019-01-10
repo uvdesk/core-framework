@@ -77,7 +77,7 @@ class MailAgent extends PreparedResponseAction
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(),$placeHolderValues);
 
                 foreach($mailData['email'] as $email){
-                    $messageId = $container->get('uvdesk.core.mailbox')->sendMail($subject, $message, $email);
+                    $messageId = $container->get('email.service')->sendMail($subject, $message, $email);
                 }
             } else {
                 // Email Template/Emails Not Found. Disable Workflow/Prepared Response
