@@ -217,7 +217,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 DISTINCT ticket,
                 supportGroup.name as groupName,
                 supportTeam.name as teamName, 
-                priority, 
+                priority,
                 type.code as typeName, 
                 agent.id as agentId,
                 agent.email as agentEmail,
@@ -274,11 +274,11 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             switch ($field) {
                 case 'search':
                     $queryBuilder->andwhere("ticketType.code LIKE :searchQuery OR ticketType.description LIKE :searchQuery");
-                    $queryBuilder->setParameter('searchQuery', '%' . urldecode($fieldValue) . '%');
+                    $queryBuilder->setParameter('searchQuery', '%' . urldecode(trim($fieldValue)) . '%');
                     break;
                 case 'isActive':
                     $queryBuilder->andwhere("ticketType.isActive LIKE :searchQuery");
-                    $queryBuilder->setParameter('searchQuery', '%' . urldecode($fieldValue) . '%');
+                    $queryBuilder->setParameter('searchQuery', '%' . urldecode(trim($fieldValue)) . '%');
                     break;
                 default:
                     break;
@@ -311,7 +311,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
             switch ($field) {
                 case 'search':
-                    $queryBuilder->andwhere("supportTag.name LIKE :searchQuery")->setParameter('searchQuery', '%' . urldecode($fieldValue) . '%');
+                    $queryBuilder->andwhere("supportTag.name LIKE :searchQuery")->setParameter('searchQuery', '%' . urldecode(trim($fieldValue)) . '%');
                     break;
                 default:
                     break;
@@ -341,6 +341,8 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->from('UVDeskCoreBundle:Ticket', 'ticket')
             ->leftJoin('ticket.status', 'status')
             ->leftJoin('ticket.agent', 'agent')
+            ->leftJoin('ticket.priority', 'priority')
+            ->leftJoin('ticket.type',   'type')
             ->leftJoin('ticket.customer', 'customer')
             ->leftJoin('ticket.supportTeam', 'supportTeam')
             ->leftJoin('ticket.supportTags', 'supportTags')
@@ -500,13 +502,9 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                     $queryBuilder->andWhere('ticket.isStarred = 1');
                     break;
                 case 'search':
-                    $queryBuilder->andwhere("ticket.subject LIKE :subject OR ticket.id  LIKE :ticketId OR customer.email LIKE :customerEmail OR CONCAT(customer.firstName,' ', customer.lastName) LIKE :customerName OR agent.email LIKE :agentEmail OR CONCAT(agent.firstName,' ', agent.lastName) LIKE :agentName");
-                    $queryBuilder->setParameter('subject', '%'.urldecode($fieldValue).'%');
-                    $queryBuilder->setParameter('customerName', '%'.urldecode($fieldValue).'%');
-                    $queryBuilder->setParameter('customerEmail', '%'.urldecode($fieldValue).'%');
-                    $queryBuilder->setParameter('agentName', '%'.urldecode($fieldValue).'%');
-                    $queryBuilder->setParameter('agentEmail', '%'.urldecode($fieldValue).'%');
-                    $queryBuilder->setParameter('ticketId', '%'.urldecode(trim($fieldValue)).'%');
+                    $value = trim($fieldValue);
+                    $queryBuilder->andwhere("ticket.subject LIKE :search OR ticket.id  LIKE :search OR customer.email LIKE :search OR CONCAT(customer.firstName,' ', customer.lastName) LIKE :search OR agent.email LIKE :search OR CONCAT(agent.firstName,' ', agent.lastName) LIKE :search");
+                    $queryBuilder->setParameter('search', '%'.urldecode($value).'%');
                     break;
                 case 'unassigned':
                     $queryBuilder->andWhere("agent.id is NULL");
@@ -521,7 +519,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                     $queryBuilder->andwhere('ticket.isNew = 1');
                     break;
                 case 'priority':
-                    $queryBuilder->andwhere('priority.id IN (:priorities)')->setParameter('priorities', explode(',', $fieldValue));
+                    $queryBuilder->andwhere('priority.id = :priority')->setParameter('priority', $fieldValue);
                     break;
                 case 'type':
                     $queryBuilder->andwhere('type.id IN (:typeCollection)')->setParameter('typeCollection', explode(',', $fieldValue));
