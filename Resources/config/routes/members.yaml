@@ -134,7 +134,7 @@ helpdesk_member_helpdesk_theme:
 # Swiftmailer
 helpdesk_member_swiftmailer_settings:
     path:     /settings/swiftmailer
-    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::loadSettings
+    controller: Webkul\UVDesk\CoreBundle\Controller\SwiftMailer::loadSettings
     defaults: { panelId: 'settings'}
 
 helpdesk_member_swiftmailer_settings_xhr:
@@ -143,7 +143,7 @@ helpdesk_member_swiftmailer_settings_xhr:
 
 helpdesk_member_swiftmailer_create_mailer:
     path:     /settings/swiftmailer/create
-    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::createMailer
+    controller: Webkul\UVDesk\CoreBundle\Controller\SwiftMailer::createMailer
     defaults: { panelId: 'settings'}
 
 helpdesk_member_swiftmailer_update_mailer:
