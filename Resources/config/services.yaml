@@ -27,6 +27,11 @@ services:
     uvdesk.core.fs.upload.manager:
         public: true
         class: Webkul\UVDesk\CoreBundle\FileSystem\DefaultManager
+
+    swiftmailer.service:
+        public: true
+        class: Webkul\UVDesk\CoreBundle\Services\SwiftMailerHelperService
+        arguments: ['@service_container', '@request_stack']
     
     Webkul\UVDesk\CoreBundle\Guides\:
         resource: '../../Guides/*'

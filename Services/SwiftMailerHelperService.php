@@ -25,7 +25,7 @@ class SwiftMailerHelperService
         $listSwiftmailer = '';
         $swiftmailerIDs = [];
 
-        $file_content_array = $this->getYamlContentAsArray(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml');
+        $file_content_array = Yaml::parse(file_get_contents(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml'), 6);
         if (isset($file_content_array['swiftmailer']['mailers'])) {
             $listSwiftmailer = $file_content_array['swiftmailer']['mailers'];
         }
@@ -37,19 +37,5 @@ class SwiftMailerHelperService
         }
 
         return $swiftmailerIDs;
-    }
-
-    private function getYamlContentAsArray($filePath)
-    {
-        // Fetch existing content in file
-        $file_content = '';
-        if ($fh = fopen($filePath, 'r')) {
-            while (!feof($fh)) {
-                $file_content = $file_content.fgets($fh);
-            }
-        }
-
-        // Convert yaml file content into array and merge existing mailbox and new mailbox
-        return Yaml::parse($file_content, 6);
     }
 }
