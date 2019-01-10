@@ -4,7 +4,6 @@ namespace Webkul\UVDesk\CoreBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Webkul\UVDesk\CoreBundle\Utils\HTMLFilter;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -123,10 +122,8 @@ class Thread extends Controller
         if ($request->getMethod() == "PUT") {
             // $this->isAuthorized('ROLE_AGENT_EDIT_THREAD_NOTE');
             if (str_replace(' ','',str_replace('&nbsp;','',trim(strip_tags($content['reply'], '<img>')))) != "") {
-                $htmlFilter = new HTMLFilter();
                 $thread = $em->getRepository('UVDeskCoreBundle:Thread')->find($request->attributes->get('threadId'));
-                $thread->setMessage(autolink($htmlFilter->HTMLFilter($content['reply'], '')));
-
+                $thread->setMessage($content['reply']);
                 $em->persist($thread);
                 $em->flush();
                 

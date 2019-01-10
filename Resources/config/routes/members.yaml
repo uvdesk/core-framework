@@ -32,11 +32,6 @@ helpdesk_member_create_account:
     controller: Webkul\UVDesk\CoreBundle\Controller\Account::createAgent
     defaults: { panelId: 'users' }
 
-helpdesk_member_saved_filters_xhr:
-    path:     /saved-filter-xhr/{filterId}
-    controller: Webkul\UVDesk\CoreBundle\Controller\AccountXHR::savedFiltersXHR
-    defaults: { filterId: 0 }
-
 # Support Group Resources
 helpdesk_member_support_group_collection:
     path:     /groups
@@ -130,8 +125,32 @@ helpdesk_member_saved_filters_xhr:
     controller: Webkul\UVDesk\CoreBundle\Controller\AccountXHR::savedFiltersXHR
     defaults: { filterId: 0 }
 
-#  Theme
+# Theme
 helpdesk_member_helpdesk_theme:
-    path:   /theme/helpdesk
+    path:     /theme/helpdesk
     controller: Webkul\UVDesk\CoreBundle\Controller\Theme::updateHelpdeskTheme
     defaults: { panelId: 'themes', id: 0 }
+
+# Swiftmailer
+helpdesk_member_swiftmailer_settings:
+    path:     /settings/swiftmailer
+    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::loadSettings
+    defaults: { panelId: 'settings'}
+
+helpdesk_member_swiftmailer_settings_xhr:
+    path:     /settings/swiftmailer/xhr
+    controller: Webkul\UVDesk\CoreBundle\Controller\SwiftMailerXHR::loadSettingsXHR
+
+helpdesk_member_swiftmailer_create_mailer:
+    path:     /settings/swiftmailer/create
+    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::createMailer
+    defaults: { panelId: 'settings'}
+
+helpdesk_member_swiftmailer_update_mailer:
+    path:     /settings/swiftmailer/update/{swiftmailerId}
+    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::updateMailer
+    defaults: { panelId: 'settings'}
+
+helpdesk_member_swiftmailer_remove_mailer_xhr:
+    path:     /settings/swiftmailer/xhr/remove
+    controller: Webkul\UVDesk\CoreBundle\Controller\SwiftMailerXHR::removeMailer

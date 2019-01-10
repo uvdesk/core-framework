@@ -592,7 +592,6 @@ class TicketService
                 $threadResponse['user'] = [
                     'id' => $threadDetails['user']['id'],
                     'name' => $threadResponse['fullname'],
-                    // 'smallThumbnail' => $threadDetails['smallThumbnail'],
                 ];
             }
 
@@ -884,7 +883,7 @@ class TicketService
                 'messageId' => $initialThread->getMessageId(),
                 'threadType' => $initialThread->getThreadType(),
                 'createdBy' => $initialThread->getCreatedBy(),
-                'message' => $initialThread->getMessage(),
+                'message' => html_entity_decode($initialThread->getMessage()),
                 'attachments' => $initialThread->getAttachments(),
                 'timestamp' => $initialThread->getCreatedAt()->getTimestamp(),
                 'createdAt' => $initialThread->getCreatedAt()->format('d-m-Y h:ia'),
@@ -971,7 +970,7 @@ class TicketService
 
     public function getAllSources()
     {
-        $sources = ['email' => 'Email', 'website' => 'Website', 'facebook' => 'Facebook', 'twitter' => 'Twitter', 'disqus-engage' => 'Disqus Engage', 'ebay' => 'EBay', 'api' => 'API', 'formbuilder' => 'FormBuilder', 'knock' => 'Binaka', 'mercadolibre' => 'Mercadolibre', 'youtube' => 'Youtube', 'amazon' => 'Amazon'];
+        $sources = ['email' => 'Email', 'website' => 'Website'];
         return $sources;
     }
 
