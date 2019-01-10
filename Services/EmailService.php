@@ -457,4 +457,70 @@ class EmailService
 
         return $twigTemplatingEngine->render($baseEmailTemplate, ['message' => $content]);
     }
+
+    public function sendMail($subject, $content, $recipient, array $headers = [], $mailboxEmail = null, array $attachments = [])
+    {
+        if (empty($mailboxEmail)) {
+            // Send email on behalf of support helpdesk
+            $supportEmail = $this->container->getParameter('uvdesk.support_email.id');
+            $supportEmailName = $this->container->getParameter('uvdesk.support_email.name');
+            $mailerID = $this->container->getParameter('uvdesk.support_email.mailer_id');
+        } else {
+            // Register automations conditionally if AutomationBundle has been added as an dependency.
+            if (!array_key_exists('UVDeskMailboxBundle', $this->container->getParameter('kernel.bundles'))) {
+                return;
+            } else {
+                // Send email on behalf of configured mailbox
+                try {
+                    $mailbox = $this->container->get('uvdesk.mailbox')->getMailboxByEmail($mailboxEmail);
+    
+                    if (true === $mailbox['enabled']) {
+                        $supportEmail = $mailbox['email'];
+                        $supportEmailName = $mailbox['name'];
+                        $mailerID = $mailbox['smtp_server']['mailer_id'];
+                    } else {
+                        // @TODO: Log mailbox disabled notice
+                        return;
+                    }
+                } catch (\Exception $e) {
+                    // @TODO: Log exception - Mailbox not found
+                    return;
+                }
+            }
+        }
+
+        // Retrieve mailer to be used for sending emails
+        try {
+            $mailer = $this->container->get('swiftmailer.mailer' . (('default' == $mailerID) ? '' : ".$mailerID"));
+        } catch (\Exception $e) {
+            // @TODO: Log exception - Mailer not found
+            return;
+        }
+
+        // Create a message
+        $message = (new \Swift_Message($subject))
+            ->setFrom([$supportEmail => $supportEmailName])
+            ->setTo($recipient)
+            ->setBody($content, 'text/html');
+
+        foreach ($attachments as $attachmentPath) {
+            $message->attach(\Swift_Attachment::fromPath($attachmentPath));
+        }
+
+        $messageHeaders = $message->getHeaders();
+        foreach ($headers as $headerName => $headerValue) {
+            $messageHeaders->addTextHeader($headerName, $headerName);
+        }
+
+        try {
+            $messageId = $message->getId();
+            $mailer->send($message);
+
+            return "<$messageId>";
+        } catch (\Exception $e) {
+            // @TODO: Log exception
+        }
+
+        return null;
+    }
 }

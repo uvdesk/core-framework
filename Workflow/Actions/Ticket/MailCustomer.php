@@ -74,7 +74,7 @@ class MailCustomer extends WorkflowAction
                     $emailHeaders['In-Reply-To'] = $currentThread->getMessageId();
                 }
 
-                $messageId = $container->get('uvdesk.core.mailbox')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $emailHeaders, $entity->getMailboxEmail(), $attachments);
+                $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $emailHeaders, $entity->getMailboxEmail(), $attachments);
                 
                 if (!empty($messageId)) {
                     $createdThread->setMessageId($messageId);
