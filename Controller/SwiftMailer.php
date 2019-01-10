@@ -21,21 +21,21 @@ class SwiftMailer extends Controller
 
         if($request->getMethod() == 'POST') {
             $isExistSwiftmailer = $this->checkExistingSwiftmailer($data['name'], $data['username']);
-
+            
             if(!$isExistSwiftmailer) {
                 $filePath = dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml';
                 // get file content and index
                 $file = file($filePath);
-                
+               
                 $newSwiftMailer[$data['name']] = [
                     'transport' => $data['transport'],
                     'username'  => $data["username"],
                     'password'  => $data["password"],
                 ];
 
-                $file_content_array = $this->getYamlContentAsArray($filePath);
+                $file_content_array = Yaml::parse(file_get_contents($filePath), 6);
                 
-                if (isset($file_content_array['swiftmailer']) && $file_content_array['swiftmailer']['mailers']) {
+                if (isset($file_content_array['swiftmailer']) && isset($file_content_array['swiftmailer']['mailers'])) {
                     $existingSwiftmailerCount = sizeof($file_content_array['swiftmailer']['mailers']);
                     $file_content_array['swiftmailer']['mailers'] = array_merge($file_content_array['swiftmailer']['mailers'], $newSwiftMailer);
                 } else {
@@ -43,11 +43,11 @@ class SwiftMailer extends Controller
                 }
                 $updateFile = $this->setYamlContent($filePath, $file_content_array);
 
-                $this->addFlash('success', 'Swifmailer details added successfully.');
+                $this->addFlash('success', 'Swift Mailer details added successfully.');
                 return $this->redirectToRoute('helpdesk_member_swiftmailer_settings');
 
             } else {
-                $this->addFlash('warning', 'Swifmailer with same name or email already exist.');
+                $this->addFlash('warning', 'Swift Mailer with same name or email already exist.');
             }
         }
 
@@ -71,7 +71,7 @@ class SwiftMailer extends Controller
             $isExistEmail = $this->checkExistingSwiftmailer(null, $data['username'], $swiftmailerDetails);
             if(!$isExistEmail){
                 if($isExistSwiftmailer){
-                    $file_content_array = $this->getYamlContentAsArray($filePath);
+                    $file_content_array = Yaml::parse(file_get_contents($filePath), 6);
                     $swiftmailers = $file_content_array['swiftmailer']['mailers'];
                     unset($swiftmailers[$swiftmailerId]);
                     if (empty($swiftmailers))
@@ -85,7 +85,7 @@ class SwiftMailer extends Controller
                     'password'  => (!empty($data["password"])) ? $data["password"] : $swiftmailerDetails['password'],
                 ];
     
-                $file_content_array = $this->getYamlContentAsArray($filePath);
+                $file_content_array = Yaml::parse(file_get_contents($filePath), 6);
                 
                 if (isset($file_content_array['swiftmailer']) && $file_content_array['swiftmailer']['mailers']) {
                     $existingSwiftmailerCount = sizeof($file_content_array['swiftmailer']['mailers']);
@@ -95,10 +95,10 @@ class SwiftMailer extends Controller
                 }
                 $updateFile = $this->setYamlContent($filePath, $file_content_array);
     
-                $this->addFlash('success', 'Swifmailer details updated successfully.');
+                $this->addFlash('success', 'Swift Mailer details updated successfully.');
                 return $this->redirectToRoute('helpdesk_member_swiftmailer_settings');
             } else {
-                $this->addFlash('warning', 'Swifmailer with same email already exist.');
+                $this->addFlash('warning', 'Swift Mailer with same email already exist.');
             }
         }
 
@@ -115,24 +115,11 @@ class SwiftMailer extends Controller
         return file_put_contents($filePath, Yaml::dump($arrayContent, 6));
     }
 
-    private function getYamlContentAsArray ($filePath)
-    {
-        // Fetch existing content in file
-        $file_content = '';
-        if ($fh = fopen($filePath, 'r')) {
-            while (!feof($fh)) {
-                $file_content = $file_content.fgets($fh);
-            }
-        }
-        // Convert yaml file content into array and merge existing swiftmailer and new swiftmailer
-        return Yaml::parse($file_content, 6);
-    }
-
     private function checkExistingSwiftmailer($uniqueId = null, $email = null, $currentswiftmailer =null)
     {
         $isExist = false;
-        $file_content_array = $this->getYamlContentAsArray(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml');
-        $existingSwiftmailer = $file_content_array['swiftmailer']['mailers'];
+        $file_content_array = Yaml::parse(file_get_contents(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml'), 6);
+        $existingSwiftmailer = isset($file_content_array['swiftmailer']['mailers'])?  $file_content_array['swiftmailer']['mailers'] : '';
 
         if ($existingSwiftmailer) {
             foreach ($existingSwiftmailer as $index => $swiftmailerDetails) {
@@ -147,7 +134,7 @@ class SwiftMailer extends Controller
 
     private function getSwiftmailerDetails ($swiftmailerId)
     {
-        $file_content_array = $this->getYamlContentAsArray(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml');
+        $file_content_array = Yaml::parse(file_get_contents(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml'), 6);
         $swiftmailers = $file_content_array['swiftmailer']['mailers'];
 
         if ($swiftmailers && $swiftmailerId) {
