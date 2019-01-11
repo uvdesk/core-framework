@@ -35,7 +35,7 @@ class SwiftMailer extends Controller
 
                 $file_content_array = Yaml::parse(file_get_contents($filePath));
                 
-                if (isset($file_content_array['swiftmailer']) && $file_content_array['swiftmailer']['mailers']) {
+                if (isset($file_content_array['swiftmailer']) && isset($file_content_array['swiftmailer']['mailers'])) {
                     $existingSwiftmailerCount = sizeof($file_content_array['swiftmailer']['mailers']);
                     $file_content_array['swiftmailer']['mailers'] = array_merge($file_content_array['swiftmailer']['mailers'], $newSwiftMailer);
                 } else {
@@ -116,7 +116,7 @@ class SwiftMailer extends Controller
     {
         $isExist = false;
         $file_content_array = Yaml::parse(file_get_contents(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml'));
-        $existingSwiftmailer = $file_content_array['swiftmailer']['mailers'];
+        $existingSwiftmailer = isset($file_content_array['swiftmailer']['mailers'])? $file_content_array['swiftmailer']['mailers'] : '';
 
         if ($existingSwiftmailer) {
             foreach ($existingSwiftmailer as $index => $swiftmailerDetails) {
