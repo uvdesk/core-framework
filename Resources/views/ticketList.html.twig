@@ -171,14 +171,13 @@
             {# Action Bar #}
             <div class="uv-action-bar">
                 {# Select all checkbox #}
-                <div class="uv-action-select-wrapper">
-                    <label class="uv-vertical-align uv-margin-left-27">
-                        <div class="uv-checkbox">
-                            <input type="checkbox" class="select-all-checkbox"><span class="uv-checkbox-view"></span>
-                        </div>
-                    </label>
-                </div>
-
+                    <div class="uv-action-select-wrapper">
+                        <label class="uv-vertical-align uv-margin-left-27">
+                            <div class="uv-checkbox">
+                                <input type="checkbox" class="select-all-checkbox"><span class="uv-checkbox-view"></span>
+                            </div>
+                        </label>
+                    </div>
                 {# Filter Options #}
                 <div class="uv-action-col-wrapper">
                     {# Ticket Sort | Asset Visibility #}
@@ -1623,7 +1622,7 @@
                             app.pager.paginationData = response.pagination;
 							var url = app.pager.paginationData.url;
 							if(ticketCollection.length == 0 && app.pager.paginationData.current != "0")
-								router.navigate(url.replace('replacePage', app.pager.paginationData.last),{trigger: true});
+                                router.navigate(url.replace('replacePage', app.pager.paginationData.last),{trigger: true});
 							else {
 								app.pager.render();
                                 statusListDetails = response.tabs;
@@ -2482,18 +2481,19 @@
                     } else {
                         $('.uv-action-bar .mass-action').parent().removeClass("uv-width-100").hide();
                         $('.uv-action-bar .filter').parent().show();
-                        $('.uv-action-bar-col-rt').show()
+                        $('.uv-action-bar-col-rt').show();
                     }
                 },
                 render: function () {
                     this.$el.find('tbody').html('');
-                    
                     if (ticketCollection.length) {
+                          $('.uv-action-select-wrapper').show();
                         _.each(ticketCollection.models, function (item) {
                             ticketQuickViewCollection.add(new TicketQuickViewModel({id: item.id}))
                             this.renderTicket(item);
                         }, this);
                     } else {
+                        $('.uv-action-select-wrapper').hide();
                         this.$el.find('tbody').append("<tr style='text-align: center;'><td colspan='11'>{% trans %}No Record Found{% endtrans %}</td></tr>")
                     }
                     
