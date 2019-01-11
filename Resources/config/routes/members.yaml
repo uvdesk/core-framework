@@ -148,7 +148,7 @@ helpdesk_member_swiftmailer_create_mailer:
 
 helpdesk_member_swiftmailer_update_mailer:
     path:     /settings/swiftmailer/update/{swiftmailerId}
-    controller: Webkul\UVDesk\CoreBundle\Controller\Swiftmailer::updateMailer
+    controller: Webkul\UVDesk\CoreBundle\Controller\SwiftMailer::updateMailer
     defaults: { panelId: 'settings'}
 
 helpdesk_member_swiftmailer_remove_mailer_xhr:

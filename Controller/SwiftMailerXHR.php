@@ -13,12 +13,12 @@ class SwiftMailerXHR extends Controller
     {
         if (true === $request->isXmlHttpRequest()) {
             $file_content_array = Yaml::parse(file_get_contents(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml'), 6);
-            $listSwiftmailer = $file_content_array['swiftmailer']['mailers'];
+            $listSwiftmailer = isset($file_content_array['swiftmailer']['mailers']) ? $file_content_array['swiftmailer']['mailers'] : '';
             return new Response(json_encode($listSwiftmailer), 200, ['Content-Type' => 'application/json']);
         } 
         return new Response(json_encode([]), 404);
     }
-    
+
     public function removeMailer(Request $request)
     {
         $swiftmailerId = $request->query->get('id');
@@ -33,7 +33,7 @@ class SwiftMailerXHR extends Controller
 
         // Write the content with new swiftmailer details in file
         $updateFile = file_put_contents(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml', Yaml::dump($file_content_array, 6));
-
+        
         if($updateFile) {
             $json['alertClass'] = 'success';
             $json['alertMessage'] = 'Success ! Swiftmailer removed successfully.';
@@ -46,13 +46,13 @@ class SwiftMailerXHR extends Controller
         $response->headers->set('Content-Type', 'application/json');
         return $response;
     }
-
+    
     private function checkExistingSwiftmailer($uniqueId = null, $email = null, $currentswiftmailer =null)
     {
         $isExist = false;
         $file_content_array = Yaml::parse(file_get_contents(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml'), 6);
         $existingSwiftmailer = $file_content_array['swiftmailer']['mailers'];
-
+        
         if ($existingSwiftmailer) {
             foreach ($existingSwiftmailer as $index => $swiftmailerDetails) {
                 if ($index == $uniqueId || $swiftmailerDetails['username'] == $email && $currentswiftmailer['username'] != $swiftmailerDetails['username']) {
@@ -68,7 +68,7 @@ class SwiftMailerXHR extends Controller
     {
         $file_content_array = Yaml::parse(file_get_contents(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml'), 6);
         $swiftmailers = $file_content_array['swiftmailer']['mailers'];
-
+        
         if ($swiftmailers && $swiftmailerId) {
             foreach ($swiftmailers as $index => $swiftmailerDetails) {
                 if($index == $swiftmailerId) {
