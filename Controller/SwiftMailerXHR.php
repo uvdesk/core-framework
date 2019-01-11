@@ -15,7 +15,7 @@ class SwiftMailerXHR extends Controller
         } 
         return new Response(json_encode([]), 404);
     }
-    
+
     public function removeMailer(Request $request)
     {
         $swiftmailerId = $request->query->get('id');
@@ -40,6 +40,7 @@ class SwiftMailerXHR extends Controller
         $response->headers->set('Content-Type', 'application/json');
         return $response;
     }
+    
     private function checkExistingSwiftmailer($uniqueId = null, $email = null, $currentswiftmailer =null)
     {
         $isExist = false;
