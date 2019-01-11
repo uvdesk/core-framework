@@ -218,6 +218,13 @@ class UVDeskService
                             'permission' => 'ROLE_ADMIN',
                         ],
                         [
+                            'name' => 'Mailboxes',
+                            'link' => $router->generate('helpdesk_member_mailbox_settings'),
+                            'isActive' => false,
+                            'isEnabled' => true,
+                            'permission' => 'ROLE_ADMIN',
+                        ],
+                        [
                             'name' => 'Swift Mailer',
                             'link' => $router->generate('helpdesk_member_swiftmailer_settings'),
                             'isActive' => false,
