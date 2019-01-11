@@ -1158,7 +1158,7 @@
                         <div class="uv-ticket-strip">
                             <span>
                                 <span class="uv-margin-0 timeago" data-timestamp="<%= createThread.timestamp %>" title="<%= createThread.formatedCreatedAt %>"><%= createThread.formatedCreatedAt %></span>
-                                - <%- createThread.fullname %>
+                                - <%- createThread.user.name %>
                                 <span class="uv-ticket-strip-label">
                                     {{ 'created Ticket'|trans }}
                                 </span>
@@ -1207,7 +1207,7 @@
                                                     <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%-file.id %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
                                                         <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/icon-file-zip.png'))}}" data-url="<%- file.attachmentOrginal %>" data-download="<%- file.id %>" class="uv-auto-pointer-events">
                                                     </a>
-                                                <% } else if(fileFormat == 'doc') { %>
+                                                <% } else if(fileFormat == 'doc' || fileFormat == 'docx') { %>
                                                     <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%-file.id %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
                                                         <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/icon-file-doc.png'))}}" data-url="<%- file.attachmentOrginal %>" data-download="<%- file.id %>" class="uv-auto-pointer-events">
                                                     </a>
@@ -1219,7 +1219,11 @@
                                                     <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%-file.id %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
                                                         <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/icon-file-xls.png'))}}" data-url="<%- file.attachmentOrginal %>" data-download="<%- file.id %>" class="uv-auto-pointer-events">
                                                     </a>
-                                                <% } else if(fileFormat == 'csv') { %>
+                                                <% } else if(fileFormat == 'ppt' || fileFormat == 'pptx') { %>
+                                                    <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%-file.id %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
+                                                        <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/icon-file-ppt.png'))}}" data-url="<%- file.attachmentOrginal %>" data-download="<%- file.id %>" class="uv-auto-pointer-events">
+                                                    </a>
+                                                 <% } else if(fileFormat == 'csv') { %>
                                                     <a href="{{ path('helpdesk_member_ticket_download_attachment') }}/<%-file.id %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
                                                         <img src="{{absolute_url(asset('bundles/uvdeskcore/images/icons/file-system/csv.png'))}}" data-url="<%- file.attachmentOrginal %>" data-download="<%- file.id %>" class="uv-auto-pointer-events">
                                                     </a>
@@ -1258,7 +1262,7 @@
                             <div class="uv-ticket-strip">
                                 <span>
                                     <span class="uv-margin-0 timeago" data-timestamp="<%= lastReply.timestamp %>" title="<%= lastReply.formatedCreatedAt %>"><%= lastReply.formatedCreatedAt %></span>
-                                    - <%- lastReply.fullname %>
+                                    - <%- lastReply.user.name %>
                                     <span class="uv-ticket-strip-label">
                                         {{ 'made last reply'|trans }}
                                     </span>
