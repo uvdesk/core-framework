@@ -845,7 +845,7 @@ span.uv-sorting:hover.ascend {
   transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 7px 10px 9px 33px;
   background-size: 32px;
-  background-image: url(/.../images/icon-search.svg);
+  background-image: url(./../images/icon-search.svg);
   background-repeat: no-repeat;
   background-position: 1px 1px;
   width: 180px;
@@ -895,7 +895,7 @@ span.uv-sorting:hover.ascend {
   font-size: 15px;
   color: #333333;
   margin: 0px;
-  background-image: url(/.../images/arrow-down.svg);
+  background-image: url(./../images/arrow-down.svg);
   background-repeat: no-repeat;
   background-position: right 10px center;
 }
@@ -981,7 +981,7 @@ input[type="radio"][disabled="disabled"] + .uv-radio-view {
   color: #333333;
 }
 .uv-aside-select span.uv-aside-drop-icon {
-  background-image: url(/.../images/arrow-down.svg);
+  background-image: url(./../images/arrow-down.svg);
   background-size: 9px;
   background-repeat: no-repeat;
   background-position: right 10px center;
@@ -1200,11 +1200,11 @@ input[type="radio"][disabled="disabled"] + .uv-radio-view {
   border: none;
   width: 24px;
   height: 24px;
-  background-image: url(/.../images/uvdesk-sprite-success.svg);
+  background-image: url(./../images/uvdesk-sprite-success.svg);
   background-position: 0px -24px;
 }
 .uv-steppers .uv-stepper-dot:last-child .uv-stepper-dot-active {
-  background-image: url(/.../images/uvdesk-sprite-success.svg);
+  background-image: url(./../images/uvdesk-sprite-success.svg);
   background-position: 0px 0px;
   border: none;
   background-color: transparent;
@@ -2444,7 +2444,7 @@ kbd {
   color: #9E9E9E;
 }
 .uv-paper .uv-navbar .uv-profile:after {
-  background-image: url(/.../images/uvdesk-sprite.svg);
+  background-image: url(./../images/uvdesk-sprite.svg);
   background-position: -68px 0px;
   width: 6px;
   height: 24px;
@@ -2462,7 +2462,7 @@ kbd {
   width: 21px;
   height: 26px;
   display: inline-block;
-  background-image: url(/.../images/uvdesk-sprite.svg);
+  background-image: url(./../images/uvdesk-sprite.svg);
   background-position: -46px 0px;
   position: relative;
 }
@@ -2722,7 +2722,7 @@ kbd {
   position: absolute;
   top: 5px;
   left: -12px;
-  background-image: url(/.../images/uvdesk-sprite.svg);
+  background-image: url(./../images/uvdesk-sprite.svg);
   background-position: -120px -27px;
 }
 .uv-inner-section .uv-aside .uv-aside-nav h6 {
@@ -3581,7 +3581,7 @@ kbd {
 .uv-icon-ellipsis {
   width: 13px;
   height: 23px;
-  background-image: url(/.../images/uvdesk-sprite.svg);
+  background-image: url(./../images/uvdesk-sprite.svg);
   background-position: -56px -113px;
   content: ' ';
   display: inline-block;
@@ -4225,7 +4225,7 @@ kbd {
   position: absolute;
   top: 5px;
   left: -12px;
-  background-image: url(/.../images/uvdesk-sprite.svg);
+  background-image: url(./../images/uvdesk-sprite.svg);
   background-position: -120px -27px;
 }
 .uv-filter-view .uv-filter-paper .uv-btn-tag {
@@ -5660,7 +5660,7 @@ br[data-mce-bogus="1"] {
 .uv-rtl .uv-dropdown .uv-dropdown-btn:before {
     content: "";
     position: absolute;
-    background-image: url(/.../images/arrow-down.svg);
+    background-image: url(./../images/arrow-down.svg);
     background-repeat: no-repeat;
     background-position: center;
     width: 12px;
