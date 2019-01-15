@@ -122,7 +122,7 @@ class TicketService
             try {
                 if (array_key_exists('UVDeskMailboxBundle', $this->container->getParameter('kernel.bundles'))) {
                     $mailbox = $this->container->get('uvdesk.mailbox')->getMailboxByEmail($ticketData['mailboxEmail']);
-                    $ticketData['mailboxEmail'] = $mailbox['email'];
+                    $ticketData['mailboxEmail'] = $mailbox['imap_server']['username'];
                 }
             } catch (\Exception $e) {
                 // No mailbox found for this email. Skip ticket creation.
