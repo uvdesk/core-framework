@@ -342,7 +342,7 @@ class Ticket extends Controller
             $this->noResultFound();
         }
 
-        $path = $this->get('kernel')->getProjectDir() . "/public". $attachment->getPath();
+        $path = $this->get('kernel')->getProjectDir() . "/public/". $attachment->getPath();
 
         $response = new Response();
         $response->setStatusCode(200);

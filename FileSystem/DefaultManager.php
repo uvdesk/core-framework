@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class DefaultManager extends UVDeskFileUploadManager
 {
-    const PREFIX = '/';
+    const PREFIX = '';
     const TARGET_DIRECTORY = 'assets';
 
     public function setRootProjectDirectory($root_dir)
