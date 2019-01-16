@@ -45,14 +45,14 @@ class SwiftMailerXHR extends Controller
             }
         }
 
-        $updateMailbox = file_put_contents(dirname(__FILE__, 5) . '/config/packages/uvdesk_mailbox.yaml', Yaml::dump($file_content_mailbox, 6));
         // Write the content with new swiftmailer details in file
+        $updateMailbox = file_put_contents(dirname(__FILE__, 5) . '/config/packages/uvdesk_mailbox.yaml', Yaml::dump($file_content_mailbox, 6));
         $updateFile = file_put_contents(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml', Yaml::dump($file_content_array, 6));
         
-        if($updateFile) {
+        if ($updateFile) {
             $json['alertClass'] = 'success';
             $json['alertMessage'] = 'Success ! Swiftmailer removed successfully.';
-        }else{
+        } else {
             $json['alertClass'] = 'error';
             $json['alertMessage'] = 'File not found';
         }
