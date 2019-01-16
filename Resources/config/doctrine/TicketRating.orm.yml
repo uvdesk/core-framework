@@ -1,0 +1,35 @@
+Webkul\UVDesk\CoreBundle\Entity\TicketRating:
+    type: entity
+    table: uv_ticket_rating
+    repositoryClass: Webkul\UVDesk\CoreBundle\Repository\TicketRatingRepository
+    manyToOne:
+        ticket:
+            targetEntity: Ticket
+            inversedBy: ratings
+            joinColumn:
+                name: ticket_id
+                referencedColumnName: id
+                onDelete: CASCADE
+        customer:
+            targetEntity: User
+            joinColumn:
+                name: user_id
+                referencedColumnName: id
+                onDelete : cascade
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+    fields:
+        stars:
+            type: integer
+            options:
+                default: 0
+        feedback:
+            type: text
+            nullable: true
+        createdAt:
+            type: datetime
+    lifecycleCallbacks: {  }

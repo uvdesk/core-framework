@@ -1,0 +1,45 @@
+Webkul\UVDesk\CoreBundle\Entity\Attachment:
+    type: entity
+    table: uv_ticket_attachments
+    manyToOne:
+        thread:
+            targetEntity: Thread
+            inversedBy: attachments
+            joinColumn:
+                name: thread_id
+                referencedColumnName: id
+                onDelete : cascade
+    table: null
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+    fields:
+        name:
+            type: text
+            nullable: true
+        path:
+            type: text
+            nullable: true
+        contentType:
+            type: string
+            length: 255
+            column: content_type
+            nullable: true
+        contentId:
+            type: string
+            length: 255
+            column: content_id
+            nullable: true
+        size:
+            type: integer
+            column: size
+            nullable: true
+        fileSystem:
+            type: string
+            length: 255
+            column: file_system
+            nullable: true
+    lifecycleCallbacks: {  }

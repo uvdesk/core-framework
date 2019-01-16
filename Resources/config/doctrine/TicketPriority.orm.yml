@@ -1,0 +1,23 @@
+Webkul\UVDesk\CoreBundle\Entity\TicketPriority:
+    type: entity
+    table: uv_ticket_priority
+    repositoryClass: null
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+    fields:
+        code:
+            type: string
+            length: 191
+            unique: true
+        description:
+            type: text
+            nullable: true
+        colorCode:
+            type: string
+            length: 191
+            nullable: true
+    lifecycleCallbacks: {  }
