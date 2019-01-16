@@ -83,7 +83,7 @@ class Account extends Controller
                     $userInstance = $this->container->get('user.service')->getUserDetailById($user->getId());
 
                     if (isset($dataFiles['profileImage'])) {
-                        $fileName  = $this->container->get('uvdesk.service')->getFileUploadManager()->upload($dataFiles['profileImage']);
+                        $fileName = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($dataFiles['profileImage']);
                         $userInstance->setProfileImagePath($fileName);
                     }
                     
@@ -194,7 +194,7 @@ class Account extends Controller
                     $userInstance->setSource('website');
                     
                     if(isset($dataFiles['profileImage'])){
-                        $fileName  = $this->container->get('uvdesk.service')->getFileUploadManager()->upload($dataFiles['profileImage']);
+                        $fileName  = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($dataFiles['profileImage']);
                         $userInstance->setProfileImagePath($fileName);
                     }
                     

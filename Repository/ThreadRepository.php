@@ -6,6 +6,8 @@ use Doctrine\ORM\Query;
 use Doctrine\Common\Collections\Criteria;
 use Webkul\UVDesk\CoreBundle\Entity\User;
 use Webkul\UVDesk\CoreBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreBundle\Entity\Attachment;
+
 /**
  * ThreadRepository
  *
@@ -90,6 +92,8 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
     public function getAllCustomerThreads($ticketId,\Symfony\Component\HttpFoundation\ParameterBag $obj = null, $container)
     {
         $json = array();
+        $uvdeskFileSystemService = $container->get('uvdesk.core.file_system.service');
+
         $qb = $this->getEntityManager()->createQueryBuilder()
             ->select("th, a, u.id as userId, CONCAT(u.firstName, ' ', u.lastName) as fullname, userInstance.profileImagePath as smallThumbnail")->from($this->getEntityName(), 'th')
             ->leftJoin('th.user', 'u')
@@ -124,7 +128,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
 
         foreach ($results->getItems() as $key => $row) {
             $thread = $row[0];
-            $data[] = [
+            $threadResponse = [
                 'id' => $thread['id'],
                 'user' => $row['userId'] ? ['id' => $row['userId']] : null,
                 'fullname' => $row['fullname'],
@@ -138,6 +142,19 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
                 'bcc' => $thread['bcc'],
                 'attachments' => $thread['attachments'],
             ];
+
+            if (!empty($threadResponse['attachments'])) {
+                $resolvedAttachmentAttributesCollection = [];
+
+                foreach ($threadResponse['attachments'] as $attachment) {
+                    $attachmentReferenceObject = $this->getEntityManager()->getReference(Attachment::class, $attachment['id']);
+                    $resolvedAttachmentAttributesCollection[] = $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject);
+                }
+
+                $threadResponse['attachments'] = $resolvedAttachmentAttributesCollection;
+            }
+
+            array_push($data, $threadResponse);
         }
         
         $json['threads'] = $data;
