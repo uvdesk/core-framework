@@ -23,6 +23,9 @@ class SwiftMailerXHR extends Controller
     {
         $swiftmailerId = $request->query->get('id');
         $file_content_array = Yaml::parse(file_get_contents(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml'), 6);
+        $file_content_mailbox = Yaml::parse(file_get_contents(dirname(__FILE__, 5) . '/config/packages/uvdesk_mailbox.yaml'), 6);
+        $mailboxes = $this->container->get('uvdesk.mailbox')->getRegisteredMailboxesWithId();
+
         if (isset($file_content_array['swiftmailer']['mailers'])) {
             $swiftmailers = $file_content_array['swiftmailer']['mailers'];
             unset($swiftmailers[$swiftmailerId]);
@@ -30,7 +33,19 @@ class SwiftMailerXHR extends Controller
                 $swiftmailers = null;
             $file_content_array['swiftmailer']['mailers'] = $swiftmailers;
         }
+        if (!empty($mailboxes)) {
+            foreach ($mailboxes as $mailbox) {
+                if ($mailbox['smtp_server']['mailer_id'] == $swiftmailerId) {
+                    $mailbox['smtp_server']['mailer_id'] = null;
+                    $mailbox['enabled'] = false;
 
+                    $file_content_mailbox['uvdesk_mailbox']['mailboxes'][$mailbox['mailbox_id']] = $mailbox;
+                    unset($file_content_mailbox['uvdesk_mailbox']['mailboxes'][$mailbox['mailbox_id']]['mailbox_id']);
+                }
+            }
+        }
+
+        $updateMailbox = file_put_contents(dirname(__FILE__, 5) . '/config/packages/uvdesk_mailbox.yaml', Yaml::dump($file_content_mailbox, 6));
         // Write the content with new swiftmailer details in file
         $updateFile = file_put_contents(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml', Yaml::dump($file_content_array, 6));
         
