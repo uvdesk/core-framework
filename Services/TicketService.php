@@ -221,64 +221,59 @@ class TicketService
         if (!empty($threadData['attachments'])) {
             if ('email' == $threadData['source']) {
                 $this->saveThreadEmailAttachments($thread, $threadData['attachments']);
-            } else {
-                $fileNames['fileNames'] = $threadData['attachments'];
-                
-                if (!empty($fileNames['fileNames'])) {
-                    $this->saveThreadAttachment($thread, $fileNames['fileNames']);
-                }
+            } else if (!empty($threadData['attachments'])) {
+                $this->saveThreadAttachment($thread, $threadData['attachments']);
             }
         }
 
         return $thread;
     }
 
-    public function saveThreadAttachment($thread,$fileNames)
+    public function saveThreadAttachment($thread, array $attachments)
     {
-        foreach ($fileNames as $file) {
-            $size        = $file->getSize();
-            $contentType = $file->getMimeType();
-            
-            // Attachment upload
-            $fileName  = $this->container->get('uvdesk.service')->getFileUploadManager()->upload($file);
-            $attachment = new Attachment();
-            $attachment->setContentType($contentType);
-            $attachment->setSize($size);
-            $attachment->setPath($fileName);
-            $attachment->setName($file->getClientOriginalName());
-            $attachment->setThread($thread);
-            
-            $this->entityManager->persist($attachment);
-            $this->entityManager->flush();
+        $prefix = 'threads/' . $thread->getId();
+        $uploadManager = $this->container->get('uvdesk.core.file_system.service')->getUploadManager();
 
-            $this->attachments[] = $attachment;
+        foreach ($attachments as $attachment) {
+            $uploadedFileAttributes = $uploadManager->uploadFile($attachment, $prefix);
+
+            if (!empty($uploadedFileAttributes['path'])) {
+                ($threadAttachment = new Attachment())
+                    ->setThread($thread)
+                    ->setName($uploadedFileAttributes['name'])
+                    ->setPath($uploadedFileAttributes['path'])
+                    ->setSize($uploadedFileAttributes['size'])
+                    ->setContentType($uploadedFileAttributes['content-type']);
+                
+                $this->entityManager->persist($threadAttachment);
+            }
         }
+
+        $this->entityManager->flush();
     }
 
     public function saveThreadEmailAttachments($thread, array $attachments)
     {
-        $prefix = "threads/" . $thread->getId() . "/";
-        $fileManager = $this->container->get('uvdesk.service')->getFileUploadManager();
-
-        $fileManager->setRootProjectDirectory($this->container->get('kernel')->getProjectDir() . "/public");
+        $prefix = 'threads/' . $thread->getId();
+        $uploadManager = $this->container->get('uvdesk.core.file_system.service')->getUploadManager();
         
+        // Upload thread attachments
         foreach ($attachments as $attachment) {
-            $file = $fileManager->uploadFromEmail($attachment, $prefix);
+            $uploadedFileAttributes = $uploadManager->uploadEmailAttachment($attachment, $prefix);
             
-            if (!empty($file['path'])) {
-                $threadAttachment = new Attachment();
-                $threadAttachment->setContentType($attachment->getContentType());
-                $threadAttachment->setSize($file['size']);
-                $threadAttachment->setPath($file['path']);
-                $threadAttachment->setName($file['filename']);
-                $threadAttachment->setThread($thread);
+            if (!empty($uploadedFileAttributes['path'])) {
+                ($threadAttachment = new Attachment())
+                    ->setThread($thread)
+                    ->setName($uploadedFileAttributes['name'])
+                    ->setPath($uploadedFileAttributes['path'])
+                    ->setSize($uploadedFileAttributes['size'])
+                    ->setContentType($uploadedFileAttributes['content-type']);
                 
                 $this->entityManager->persist($threadAttachment);
-                $this->entityManager->flush();
-
-                $this->attachments[] = $threadAttachment;
             }
         }
+
+        $this->entityManager->flush();
     }
 
     public function getTypes()
@@ -528,6 +523,7 @@ class TicketService
         $params = $request->query->all();
         $activeUser = $this->container->get('user.service')->getSessionUser();
         $threadRepository = $this->entityManager->getRepository('UVDeskCoreBundle:Thread');
+        $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
 
         // Get base query
         $enableLockedThreads = $this->container->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_LOCK_AND_UNLOCK_THREAD');
@@ -593,6 +589,17 @@ class TicketService
                     'id' => $threadDetails['user']['id'],
                     'name' => $threadResponse['fullname'],
                 ];
+            }
+
+            if (!empty($threadResponse['attachments'])) {
+                $resolvedAttachmentAttributesCollection = [];
+
+                foreach ($threadResponse['attachments'] as $attachment) {
+                    $attachmentReferenceObject = $this->entityManager->getReference(Attachment::class, $attachment['id']);
+                    $resolvedAttachmentAttributesCollection[] = $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject);
+                }
+
+                $threadResponse['attachments'] = $resolvedAttachmentAttributesCollection;
             }
 
             array_push($threadCollection, $threadResponse);
@@ -897,6 +904,8 @@ class TicketService
     public function getCreateReply($ticketId)
     {
         $qb = $this->entityManager->createQueryBuilder();
+        $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
+        
         $qb->select("th,a,u.id as userId")->from('UVDeskCoreBundle:Thread', 'th')
                 ->leftJoin('th.ticket','t')
                 ->leftJoin('th.attachments', 'a')
@@ -921,6 +930,20 @@ class TicketService
             $data['formatedCreatedAt'] = $data['createdAt']->format('d-m-Y h:ia');
             $data['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($data['createdAt']);
             $data['attachments'] = $data['attachments'];
+            
+            if (!empty($data['attachments'])) {
+                $resolvedAttachmentAttributesCollection = [];
+
+                foreach ($data['attachments'] as $attachment) {
+                    // $attachmentReferenceObject = $this->entityManager->getReference(Attachment::class, $attachment['id']);
+                    // $resolvedAttachmentAttributesCollection[] = $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject);
+
+                    $resolvedAttachmentAttributesCollection[] = $this->entityManager->getReference(Attachment::class, $attachment['id']);
+                }
+
+                $data['attachments'] = $resolvedAttachmentAttributesCollection;
+            }
+
             $data['reply'] = html_entity_decode($data['message']);
             return $data;
         } else

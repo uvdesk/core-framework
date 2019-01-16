@@ -12,7 +12,7 @@ parameters:
 uvdesk:
     site_url: 'localhost:8000'
     upload_manager:
-        id: uvdesk.core.fs.upload.manager
+        id: Webkul\UVDesk\CoreBundle\FileSystem\UploadManagers\Localhost
     
     support_email: ~
     
