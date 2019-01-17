@@ -870,45 +870,7 @@ class TicketService
         ];
     }
 
-    public function getTicketInitialThreadDetails(Ticket $ticket)
-    {
-        $initialThread = $this->entityManager->getRepository('UVDeskCoreBundle:Thread')->findOneBy([
-            'ticket' => $ticket,
-            'threadType' => 'create',
-        ]);
-
-        if (!empty($initialThread)) {
-            $author = $initialThread->getUser();
-            $authorInstance = 'agent' == $initialThread->getCreatedBy() ? $author->getAgentInstance() : $author->getCustomerInstance();
-        
-            $threadDetails = [
-                'id' => $initialThread->getId(),
-                'source' => $initialThread->getSource(),
-                'messageId' => $initialThread->getMessageId(),
-                'threadType' => $initialThread->getThreadType(),
-                'createdBy' => $initialThread->getCreatedBy(),
-                'message' => html_entity_decode($initialThread->getMessage()),
-                'attachments' => $initialThread->getAttachments(),
-                'timestamp' => $initialThread->getCreatedAt()->getTimestamp(),
-                'createdAt' => $initialThread->getCreatedAt()->format('d-m-Y h:ia'),
-                'user' => $authorInstance->getPartialDetails(),
-            ];
-
-            $attachments = $threadDetails['attachments']->getValues();
-
-            if (!empty($attachments)) {
-                $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
-
-                $threadDetails['attachments'] = array_map(function ($attachment) use ($uvdeskFileSystemService) {
-                    return $uvdeskFileSystemService->getFileTypeAssociations($attachment);
-                }, $attachments);
-            }
-        }
-
-        return $threadDetails ?? null;
-    }
-
-    public function getCreateReply($ticketId)
+    public function getTicketInitialThreadDetails($ticketId)
     {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select("th,a,u.id as userId")->from('UVDeskCoreBundle:Thread', 'th')
@@ -927,7 +889,7 @@ class TicketService
         if((!empty($threadResponse[0][0]))) {
             $threadDetails = $threadResponse[0][0];
             $userService = $this->container->get('user.service');
-            
+
             if ($threadDetails['createdBy'] == 'agent') {
                 $threadDetails['user'] = $userService->getAgentDetailById($threadResponse[0]['userId']);
             } else {
@@ -951,7 +913,7 @@ class TicketService
         
         return $threadDetails ?? null;
     }
-
+    
     public function hasAttachments($ticketId) {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select("DISTINCT COUNT(a.id) as attachmentCount")->from('UVDeskCoreBundle:Thread', 'th')

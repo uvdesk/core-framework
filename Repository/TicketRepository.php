@@ -481,7 +481,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             'agent' => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
             'customer' => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
             'lastReplyAgentName' => $ticketService->getlastReplyAgentName($ticket[0]['id']),
-            'createThread' => $ticketService->getCreateReply($ticket[0]['id']),
+            'createThread' => $ticketService->getTicketInitialThreadDetails($ticket[0]['id']),
             'lastReply' => $ticketService->getLastReply($ticket[0]['id']),
         ];
     }
