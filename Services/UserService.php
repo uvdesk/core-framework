@@ -202,10 +202,11 @@ class UserService
             $userInstance->setIsStarred(!empty($extras['starred']) ? (bool) $extras['starred'] : false);
 
             if (!empty($extras['image'])) {
-                $fileName = $this->container->get('uvdesk.service')->getFileUploadManager()->upload($extras['image']);
+                $prefixFolder = 'ROLE_CUSTOMER' == $role->getCode() ? 'users/customer': 'users/agent';
+                $file = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($extras['image'], $prefixFolder);
 
-                if (!empty($fileName)) {
-                    $userInstance->setProfileImagePath($fileName);
+                if (!empty($file)) {
+                    $userInstance->setProfileImagePath($file['path']);
                 }
             }
 
