@@ -84,11 +84,6 @@ class UVDeskService
         return $this->container->getParameter('uvdesk.helpdesk.navigation_items');
     }
 
-    public function getFileUploadManager()
-    {
-        return $this->container->get($this->container->getParameter('uvdesk.upload_manager.id'));
-    }
-
 	public function getPanelSidebarRoutes()
 	{
 		$router = $this->container->get('router');
@@ -155,11 +150,11 @@ class UVDeskService
                     'name' => 'Productivity',
                     'routes' => [
                         [
-                            'name' => 'Workflows',
-                            'link' => $router->generate('helpdesk_member_workflow_collection'),
+                            'name' => 'Ticket Types',
+                            'link' => $router->generate('helpdesk_member_ticket_type_collection'),
                             'isActive' => false,
                             'isEnabled' => true,
-                            'permission' => 'ROLE_AGENT_MANAGE_WORKFLOW_AUTOMATIC',
+                            'permission' => 'ROLE_AGENT_MANAGE_TICKET_TYPE',
                         ],
                         [
                             'name' => 'Tags',
@@ -169,25 +164,25 @@ class UVDeskService
                             'permission' => 'ROLE_AGENT_MANAGE_TAG',
                         ],
                         [
-                            'name' => 'Prepared Responses',
-                            'link' => $router->generate('prepare_response_action'),
-                            'isActive' => false,
-                            'isEnabled' => true,
-                            'permission' => 'ROLE_AGENT_MANAGE_WORKFLOW_MANUAL',
-                        ],
-                        [
-                            'name' => 'Ticket Types',
-                            'link' => $router->generate('helpdesk_member_ticket_type_collection'),
-                            'isActive' => false,
-                            'isEnabled' => true,
-                            'permission' => 'ROLE_AGENT_MANAGE_TICKET_TYPE',
-                        ],
-                        [
                             'name' => 'Saved Replies',
                             'link' => $router->generate('helpdesk_member_saved_replies'),
                             'isActive' => false,
                             'isEnabled' => true,
                             'permission' => 'ROLE_AGENT_MANAGE_SAVED_REPLIES',
+                        ],
+                        [
+                            'name' => 'Workflows',
+                            'link' => $router->generate('helpdesk_member_workflow_collection'),
+                            'isActive' => false,
+                            'isEnabled' => true,
+                            'permission' => 'ROLE_AGENT_MANAGE_WORKFLOW_AUTOMATIC',
+                        ],
+                        [
+                            'name' => 'Prepared Responses',
+                            'link' => $router->generate('prepare_response_action'),
+                            'isActive' => false,
+                            'isEnabled' => true,
+                            'permission' => 'ROLE_AGENT_MANAGE_WORKFLOW_MANUAL',
                         ],
                     ],
                 ];
@@ -211,6 +206,13 @@ class UVDeskService
                             'permission' => 'ROLE_AGENT_MANAGE_EMAIL_TEMPLATE',
                         ],
                         [
+                            'name' => 'Swift Mailer',
+                            'link' => $router->generate('helpdesk_member_swiftmailer_settings'),
+                            'isActive' => false,
+                            'isEnabled' => true,
+                            'permission' => 'ROLE_AGENT_MANAGE_EMAIL_TEMPLATE',
+                        ],
+                        [
                             'name' => 'Block Spam',
                             'link' => $router->generate('helpdesk_member_knowledgebase_spam'),
                             'isActive' => false,
@@ -223,13 +225,6 @@ class UVDeskService
                             'isActive' => false,
                             'isEnabled' => true,
                             'permission' => 'ROLE_ADMIN',
-                        ],
-                        [
-                            'name' => 'Swift Mailer',
-                            'link' => $router->generate('helpdesk_member_swiftmailer_settings'),
-                            'isActive' => false,
-                            'isEnabled' => true,
-                            'permission' => 'ROLE_AGENT_MANAGE_EMAIL_TEMPLATE',
                         ],
                     ],
                 ];

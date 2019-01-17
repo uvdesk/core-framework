@@ -8,8 +8,7 @@ Webkul\UVDesk\CoreBundle\Entity\Attachment:
             joinColumn:
                 name: thread_id
                 referencedColumnName: id
-                onDelete : cascade
-    table: null
+                onDelete: cascade
     id:
         id:
             type: integer

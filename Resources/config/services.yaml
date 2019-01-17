@@ -24,10 +24,11 @@ services:
         class: Webkul\UVDesk\CoreBundle\Services\TicketService
         arguments: ['@service_container', '@request_stack', '@doctrine.orm.entity_manager']
     
-    uvdesk.core.fs.upload.manager:
+    uvdesk.core.file_system.service:
         public: true
-        class: Webkul\UVDesk\CoreBundle\FileSystem\DefaultManager
-
+        class: Webkul\UVDesk\CoreBundle\FileSystem\FileSystem
+        arguments: ['@service_container', '@request_stack']
+    
     swiftmailer.service:
         public: true
         class: Webkul\UVDesk\CoreBundle\Services\SwiftMailerHelperService
@@ -39,7 +40,6 @@ services:
     
     Webkul\UVDesk\CoreBundle\Console\:
         resource: '../../Console/*'
-        exclude: '../../Console/{UTF8Symbol.php,ANSIEscapeSequence.php}'
         arguments: ['@service_container', '@doctrine.orm.entity_manager']
         tags: ['console.command']
     
@@ -52,6 +52,11 @@ services:
         arguments: ['@service_container', '@security.access.decision_manager']
         tags:
             - { name: security.voter }
+    
+    Webkul\UVDesk\CoreBundle\FileSystem\UploadManagers\:
+        public: true
+        resource: '../../FileSystem/UploadManagers/*'
+        arguments: ['@service_container', '@request_stack']
     
     Webkul\UVDesk\CoreBundle\EventListener\ORMLifecycle:
         arguments: ['@service_container']
