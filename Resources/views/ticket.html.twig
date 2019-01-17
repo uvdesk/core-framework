@@ -748,9 +748,7 @@
                                     <div class="uv-ticket-uploads">
                                         <h4>Uploaded Files</h4>
                                         <div class="uv-ticket-uploads-strip">
-                                            {% for file in initialThread.attachments %}
-                                                {% set attachment = uvdesk_core_file_system.getFileTypeAssociations(file) %}
-                                                
+                                            {% for attachment in initialThread.attachments %}
                                                 <a href="{{ attachment.downloadURL }}" target = "_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="{{ attachment.name }}">
                                                     <img src="{{ attachment.iconURL }}"  class="uv-auto-pointer-events"/>
                                                 </a>
