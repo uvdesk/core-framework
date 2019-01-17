@@ -73,13 +73,9 @@
 							msg: "{{ 'This field is mandatory'|trans }}"
 						},
 						{
-							pattern: '^(?!.*[!@#$%^&*()<_+])',
-							msg: "{{ 'Name must have characters only' }}"
+							pattern: '^[a-zA-Z0-9_-]*$',
+							msg: "{{ 'Only characters and digits are allowed' }}"
 						},
-						{
-							pattern: '^[^-\s][a-zA-Z0-9\s]+[^-\s]$',
-							msg: "{{ 'No space allowed' }}"
-						}
 					],
 					'username': [{
 							required: true,
