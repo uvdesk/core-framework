@@ -79,7 +79,7 @@ class TicketService
     public function getMemberCreateTicketSnippet()
     {
         $twigTemplatingEngine = $this->container->get('twig');
-        $ticketTypeCollection = $this->entityManager->getRepository('UVDeskCoreBundle:TicketType')->findAll();
+        $ticketTypeCollection = $this->entityManager->getRepository('UVDeskCoreBundle:TicketType')->findByIsActive(true);
         
         return $twigTemplatingEngine->render('@UVDeskCore/Snippets/createMemberTicket.html.twig', [
             'ticketTypeCollection' => $ticketTypeCollection
