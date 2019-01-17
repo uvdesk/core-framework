@@ -79,7 +79,7 @@ class TicketService
     public function getMemberCreateTicketSnippet()
     {
         $twigTemplatingEngine = $this->container->get('twig');
-        $ticketTypeCollection = $this->entityManager->getRepository('UVDeskCoreBundle:TicketType')->findAll();
+        $ticketTypeCollection = $this->entityManager->getRepository('UVDeskCoreBundle:TicketType')->findByIsActive(true);
         
         return $twigTemplatingEngine->render('@UVDeskCore/Snippets/createMemberTicket.html.twig', [
             'ticketTypeCollection' => $ticketTypeCollection
@@ -929,7 +929,6 @@ class TicketService
                 $threadDetails['user'] = $userService->getCustomerPartialDetailById($threadResponse[0]['userId']);
             }
             
-            $threadDetails['attachments'] = $threadDetails['attachments'];
             $threadDetails['reply'] = html_entity_decode($threadDetails['message']);
             $threadDetails['formatedCreatedAt'] = $threadDetails['createdAt']->format('d-m-Y h:ia');
             $threadDetails['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($threadDetails['createdAt']);
