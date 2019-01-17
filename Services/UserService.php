@@ -202,10 +202,10 @@ class UserService
             $userInstance->setIsStarred(!empty($extras['starred']) ? (bool) $extras['starred'] : false);
 
             if (!empty($extras['image'])) {
-                $fileName = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($extras['image']);
+                $assetDetails = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($extras['image'], 'profile');
 
-                if (!empty($fileName)) {
-                    $userInstance->setProfileImagePath($fileName);
+                if (!empty($assetDetails)) {
+                    $userInstance->setProfileImagePath($assetDetails['path']);
                 }
             }
 

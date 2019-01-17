@@ -83,8 +83,8 @@ class Account extends Controller
                     $userInstance = $this->container->get('user.service')->getUserDetailById($user->getId());
 
                     if (isset($dataFiles['profileImage'])) {
-                        $fileName = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($dataFiles['profileImage']);
-                        $userInstance->setProfileImagePath($fileName);
+                        $assetDetails = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
+                        $userInstance->setProfileImagePath($assetDetails['path']);
                     }
                     
                     $userInstance  = $userInstance->setContactNumber($data['contactNumber']);
@@ -162,7 +162,7 @@ class Account extends Controller
                 if ($checkUser && $checkUser->getId() != $agentId) {
                     $errorFlag = 1;
                 }
-
+               
                 if (!$errorFlag) {
                     if (isset($data['password']) && $data['password']) {
                         $encodedPassword = $this->container->get('security.password_encoder')->encodePassword($user, $data['password']['first']);
@@ -192,12 +192,12 @@ class Account extends Controller
                     $userInstance->setDesignation($data['designation']);
                     $userInstance->setContactNumber($data['contactNumber']);
                     $userInstance->setSource('website');
-                    
-                    if(isset($dataFiles['profileImage'])){
-                        $fileName  = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($dataFiles['profileImage']);
-                        $userInstance->setProfileImagePath($fileName);
+                   
+                    if (isset($dataFiles['profileImage'])) {
+                        $assetDetails = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
+                        $userInstance->setProfileImagePath($assetDetails['path']);
                     }
-                    
+
                     $userInstance->setSignature($data['signature']);
                     $isActive = isset($data['isActive']) ? 1 : 0;
                     $userInstance->setIsActive($isActive);
