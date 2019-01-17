@@ -24,7 +24,7 @@ class SwiftMailerXHR extends Controller
         $swiftmailerId = $request->query->get('id');
         $file_content_array = Yaml::parse(file_get_contents(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml'), 6);
         $file_content_mailbox = Yaml::parse(file_get_contents(dirname(__FILE__, 5) . '/config/packages/uvdesk_mailbox.yaml'), 6);
-        $mailboxes = $this->container->get('uvdesk.mailbox')->getRegisteredMailboxesWithId();
+        $mailboxes = $this->container->get('uvdesk.mailbox')->getRegisteredMailboxesById();
 
         if (isset($file_content_array['swiftmailer']['mailers'])) {
             $swiftmailers = $file_content_array['swiftmailer']['mailers'];
