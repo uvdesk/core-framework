@@ -884,7 +884,7 @@ class TicketService
             $author = $initialThread->getUser();
             $authorInstance = 'agent' == $initialThread->getCreatedBy() ? $author->getAgentInstance() : $author->getCustomerInstance();
         
-            return [
+            $threadDetails = [
                 'id' => $initialThread->getId(),
                 'source' => $initialThread->getSource(),
                 'messageId' => $initialThread->getMessageId(),
@@ -896,9 +896,22 @@ class TicketService
                 'createdAt' => $initialThread->getCreatedAt()->format('d-m-Y h:ia'),
                 'user' => $authorInstance->getPartialDetails(),
             ];
+
+            $attachments = $threadDetails['attachments']->getValues();
+
+            if (!empty($attachments)) {
+                $resolvedAttachmentAttributesCollection = [];
+                $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
+
+                foreach ($attachments as $attachment) {
+                    $resolvedAttachmentAttributesCollection[] = $uvdeskFileSystemService->getFileTypeAssociations($attachment);
+                }
+
+                $threadDetails['attachments'] = $resolvedAttachmentAttributesCollection;
+            }
         }
 
-        return null;
+        return $threadDetails ?? null;
     }
 
     public function getCreateReply($ticketId)
