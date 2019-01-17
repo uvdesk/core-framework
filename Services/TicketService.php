@@ -521,8 +521,9 @@ class TicketService
     public function paginateMembersTicketThreadCollection(Ticket $ticket, Request $request)
     {
         $params = $request->query->all();
+        $entityManager = $this->entityManager;
         $activeUser = $this->container->get('user.service')->getSessionUser();
-        $threadRepository = $this->entityManager->getRepository('UVDeskCoreBundle:Thread');
+        $threadRepository = $entityManager->getRepository('UVDeskCoreBundle:Thread');
         $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
 
         // Get base query
@@ -592,14 +593,10 @@ class TicketService
             }
 
             if (!empty($threadResponse['attachments'])) {
-                $resolvedAttachmentAttributesCollection = [];
-
-                foreach ($threadResponse['attachments'] as $attachment) {
-                    $attachmentReferenceObject = $this->entityManager->getReference(Attachment::class, $attachment['id']);
-                    $resolvedAttachmentAttributesCollection[] = $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject);
-                }
-
-                $threadResponse['attachments'] = $resolvedAttachmentAttributesCollection;
+                $threadResponse['attachments'] = array_map(function ($attachment) use ($entityManager, $uvdeskFileSystemService) {
+                    $attachmentReferenceObject = $entityManager->getReference(Attachment::class, $attachment['id']);
+                    return $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject);
+                }, $threadResponse['attachments']);
             }
 
             array_push($threadCollection, $threadResponse);
@@ -900,14 +897,11 @@ class TicketService
             $attachments = $threadDetails['attachments']->getValues();
 
             if (!empty($attachments)) {
-                $resolvedAttachmentAttributesCollection = [];
                 $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
 
-                foreach ($attachments as $attachment) {
-                    $resolvedAttachmentAttributesCollection[] = $uvdeskFileSystemService->getFileTypeAssociations($attachment);
-                }
-
-                $threadDetails['attachments'] = $resolvedAttachmentAttributesCollection;
+                $threadDetails['attachments'] = array_map(function ($attachment) use ($uvdeskFileSystemService) {
+                    return $uvdeskFileSystemService->getFileTypeAssociations($attachment);
+                }, $attachments);
             }
         }
 
@@ -917,8 +911,6 @@ class TicketService
     public function getCreateReply($ticketId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
-        
         $qb->select("th,a,u.id as userId")->from('UVDeskCoreBundle:Thread', 'th')
                 ->leftJoin('th.ticket','t')
                 ->leftJoin('th.attachments', 'a')
@@ -947,14 +939,13 @@ class TicketService
             $threadDetails['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($threadDetails['createdAt']);
         
             if (!empty($threadDetails['attachments'])) {
-                $resolvedAttachmentAttributesCollection = [];
+                $entityManager = $this->entityManager;
+                $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
 
-                foreach ($threadDetails['attachments'] as $attachment) {
-                    $attachmentReferenceObject = $this->entityManager->getReference(Attachment::class, $attachment['id']);
-                    $resolvedAttachmentAttributesCollection[] = $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject);
-                }
-
-                $threadDetails['attachments'] = $resolvedAttachmentAttributesCollection;
+                $threadDetails['attachments'] = array_map(function ($attachment) use ($entityManager, $uvdeskFileSystemService) {
+                    $attachmentReferenceObject = $entityManager->getReference(Attachment::class, $attachment['id']);
+                    return $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject);
+                }, $threadDetails['attachments']);
             }
         }
         
@@ -1198,15 +1189,13 @@ class TicketService
             $threadDetails['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($threadDetails['createdAt']);
 
             if (!empty($threadDetails['attachments'])) {
-                $resolvedAttachmentAttributesCollection = [];
+                $entityManager = $this->entityManager;
                 $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
 
-                foreach ($threadDetails['attachments'] as $attachment) {
+                $threadDetails['attachments'] = array_map(function ($attachments) use ($entityManager, $uvdeskFileSystemService) {
                     $attachmentReferenceObject = $this->entityManager->getReference(Attachment::class, $attachment['id']);
-                    $resolvedAttachmentAttributesCollection[] = $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject);
-                }
-
-                $threadDetails['attachments'] = $resolvedAttachmentAttributesCollection;
+                    return $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject);
+                }, $threadDetails['attachments']);
             }
         }
 

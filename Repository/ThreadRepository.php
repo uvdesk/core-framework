@@ -92,9 +92,8 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
     public function getAllCustomerThreads($ticketId,\Symfony\Component\HttpFoundation\ParameterBag $obj = null, $container)
     {
         $json = array();
-        $uvdeskFileSystemService = $container->get('uvdesk.core.file_system.service');
-
-        $qb = $this->getEntityManager()->createQueryBuilder()
+        $entityManager = $this->getEntityManager();
+        $qb = $entityManager->createQueryBuilder()
             ->select("th, a, u.id as userId, CONCAT(u.firstName, ' ', u.lastName) as fullname, userInstance.profileImagePath as smallThumbnail")->from($this->getEntityName(), 'th')
             ->leftJoin('th.user', 'u')
             ->leftJoin('th.attachments', 'a')
@@ -125,6 +124,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
 
         $data = array();
         $userService = $container->get('user.service');
+        $uvdeskFileSystemService = $container->get('uvdesk.core.file_system.service');
 
         foreach ($results->getItems() as $key => $row) {
             $thread = $row[0];
@@ -144,14 +144,10 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
             ];
 
             if (!empty($threadResponse['attachments'])) {
-                $resolvedAttachmentAttributesCollection = [];
-
-                foreach ($threadResponse['attachments'] as $attachment) {
-                    $attachmentReferenceObject = $this->getEntityManager()->getReference(Attachment::class, $attachment['id']);
-                    $resolvedAttachmentAttributesCollection[] = $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject);
-                }
-
-                $threadResponse['attachments'] = $resolvedAttachmentAttributesCollection;
+                $threadResponse['attachments'] = array_map(function ($attachment) use ($entityManager, $uvdeskFileSystemService) {
+                    $attachmentReferenceObject = $entityManager->getReference(Attachment::class, $attachment['id']);
+                    return $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject);
+                }, $threadResponse['attachments']);
             }
 
             array_push($data, $threadResponse);
