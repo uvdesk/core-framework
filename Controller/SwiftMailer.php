@@ -126,24 +126,23 @@ class SwiftMailer extends Controller
         return $isExist;
     }
 
-    private function getSwiftmailerDetails ($swiftmailerId)
+    private function getSwiftmailerDetails($swiftmailerId)
     {
-        $file_content_array = Yaml::parse(file_get_contents(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml'));
-        $swiftmailers = $file_content_array['swiftmailer']['mailers'];
-        $swiftmailer = [];
+        $parsedYAML = Yaml::parse(file_get_contents(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml'));
 
-        if ($swiftmailers && $swiftmailerId) {
-            foreach ($swiftmailers as $index => $swiftmailerDetails) {
-                if ($index == $swiftmailerId) {
-                    $swiftmailer['name'] = $swiftmailerId;
-                    
-                    foreach($swiftmailerDetails as $details => $value) {
-                        $swiftmailer[$details] = $value;
-                    }
+        if (!empty($parsedYAML['swiftmailer']['mailers']) && !empty($swiftmailerId)) {
+            foreach ($parsedYAML['swiftmailer']['mailers'] as $mailerId => $mailerDetails) {
+                if ($mailerId != $swiftmailerId) {
+                    continue;
                 }
+
+                $mailerResponse = $mailerDetails;
+                $mailerResponse['name'] = $swiftmailerId;
+
+                break;
             }
         }
 
-        return $swiftmailer;
+        return $mailerResponse ?? [];
     }
 }
