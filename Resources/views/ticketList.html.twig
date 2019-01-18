@@ -2407,13 +2407,13 @@
                 render: function () {
                     this.$el.find('tbody').html('');
                     if (ticketCollection.length) {
-                          $('.uv-action-select-wrapper').show();
+                        $('.select-all-checkbox').prop( "disabled", false );
                         _.each(ticketCollection.models, function (item) {
                             ticketQuickViewCollection.add(new TicketQuickViewModel({id: item.id}))
                             this.renderTicket(item);
                         }, this);
                     } else {
-                        $('.uv-action-select-wrapper').hide();
+                        $('.select-all-checkbox').prop( "disabled", true );
                         this.$el.find('tbody').append("<tr style='text-align: center;'><td colspan='11'>{% trans %}No Record Found{% endtrans %}</td></tr>")
                     }
                     
