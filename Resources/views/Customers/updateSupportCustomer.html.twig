@@ -31,7 +31,7 @@
 							<path fill-rule="evenodd" d="M28.026,26.003 L19.964,26.003 L19.964,17.962 L13.964,17.962 L23.995,8.050 L34.025,17.962 L28.026,17.962 L28.026,26.003 ZM33.557,3.421 C30.806,1.146 27.619,0.008 23.995,0.008 C21.182,0.008 18.588,0.756 16.214,2.252 C13.838,3.749 11.996,5.712 10.683,8.143 C7.683,8.456 5.152,9.749 3.090,12.024 C1.027,14.300 -0.004,16.965 -0.004,20.019 C-0.004,23.324 1.168,26.144 3.512,28.481 C5.855,30.819 8.682,31.988 11.996,31.988 L37.963,31.988 C40.712,31.988 43.072,31.006 45.040,29.042 C47.009,27.079 47.993,24.726 47.993,21.983 C47.993,19.364 47.087,17.106 45.275,15.203 C43.461,13.302 41.275,12.258 38.713,12.071 C38.024,8.580 36.306,5.698 33.557,3.421 Z"></path>
 							</svg>
 						</div>
-						<img id="dynamic-image-upload" {% if isHaveImage %}src="{{ customerDetails.profileImagePath }}"{% endif %}>
+						<img id="dynamic-image-upload" {% if isHaveImage %}src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}{{ customerDetails.profileImagePath }}"{% endif %}>
 					</div>
 					<div class="uv-image-info-brick">
 						<span class="uv-field-info">{{ 'Upload a Profile Image (100px x 100px)<br> in PNG or JPG Format'|trans|raw }}</span>

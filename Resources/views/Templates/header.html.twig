@@ -527,7 +527,7 @@
         <span style="position: relative" class="">
             <div class="uv-profile uv-dropdown-other">
                 {% if currentUserDetails is defined and currentUserDetails.thumbnail is defined and currentUserDetails.thumbnail is not empty %}
-                    <img class='uv-avatar' src="{{ currentUserDetails.thumbnail }}"/>
+                    <img class='uv-avatar' src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}{{ currentUserDetails.thumbnail }}"/>
                 {% else %}
                     <img class='uv-avatar' src="{{ asset('bundles/uvdeskcore/images/uv-avatar-batman.png') }}"/>
                 {% endif %}
