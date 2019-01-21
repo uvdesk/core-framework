@@ -1172,7 +1172,7 @@
                             <% } %>
                         </div>
                         <div class="uv-ticket-main-rt">
-                            <% if(createThread.userType == 'customer') { %>
+                            <% if(createThread.createdBy == 'customer') { %>
                                 <a href="{{ path('helpdesk_member_manage_customer_account') }}/<%= createThread.user.id %>" class="uv-ticket-member-name">
                             <% } else { %>
                                 <% if(createThread.user) { %>
@@ -1181,7 +1181,7 @@
                                     <a class="uv-ticket-member-name">
                                 <% } %>
                             <% } %>
-                                <%- createThread.fullname %>
+                                <%- createThread.user.name %>
                             </a>
 
                             <div class="message">
@@ -1227,14 +1227,14 @@
                             <div class="uv-ticket-main-lt">
                                 <% if(typeof(lastReply.smallThumbnail) != 'undefined' && lastReply.smallThumbnail != null) { %>
                                     <img class='border' src="<%= lastReply.smallThumbnail %>"/>
-                                <% } else if(lastReply.userType == 'agent') { %>
+                                <% } else if(lastReply.createdBy == 'agent') { %>
                                     <img class='border' src="{{ asset(default_agent_image_path) }}"/>
                                 <% } else { %>
                                     <img class='border' src="{{ asset(default_customer_image_path) }}"/>
                                 <% } %>
                             </div>
                             <div class="uv-ticket-main-rt">
-                                <% if(lastReply.userType == 'customer') { %>
+                                <% if(lastReply.createdBy == 'customer') { %>
                                     <a href="{{ path('helpdesk_member_manage_customer_account') }}/<%= lastReply.user.id %>" class="uv-ticket-member-name">
                                 <% } else { %>
                                     <% if(lastReply.user) { %>
@@ -1243,7 +1243,7 @@
                                         <a class="uv-ticket-member-name">
                                     <% } %>
                                 <% } %>
-                                    <%- lastReply.fullname %>
+                                    <%- lastReply.user.name %>
                                 </a>
 
                                 <div class="message">
