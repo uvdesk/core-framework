@@ -1192,8 +1192,8 @@ class TicketService
                 $entityManager = $this->entityManager;
                 $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
 
-                $threadDetails['attachments'] = array_map(function ($attachments) use ($entityManager, $uvdeskFileSystemService) {
-                    $attachmentReferenceObject = $this->entityManager->getReference(Attachment::class, $attachments['id']);
+                $threadDetails['attachments'] = array_map(function ($attachment) use ($entityManager, $uvdeskFileSystemService) {
+                    $attachmentReferenceObject = $this->entityManager->getReference(Attachment::class, $attachment['id']);
                     return $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject);
                 }, $threadDetails['attachments']);
             }
