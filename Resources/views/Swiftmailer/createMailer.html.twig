@@ -26,7 +26,7 @@
 
 				<div class="uv-element-block">
 					<label class="uv-field-label">{{ 'Transport'|trans }}</label>
-					<select name="transport" class="uv-select create-ticket" id="type">
+					<select name="transport" class="uv-select create-ticket">
 						<option value="">Select type</option>
 						<option value="gmail">gmail</option>
 					</select>
@@ -73,7 +73,7 @@
 							msg: "{{ 'This field is mandatory'|trans }}"
 						},
 						{
-							pattern: '^[a-zA-Z0-9_]*$',
+							pattern: '^[a-zA-Z0-9_-]*$',
 							msg: "{{ 'Only characters and digits are allowed' }}"
 						},
 					],
