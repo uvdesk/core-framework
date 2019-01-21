@@ -83,8 +83,8 @@ class Account extends Controller
                     $userInstance = $this->container->get('user.service')->getUserDetailById($user->getId());
 
                     if (isset($dataFiles['profileImage'])) {
-                        $file = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($dataFiles['profileImage'], 'users/agent');
-                        $userInstance->setProfileImagePath($file['path']);
+                        $assetDetails = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
+                        $userInstance->setProfileImagePath($assetDetails['path']);
                     }
                     
                     $userInstance  = $userInstance->setContactNumber($data['contactNumber']);
@@ -193,10 +193,11 @@ class Account extends Controller
                     $userInstance->setContactNumber($data['contactNumber']);
                     $userInstance->setSource('website');
                    
-                    if(isset($dataFiles['profileImage'])){
-                        $file = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($dataFiles['profileImage'], 'users/agent');
-                        $userInstance->setProfileImagePath($file['path']);
+                    if (isset($dataFiles['profileImage'])) {
+                        $assetDetails = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
+                        $userInstance->setProfileImagePath($assetDetails['path']);
                     }
+
                     $userInstance->setSignature($data['signature']);
                     $isActive = isset($data['isActive']) ? 1 : 0;
                     $userInstance->setIsActive($isActive);
@@ -347,8 +348,8 @@ class Account extends Controller
     
                     $userInstance = $user->getAgentInstance();
     
-                    if (isset($data['ticketView'])) {
-                        $userInstance->setTicketAccessLevel($data['ticketView']);
+                    if (isset($formDetails['ticketView'])) {
+                        $userInstance->setTicketAccessLevel($formDetails['ticketView']);
                     }
                     
                     // Map support team
