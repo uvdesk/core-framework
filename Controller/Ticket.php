@@ -59,7 +59,7 @@ class Ticket extends Controller
             'ticket' => $ticket,
             'totalReplies' => $ticketRepository->countTicketTotalThreads($ticket->getId()),
             'totalCustomerTickets' => $ticketRepository->countCustomerTotalTickets($customer),
-            'initialThread' => $this->get('ticket.service')->getTicketInitialThreadDetails($ticket),
+            'initialThread' => $this->get('ticket.service')->getTicketInitialThreadDetails($ticket->getId()),
             'ticketAgent' => !empty($agent) ? $agent->getAgentInstance()->getPartialDetails() : null,
             'customer' => $customer->getCustomerInstance()->getPartialDetails(),
             'currentUserDetails' => $user->getAgentInstance()->getPartialDetails(),

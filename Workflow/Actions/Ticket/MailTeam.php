@@ -60,7 +60,7 @@ class MailTeam extends WorkflowAction
         if($entity instanceof Ticket && $emailTemplate) {
             $mailData = array();
             if($entity instanceof Ticket) {
-                $createThread = $container->get('ticket.service')->getCreateReply($entity->getId(), false);
+                $createThread = $container->get('ticket.service')->getTicketInitialThreadDetails($entity->getId(), false);
                 $mailData['references'] = $createThread['messageId'];
             }
             $to = array();

@@ -129,7 +129,7 @@ class TicketXHR extends Controller
 
         if (!$error) {
             $ticket->setSubject($request->request->get('subject'));
-            $createThread = $this->get('ticket.service')->getCreateReply($ticket->getId(), false);
+            $createThread = $this->get('ticket.service')->getTicketInitialThreadDetails($ticket->getId(), false);
             $createThread = $entityManager->getRepository('UVDeskCoreBundle:Thread')->find($createThread['id']);
             $createThread->setMessage($request->request->get('reply'));
 
