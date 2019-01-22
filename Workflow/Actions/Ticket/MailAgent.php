@@ -66,7 +66,7 @@ class MailAgent extends WorkflowAction
             if($emails && $emailTemplate) {
                 $mailData = array();
                 if ($entity instanceof Ticket) {
-                    $createThread = $container->get('ticket.service')->getTicketInitialThreadDetails($entity->getId(), false);
+                    $createThread = $container->get('ticket.service')->getCreateReply($entity->getId(), false);
                     $mailData['references'] = $createThread['messageId'];
                 }
 

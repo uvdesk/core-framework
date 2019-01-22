@@ -33,9 +33,9 @@ class SwiftMailerXHR extends Controller
                 $swiftmailers = null;
             $file_content_array['swiftmailer']['mailers'] = $swiftmailers;
         }
-
+        
         if (!empty($mailboxes)) {
-            foreach($mailboxes as $mailbox) {
+            foreach ($mailboxes as $mailbox) {
                 if ($mailbox['smtp_server']['mailer_id'] == $swiftmailerId) {
                     $mailbox['smtp_server']['mailer_id'] = null;
                     $mailbox['enabled'] = false;

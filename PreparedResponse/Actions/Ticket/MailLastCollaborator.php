@@ -45,7 +45,7 @@ class MailLastCollaborator extends PreparedResponseAction
             $emailTemplate = $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findOneById($value);
             if(count($entity->getCollaborators()) && $emailTemplate) {
                 $mailData = array();
-                $createThread = $container->get('ticket.service')->getTicketInitialThreadDetails($entity->getId(),false);
+                $createThread = $container->get('ticket.service')->getCreateReply($entity->getId(),false);
                 $mailData['references'] = $createThread['messageId'];
                 
                 if(!$entity->lastCollaborator) {
