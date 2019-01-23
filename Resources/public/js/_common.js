@@ -621,6 +621,7 @@ $(function() {
 
     var uvHamburger =  document.querySelector(".uv-hamburger");
 	if (uvHamburger) {
+	    var uvPaper =  document.querySelector(".uv-paper");
 	    var uvSidebar =  document.querySelector(".uv-sidebar");
 	    var uvWrapper =  document.querySelector(".uv-wrapper");
 	    var uvSlideIn = () => {
@@ -646,15 +647,18 @@ $(function() {
         let sidebarCookieValue = getCookie('uv-sidebar');
         if (sidebarCookieValue) {
             uvSidebar.classList.remove('uv-sidebar-active');
+            uvPaper.classList.add('uv-wrapper-padding');
             uvWrapper.classList.add('uv-wrapper-gap');
         } else {
             uvSidebar.classList.add('uv-sidebar-active');
             uvWrapper.classList.remove('uv-wrapper-gap');
+            uvPaper.classList.remove('uv-wrapper-padding');
         }
 
 	    uvHamburger.addEventListener("click", () => {
-            uvSidebar.classList.toggle("uv-sidebar-active");
             uvWrapper.classList.toggle("uv-wrapper-gap");
+            uvPaper.classList.toggle('uv-wrapper-padding');
+            uvSidebar.classList.toggle("uv-sidebar-active");
             if (uvWrapper.classList.contains("uv-wrapper-gap"))
                 document.cookie = "uv-sidebar=1; uv-wrapper-status=1;";
             else

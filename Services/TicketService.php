@@ -347,21 +347,6 @@ class TicketService
         $baseQuery = $ticketRepository->prepareBaseTicketQuery($activeUser, $params);
         $ticketTabs = $ticketRepository->getTicketTabDetails($activeUser, $params);
 
-        // Add reply count filter to base query
-        if (array_key_exists('repliesLess', $params) || array_key_exists('repliesMore', $params)) {
-            $baseQuery->leftJoin('ticket.threads', 'th')
-                ->andWhere('th.threadType = :threadType')->setParameter('threadType', 'reply')
-                ->groupBy('ticket.id');
-
-            if (array_key_exists('repliesLess', $params)) {
-                $baseQuery->andHaving('count(th.id) < :threadValueLesser')->setParameter('threadValueLesser', intval($params['repliesLess']));
-            }
-
-            if (array_key_exists('repliesMore', $params)) {
-                $baseQuery->andHaving('count(th.id) > :threadValueGreater')->setParameter('threadValueGreater', intval($params['repliesMore']));
-            }
-        }
-
         // Apply Pagination
         $pageNumber = !empty($params['page']) ? (int) $params['page'] : 1;
         $itemsLimit = !empty($params['limit']) ? (int) $params['limit'] : $ticketRepository::DEFAULT_PAGINATION_LIMIT;
@@ -395,24 +380,13 @@ class TicketService
             ->where('ticket.id = :ticketId')
             ->andWhere('thread.threadType = :threadType')->setParameter('threadType', 'reply');
         
-        // $ticketAttachmentCountQueryTemplate = $this->entityManager->createQueryBuilder()
-        //     ->select('DISTINCT COUNT(attachment.id) as attachmentCount')
-        //     ->from('UVDeskCoreBundle:Thread', 'thread')
-        //     ->leftJoin('thread.ticket', 'ticket')
-        //     ->leftJoin('thread.attachments', 'attachment')
-        //     ->andWhere('ticket.id = :ticketId');
-        
         foreach ($pagination->getItems() as $ticketDetails) {
             $ticket = array_shift($ticketDetails);
 
             $ticketThreadCountQuery = clone $ticketThreadCountQueryTemplate;
             $ticketThreadCountQuery->setParameter('ticketId', $ticket['id']);
 
-            // $ticketAttachmentCountQuery = clone $ticketAttachmentCountQueryTemplate;
-            // $ticketAttachmentCountQuery->setParameter('ticketId', $ticket['id']);
-
             $totalTicketReplies = (int) $ticketThreadCountQuery->getQuery()->getSingleScalarResult();
-            // $ticketHasAttachments = (bool) (int) $ticketAttachmentCountQuery->getQuery()->getSingleScalarResult();
             $ticketHasAttachments = false;
           
             $ticketResponse = [
