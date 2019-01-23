@@ -1230,5 +1230,43 @@ class TicketService
 
         return $variables;
     }
+    public function isEmailBlocked($email, $website) 
+    {
+        $flag = false;
+        $email = strtolower($email);
+        $knowlegeBaseWebsite = $this->entityManager->getRepository('UVDeskSupportCenterBundle:KnowledgebaseWebsite')->findOneBy(['website' => $website->getId(), 'isActive' => 1]);
+        $list = $this->container->get('user.service')->getWebsiteSpamDetails($knowlegeBaseWebsite);
+
+        // Blacklist
+        if (!empty($list['blackList']['email']) && in_array($email, $list['blackList']['email'])) {
+            // Blacklist emails
+            $flag = true;
+        } elseif (!empty($list['blackList']['domain'])) {
+            // Blacklist domains
+            foreach ($list['blackList']['domain'] as $domain) {
+                if (strpos($email, $domain)) {
+                    $flag = true;
+                    break;
+                }
+            }
+        }
+        // Whitelist
+        if ($flag) {
+            if (isset($email, $list['whiteList']['email']) && in_array($email, $list['whiteList']['email'])) {
+                // Whitelist emails
+                $flag = false;
+                return $flag;
+            } elseif (isset($list['whiteList']['domain'])) {
+                // Whitelist domains
+                foreach ($list['whiteList']['domain'] as $domain) {
+                    if (strpos($email, $domain)) {
+                        $flag = false;
+                    }
+                }
+            }
+        }
+
+        return $flag;
+    }
 }
 
