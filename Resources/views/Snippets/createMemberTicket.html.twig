@@ -138,6 +138,8 @@
         });
 
         var CreateTicketForm = Backbone.View.extend({
+            el : $("#create-ticket-modal #create-ticket-form"),
+            model: new CreateTicketModel(),
             initialize : function() {
                 Backbone.Validation.bind(this);
                 var jsonContext = JSON.parse('{{ errors is defined ? errors|raw : "{}"  }}');
@@ -154,7 +156,7 @@
                 this.model.set(Backbone.$(e.currentTarget).attr('name'), Backbone.$(e.currentTarget).val())
                 this.model.isValid([Backbone.$(e.currentTarget).attr('name')])
             },
-            saveTicket : function (e) {
+            saveTicket: function (e) {
                 e.preventDefault();
                 var currentElement = Backbone.$(e.currentTarget);
                 var data = currentElement.closest('form').serializeObject();
@@ -169,9 +171,6 @@
             }
         });
 
-        var createticketForm = new CreateTicketForm({
-            el : $("#create-ticket-modal #create-ticket-form"),
-            model : new CreateTicketModel()
-        });
+        new CreateTicketForm();
     });	
 </script>

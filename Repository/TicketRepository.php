@@ -555,12 +555,24 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                     }
                     break;
                 case 'before':
-                    $date = \DateTime::createFromFormat('d-m-Y H:i', $fieldValue.' 23:59');
+                    $date = \DateTime::createFromFormat('d-m-Y H:i', $fieldValue.' 00:00');
                     if($date) {
                         //$date = \DateTime::createFromFormat('d-m-Y H:i', $container->get('user.service')->convertTimezoneToServer($date, 'd-m-Y H:i'));
                         $queryBuilder->andwhere('ticket.createdAt < :beforeDate');
                         $queryBuilder->setParameter('beforeDate', $date);
                     }
+                    break;
+                case 'repliesLess':
+                    $queryBuilder->leftJoin('ticket.threads', 'th')
+                    ->andWhere('th.threadType = :threadType')->setParameter('threadType', 'reply')
+                    ->groupBy('ticket.id')
+                    ->andHaving('count(th.id) < :threadValueLesser')->setParameter('threadValueLesser', intval($params['repliesLess']));
+                    break;
+                case 'repliesMore':
+                    $queryBuilder->leftJoin('ticket.threads', 'th')
+                    ->andWhere('th.threadType = :threadType')->setParameter('threadType', 'reply')
+                    ->groupBy('ticket.id')
+                    ->andHaving('count(th.id) > :threadValueGreater')->setParameter('threadValueGreater', intval($params['repliesMore']));
                     break;
                 default:
                     break;
