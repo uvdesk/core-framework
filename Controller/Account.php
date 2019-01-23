@@ -348,8 +348,8 @@ class Account extends Controller
     
                     $userInstance = $user->getAgentInstance();
     
-                    if (isset($data['ticketView'])) {
-                        $userInstance->setTicketAccessLevel($data['ticketView']);
+                    if (isset($formDetails['ticketView'])) {
+                        $userInstance->setTicketAccessLevel($formDetails['ticketView']);
                     }
                     
                     // Map support team
