@@ -6059,3 +6059,19 @@ br[data-mce-bogus="1"] {
         text-align: center;
     }
 }
+
+.collapse {
+  display:none
+}
+
+.collapse.in {
+  display:block
+}
+
+.datepicker a {
+  color:#337ab7;text-decoration:none
+}
+
+.bootstrap-datetimepicker-widget .list-unstyled {
+  color: #333333 !important;font-size: 15px !important;padding:0 !important;list-style:none
+}
