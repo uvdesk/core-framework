@@ -1230,6 +1230,7 @@ class TicketService
 
         return $variables;
     }
+
     public function isEmailBlocked($email, $website) 
     {
         $flag = false;
@@ -1239,10 +1240,10 @@ class TicketService
 
         // Blacklist
         if (!empty($list['blackList']['email']) && in_array($email, $list['blackList']['email'])) {
-            // Blacklist emails
+            // Emails
             $flag = true;
         } elseif (!empty($list['blackList']['domain'])) {
-            // Blacklist domains
+            // Domains
             foreach ($list['blackList']['domain'] as $domain) {
                 if (strpos($email, $domain)) {
                     $flag = true;
@@ -1250,14 +1251,14 @@ class TicketService
                 }
             }
         }
+
         // Whitelist
         if ($flag) {
             if (isset($email, $list['whiteList']['email']) && in_array($email, $list['whiteList']['email'])) {
-                // Whitelist emails
-                $flag = false;
-                return $flag;
+                // Emails
+                return false;
             } elseif (isset($list['whiteList']['domain'])) {
-                // Whitelist domains
+                // Domains
                 foreach ($list['whiteList']['domain'] as $domain) {
                     if (strpos($email, $domain)) {
                         $flag = false;
