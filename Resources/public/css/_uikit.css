@@ -6060,19 +6060,18 @@ br[data-mce-bogus="1"] {
     }
 }
 
-.collapse
-{
+.collapse {
   display:none
 }
-.collapse.in
-{
+
+.collapse.in {
   display:block
 }
-.datepicker a
-{
+
+.datepicker a {
   color:#337ab7;text-decoration:none
 }
-.bootstrap-datetimepicker-widget .list-unstyled
-{
+
+.bootstrap-datetimepicker-widget .list-unstyled {
   color: #333333 !important;font-size: 15px !important;padding:0 !important;list-style:none
 }
