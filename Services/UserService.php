@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\Common\Collections\Criteria;
 use Webkul\UVDesk\CoreBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
+use Webkul\UVDesk\CoreBundle\Entity\Attachment;
 use Symfony\Component\HttpFoundation\Response;
 use Webkul\UVDesk\CoreBundle\Entity\SupportRole;
 use Webkul\UVDesk\CoreBundle\Entity\UserInstance;
@@ -202,11 +203,10 @@ class UserService
             $userInstance->setIsStarred(!empty($extras['starred']) ? (bool) $extras['starred'] : false);
 
             if (!empty($extras['image'])) {
-                $prefixFolder = 'ROLE_CUSTOMER' == $role->getCode() ? 'users/customer': 'users/agent';
-                $file = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($extras['image'], $prefixFolder);
+                $assetDetails = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($extras['image'], 'profile');
 
-                if (!empty($file)) {
-                    $userInstance->setProfileImagePath($file['path']);
+                if (!empty($assetDetails)) {
+                    $userInstance->setProfileImagePath($assetDetails['path']);
                 }
             }
 
@@ -652,5 +652,45 @@ class UserService
                 ->setParameter('userId', $userId);
 
         return array_column($qb->getQuery()->getArrayResult(), 'id');
+    }
+
+    public function getWebsiteSpamDetails($websiteSpam) 
+    {
+        $blackList = $websiteSpam->getBlackList();
+        $whiteList = $websiteSpam->getWhiteList();
+
+        // Filter new lines
+        $blackList = str_replace("\r\n", ',', $blackList);
+        $blackList = str_replace("\n", ',', $blackList);
+
+        $whiteList = str_replace("\r\n", ',', $whiteList);
+        $whiteList = str_replace("\n", ',', $whiteList);
+
+        return [
+            'blackList' => $this->filterBlockSpam($blackList),
+            'whiteList' => $this->filterBlockSpam($whiteList),
+        ];
+    }
+
+    public function filterBlockSpam($str) 
+    {
+        $list = array();
+        foreach (explode(',',$str) as $value) {
+            if (filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                if(!isset($list['email']))
+                    $list['email'] = array();
+                array_push($list['email'], strtolower($value));
+            } elseif(filter_var($value, FILTER_VALIDATE_IP)) {
+                if(!isset($list['ip']))
+                    $list['ip'] = array();
+                array_push($list['ip'], $value);
+            } elseif(isset($value[0]) && $value[0] == '@') {
+                if(!isset($list['domain']))
+                    $list['domain'] = array();
+                array_push($list['domain'], strtolower($value));
+            }
+        }
+        
+        return $list;
     }
 }
