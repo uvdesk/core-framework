@@ -45,8 +45,8 @@ class ConfigureWebsitePrefixes extends Command
 
         $this->websitePrefixRegex = '/^[a-z0-9A-Z]+$/';
 
-        $member_panel_prefix = $this->promtAdminPanelPrefix($input, $output);
-        $knowledgebase_prefix = $this->promtknowledgebasePrefix($input, $output);
+        $member_panel_prefix = $this->promptAdminPanelPrefix($input, $output);
+        $knowledgebase_prefix = $this->promptknowledgebasePrefix($input, $output);
         $result = $this->updateWebsitePrefixes($member_panel_prefix, $knowledgebase_prefix);
 
         $output->writeln("\n<info>Congrats! Your website prefixes has been updated.</info>");
@@ -55,7 +55,7 @@ class ConfigureWebsitePrefixes extends Command
         $output->writeln("<comment>Updated Knowledgebase URL: </comment>" . $result['knowledgebase']);
     }
 
-    private function promtAdminPanelPrefix(InputInterface $input, OutputInterface $output)
+    private function promptAdminPanelPrefix(InputInterface $input, OutputInterface $output)
     {
         $memberPanelQuestion = new Question("      <question>Enter Member Panel Prefix:</question>");
         
@@ -72,7 +72,7 @@ class ConfigureWebsitePrefixes extends Command
         return $memberPanelPrefix;
     }
     
-    private function promtknowledgebasePrefix(InputInterface $input, OutputInterface $output)
+    private function promptknowledgebasePrefix(InputInterface $input, OutputInterface $output)
     {
         $knowledgebaseQuestion = new Question("      <question>Enter Knowledgebase Panel Prefix:</question>");
         
