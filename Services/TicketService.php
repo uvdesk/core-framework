@@ -882,7 +882,7 @@ class TicketService
         return $threadDetails ?? null;
     }
 
-    public function getCreateReply($ticketId)
+    public function getCreateReply($ticketId, $firewall = 'member')
     {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select("th,a,u.id as userId")->from('UVDeskCoreBundle:Thread', 'th')
@@ -916,9 +916,9 @@ class TicketService
                 $entityManager = $this->entityManager;
                 $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
 
-                $threadDetails['attachments'] = array_map(function ($attachment) use ($entityManager, $uvdeskFileSystemService) {
+                $threadDetails['attachments'] = array_map(function ($attachment) use ($entityManager, $uvdeskFileSystemService, $firewall) {
                     $attachmentReferenceObject = $entityManager->getReference(Attachment::class, $attachment['id']);
-                    return $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject);
+                    return $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject, $firewall);
                 }, $threadDetails['attachments']);
             }
         }

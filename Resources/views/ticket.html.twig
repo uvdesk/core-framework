@@ -2829,12 +2829,6 @@
             mentions : getMentions(),
             images_upload_url: "{{ path('helpdesk_member_thread_encoded_image_uploader', {ticketId: app.request.get('ticketId')}) }}",
             setup: function(editor) {
-                editor.shortcuts.add('ctrl+s', 'save draft on ctrl+s', function() {
-                    ticketApp.ticketView.saveDraft(editor.getContent());
-                });
-                editor.on('KeyUp', function(e) {
-                    ticketApp.ticketView.saveDraft(editor.getContent());
-                });
                 editor.on('keydown', function(e) { /** for pageup, pagedown keys **/
                     if(e.keyCode == 34 || e.keyCode == 33){
                         e.preventDefault();
