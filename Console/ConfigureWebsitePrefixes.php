@@ -19,6 +19,7 @@ class ConfigureWebsitePrefixes extends Command
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
+        $this->websitePrefixRegex = '/^[a-z0-9A-Z]+$/';
 
         parent::__construct();
     }
@@ -43,11 +44,13 @@ class ConfigureWebsitePrefixes extends Command
         $this->io = new SymfonyStyle($input, $output);
         $this->io->title('Website Configuration');
 
-        $this->websitePrefixRegex = '/^[a-z0-9A-Z]+$/';
+        $currentWebsitePrefixes = $this->container->get('uvdesk.service')->getCurrentWebsitePrefixes();
+        $currentMemberPanelPrefix = $currentWebsitePrefixes['memberPrefix'];
+        $currentknowledgebasePrefix = $currentWebsitePrefixes['knowledgebasePrefix'];
 
-        $member_panel_prefix = $this->promptAdminPanelPrefix($input, $output);
-        $knowledgebase_prefix = $this->promptknowledgebasePrefix($input, $output);
-        $result = $this->updateWebsitePrefixes($member_panel_prefix, $knowledgebase_prefix);
+        $member_panel_prefix = $this->promptAdminPanelPrefix($input, $output, $currentMemberPanelPrefix);
+        $knowledgebase_prefix = $this->promptknowledgebasePrefix($input, $output, $member_panel_prefix, $currentknowledgebasePrefix);
+        $result = $this->container->get('uvdesk.service')->updateWebsitePrefixes($member_panel_prefix, $knowledgebase_prefix);
 
         $output->writeln("\n<info>Congrats! Your website prefixes has been updated.</info>");
         $output->writeln("\n<comment>Note: </comment>");
@@ -55,9 +58,9 @@ class ConfigureWebsitePrefixes extends Command
         $output->writeln("<comment>Updated Knowledgebase URL: </comment>" . $result['knowledgebase']);
     }
 
-    private function promptAdminPanelPrefix(InputInterface $input, OutputInterface $output)
+    private function promptAdminPanelPrefix(InputInterface $input, OutputInterface $output, $currentPrefix)
     {
-        $memberPanelQuestion = new Question("      <question>Enter Member Panel Prefix:</question>");
+        $memberPanelQuestion = new Question("      <question>Enter Member Panel Prefix</question>( current prefix => " . $currentPrefix . " ): ");
         
         do {
             $this->io->section('Admin Panel');
@@ -72,9 +75,9 @@ class ConfigureWebsitePrefixes extends Command
         return $memberPanelPrefix;
     }
     
-    private function promptknowledgebasePrefix(InputInterface $input, OutputInterface $output)
+    private function promptknowledgebasePrefix(InputInterface $input, OutputInterface $output, $memberPanelPrefix, $currentKnowledgebasePrefix)
     {
-        $knowledgebaseQuestion = new Question("      <question>Enter Knowledgebase Panel Prefix:</question>");
+        $knowledgebaseQuestion = new Question("      <question>Enter Knowledgebase Panel Prefix</question>( current prefix => " . $currentKnowledgebasePrefix . " ): ");
         
         do {
             $this->io->section('knowledgebase Panel');
@@ -83,58 +86,12 @@ class ConfigureWebsitePrefixes extends Command
             $isKnowledgebasePattern = preg_match($this->websitePrefixRegex, $knowledgebasePanelPrefix);
             if (!$isKnowledgebasePattern) {
                 $output->writeln("      <error>Warning</error>: prefix pattern do not match.\n");
+            } else if ($knowledgebasePanelPrefix == $memberPanelPrefix) {
+                $knowledgebasePanelPrefix = 0;
+                $output->writeln("      <error>Warning</error>: prefix of knowledgebase website can not be the same as prefix of member website.\n");
             }
         } while (!$knowledgebasePanelPrefix);
 
         return $knowledgebasePanelPrefix;
-    }
-
-    public function updateWebsitePrefixes($member_panel_prefix, $knowledgebase_prefix)
-    {
-        $website_prefixes = [
-            'member_prefix' => $member_panel_prefix,
-            'customer_prefix' => $knowledgebase_prefix,
-        ];
-
-        $filePath = dirname(__FILE__, 5) . '/config/packages/uvdesk.yaml';
-        
-        // get file content and index
-        $file = file($filePath);
-        foreach ($file as $index => $content) {
-            if (false !== strpos($content, 'uvdesk_site_path.member_prefix')) {
-                list($member_panel_line, $member_panel_text) = array($index, $content);
-            }
-
-            if (false !== strpos($content, 'uvdesk_site_path.knowledgebase_customer_prefix')) {
-                list($customer_panel_line, $customer_panel_text) = array($index, $content);
-            }
-        }
-
-        // save updated data in a variable ($updatedFileContent)
-        $updatedFileContent = $file;
-
-        // get old member-prefix
-        $oldMemberPrefix = substr($member_panel_text, strpos($member_panel_text, 'uvdesk_site_path.member_prefix') + strlen('uvdesk_site_path.member_prefix: '));
-        $oldMemberPrefix = preg_replace('/([\r\n\t])/','', $oldMemberPrefix);
-
-        $updatedPrefixForMember = (null !== $member_panel_line) ? substr($member_panel_text, 0, strpos($member_panel_text, 'uvdesk_site_path.member_prefix') + strlen('uvdesk_site_path.member_prefix: ')) . $website_prefixes['member_prefix'] . PHP_EOL: '';
-        $updatedPrefixForCustomer = (null !== $customer_panel_line) ? substr($customer_panel_text, 0, strpos($customer_panel_text, 'uvdesk_site_path.knowledgebase_customer_prefix') + strlen('uvdesk_site_path.knowledgebase_customer_prefix: ')) . $website_prefixes['customer_prefix'] . PHP_EOL : '';
-
-        $updatedFileContent[$member_panel_line] = $updatedPrefixForMember;
-        $updatedFileContent[$customer_panel_line] = $updatedPrefixForCustomer;
-
-        // flush updated content in file
-        file_put_contents($filePath, $updatedFileContent);
-
-        $router = $this->container->get('router');
-        $knowledgebaseURL = $router->generate('helpdesk_knowledgebase');
-        $memberLoginURL = $router->generate('helpdesk_member_handle_login');
-        $memberLoginURL = str_replace($oldMemberPrefix, $website_prefixes['member_prefix'], $memberLoginURL);
-
-        return $collectionURL = [
-            'memberLogin' => $memberLoginURL,
-            'knowledgebase' => $knowledgebaseURL,
-        ];
-        
     }
 }
