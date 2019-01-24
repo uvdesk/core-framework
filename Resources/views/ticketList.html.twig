@@ -339,7 +339,7 @@
                                                 {% for agent in user_service.getAgentPartialDataCollection() %}
                                                     <li data-index="{{ agent.id }}">
                                                         {% if agent.smallThumbnail != null %}
-                                                            <img src="{{ agent.smallThumbnail }}"/>
+                                                            <img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}{{ agent.smallThumbnail }}"/>
                                                         {% else %}
                                                             <img src="{{ asset(default_agent_image_path) }}" alt=""/>
                                                         {% endif %}
@@ -590,7 +590,7 @@
                                         {% set options = options|merge([{'id': agent.id, 'name': agent.name}]) %}
                                         <li data-id="{{agent.id}}">
                                             {% if agent.smallThumbnail != null %}
-                                                <img src="{{ agent.smallThumbnail }}"/>
+                                                <img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}{{ agent.smallThumbnail }}"/>
                                             {% else %}
                                                 <img src="{{ asset(default_agent_image_path) }}"/>
                                             {% endif %}
@@ -1166,7 +1166,7 @@
                         </div>
                         <div class="uv-ticket-main-lt">
                             <% if(customer.smallThumbnail != null) { %>
-                                <img class='border' src="<%= customer.smallThumbnail %>"/>
+                                <img class='border' src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%= customer.smallThumbnail %>"/>
                             <% } else { %>
                                 <img class='border' src="{{ asset(default_customer_image_path) }}"/>
                             <% } %>
@@ -1226,7 +1226,7 @@
                             </div>
                             <div class="uv-ticket-main-lt">
                                 <% if(typeof(lastReply.smallThumbnail) != 'undefined' && lastReply.smallThumbnail != null) { %>
-                                    <img class='border' src="<%= lastReply.smallThumbnail %>"/>
+                                    <img class='border' src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%= lastReply.smallThumbnail %>"/>
                                 <% } else if(lastReply.createdBy == 'agent') { %>
                                     <img class='border' src="{{ asset(default_agent_image_path) }}"/>
                                 <% } else { %>
@@ -1379,7 +1379,7 @@
             <a href="<%= path %>">
                 <% if(agent) { %>
                     <% if(agent.smallThumbnail != null) { %>
-                        <img src="<%= agent.smallThumbnail %>" alt=""/>
+                        <img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%= agent.smallThumbnail %>" alt=""/>
                     <% } else { %>
                         <img src="{{ asset(default_agent_image_path) }}" alt=""/>
                     <% } %>
