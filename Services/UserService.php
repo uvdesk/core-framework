@@ -652,4 +652,43 @@ class UserService
 
         return array_column($qb->getQuery()->getArrayResult(), 'id');
     }
+
+    public function getWebsiteSpamDetails($websiteSpam) 
+    {
+        $blackList = str_replace("\n", ',', str_replace("\r\n", ',', $websiteSpam->getBlackList()));
+        $whiteList = str_replace("\n", ',', str_replace("\r\n", ',', $websiteSpam->getWhiteList()));
+
+        return [
+            'blackList' => $this->filterBlockSpam($blackList),
+            'whiteList' => $this->filterBlockSpam($whiteList),
+        ];
+    }
+
+    public function filterBlockSpam($str) 
+    {
+        $list = array();
+        foreach (explode(',', $str) as $value) {
+            if (filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                if (!isset($list['email'])) {
+                    $list['email'] = array();
+                }
+
+                array_push($list['email'], strtolower($value));
+            } else if (filter_var($value, FILTER_VALIDATE_IP)) {
+                if (!isset($list['ip'])) {
+                    $list['ip'] = array();
+                }
+                
+                array_push($list['ip'], $value);
+            } else if (isset($value[0]) && $value[0] == '@') {
+                if (!isset($list['domain'])) {
+                    $list['domain'] = array();
+                }
+
+                array_push($list['domain'], strtolower($value));
+            }
+        }
+        
+        return $list;
+    }
 }

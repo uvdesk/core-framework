@@ -30,7 +30,7 @@ class EmailTemplatesRepository extends EntityRepository
                 } else {
                     if($key == 'search') {
                         $qb->andwhere('sr.name'.' LIKE :name');
-                        $qb->setParameter('name', '%'.urldecode($value).'%');    
+                        $qb->setParameter('name', '%'.urldecode(trim($value)).'%');    
                     }
                 }
             }
