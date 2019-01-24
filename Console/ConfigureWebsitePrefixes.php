@@ -11,15 +11,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ConfigureWebsitePrefixes extends Command
 {
+    const REGEX_WEBSITE_PREFIX = '/^[a-z0-9A-Z]+$/';
+
     private $io;
     private $container;
     private $questionHelper;
-    private $websitePrefixRegex;
 
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->websitePrefixRegex = '/^[a-z0-9A-Z]+$/';
 
         parent::__construct();
     }
@@ -66,7 +66,7 @@ class ConfigureWebsitePrefixes extends Command
             $this->io->section('Admin Panel');
             $memberPanelPrefix = $this->questionHelper->ask($input, $output, $memberPanelQuestion);
 
-            $isMemberPanelPattern = preg_match($this->websitePrefixRegex, $memberPanelPrefix);
+            $isMemberPanelPattern = preg_match(self::REGEX_WEBSITE_PREFIX, $memberPanelPrefix);
             if (!$isMemberPanelPattern) {
                 $output->writeln("      <error>Warning</error>: prefix pattern do not match.\n");
             }
@@ -83,7 +83,7 @@ class ConfigureWebsitePrefixes extends Command
             $this->io->section('knowledgebase Panel');
             $knowledgebasePanelPrefix = $this->questionHelper->ask($input, $output, $knowledgebaseQuestion);
 
-            $isKnowledgebasePattern = preg_match($this->websitePrefixRegex, $knowledgebasePanelPrefix);
+            $isKnowledgebasePattern = preg_match(self::REGEX_WEBSITE_PREFIX, $knowledgebasePanelPrefix);
             if (!$isKnowledgebasePattern) {
                 $output->writeln("      <error>Warning</error>: prefix pattern do not match.\n");
             } else if ($knowledgebasePanelPrefix == $memberPanelPrefix) {
