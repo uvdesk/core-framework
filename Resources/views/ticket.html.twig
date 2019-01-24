@@ -294,7 +294,7 @@
                         <h3>Customer Information</h3>
                         <div class="uv-aside-avatar">
                             {% if customer.thumbnail %}
-                                <img src="{{ customer.thumbnail }}">
+                                <img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}{{ customer.thumbnail }}">
                             {% else %}
                                 <img src="{{ asset(default_customer_image_path) }}">
                             {% endif %}
@@ -402,7 +402,7 @@
                                     <ul class="uv-agents-list agent" data-action="agent">
                                         {% for agent in user_service.getAgentPartialDataCollection() %}
                                             <li data-index="{{ agent.id }}">
-                                                <img src="{{ agent.smallThumbnail != null ? agent.smallThumbnail : asset(default_agent_image_path) }}"/> {{ agent.name }}
+                                                <img src="{{ agent.smallThumbnail != null ? app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') ~ agent.smallThumbnail : asset(default_agent_image_path) }}"/> {{ agent.name }}
                                             </li>
                                         {% endfor %}
                                     </ul>
@@ -718,7 +718,7 @@
                             </div>
 
                             <div class="uv-ticket-main-lt">
-                                <img src="{{ customer.thumbnail ? customer.thumbnail : asset(default_customer_image_path) }}">
+                                <img src="{{ customer.thumbnail ? app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') ~ (customer.thumbnail) : asset(default_customer_image_path) }}">
                             </div>
 
                             <div class="uv-ticket-main-rt">
@@ -782,7 +782,7 @@
                 <div class="uv-ticket-main uv-ticket-reply uv-no-error-success-icon">
                     <div class="uv-ticket-main-lt">
                         <span class="uv-icon-ellipsis"></span>
-                        <img src="{{ currentUserDetails.thumbnail ?: asset(default_agent_image_path) }}" />
+                        <img src="{{ currentUserDetails.thumbnail ? app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') ~ currentUserDetails.thumbnail : asset(default_agent_image_path) }}" />
                     </div>
 
                     <div class="uv-ticket-main-rt">
@@ -827,7 +827,7 @@
                                                 <ul class="uv-agents-list">
                                                     {% for agent in user_service.getAgentPartialDataCollection %}
                                                         <li data-id="{{ agent.email }}">
-                                                            <img src="{{ agent.smallThumbnail ?: asset(default_agent_image_path) }}"/> {{agent.name}}
+                                                            <img src="{{ agent.smallThumbnail ? app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') ~ agent.smallThumbnail : asset(default_agent_image_path) }}"/> {{agent.name}}
                                                         </li>
                                                     {% endfor %}
 
@@ -920,7 +920,7 @@
                                             <ul class="uv-agents-list">
                                                 {% for agent in user_service.getAgentPartialDataCollection %}
                                                     <li data-id="{{ agent.email }}">
-                                                        <img src="{{ agent.smallThumbnail ?: asset(default_agent_image_path) }}"/> {{agent.name}}
+                                                        <img src="{{ agent.smallThumbnail ? app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') ~ agent.smallThumbnail : asset(default_agent_image_path) }}"/> {{agent.name}}
                                                     </li>
                                                 {% endfor %}
 
@@ -949,7 +949,7 @@
                                                 <ul class="uv-agents-list">
                                                     {% for agent in user_service.getAgentPartialDataCollection %}
                                                         <li data-id="{{ agent.email }}">
-                                                            <img src="{{ agent.smallThumbnail ?: asset(default_agent_image_path) }}"/> {{agent.name}}
+                                                            <img src="{{ agent.smallThumbnail ? app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') ~ agent.smallThumbnail : asset(default_agent_image_path) }}"/> {{agent.name}}
                                                         </li>
                                                     {% endfor %}
 
