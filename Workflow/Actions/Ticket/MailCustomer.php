@@ -77,7 +77,7 @@ class MailCustomer extends WorkflowAction
                 $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $emailHeaders, $entity->getMailboxEmail(), $attachments);
                 
                 if (!empty($messageId)) {
-                    $createdThread->setMessageId($messageId);
+                    $createdThread->setDeliveryStatus($messageId);
                     $entityManager->persist($createdThread);
                     $entityManager->flush();
                 }

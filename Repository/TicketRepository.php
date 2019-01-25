@@ -231,6 +231,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->from('UVDeskCoreBundle:Ticket', 'ticket')
             ->leftJoin('ticket.type', 'type')
             ->leftJoin('ticket.agent', 'agent')
+            ->leftJoin('ticket.threads', 'threads')
             ->leftJoin('ticket.priority', 'priority')
             ->leftJoin('ticket.customer', 'customer')
             ->leftJoin('ticket.supportTeam', 'supportTeam')
@@ -339,16 +340,17 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 status.code as tab
             ")
             ->from('UVDeskCoreBundle:Ticket', 'ticket')
-            ->leftJoin('ticket.status', 'status')
-            ->leftJoin('ticket.agent', 'agent')
-            ->leftJoin('ticket.priority', 'priority')
             ->leftJoin('ticket.type',   'type')
+            ->leftJoin('ticket.agent', 'agent')
+            ->leftJoin('ticket.status', 'status')
+            ->leftJoin('ticket.threads', 'threads')
+            ->leftJoin('ticket.priority', 'priority')
             ->leftJoin('ticket.customer', 'customer')
             ->leftJoin('ticket.supportTeam', 'supportTeam')
             ->leftJoin('ticket.supportTags', 'supportTags')
-            ->leftJoin('ticket.supportLabels', 'supportLabel')
             ->leftJoin('ticket.supportGroup', 'supportGroup')
             ->leftJoin('agent.userInstance', 'agentInstance')
+            ->leftJoin('ticket.supportLabels', 'supportLabel')
             ->leftJoin('customer.userInstance', 'customerInstance')
             ->where('customerInstance.supportRole = 4')
             ->andWhere("agent.id IS NULL OR agentInstance.supportRole != 4")
@@ -364,7 +366,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $results = $queryBuilder->getQuery()->getResult();
 
         foreach($results as $status) {
-            $data[$status['statusId']] = $status['countTicket'];
+            $data[$status['statusId']] += $status['countTicket'];
         }
 
         return $data;
@@ -563,16 +565,14 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                     }
                     break;
                 case 'repliesLess':
-                    $queryBuilder->leftJoin('ticket.threads', 'th')
-                        ->andWhere('th.threadType = :threadType')->setParameter('threadType', 'reply')
+                        $queryBuilder->andWhere('threads.threadType = :threadType')->setParameter('threadType', 'reply')
                         ->groupBy('ticket.id')
-                        ->andHaving('count(th.id) < :threadValueLesser')->setParameter('threadValueLesser', intval($params['repliesLess']));
+                        ->andHaving('count(threads.id) < :threadValueLesser')->setParameter('threadValueLesser', intval($params['repliesLess']));
                     break;
                 case 'repliesMore':
-                    $queryBuilder->leftJoin('ticket.threads', 'th')
-                        ->andWhere('th.threadType = :threadType')->setParameter('threadType', 'reply')
+                        $queryBuilder->andWhere('threads.threadType = :threadType')->setParameter('threadType', 'reply')
                         ->groupBy('ticket.id')
-                        ->andHaving('count(th.id) > :threadValueGreater')->setParameter('threadValueGreater', intval($params['repliesMore']));
+                        ->andHaving('count(threads.id) > :threadValueGreater')->setParameter('threadValueGreater', intval($params['repliesMore']));
                     break;
                 default:
                     break;
