@@ -6,6 +6,8 @@ use Doctrine\ORM\Query;
 use Doctrine\Common\Collections\Criteria;
 use Webkul\UVDesk\CoreBundle\Entity\User;
 use Webkul\UVDesk\CoreBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreBundle\Entity\Attachment;
+
 /**
  * ThreadRepository
  *
@@ -49,9 +51,10 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
     public function prepareBasePaginationRecentThreadsQuery($ticket, array $params, $enabledLockedThreads = true)
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
-            ->select("thread, attachments, user")
+            ->select("thread, attachments, user, userInstance")
             ->from('UVDeskCoreBundle:Thread', 'thread')
             ->leftJoin('thread.user', 'user')
+            ->leftJoin('user.userInstance', 'userInstance')
             ->leftJoin('thread.attachments', 'attachments')
             ->where('thread.ticket = :ticket')->setParameter('ticket', $ticket)
             ->andWhere('thread.threadType != :disabledThreadType')->setParameter('disabledThreadType', 'create')
@@ -61,7 +64,6 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
         if (false === $enabledLockedThreads) {
             $queryBuilder->andWhere('thread.isLocked = :isThreadLocked')->setParameter('isThreadLocked', false);
         }
-
         // Filter threads by their type
         switch (!empty($params['threadType']) ? $params['threadType'] : 'reply') {
             case 'reply':
@@ -90,7 +92,8 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
     public function getAllCustomerThreads($ticketId,\Symfony\Component\HttpFoundation\ParameterBag $obj = null, $container)
     {
         $json = array();
-        $qb = $this->getEntityManager()->createQueryBuilder()
+        $entityManager = $this->getEntityManager();
+        $qb = $entityManager->createQueryBuilder()
             ->select("th, a, u.id as userId, CONCAT(u.firstName, ' ', u.lastName) as fullname, userInstance.profileImagePath as smallThumbnail")->from($this->getEntityName(), 'th')
             ->leftJoin('th.user', 'u')
             ->leftJoin('th.attachments', 'a')
@@ -121,13 +124,15 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
 
         $data = array();
         $userService = $container->get('user.service');
-
+        $uvdeskFileSystemService = $container->get('uvdesk.core.file_system.service');
+        //dump($results->getItems()); die;
         foreach ($results->getItems() as $key => $row) {
             $thread = $row[0];
-            $data[] = [
+            $threadResponse = [
                 'id' => $thread['id'],
                 'user' => $row['userId'] ? ['id' => $row['userId']] : null,
                 'fullname' => $row['fullname'],
+                'smallThumbnail'=> $row['smallThumbnail'],
                 'reply' => html_entity_decode($thread['message']),
                 'source' => $thread['source'],
                 'threadType' => $thread['threadType'],
@@ -138,11 +143,21 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
                 'bcc' => $thread['bcc'],
                 'attachments' => $thread['attachments'],
             ];
+
+            if (!empty($threadResponse['attachments'])) {
+                $threadResponse['attachments'] = array_map(function ($attachment) use ($entityManager, $uvdeskFileSystemService) {
+                    $attachmentReferenceObject = $entityManager->getReference(Attachment::class, $attachment['id']);
+                    return $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject);
+                }, $threadResponse['attachments']);
+            }
+
+            array_push($data, $threadResponse);
         }
         
         $json['threads'] = $data;
         $json['pagination'] = $paginationData;
 
+        //dump($json); die;
         return $json;
     }
 }
