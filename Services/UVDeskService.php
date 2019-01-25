@@ -505,7 +505,6 @@ class UVDeskService
             'memberPrefix' => trim(preg_replace('/\s\s+/', ' ', $memberPrefix)),
             'knowledgebasePrefix' => trim(preg_replace('/\s\s+/', ' ', $knowledgebasePrefix)),
         ];
-
     }
 
     /**
@@ -557,6 +556,5 @@ class UVDeskService
             'memberLogin' => $memberLoginURL,
             'knowledgebase' => $knowledgebaseURL,
         ];
-        
     }
 }
