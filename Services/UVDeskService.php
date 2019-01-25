@@ -84,11 +84,6 @@ class UVDeskService
         return $this->container->getParameter('uvdesk.helpdesk.navigation_items');
     }
 
-    public function getFileUploadManager()
-    {
-        return $this->container->get($this->container->getParameter('uvdesk.upload_manager.id'));
-    }
-
 	public function getPanelSidebarRoutes()
 	{
 		$router = $this->container->get('router');
@@ -482,5 +477,84 @@ class UVDeskService
     public function requestHeadersSent()
     {
         return headers_sent() ? true : false;
+    }
+
+    /**
+     * get current prefixes of member panel and knowledgebase
+     */
+    public function getCurrentWebsitePrefixes()
+    {
+        $filePath = dirname(__FILE__, 5) . '/config/packages/uvdesk.yaml';
+        
+        // get file content and index
+        $file = file($filePath);
+        foreach ($file as $index => $content) {
+            if (false !== strpos($content, 'uvdesk_site_path.member_prefix')) {
+                list($member_panel_line, $member_panel_text) = array($index, $content);
+            }
+
+            if (false !== strpos($content, 'uvdesk_site_path.knowledgebase_customer_prefix')) {
+                list($customer_panel_line, $customer_panel_text) = array($index, $content);
+            }
+        }
+
+        $memberPrefix = substr($member_panel_text, strpos($member_panel_text, 'uvdesk_site_path.member_prefix') + strlen('uvdesk_site_path.member_prefix: '));
+        $knowledgebasePrefix = substr($customer_panel_text, strpos($customer_panel_text, 'uvdesk_site_path.knowledgebase_customer_prefix') + strlen('uvdesk_site_path.knowledgebase_customer_prefix: '));
+
+        return [
+            'memberPrefix' => trim(preg_replace('/\s\s+/', ' ', $memberPrefix)),
+            'knowledgebasePrefix' => trim(preg_replace('/\s\s+/', ' ', $knowledgebasePrefix)),
+        ];
+    }
+
+    /**
+     * update your website prefixes
+     */
+    public function updateWebsitePrefixes($member_panel_prefix, $knowledgebase_prefix)
+    {
+        $filePath = dirname(__FILE__, 5) . '/config/packages/uvdesk.yaml';
+
+        $website_prefixes = [
+            'member_prefix' => $member_panel_prefix,
+            'customer_prefix' => $knowledgebase_prefix,
+        ];
+        
+        // get file content and index
+        $file = file($filePath);
+        foreach ($file as $index => $content) {
+            if (false !== strpos($content, 'uvdesk_site_path.member_prefix')) {
+                list($member_panel_line, $member_panel_text) = array($index, $content);
+            }
+
+            if (false !== strpos($content, 'uvdesk_site_path.knowledgebase_customer_prefix')) {
+                list($customer_panel_line, $customer_panel_text) = array($index, $content);
+            }
+        }
+
+        // save updated data in a variable ($updatedFileContent)
+        $updatedFileContent = $file;
+
+        // get old member-prefix
+        $oldMemberPrefix = substr($member_panel_text, strpos($member_panel_text, 'uvdesk_site_path.member_prefix') + strlen('uvdesk_site_path.member_prefix: '));
+        $oldMemberPrefix = preg_replace('/([\r\n\t])/','', $oldMemberPrefix);
+
+        $updatedPrefixForMember = (null !== $member_panel_line) ? substr($member_panel_text, 0, strpos($member_panel_text, 'uvdesk_site_path.member_prefix') + strlen('uvdesk_site_path.member_prefix: ')) . $website_prefixes['member_prefix'] . PHP_EOL: '';
+        $updatedPrefixForCustomer = (null !== $customer_panel_line) ? substr($customer_panel_text, 0, strpos($customer_panel_text, 'uvdesk_site_path.knowledgebase_customer_prefix') + strlen('uvdesk_site_path.knowledgebase_customer_prefix: ')) . $website_prefixes['customer_prefix'] . PHP_EOL : '';
+
+        $updatedFileContent[$member_panel_line] = $updatedPrefixForMember;
+        $updatedFileContent[$customer_panel_line] = $updatedPrefixForCustomer;
+
+        // flush updated content in file
+        file_put_contents($filePath, $updatedFileContent);
+
+        $router = $this->container->get('router');
+        $knowledgebaseURL = $router->generate('helpdesk_knowledgebase');
+        $memberLoginURL = $router->generate('helpdesk_member_handle_login');
+        $memberLoginURL = str_replace($oldMemberPrefix, $website_prefixes['member_prefix'], $memberLoginURL);
+
+        return $collectionURL = [
+            'memberLogin' => $memberLoginURL,
+            'knowledgebase' => $knowledgebaseURL,
+        ];
     }
 }

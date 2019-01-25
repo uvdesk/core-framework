@@ -15,7 +15,6 @@ class EmailTemplates extends DoctrineFixture
         CoreEmailTemplates\Agent\AccountCreated::class,
         CoreEmailTemplates\Agent\ForgotPassword::class,
         CoreEmailTemplates\Agent\TicketAssigned::class,
-        CoreEmailTemplates\Agent\TicketCreatedCustomer::class,
         CoreEmailTemplates\Customer\TicketReply::class,
         CoreEmailTemplates\Customer\TicketCreated::class,
         CoreEmailTemplates\Customer\AccountCreated::class,

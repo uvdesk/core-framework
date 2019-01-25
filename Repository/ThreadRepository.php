@@ -125,7 +125,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
         $data = array();
         $userService = $container->get('user.service');
         $uvdeskFileSystemService = $container->get('uvdesk.core.file_system.service');
-        //dump($results->getItems()); die;
+
         foreach ($results->getItems() as $key => $row) {
             $thread = $row[0];
             $threadResponse = [
