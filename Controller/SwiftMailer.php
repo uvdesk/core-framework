@@ -11,7 +11,7 @@ class SwiftMailer extends Controller
 {
     public function loadSettings()
     {
-        return $this->render('@UVDeskCore//Swiftmailer//settings.html.twig');
+        return $this->render('@UVDeskCore//Email//settingsSwiftMailer.html.twig');
     }
     
     public function createMailer(Request $request)
@@ -52,7 +52,7 @@ class SwiftMailer extends Controller
             }
         }
 
-        return $this->render('@UVDeskCore//Swiftmailer//createMailer.html.twig', array(
+        return $this->render('@UVDeskCore//Email//createSwiftMailer.html.twig', array(
             'errors' => json_encode($errors)
         ));
     }
@@ -102,7 +102,7 @@ class SwiftMailer extends Controller
             }
         }
 
-        return $this->render('@UVDeskCore//Swiftmailer//updateMailer.html.twig', array(
+        return $this->render('@UVDeskCore//Email//updateSwiftMailer.html.twig', array(
             'errors' => json_encode($errors),
             'swiftmailerDetails' => $swiftmailerDetails
         ));

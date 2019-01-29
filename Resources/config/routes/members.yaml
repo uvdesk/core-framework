@@ -154,3 +154,17 @@ helpdesk_member_swiftmailer_update_mailer:
 helpdesk_member_swiftmailer_remove_mailer_xhr:
     path:     /settings/swiftmailer/xhr/remove
     controller: Webkul\UVDesk\CoreBundle\Controller\SwiftMailerXHR::removeMailer
+
+# Email Settigs
+helpdesk_member_emails_settings:
+    path:     /settings/email/settings
+    controller: Webkul\UVDesk\CoreBundle\Controller\EmailSettings::loadSettings
+    defaults: { panelId: 'settings'}
+
+helpdesk_member_load_emails_settings_xhr:
+    path:     /email/xhr/settings_load
+    controller: Webkul\UVDesk\CoreBundle\Controller\EmailSettingsXHR::loadSettingsXHR
+
+helpdesk_member_update_emails_settings_xhr:
+    path:     /email/xhr/settings_update
+    controller: Webkul\UVDesk\CoreBundle\Controller\EmailSettingsXHR::updateSettingsXHR

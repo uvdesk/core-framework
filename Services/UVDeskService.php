@@ -226,6 +226,13 @@ class UVDeskService
                             'isEnabled' => true,
                             'permission' => 'ROLE_ADMIN',
                         ],
+                        [
+                            'name' => 'Email Settings',
+                            'link' => $router->generate('helpdesk_member_emails_settings'),
+                            'isActive' => false,
+                            'isEnabled' => true,
+                            'permission' => 'ROLE_ADMIN',
+                        ],
                     ],
                 ];
                 break;
