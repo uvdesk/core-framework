@@ -116,11 +116,15 @@
 
                 this.model.set(data);
                 if (this.model.isValid(true)) {
+					app.appView.showLoader();
                     this.model.save({}, {
                         url: "{{ path('helpdesk_member_update_emails_settings_xhr') }}",
                         success: function (model, response, options) {
+        					app.appView.hideLoader();
+                            app.appView.renderResponseAlert(response);
                         },
                         error: function (model, response, options) {
+        					app.appView.hideLoader();
                         }
                     });
                 }

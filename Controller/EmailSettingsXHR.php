@@ -35,6 +35,14 @@ class EmailSettingsXHR extends Controller
         // update uvdesk.yaml file
         file_put_contents($filePath, $file_content_array);
 
-        return new Response(json_encode($supportEmailConfiguration), 200, ['Content-Type' => 'application/json']);
+        $result = [
+            'alertClass' => "success",
+            'id' => $supportEmailConfiguration['id'],
+            'name' => $supportEmailConfiguration['name'],
+            'mailer_id' => $supportEmailConfiguration['mailer_id'],
+            'alertMessage' => "Success ! Email settings are updated successfully.",
+        ];
+
+        return new Response(json_encode($result), 200, ['Content-Type' => 'application/json']);
     }
 }
