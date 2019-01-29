@@ -62,6 +62,11 @@
 
     <script type="text/javascript">
         var emailSettingsModel = Backbone.Model.extend({
+            defaults: {
+                'id': "{{ email_settings.id }}",
+                'name': "{{ email_settings.name }}",
+                'mailer_id': "{{ email_settings.mailer_id }}",
+            },
             validation: {
                 'id': [
                     {
@@ -97,17 +102,7 @@
                 this.render();
             },
             render: function () {
-                this.loadEmailSettings();
-            },
-            loadEmailSettings: function () {
-                this.model.save({}, {
-                    url: "{{ path('helpdesk_member_load_emails_settings_xhr') }}",
-                    success: function (model, response, options) {
-                        this.$el.html(this.email_settings_form_template(this.model.toJSON()));
-                    }.bind(this),
-                    error: function (model, response, options) {
-                    }
-                });
+                this.$el.html(this.email_settings_form_template(this.model.toJSON()));
             },
             saveEmailSettings: function (event) {
                 event.preventDefault();
@@ -121,8 +116,9 @@
                         url: "{{ path('helpdesk_member_update_emails_settings_xhr') }}",
                         success: function (model, response, options) {
         					app.appView.hideLoader();
+                            this.model.attributes = response.email_settings;
                             app.appView.renderResponseAlert(response);
-                        },
+                        }.bind(this),
                         error: function (model, response, options) {
         					app.appView.hideLoader();
                         }

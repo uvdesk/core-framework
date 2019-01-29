@@ -161,10 +161,6 @@ helpdesk_member_emails_settings:
     controller: Webkul\UVDesk\CoreBundle\Controller\EmailSettings::loadSettings
     defaults: { panelId: 'settings'}
 
-helpdesk_member_load_emails_settings_xhr:
-    path:     /email/xhr/settings_load
-    controller: Webkul\UVDesk\CoreBundle\Controller\EmailSettingsXHR::loadSettingsXHR
-
 helpdesk_member_update_emails_settings_xhr:
     path:     /email/xhr/settings_update
     controller: Webkul\UVDesk\CoreBundle\Controller\EmailSettingsXHR::updateSettingsXHR
