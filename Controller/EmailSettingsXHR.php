@@ -11,11 +11,12 @@ class EmailSettingsXHR extends Controller
 {
     public function loadSettingsXHR()
     {
-        $result = [
-            'name' => 'Shubham Mehrotra',
-            'id' => 'shubh.webkul@gmail.com',
-            'mailer_id' => 'ShubhamMehrotra'
-        ];
+        $filePath = dirname(__FILE__, 5) . '/config/packages/uvdesk.yaml';
+        $file_content = file_get_contents($filePath);
+
+        // Convert yaml file content into array and merge existing mailbox and new mailbox
+        $file_content_array = Yaml::parse($file_content, 6);
+        $result = $file_content_array['uvdesk']['support_email'];
 
         return new Response(json_encode($result), 200, ['Content-Type' => 'application/json']);
     }
