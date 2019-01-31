@@ -486,7 +486,10 @@ class TicketService
 
         // for trashed tickets count
         $trashedQb = clone $queryBuilder;
-        $trashedQb->andwhere('ticket.isTrashed = 1');
+        $trashedQb->where('ticket.isTrashed = 1');
+        if ($currentUser->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
+            $trashedQb->andwhere('agent = ' . $currentUser->getId());
+        }
         $data['trashed'] = $trashedQb->getQuery()->getSingleScalarResult();
 
         return $data;
@@ -538,7 +541,7 @@ class TicketService
 
         $paginationParams['page'] = 'replacePage';
         $paginationData['url'] = '#' . $this->container->get('uvdesk.service')->buildPaginationQuery($paginationParams);
-      
+
         foreach ($pagination->getItems() as $threadDetails) {
             $threadResponse = [
                 'id' => $threadDetails['id'],
@@ -557,11 +560,12 @@ class TicketService
                 'bcc' => $threadDetails['bcc'],
                 'attachments' => $threadDetails['attachments'],
             ];
-
+  
             if (!empty($threadDetails['user'])) {
                 $threadResponse['fullname'] = trim($threadDetails['user']['firstName'] . ' ' . $threadDetails['user']['lastName']);
                 $threadResponse['user'] = [
                     'id' => $threadDetails['user']['id'],
+                    'smallThumbnail' => $threadDetails['user']['userInstance'][0]['profileImagePath'],
                     'name' => $threadResponse['fullname'],
                 ];
             }
@@ -922,7 +926,7 @@ class TicketService
                 }, $threadDetails['attachments']);
             }
         }
-        
+
         return $threadDetails ?? null;
     }
 

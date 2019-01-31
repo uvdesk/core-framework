@@ -51,9 +51,10 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
     public function prepareBasePaginationRecentThreadsQuery($ticket, array $params, $enabledLockedThreads = true)
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
-            ->select("thread, attachments, user")
+            ->select("thread, attachments, user, userInstance")
             ->from('UVDeskCoreBundle:Thread', 'thread')
             ->leftJoin('thread.user', 'user')
+            ->leftJoin('user.userInstance', 'userInstance')
             ->leftJoin('thread.attachments', 'attachments')
             ->where('thread.ticket = :ticket')->setParameter('ticket', $ticket)
             ->andWhere('thread.threadType != :disabledThreadType')->setParameter('disabledThreadType', 'create')
@@ -132,6 +133,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
                 'id' => $thread['id'],
                 'user' => $row['userId'] ? ['id' => $row['userId']] : null,
                 'fullname' => $row['fullname'],
+                'smallThumbnail'=> $row['smallThumbnail'],
                 'reply' => html_entity_decode($thread['message']),
                 'source' => $thread['source'],
                 'threadType' => $thread['threadType'],
