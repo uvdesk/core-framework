@@ -458,7 +458,7 @@ class EmailService
         return $twigTemplatingEngine->render($baseEmailTemplate, ['message' => $content]);
     }
 
-    public function sendMail($subject, $content, $recipient, array $headers = [], $mailboxEmail = null, array $attachments = [])
+    public function sendMail($subject, $content, $recipient, array $headers = [], $mailboxEmail = null, array $attachments = [], $cc = [], $bcc = [])
     {
         if (empty($mailboxEmail)) {
             // Send email on behalf of support helpdesk
@@ -496,11 +496,12 @@ class EmailService
             // @TODO: Log exception - Mailer not found
             return;
         }
-
         // Create a message
         $message = (new \Swift_Message($subject))
             ->setFrom([$supportEmail => $supportEmailName])
             ->setTo($recipient)
+            ->setBcc($bcc)
+            ->setCc($cc)
             ->setBody($content, 'text/html');
 
         foreach ($attachments as $attachmentPath) {

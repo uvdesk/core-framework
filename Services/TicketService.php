@@ -538,7 +538,7 @@ class TicketService
 
         $paginationParams['page'] = 'replacePage';
         $paginationData['url'] = '#' . $this->container->get('uvdesk.service')->buildPaginationQuery($paginationParams);
-      
+
         foreach ($pagination->getItems() as $threadDetails) {
             $threadResponse = [
                 'id' => $threadDetails['id'],
@@ -557,11 +557,12 @@ class TicketService
                 'bcc' => $threadDetails['bcc'],
                 'attachments' => $threadDetails['attachments'],
             ];
-
+  
             if (!empty($threadDetails['user'])) {
                 $threadResponse['fullname'] = trim($threadDetails['user']['firstName'] . ' ' . $threadDetails['user']['lastName']);
                 $threadResponse['user'] = [
                     'id' => $threadDetails['user']['id'],
+                    'smallThumbnail' => $threadDetails['user']['userInstance'][0]['profileImagePath'],
                     'name' => $threadResponse['fullname'],
                 ];
             }
@@ -922,7 +923,6 @@ class TicketService
                 }, $threadDetails['attachments']);
             }
         }
-        
         return $threadDetails ?? null;
     }
 
@@ -1233,6 +1233,7 @@ class TicketService
 
     public function isEmailBlocked($email, $website) 
     {
+
         $flag = false;
         $email = strtolower($email);
         $knowlegeBaseWebsite = $this->entityManager->getRepository('UVDeskSupportCenterBundle:KnowledgebaseWebsite')->findOneBy(['website' => $website->getId(), 'isActive' => 1]);
@@ -1251,12 +1252,12 @@ class TicketService
                 }
             }
         }
-
         // Whitelist
         if ($flag) {
             if (isset($email, $list['whiteList']['email']) && in_array($email, $list['whiteList']['email'])) {
                 // Emails
                 return false;
+
             } elseif (isset($list['whiteList']['domain'])) {
                 // Domains
                 foreach ($list['whiteList']['domain'] as $domain) {

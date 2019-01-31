@@ -16,6 +16,7 @@ class Thread extends Controller
         $entityManager = $this->getDoctrine()->getManager();
         $request = $this->container->get('request_stack')->getCurrentRequest();
         $params = $request->request->all();
+        //dump($params); die;
         $ticket = $entityManager->getRepository('UVDeskCoreBundle:Ticket')->findOneById($ticketId);
 
         // Validate Request
@@ -70,6 +71,10 @@ class Thread extends Controller
             $threadDetails['cc'] = $params['cc'];
         }
 
+        if (isset($params['cccol'])) {
+            $threadDetails['cccol'] = $params['cccol'];
+        }
+
         if (isset($params['bcc'])) {
             $threadDetails['bcc'] = $params['bcc'];
         }
@@ -77,13 +82,13 @@ class Thread extends Controller
         // Create Thread
         $thread = $this->get('ticket.service')->createThread($ticket, $threadDetails);
         // $this->addFlash('success', ucwords($params['threadType']) . " added successfully.");
-
         // @TODO: Remove Agent Draft Thread
         // @TODO: Trigger Thread Created Event
         
         // Trigger agent reply event
         $event = new GenericEvent(CoreWorkflowEvents\Ticket\AgentReply::getId(), [
             'entity' =>  $ticket,
+            'thread' =>  $thread
         ]);
       
         $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
