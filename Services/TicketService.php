@@ -160,16 +160,16 @@ class TicketService
     public function createThread(Ticket $ticket, array $threadData)
     {
         $threadData['isLocked'] = 0;
-
+      
         if ('forward' === $threadData['threadType']) {
             $threadData['replyTo'] = $threadData['to'];
         }
-        
+
         $collaboratorEmails = array_merge(!empty($threadData['cccol']) ? $threadData['cccol'] : [], !empty($threadData['cc']) ? $threadData['cc'] : []);
         if (!empty($collaboratorEmails)) {
             $threadData['cc'] = $collaboratorEmails;
         }
-                
+   
         $thread = new Thread();
         $thread->setTicket($ticket);
         $thread->setCreatedAt(new \DateTime());
@@ -1158,7 +1158,7 @@ class TicketService
                 $threadDetails['user'] = $userService->getCustomerPartialDetailById($threadResponse[0]['userId']);
             }
             
-            $threadDetails['reply'] = utf8_decode($threadDetails['message']);
+            $threadDetails['reply'] = html_entity_decode($threadDetails['message']);
             $threadDetails['formatedCreatedAt'] = $threadDetails['createdAt']->format('d-m-Y h:ia');
             $threadDetails['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($threadDetails['createdAt']);
 
