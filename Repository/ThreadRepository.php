@@ -64,6 +64,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
         if (false === $enabledLockedThreads) {
             $queryBuilder->andWhere('thread.isLocked = :isThreadLocked')->setParameter('isThreadLocked', false);
         }
+
         // Filter threads by their type
         switch (!empty($params['threadType']) ? $params['threadType'] : 'reply') {
             case 'reply':
@@ -157,7 +158,6 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
         $json['threads'] = $data;
         $json['pagination'] = $paginationData;
 
-        //dump($json); die;
         return $json;
     }
 }

@@ -923,6 +923,7 @@ class TicketService
                 }, $threadDetails['attachments']);
             }
         }
+
         return $threadDetails ?? null;
     }
 
@@ -1233,7 +1234,6 @@ class TicketService
 
     public function isEmailBlocked($email, $website) 
     {
-
         $flag = false;
         $email = strtolower($email);
         $knowlegeBaseWebsite = $this->entityManager->getRepository('UVDeskSupportCenterBundle:KnowledgebaseWebsite')->findOneBy(['website' => $website->getId(), 'isActive' => 1]);
@@ -1252,12 +1252,12 @@ class TicketService
                 }
             }
         }
+
         // Whitelist
         if ($flag) {
             if (isset($email, $list['whiteList']['email']) && in_array($email, $list['whiteList']['email'])) {
                 // Emails
                 return false;
-
             } elseif (isset($list['whiteList']['domain'])) {
                 // Domains
                 foreach ($list['whiteList']['domain'] as $domain) {

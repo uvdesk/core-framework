@@ -496,6 +496,7 @@ class EmailService
             // @TODO: Log exception - Mailer not found
             return;
         }
+        
         // Create a message
         $message = (new \Swift_Message($subject))
             ->setFrom([$supportEmail => $supportEmailName])
