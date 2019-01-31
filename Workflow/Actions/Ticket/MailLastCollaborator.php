@@ -48,7 +48,7 @@ class MailLastCollaborator extends WorkflowAction
                 $createThread = $container->get('ticket.service')->getCreateReply($entity->getId(),false);
                 $mailData['references'] = $createThread['messageId'];
                 
-                if(!$entity->lastCollaborator) {
+                if(!isset($entity->lastCollaborator)) {
                     try {
                         $entity->lastCollaborator = $entity->getCollaborators()[ -1 + count($entity->getCollaborators()) ];
                     } catch(\Exception $e) {
