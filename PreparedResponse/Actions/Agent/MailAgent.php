@@ -68,9 +68,6 @@ class MailAgent extends PreparedResponseAction
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $ticketPlaceholders);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $ticketPlaceholders);
 
-                dump($message);
-                die;
-
                 $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), [
                     'In-Reply-To' => $object->getUniqueReplyTo(),
                     'References' => $object->getReferenceIds(),
@@ -78,7 +75,7 @@ class MailAgent extends PreparedResponseAction
 
                 if (!empty($messageId)) {
                     $thread = $entity->createdThread;
-                    $thread->setMessageId($messageId);
+                    $thread->setDeliveryStatus($messageId);
 
                     $entityManager->persist($thread);
                     $entityManager->flush();

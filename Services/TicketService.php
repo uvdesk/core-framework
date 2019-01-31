@@ -486,7 +486,10 @@ class TicketService
 
         // for trashed tickets count
         $trashedQb = clone $queryBuilder;
-        $trashedQb->andwhere('ticket.isTrashed = 1');
+        $trashedQb->where('ticket.isTrashed = 1');
+        if ($currentUser->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
+            $trashedQb->andwhere('agent = ' . $currentUser->getId());
+        }
         $data['trashed'] = $trashedQb->getQuery()->getSingleScalarResult();
 
         return $data;

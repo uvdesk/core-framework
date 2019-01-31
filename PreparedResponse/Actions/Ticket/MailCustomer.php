@@ -62,12 +62,12 @@ class MailCustomer extends PreparedResponseAction
                 // }
 
                 $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $emailHeaders, $entity->getMailboxEmail());
-                // if (!empty($messageId)) {
-                //     $createdThread->setMessageId($messageId);
+                if (!empty($messageId)) {
+                    $createdThread->setDeliveryStatus($messageId);
 
-                //     $entityManager->persist($createdThread);
-                //     $entityManager->flush();
-                // }
+                    $entityManager->persist($createdThread);
+                    $entityManager->flush();
+                }
                 break;
             default:
                 break;

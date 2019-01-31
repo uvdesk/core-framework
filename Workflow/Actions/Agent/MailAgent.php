@@ -76,7 +76,7 @@ class MailAgent extends WorkflowAction
 
                 if (!empty($messageId)) {
                     $thread = $entity->createdThread;
-                    $thread->setMessageId($messageId);
+                    $thread->setDeliveryStatus($messageId);
 
                     $entityManager->persist($thread);
                     $entityManager->flush();

@@ -70,7 +70,7 @@ class ConfigureWebsitePrefixes extends Command
             if (!$isMemberPanelPattern) {
                 $output->writeln("      <error>Warning</error>: prefix pattern do not match.\n");
             }
-        } while (!$memberPanelPrefix);
+        } while (!$isMemberPanelPattern);
 
         return $memberPanelPrefix;
     }
@@ -84,13 +84,14 @@ class ConfigureWebsitePrefixes extends Command
             $knowledgebasePanelPrefix = $this->questionHelper->ask($input, $output, $knowledgebaseQuestion);
 
             $isKnowledgebasePattern = preg_match(self::REGEX_WEBSITE_PREFIX, $knowledgebasePanelPrefix);
+
             if (!$isKnowledgebasePattern) {
                 $output->writeln("      <error>Warning</error>: prefix pattern do not match.\n");
             } else if ($knowledgebasePanelPrefix == $memberPanelPrefix) {
-                $knowledgebasePanelPrefix = 0;
+                $isKnowledgebasePattern = 0;
                 $output->writeln("      <error>Warning</error>: prefix of knowledgebase website can not be the same as prefix of member website.\n");
             }
-        } while (!$knowledgebasePanelPrefix);
+        } while (!$isKnowledgebasePattern);
 
         return $knowledgebasePanelPrefix;
     }
