@@ -39,10 +39,10 @@ class MailCustomer extends WorkflowAction
         return $emailTemplateCollection;
     }
 
-    public static function applyAction(ContainerInterface $container, $entity, $value = null)
+    public static function applyAction(ContainerInterface $container, $entity, $value = null, $thread = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-       
+
         switch (true) {
             case $entity instanceof CoreEntities\Ticket:
                 $currentThread = $entity->currentThread;
@@ -74,10 +74,16 @@ class MailCustomer extends WorkflowAction
                     $emailHeaders['In-Reply-To'] = $currentThread->getMessageId();
                 }
 
-                $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $emailHeaders, $entity->getMailboxEmail(), $attachments);
+                $cc = $bcc = [];
+                if ($thread !== null){
+                    $cc = $thread->getCc();
+                    $bcc = $thread->getBcc();
+                }
+
+                $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $emailHeaders, $entity->getMailboxEmail(), $attachments, $cc, $bcc);
                 
                 if (!empty($messageId)) {
-                    $createdThread->setDeliveryStatus($messageId);
+                    $createdThread->setMessageId($messageId);
                     $entityManager->persist($createdThread);
                     $entityManager->flush();
                 }

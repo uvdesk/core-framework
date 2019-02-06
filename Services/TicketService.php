@@ -541,7 +541,7 @@ class TicketService
 
         $paginationParams['page'] = 'replacePage';
         $paginationData['url'] = '#' . $this->container->get('uvdesk.service')->buildPaginationQuery($paginationParams);
-      
+
         foreach ($pagination->getItems() as $threadDetails) {
             $threadResponse = [
                 'id' => $threadDetails['id'],
@@ -560,11 +560,12 @@ class TicketService
                 'bcc' => $threadDetails['bcc'],
                 'attachments' => $threadDetails['attachments'],
             ];
-
+  
             if (!empty($threadDetails['user'])) {
                 $threadResponse['fullname'] = trim($threadDetails['user']['firstName'] . ' ' . $threadDetails['user']['lastName']);
                 $threadResponse['user'] = [
                     'id' => $threadDetails['user']['id'],
+                    'smallThumbnail' => $threadDetails['user']['userInstance'][0]['profileImagePath'],
                     'name' => $threadResponse['fullname'],
                 ];
             }
@@ -925,7 +926,7 @@ class TicketService
                 }, $threadDetails['attachments']);
             }
         }
-        
+
         return $threadDetails ?? null;
     }
 

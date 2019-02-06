@@ -565,12 +565,12 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                     }
                     break;
                 case 'repliesLess':
-                        $queryBuilder->andWhere('threads.threadType = :threadType')->setParameter('threadType', 'reply')
+                    $queryBuilder->andWhere('threads.threadType = :threadType')->setParameter('threadType', 'reply')
                         ->groupBy('ticket.id')
                         ->andHaving('count(threads.id) < :threadValueLesser')->setParameter('threadValueLesser', intval($params['repliesLess']));
                     break;
                 case 'repliesMore':
-                        $queryBuilder->andWhere('threads.threadType = :threadType')->setParameter('threadType', 'reply')
+                    $queryBuilder->andWhere('threads.threadType = :threadType')->setParameter('threadType', 'reply')
                         ->groupBy('ticket.id')
                         ->andHaving('count(threads.id) > :threadValueGreater')->setParameter('threadValueGreater', intval($params['repliesMore']));
                     break;
