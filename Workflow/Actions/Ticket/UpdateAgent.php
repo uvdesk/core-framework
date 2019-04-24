@@ -44,19 +44,22 @@ class UpdateAgent extends WorkflowAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        if($entity instanceof Ticket) {
+        
+        if ($entity instanceof Ticket) {
             if ($value == 'responsePerforming' && is_object($currentUser = $container->get('security.token_storage')->getToken()->getUser())) {
-                if(null != $currentUser->getAgentInstance()) {
-                     $agent = $currentUser;
+                if (null != $currentUser->getAgentInstance()) {
+                    $agent = $currentUser;
                 }
             } else {
                 $agent = $entityManager->getRepository('UVDeskCoreBundle:User')->find($value);
+
                 if ($agent) {
                     $agent = $entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(array('email' => $agent->getEmail()));
                 }
             }
+
             if (!empty($agent)) {
-                if($entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(array('id' => $agent->getId()))) {
+                if ($entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(array('id' => $agent->getId()))) {
                     $entity->setAgent($agent);
                     $entityManager->persist($entity);
                     $entityManager->flush();

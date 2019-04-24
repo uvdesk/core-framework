@@ -943,7 +943,8 @@ class TicketService
 
     public function getAgentDraftReply($ticketId, $draftType)
     {
-	$signature = $this->getUser()->getAgentInstance()->getSignature();
+	    $signature = $this->getUser()->getAgentInstance()->getSignature();
+        
         return str_replace( "\n", '<br/>', $signature);
     }
 
