@@ -160,16 +160,16 @@ class TicketService
     public function createThread(Ticket $ticket, array $threadData)
     {
         $threadData['isLocked'] = 0;
-
+      
         if ('forward' === $threadData['threadType']) {
             $threadData['replyTo'] = $threadData['to'];
         }
-        
+
         $collaboratorEmails = array_merge(!empty($threadData['cccol']) ? $threadData['cccol'] : [], !empty($threadData['cc']) ? $threadData['cc'] : []);
         if (!empty($collaboratorEmails)) {
             $threadData['cc'] = $collaboratorEmails;
         }
-                
+   
         $thread = new Thread();
         $thread->setTicket($ticket);
         $thread->setCreatedAt(new \DateTime());
@@ -943,27 +943,9 @@ class TicketService
 
     public function getAgentDraftReply($ticketId, $draftType)
     {
-        return '';
-        // $userId = $this->getUser()->getId();
-        // $companyId = $this->getCompany()->getId();
-        // $qb = $this->em->createQueryBuilder();
-        // $qb->select('d')->from("UVDeskCoreBundle:Draft", 'd')
-        //         ->andwhere('d.ticket = :ticketId')
-        //         ->andwhere("d.field = '".$draftType."'")
-        //         ->andwhere('d.user = :userId')
-        //         ->andwhere("d.userType = 'agent'")
-        //         ->setParameter('ticketId',$ticketId)
-        //         ->setParameter('userId', $this->getUser()->getId());
-
-        // $result = $qb->getQuery()->getOneOrNullResult();
-
-        // if($result && trim(strip_tags($result->getContent())) ) {
-        //     return $result->getContent();
-        // }
-
-        // $data = $this->container->get('user.service')->getUserDetailById($userId,$companyId);
-
-        // return str_replace( "\n", '<br/>',$data->getSignature());
+	    $signature = $this->getUser()->getAgentInstance()->getSignature();
+        
+        return str_replace( "\n", '<br/>', $signature);
     }
 
     public function trans($text)
@@ -1162,7 +1144,7 @@ class TicketService
                 $threadDetails['user'] = $userService->getCustomerPartialDetailById($threadResponse[0]['userId']);
             }
             
-            $threadDetails['reply'] = utf8_decode($threadDetails['message']);
+            $threadDetails['reply'] = html_entity_decode($threadDetails['message']);
             $threadDetails['formatedCreatedAt'] = $threadDetails['createdAt']->format('d-m-Y h:ia');
             $threadDetails['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($threadDetails['createdAt']);
 
