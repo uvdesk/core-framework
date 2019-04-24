@@ -66,7 +66,7 @@ class MailGroup extends WorkflowAction
             }
             $to = array();
             foreach ($value['for'] as $grp) {
-                foreach ($container->get('user.service')->getUsersByGroupId( (($grp == 'assignedGroup' && $entity->getSupportGroup()) ? $object->getGroup()->getId() : $grp)) as $agent) {
+                foreach ($container->get('user.service')->getUsersByGroupId( (($grp == 'assignedGroup' && $entity->getSupportGroup()) ? $entity->getSupportGroup()->getId() : $grp)) as $agent) {
                     $to[] = $agent['email'];
                 }
             }
