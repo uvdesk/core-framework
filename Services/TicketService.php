@@ -938,7 +938,7 @@ class TicketService
         return intval($qb->getQuery()->getSingleScalarResult());
     }
 
-    public function getAgentDraftReply($ticketId, $draftType)
+    public function getAgentDraftReply()
     {
 	$signature = $this->getUser()->getAgentInstance()->getSignature();
         return str_replace( "\n", '<br/>', $signature);
