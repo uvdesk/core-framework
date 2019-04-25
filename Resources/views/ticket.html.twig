@@ -1010,7 +1010,7 @@
                                 <div class="uv-element-block uv-element-block-textarea">
                                     <label class="uv-field-label">Write a reply</label>
                                     <div class="uv-field-block">
-                                        <textarea class="uv-field" name="reply" id="forward-area">{{ ticket_service.getAgentDraftReply(ticket.id, 'forward') }}</textarea>
+                                        <textarea class="uv-field" name="reply" id="forward-area">{{ ticket_service.getAgentDraftReply() }}</textarea>
                                     </div>
                                 </div>
 
@@ -1048,7 +1048,7 @@
                                     <div class="uv-element-block uv-element-block-textarea">
                                         <label class="uv-field-label">Write a reply</label>
                                         <div class="uv-field-block">
-                                            <textarea class="uv-field" name="reply" id="note-area">{{ ticket_service.getAgentDraftReply(ticket.id, 'note') }}</textarea>
+                                            <textarea class="uv-field" name="reply" id="note-area">{{ ticket_service.getAgentDraftReply() }}</textarea>
                                         </div>
                                     </div>
 
