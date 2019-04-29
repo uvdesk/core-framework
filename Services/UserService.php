@@ -652,4 +652,10 @@ class UserService
 
         return array_column($qb->getQuery()->getArrayResult(), 'id');
     }
+	
+    public function getPopularArticles()
+    {
+        return $this->entityManager->getRepository('UVDeskSupportCenterBundle:Article')
+            ->getPopularTranslatedArticles($this->requestStack->getCurrentRequest()->getLocale());
+    }
 }
