@@ -691,4 +691,10 @@ class UserService
         
         return $list;
     }
+	
+    public function getPopularArticles()
+    {
+        return $this->entityManager->getRepository('UVDeskSupportCenterBundle:Article')
+            ->getPopularTranslatedArticles($this->requestStack->getCurrentRequest()->getLocale());
+    }
 }
