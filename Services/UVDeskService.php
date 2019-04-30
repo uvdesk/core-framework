@@ -484,7 +484,7 @@ class UVDeskService
      */
     public function getCurrentWebsitePrefixes()
     {
-        $filePath = dirname(__FILE__, 5) . '/config/packages/uvdesk.yaml';
+        $filePath = $this->container->get('kernel')->getProjectDir() . '/config/packages/uvdesk.yaml';
         
         // get file content and index
         $file = file($filePath);
