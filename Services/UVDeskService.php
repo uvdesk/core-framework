@@ -512,7 +512,7 @@ class UVDeskService
      */
     public function updateWebsitePrefixes($member_panel_prefix, $knowledgebase_prefix)
     {
-        $filePath = dirname(__FILE__, 5) . '/config/packages/uvdesk.yaml';
+        $filePath = $this->container->get('kernel')->getProjectDir() . '/config/packages/uvdesk.yaml';
 
         $website_prefixes = [
             'member_prefix' => $member_panel_prefix,
