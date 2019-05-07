@@ -206,18 +206,25 @@ class UVDeskService
                             'permission' => 'ROLE_AGENT_MANAGE_EMAIL_TEMPLATE',
                         ],
                         [
-                            'name' => 'Swift Mailer',
-                            'link' => $router->generate('helpdesk_member_swiftmailer_settings'),
-                            'isActive' => false,
-                            'isEnabled' => true,
-                            'permission' => 'ROLE_AGENT_MANAGE_EMAIL_TEMPLATE',
-                        ],
-                        [
                             'name' => 'Block Spam',
                             'link' => $router->generate('helpdesk_member_knowledgebase_spam'),
                             'isActive' => false,
                             'isEnabled' => true,
                             'permission' => 'ROLE_ADMIN',
+                        ],
+                        [
+                            'name' => 'Email Settings',
+                            'link' => $router->generate('helpdesk_member_emails_settings'),
+                            'isActive' => false,
+                            'isEnabled' => true,
+                            'permission' => 'ROLE_ADMIN',
+                        ],
+                        [
+                            'name' => 'Swift Mailer',
+                            'link' => $router->generate('helpdesk_member_swiftmailer_settings'),
+                            'isActive' => false,
+                            'isEnabled' => true,
+                            'permission' => 'ROLE_AGENT_MANAGE_EMAIL_TEMPLATE',
                         ],
                         [
                             'name' => 'Mailboxes',
