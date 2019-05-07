@@ -31,8 +31,8 @@ services:
     
     swiftmailer.service:
         public: true
-        class: Webkul\UVDesk\CoreBundle\Services\SwiftMailerHelperService
-        arguments: ['@service_container', '@request_stack']
+        class: Webkul\UVDesk\CoreBundle\Services\SwiftMailerService
+        arguments: ['@service_container']
     
     Webkul\UVDesk\CoreBundle\Guides\:
         resource: '../../Guides/*'
