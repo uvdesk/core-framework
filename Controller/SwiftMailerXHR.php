@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Webkul\UVDesk\CoreBundle\SwiftMailer\Event\ConfigurationRemovedEvent;
 
 class SwiftMailerXHR extends Controller
 {
@@ -44,6 +45,10 @@ class SwiftMailerXHR extends Controller
             if (!empty($swiftmailerConfiguration)) {
                 unset($configurations[$index]);
                 $swiftmailer->writeSwiftMailerConfigurations($configurations);
+
+                // Dispatch swiftmailer configuration removed event
+                $event = new ConfigurationRemovedEvent($swiftmailerConfiguration);
+                $this->get('uvdesk.core.event_dispatcher')->dispatch(ConfigurationRemovedEvent::NAME, $event);
 
                 return new JsonResponse([
                     'alertClass' => 'success',

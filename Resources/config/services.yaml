@@ -31,8 +31,13 @@ services:
     
     swiftmailer.service:
         public: true
-        class: Webkul\UVDesk\CoreBundle\Services\SwiftMailerService
+        class: Webkul\UVDesk\CoreBundle\SwiftMailer\SwiftMailer
         arguments: ['@service_container']
+    
+    uvdesk.core.event_dispatcher:
+        public: true
+        class: Webkul\UVDesk\CoreBundle\EventDispatcher\Core
+        arguments: ['@service_container', '@request_stack']
     
     Webkul\UVDesk\CoreBundle\Guides\:
         resource: '../../Guides/*'
@@ -58,14 +63,14 @@ services:
         resource: '../../FileSystem/UploadManagers/*'
         arguments: ['@service_container', '@request_stack']
     
-    Webkul\UVDesk\CoreBundle\EventListener\ORMLifecycle:
+    Webkul\UVDesk\CoreBundle\EventListener\Doctrine\Lifecycle:
         arguments: ['@service_container']
         tags:
             - { name: doctrine.event_listener, event: prePersist }
             - { name: doctrine.event_listener, event: preUpdate }
             - { name: doctrine.event_listener, event: postLoad }
     
-    Webkul\UVDesk\CoreBundle\EventListener\ConsoleListener:
+    Webkul\UVDesk\CoreBundle\EventListener\Console\Console:
         arguments: ['@service_container', '@doctrine.orm.entity_manager']
         tags:
             - { name: kernel.event_listener, event: console.command }

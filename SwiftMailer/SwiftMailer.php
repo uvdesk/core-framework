@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Services;
+namespace Webkul\UVDesk\CoreBundle\SwiftMailer;
 
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Yaml\Yaml;
@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreBundle\Utils\SwiftMailer\Configuration as MailerConfigurations;
 
-class SwiftMailerService
+class SwiftMailer
 {
     const PATH_TO_CONFIG = '/config/packages/swiftmailer.yaml';
     const SWIFTMAILER_TEMPLATE = __DIR__ . "/../Templates/SwiftMailer/configurations.php";
