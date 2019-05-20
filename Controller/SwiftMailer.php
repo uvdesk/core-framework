@@ -49,7 +49,7 @@ class SwiftMailer extends Controller
                 break;
             }
         }
-        
+
         if ($request->getMethod() == 'POST') {
             $params = $request->request->all();
             $swiftmailerConfiguration->initializeParams($params, true);
