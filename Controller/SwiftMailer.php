@@ -52,12 +52,17 @@ class SwiftMailer extends Controller
 
         if ($request->getMethod() == 'POST') {
             $params = $request->request->all();
+        
             $swiftmailerConfiguration->initializeParams($params, true);
 
             $configurations[$index] = $configuration;
 
             $swiftmailer->writeSwiftMailerConfigurations($configurations);
             
+            // Dispatch swiftmailer configuration removed event
+            $event = new ConfigurationUpdatedEvent($existingConfiguration, $swiftmailerConfiguration);
+            $this->get('uvdesk.core.event_dispatcher')->dispatch(ConfigurationUpdatedEvent::NAME, $event);
+
             $this->addFlash('success', 'SwiftMailer configuration updated successfully.');
             return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_settings'));
         }

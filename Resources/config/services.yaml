@@ -34,10 +34,12 @@ services:
         class: Webkul\UVDesk\CoreBundle\SwiftMailer\SwiftMailer
         arguments: ['@service_container']
     
+    Webkul\UVDesk\CoreBundle\EventDispatcher\Core:
+        arguments: ['@service_container', '@request_stack']
+
     uvdesk.core.event_dispatcher:
         public: true
-        class: Webkul\UVDesk\CoreBundle\EventDispatcher\Core
-        arguments: ['@service_container', '@request_stack']
+        alias: Webkul\UVDesk\CoreBundle\EventDispatcher\Core
     
     Webkul\UVDesk\CoreBundle\Guides\:
         resource: '../../Guides/*'
