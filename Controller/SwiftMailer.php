@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Webkul\UVDesk\CoreBundle\SwiftMailer\Event\ConfigurationUpdatedEvent;
 
 class SwiftMailer extends Controller
 {
@@ -39,24 +40,31 @@ class SwiftMailer extends Controller
 
     public function updateMailerConfiguration($id, Request $request)
     {
-        $swiftmailerConfiguration = null;
-        $swiftmailer = $this->get('swiftmailer.service');
-        $configurations = $swiftmailer->parseSwiftMailerConfigurations();
+        $swiftmailerService = $this->get('swiftmailer.service');
+        $swiftmailerConfigurations = $swiftmailerService->parseSwiftMailerConfigurations();
 
-        foreach ($configurations as $index => $configuration) {
+        foreach ($swiftmailerConfigurations as $index => $configuration) {
             if ($configuration->getId() == $id) {
                 $swiftmailerConfiguration = $configuration;
                 break;
             }
         }
 
+        if (empty($swiftmailerConfiguration)) {
+            return new Response('', 404);
+        }
+
         if ($request->getMethod() == 'POST') {
-            $params = $request->request->all();
-            $swiftmailerConfiguration->initializeParams($params, true);
-
-            $configurations[$index] = $configuration;
-
-            $swiftmailer->writeSwiftMailerConfigurations($configurations);
+            $existingSwiftmailerConfiguration = clone $swiftmailerConfiguration;
+            $swiftmailerConfiguration->initializeParams($request->request->all(), true);
+            
+            // Updated swiftmailer configuration file
+            $swiftmailerConfigurations[$index] = $swiftmailerConfiguration;
+            $swiftmailerService->writeSwiftMailerConfigurations($swiftmailerConfigurations);
+            
+            // Dispatch swiftmailer configuration updated event
+            $event = new ConfigurationUpdatedEvent($swiftmailerConfiguration, $existingSwiftmailerConfiguration);
+            $this->get('uvdesk.core.event_dispatcher')->dispatch(ConfigurationUpdatedEvent::NAME, $event);
             
             $this->addFlash('success', 'SwiftMailer configuration updated successfully.');
             return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_settings'));
