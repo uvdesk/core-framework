@@ -94,7 +94,7 @@ class SwiftMailer
 
     public function writeSwiftMailerConfigurations(array $configurations = [], array $defaults = [])
     {
-        
+    
         if (empty($configurations) && empty($defaults)) {
             $stream = require self::SWIFTMAILER_NULL_TEMPLATE;
             // Write to configs.
@@ -114,8 +114,8 @@ class SwiftMailer
         $stream = strtr(require self::SWIFTMAILER_TEMPLATE, [
             '[[ CONFIGURATIONS ]]' => $configurationStream,
         ]);
-        
 
-        file_put_contents($this->getPathToConfigurationFile(), $stream);
+        
+                file_put_contents($this->getPathToConfigurationFile(), $stream);
     }
 }

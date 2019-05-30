@@ -9,7 +9,11 @@
 		{{ include('@UVDeskCore/Templates/panel-sidebar.html.twig') }}
 
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
+			{% if(flag == 'update') %}
 			<h1>Update configuration</h1>
+            {% else %}
+            <h1>Create configuration</h1>
+            {% endif %}
 
             <div class="uv-hr"></div>
 			
@@ -247,11 +251,14 @@
                             msg: '{{ "Please specify a valid email address"|trans }}'
                         }
                     ],
+                    {% if flag == 'update' %}
                     id: function(value) {
                         if (value == undefined || value == '') {
                             return "Please enter the mailer ID";
                         }
                     },
+                    {% endif %}
+                    
                     password: function(value) {
                         if (value == undefined || value == '') {
                             return "Please enter the password associated with your email address";
