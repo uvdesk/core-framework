@@ -247,6 +247,11 @@
                             msg: '{{ "Please specify a valid email address"|trans }}'
                         }
                     ],
+                    id: function(value) {
+                        if (value == undefined || value == '') {
+                            return "Please enter the mailer ID";
+                        }
+                    },
                     password: function(value) {
                         if (value == undefined || value == '') {
                             return "Please enter the password associated with your email address";
