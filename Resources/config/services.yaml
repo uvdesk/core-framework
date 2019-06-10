@@ -3,32 +3,32 @@ services:
         public: true
         class: Webkul\UVDesk\CoreBundle\Services\UVDeskService
         arguments: ['@service_container', '@request_stack', '@doctrine.orm.entity_manager']
-    
+
     user.provider:
         public: true
         class: Webkul\UVDesk\CoreBundle\Providers\UserProvider
         arguments: ['@security.firewall.map', '@service_container', '@request_stack', '@doctrine.orm.entity_manager']
-    
+
     user.service:
         public: true
         class: Webkul\UVDesk\CoreBundle\Services\UserService
         arguments: ['@service_container', '@request_stack', '@doctrine.orm.entity_manager']
-    
+
     email.service:
         public: true
         class: Webkul\UVDesk\CoreBundle\Services\EmailService
         arguments: ['@service_container', '@request_stack', '@doctrine.orm.entity_manager']
-    
+
     ticket.service:
         public: true
         class: Webkul\UVDesk\CoreBundle\Services\TicketService
         arguments: ['@service_container', '@request_stack', '@doctrine.orm.entity_manager']
-    
+
     uvdesk.core.file_system.service:
         public: true
         class: Webkul\UVDesk\CoreBundle\FileSystem\FileSystem
         arguments: ['@service_container', '@request_stack']
-    
+
     swiftmailer.service:
         public: true
         class: Webkul\UVDesk\CoreBundle\SwiftMailer\SwiftMailer
@@ -44,22 +44,22 @@ services:
     Webkul\UVDesk\CoreBundle\Guides\:
         resource: '../../Guides/*'
         tags: ['console.command']
-    
+
     Webkul\UVDesk\CoreBundle\Console\:
         resource: '../../Console/*'
         arguments: ['@service_container', '@doctrine.orm.entity_manager']
         tags: ['console.command']
-    
+
     Webkul\UVDesk\CoreBundle\Fixtures\:
         resource: '../../Fixtures/*'
         arguments: ['@service_container', '@doctrine.orm.entity_manager']
         tags: ['doctrine.fixture.orm']
-    
+
     Webkul\UVDesk\CoreBundle\Security\TicketVoter:
         arguments: ['@service_container', '@security.access.decision_manager']
         tags:
             - { name: security.voter }
-    
+
     Webkul\UVDesk\CoreBundle\FileSystem\UploadManagers\:
         public: true
         resource: '../../FileSystem/UploadManagers/*'
@@ -77,3 +77,7 @@ services:
         tags:
             - { name: kernel.event_listener, event: console.command }
             - { name: kernel.event_listener, event: console.terminate }
+
+    Webkul\UVDesk\CoreBundle\Extension\TwigExtension:
+        tags:
+            - { name: twig.extension }
