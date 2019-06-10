@@ -11,19 +11,17 @@ use Webkul\UVDesk\CoreBundle\Utils\SwiftMailer\BaseConfiguration;
  */
 class ConfigurationRemovedEvent extends Event
 {
-    
     CONST NAME = 'swiftmailer.configuration.removed';
 
     private $configuration;
 
     public function __construct(BaseConfiguration $configuration)
     {
-        
         $this->configuration = $configuration;
     }
 
     public function getSwiftMailerConfiguration(): BaseConfiguration
     {
-       return $this->configuration;
+        return $this->configuration;
     }
 }

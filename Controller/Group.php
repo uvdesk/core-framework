@@ -153,7 +153,7 @@ class Group extends Controller
 
 
             $allDetails = $request->request->all();
-
+           
             $em = $this->getDoctrine()->getManager();
             $group->setName($allDetails['name']);
             $group->setDescription($allDetails['description']);
