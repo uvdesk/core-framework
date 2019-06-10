@@ -1130,3 +1130,7 @@ body {
 .uv-wrapper-gap {
     left: 300px !important;
 }
+
+.uv-aside-nav-active{
+    font-weight: 700;
+}

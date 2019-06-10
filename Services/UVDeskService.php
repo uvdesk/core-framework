@@ -292,9 +292,34 @@ class UVDeskService
 				break;
         }
 
-		return $navigationPanel;
+    return $this->returnActiveConfiguration($navigationPanel);
     }
-    
+    /**
+     * This function sets 'isActive' to true if url matches with current open side bar option.
+     * @params: $navigationPanel array.
+     */
+    public function returnActiveConfiguration($navigationPanel)
+    {
+        $actual_link = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+        $url_string = parse_url($actual_link, PHP_URL_PATH);
+        $url_array = explode("/",$url_string);
+        $urlpointer = ucfirst($url_array[3]);
+        $urlpointer1 = $urlpointer.'s';
+
+        $myarray = $navigationPanel['routes'];
+        $arrayKey = null;
+        foreach($myarray as $key => $value){
+            if($value['name'] == $urlpointer || $value['name'] == $urlpointer1)
+            {
+                $arrayKey = $key;
+            }
+        }
+        if(!is_null($arrayKey)){
+            $navigationPanel['routes'][$arrayKey]['isActive'] = "true";
+        }
+       return  $navigationPanel;       
+    }
+
     public function buildPaginationQuery(array $query = [])
     {
         $params = array();
