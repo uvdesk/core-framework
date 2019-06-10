@@ -28,27 +28,37 @@ class SwiftMailerXHR extends Controller
     }
 
     public function removeMailerConfiguration(Request $request)
-    {
+    {  
+
         $params = $request->query->all();
+         
+
         $swiftmailer = $this->get('swiftmailer.service');
         $configurations = $swiftmailer->parseSwiftMailerConfigurations();
-        
+         
+
+
         if (!empty($configurations)) {
             foreach ($configurations as $index => $configuration) {
                 if ($configuration->getId() == $params['id']) {
-                    $swiftmailerConfiguration = $configuration;
+                    $swiftmailerConfiguration = $configuration;    
                     break;
                 }
             }
 
-            if (!empty($swiftmailerConfiguration)) {
+
+        if (!empty($swiftmailerConfiguration)) {
                 unset($configurations[$index]);
-                $swiftmailer->writeSwiftMailerConfigurations($configurations);
+                
+                $event = new ConfigurationRemovedEvent($swiftmailerConfiguration); 
 
-                // Dispatch swiftmailer configuration removed event
-                $event = new ConfigurationRemovedEvent($swiftmailerConfiguration);
+
                 $this->get('uvdesk.core.event_dispatcher')->dispatch(ConfigurationRemovedEvent::NAME, $event);
-
+                
+                $swiftmailer->writeSwiftMailerConfigurations($configurations);
+               // Dispatch swiftmailer configuration removed event
+                
+               
                 return new JsonResponse([
                     'alertClass' => 'success',
                     'alertMessage' => 'Swiftmailer configuration removed successfully.',

@@ -84,7 +84,7 @@ MAILER;
         $params = [
             '[[ id ]]' => $this->getId(),
             '[[ username ]]' => sprintf("username: %s", $this->getUsername()),
-            '[[ password ]]' => sprintf("username: %s", $this->getPassword()),
+            '[[ password ]]' => sprintf("password: %s", $this->getPassword()),
             '[[ host ]]' => sprintf("host: %s", $this->getHost()),
             '[[ port ]]' => sprintf("port: %s", $this->getPort()),
             '[[ encryption ]]' => sprintf("encryption: %s", $this->getEncryptionMode()),
