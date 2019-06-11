@@ -14,7 +14,7 @@ parameters:
     uvdesk_site_path.knowledgebase_customer_prefix: customer
 
 uvdesk:
-    site_url: 'localhost:8001'
+    site_url: '{{ SITE_URL }}'
     upload_manager:
         id: Webkul\UVDesk\CoreBundle\FileSystem\UploadManagers\Localhost
     
