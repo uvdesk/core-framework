@@ -28,10 +28,14 @@ class SwiftMailer extends Controller
                 $configurations = $swiftmailer->parseSwiftMailerConfigurations();
 
                 $configurations[] = $swiftmailerConfiguration;
-                $swiftmailer->writeSwiftMailerConfigurations($configurations);
+                try {
+                    $swiftmailer->writeSwiftMailerConfigurations($configurations);
 
-                $this->addFlash('success', 'SwiftMailer configuration created successfully.');
-                return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_settings'));
+                    $this->addFlash('success', 'SwiftMailer configuration created successfully.');
+                    return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_settings'));
+                } catch (\Exception $e) {
+                    $this->addFlash('warning', $e->getMessage());
+                }
             }
         }
 

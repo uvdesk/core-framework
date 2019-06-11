@@ -102,11 +102,17 @@ class SwiftMailer
             return;
         }
         
+        $references = [];
         $configurationStream = '';
         $use_defaults = count($configurations) <= 1 ? true : false;
 
         // Iteratively build up mailers config.
         foreach ($configurations as $configuration) {
+            if (in_array($configuration->getId(), $references)) {
+                throw new \Exception('SwiftMailer configuration already exist with same id.');
+            }
+
+            $references[] = $configuration->getId();
             $configurationStream .= $configuration->getWritableConfigurations();
         }
 
