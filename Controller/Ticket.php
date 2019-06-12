@@ -443,7 +443,7 @@ class Ticket extends Controller
         if($request->getMethod() == "POST") {
             if($content['email'] == $ticket->getCustomer()->getEmail()) {
                 $json['alertClass'] = 'danger';
-                $json['alertMessage'] = $this->get('translator')->trans('Error ! Can not add customer as a collaborator.');
+                $json['alertMessage'] = $this->get('translator')->trans('Error ! Collaborator already exists.');
             } else {
                 $data = array(
                     'from' => $content['email'],
@@ -479,7 +479,7 @@ class Ticket extends Controller
                     $json['alertMessage'] = $this->get('translator')->trans('Success ! Collaborator added successfully.');
                 } else {
                     $json['alertClass'] = 'danger';
-                    $message = "Customer can not be added as a collaborator.";
+                    $message = "Collaborator is already added.";
                     $json['alertMessage'] = $this->get('translator')->trans('Error ! ' . $message); 
                 }
             }
