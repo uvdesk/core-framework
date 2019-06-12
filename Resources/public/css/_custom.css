@@ -1131,6 +1131,10 @@ body {
     left: 300px !important;
 }
 
+.uv-navbar-gap {
+    padding: 0 0 0 250px;
+}
+
 .uv-aside-nav-active{
     font-weight: 700;
 }
