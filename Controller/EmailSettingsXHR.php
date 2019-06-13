@@ -13,11 +13,12 @@ class EmailSettingsXHR extends Controller
     {
         $filePath = $this->get('kernel')->getProjectDir() . '/config/packages/uvdesk.yaml';
         $supportEmailConfiguration = json_decode($request->getContent(), true);
-
+        
         $file_content_array = strtr(require __DIR__ . "/../Templates/uvdesk.php", [
             '{{ SUPPORT_EMAIL_ID }}' => $supportEmailConfiguration['id'],
             '{{ SUPPORT_EMAIL_NAME }}' => $supportEmailConfiguration['name'],
             '{{ SUPPORT_EMAIL_MAILER_ID }}' => $supportEmailConfiguration['mailer_id'],
+            '{{ SITE_URL }}' => $request->getHttpHost(),
         ]);
         
         // update uvdesk.yaml file
