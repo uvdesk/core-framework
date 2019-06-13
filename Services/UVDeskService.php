@@ -600,7 +600,7 @@ class UVDeskService
         ];
         
         // get file content and index
-        $file = file($filePath);
+        $file = file($filePath);   
         foreach ($file as $index => $content) {
             if (false !== strpos($content, 'uvdesk_site_path.member_prefix')) {
                 list($member_panel_line, $member_panel_text) = array($index, $content);
@@ -615,7 +615,7 @@ class UVDeskService
         $updatedFileContent = $file;
 
         // get old member-prefix
-        $oldMemberPrefix = substr($member_panel_text, strpos($member_panel_text, 'uvdesk_site_path.member_prefix') + strlen('uvdesk_site_path.member_prefix: '));
+        $oldMemberPrefix = substr($member_panel_text, strpos($member_panel_text, 'uvdesk_site_path.member_prefix') + strlen('uvdesk_site_path.member_prefix: ')); 
         $oldMemberPrefix = preg_replace('/([\r\n\t])/','', $oldMemberPrefix);
 
         $updatedPrefixForMember = (null !== $member_panel_line) ? substr($member_panel_text, 0, strpos($member_panel_text, 'uvdesk_site_path.member_prefix') + strlen('uvdesk_site_path.member_prefix: ')) . $website_prefixes['member_prefix'] . PHP_EOL: '';
@@ -626,6 +626,23 @@ class UVDeskService
 
         // flush updated content in file
         file_put_contents($filePath, $updatedFileContent);
+
+        $templateFilePath = $this->container->get('kernel')->getProjectDir() . '/vendor/uvdesk/core-framework/Templates/uvdesk.php';
+        $templateFile = file($templateFilePath);
+        foreach ($templateFile as $key => $value) {
+            if (false !== strpos($value, 'uvdesk_site_path.member_prefix')) {
+                list($temp_member_key, $temp_member_prefix) = array($key, $value);
+            }
+
+            if (false !== strpos($value, 'uvdesk_site_path.knowledgebase_customer_prefix')) {
+                list($temp_customer_key, $temp_customer_prefix) = array($key, $value);
+            }
+        }
+        
+        $templateFile[$temp_member_key] = $updatedPrefixForMember;
+        $templateFile[$temp_customer_key] = $updatedPrefixForCustomer;
+     
+        file_put_contents($templateFilePath, $templateFile);
 
         $router = $this->container->get('router');
         $knowledgebaseURL = $router->generate('helpdesk_knowledgebase');
