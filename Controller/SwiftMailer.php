@@ -28,6 +28,7 @@ class SwiftMailer extends Controller
                 $configurations = $swiftmailer->parseSwiftMailerConfigurations();
 
                 $configurations[] = $swiftmailerConfiguration;
+                
                 try {
                     $swiftmailer->writeSwiftMailerConfigurations($configurations);
 
