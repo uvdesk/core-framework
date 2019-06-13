@@ -2,24 +2,24 @@
 
 namespace Webkul\UVDesk\CoreBundle\Controller;
 
-use Symfony\Component\Yaml\Yaml;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Yaml\Yaml;
 
 class EmailSettingsXHR extends Controller
 {
     public function updateSettingsXHR(Request $request)
     {
+        $siteUrl = $request->getHttpHost();
         $filePath = $this->get('kernel')->getProjectDir() . '/config/packages/uvdesk.yaml';
         $supportEmailConfiguration = json_decode($request->getContent(), true);
-
         $file_content_array = strtr(require __DIR__ . "/../Templates/uvdesk.php", [
             '{{ SUPPORT_EMAIL_ID }}' => $supportEmailConfiguration['id'],
             '{{ SUPPORT_EMAIL_NAME }}' => $supportEmailConfiguration['name'],
             '{{ SUPPORT_EMAIL_MAILER_ID }}' => $supportEmailConfiguration['mailer_id'],
+            '{{ SITE_URL }}' => $siteUrl,
         ]);
-        
         // update uvdesk.yaml file
         file_put_contents($filePath, $file_content_array);
 

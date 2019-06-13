@@ -623,7 +623,8 @@ $(function() {
 	if (uvHamburger) {
 	    var uvPaper =  document.querySelector(".uv-paper");
 	    var uvSidebar =  document.querySelector(".uv-sidebar");
-	    var uvWrapper =  document.querySelector(".uv-wrapper");
+        var uvWrapper =  document.querySelector(".uv-wrapper");
+        var uvNav =  document.querySelector(".uv-navbar");
 	    var uvSlideIn = () => {
             if (window.innerWidth <= 768) {
                 uvSidebar.classList.add("slide-in");
@@ -649,14 +650,17 @@ $(function() {
             uvSidebar.classList.remove('uv-sidebar-active');
             uvPaper.classList.add('uv-wrapper-padding');
             uvWrapper.classList.add('uv-wrapper-gap');
+            uvNav.classList.add('uv-navbar-gap');
         } else {
             uvSidebar.classList.add('uv-sidebar-active');
             uvWrapper.classList.remove('uv-wrapper-gap');
+            uvNav.classList.remove('uv-navbar-gap');
             uvPaper.classList.remove('uv-wrapper-padding');
         }
 
 	    uvHamburger.addEventListener("click", () => {
-            uvWrapper.classList.toggle("uv-wrapper-gap");
+            uvWrapper.classList.remove('uv-wrapper-gap');
+            uvNav.classList.toggle("uv-navbar-gap");
             uvPaper.classList.toggle('uv-wrapper-padding');
             uvSidebar.classList.toggle("uv-sidebar-active");
             if (uvWrapper.classList.contains("uv-wrapper-gap"))

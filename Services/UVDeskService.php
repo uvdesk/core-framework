@@ -87,8 +87,11 @@ class UVDeskService
 	public function getPanelSidebarRoutes()
 	{
 		$router = $this->container->get('router');
-		$navigationPanel = ['name' => null, 'routes' => []];
-
+        $navigationPanel = ['name' => null, 'routes' => []];
+        
+        $currentRequest = $this->requestStack->getCurrentRequest();
+        $currentRoute = $currentRequest->get('_route');
+        
 		switch (strtoupper($this->requestStack->getCurrentRequest()->get('panelId'))) {
 			case 'USERS':
 				$navigationPanel = [
@@ -97,35 +100,55 @@ class UVDeskService
                         [
                             'name' => 'Groups',
                             'link' => $router->generate('helpdesk_member_support_group_collection'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'helpdesk_member_support_group_collection', 
+                                'helpdesk_member_create_support_group',
+                                'helpdesk_member_update_support_group'
+                            ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => "ROLE_AGENT_MANAGE_GROUP",
                         ],
                         [
                             'name' => 'Teams',
                             'link' => $router->generate('helpdesk_member_support_team_collection'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'helpdesk_member_support_team_collection', 
+                                'helpdesk_member_create_support_team',
+                                'helpdesk_member_update_support_team'
+                            ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => "ROLE_AGENT_MANAGE_SUB_GROUP",
                         ],
                         [
                             'name' => 'Agents',
                             'link' => $router->generate('helpdesk_member_account_collection'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'helpdesk_member_account_collection', 
+                                'helpdesk_member_create_account',
+                                'helpdesk_member_account'
+                            ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => "ROLE_AGENT_MANAGE_AGENT",
                         ],
                         [
                             'name' => 'Privileges',
                             'link' => $router->generate('helpdesk_member_privilege_collection'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'helpdesk_member_privilege_collection', 
+                                'helpdesk_member_create_privilege',
+                                'helpdesk_member_update_privilege'
+                            ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => "ROLE_AGENT_MANAGE_AGENT_PRIVILEGE",
                         ],
                         [
                             'name' => 'Customers',
                             'link' => $router->generate('helpdesk_member_manage_customer_account_collection'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'helpdesk_member_manage_customer_account_collection', 
+                                'helpdesk_member_manage_customer_account',
+                                'helpdesk_member_create_customer_account'
+                            ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => "ROLE_AGENT_MANAGE_CUSTOMER",
                         ],
@@ -152,35 +175,53 @@ class UVDeskService
                         [
                             'name' => 'Ticket Types',
                             'link' => $router->generate('helpdesk_member_ticket_type_collection'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'helpdesk_member_ticket_type_collection', 
+                                'helpdesk_member_create_ticket_type',
+                                'helpdesk_member_update_ticket_type'
+                            ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => 'ROLE_AGENT_MANAGE_TICKET_TYPE',
                         ],
                         [
                             'name' => 'Tags',
                             'link' => $router->generate('helpdesk_member_ticket_tag_collection'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'helpdesk_member_ticket_tag_collection',
+                            ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => 'ROLE_AGENT_MANAGE_TAG',
                         ],
                         [
                             'name' => 'Saved Replies',
                             'link' => $router->generate('helpdesk_member_saved_replies'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'helpdesk_member_saved_replies', 
+                                'helpdesk_member_update_saved_replies',
+                                'helpdesk_member_create_saved_replies'
+                            ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => 'ROLE_AGENT_MANAGE_SAVED_REPLIES',
                         ],
                         [
                             'name' => 'Workflows',
                             'link' => $router->generate('helpdesk_member_workflow_collection'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'helpdesk_member_workflow_collection', 
+                                'workflows_addaction',
+                                'workflows_editaction',
+                            ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => 'ROLE_AGENT_MANAGE_WORKFLOW_AUTOMATIC',
                         ],
                         [
                             'name' => 'Prepared Responses',
                             'link' => $router->generate('prepare_response_action'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'prepare_response_action', 
+                                'prepare_response_addaction',
+                                'prepare_response_editaction',
+                            ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => 'ROLE_AGENT_MANAGE_WORKFLOW_MANUAL',
                         ],
@@ -194,42 +235,60 @@ class UVDeskService
                         [
                             'name' => 'Branding',
                             'link' => $router->generate('helpdesk_member_knowledgebase_theme'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'helpdesk_member_knowledgebase_theme', 
+                            ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => 'ROLE_ADMIN',
                         ],
                         [
                             'name' => 'Email Templates',
                             'link' => $router->generate('email_templates_action'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'email_templates_action',
+                                'email_templates_addaction',
+                                'email_templates_editaction',
+                            ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => 'ROLE_AGENT_MANAGE_EMAIL_TEMPLATE',
                         ],
                         [
                             'name' => 'Block Spam',
                             'link' => $router->generate('helpdesk_member_knowledgebase_spam'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'helpdesk_member_knowledgebase_spam',
+                            ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => 'ROLE_ADMIN',
                         ],
                         [
                             'name' => 'Email Settings',
                             'link' => $router->generate('helpdesk_member_emails_settings'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'helpdesk_member_emails_settings',
+                            ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => 'ROLE_ADMIN',
                         ],
                         [
                             'name' => 'Swift Mailer',
                             'link' => $router->generate('helpdesk_member_swiftmailer_settings'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'helpdesk_member_swiftmailer_settings',
+                                'helpdesk_member_swiftmailer_create_mailer_configuration',
+                                'helpdesk_member_swiftmailer_update_mailer_configuration',
+                            ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => 'ROLE_AGENT_MANAGE_EMAIL_TEMPLATE',
                         ],
                         [
                             'name' => 'Mailboxes',
                             'link' => $router->generate('helpdesk_member_mailbox_settings'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'helpdesk_member_mailbox_settings',
+                                'helpdesk_member_mailbox_create_configuration',
+                                'helpdesk_member_swiftmailer_update_mailer_configuration',
+                            ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => 'ROLE_ADMIN',
                         ],
@@ -245,7 +304,9 @@ class UVDeskService
                         [
                             'name' => 'Helpdesk',
                             'link' => $router->generate('helpdesk_member_helpdesk_theme'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'helpdesk_member_helpdesk_theme', 
+                            ]) ? true : false,
                             'isEnabled' => true,
                         ],
                     ],
@@ -255,7 +316,9 @@ class UVDeskService
                     $navigationPanel['routes'][1] = [
                         'name' => 'Support Center',
                         'link' => $router->generate('helpdesk_member_knowledgebase_theme'),
-                        'isActive' => false,
+                        in_array($currentRoute, [
+                            'helpdesk_member_knowledgebase_theme',
+                        ]) ? true : false,
                         'isEnabled' => true,
                     ];
                 }
@@ -267,21 +330,33 @@ class UVDeskService
                         [
                             'name' => 'Folders',
                             'link' => $router->generate('helpdesk_member_knowledgebase_folders_collection'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'helpdesk_member_knowledgebase_folders_collection',
+                                'helpdesk_member_knowledgebase_create_folder',
+                                'helpdesk_member_knowledgebase_update_folder',
+                            ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => 'ROLE_AGENT_MANAGE_KNOWLEDGEBASE',
                         ],
                         [
                             'name' => 'Categories',
                             'link' => $router->generate('helpdesk_member_knowledgebase_category_collection'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'helpdesk_member_mailbox_settings',
+                                'helpdesk_member_knowledgebase_create_category',
+                                'helpdesk_member_knowledgebase_update_category',
+                            ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => 'ROLE_AGENT_MANAGE_KNOWLEDGEBASE',
                         ],
                         [
                             'name' => 'Articles',
                             'link' => $router->generate('helpdesk_member_knowledgebase_article_collection'),
-                            'isActive' => false,
+                            'isActive' => in_array($currentRoute, [
+                                'helpdesk_member_knowledgebase_article_collection',
+                                'helpdesk_member_knowledgebase_create_article',
+                                'helpdesk_member_knowledgebase_update_article',
+                            ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => 'ROLE_AGENT_MANAGE_KNOWLEDGEBASE',
                         ],
@@ -291,8 +366,7 @@ class UVDeskService
 			default:
 				break;
         }
-
-		return $navigationPanel;
+    return $navigationPanel;
     }
     
     public function buildPaginationQuery(array $query = [])
@@ -328,7 +402,6 @@ class UVDeskService
 
     public function getEntityManagerResult($entity, $callFunction, $args = false, $extraPrams = false)
     {
-
         if($extraPrams)
             return $this->entityManager->getRepository($entity)
                         ->$callFunction($args, $extraPrams);
