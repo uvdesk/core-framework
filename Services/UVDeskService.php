@@ -366,7 +366,8 @@ class UVDeskService
 			default:
 				break;
         }
-    return $navigationPanel;
+
+        return $navigationPanel;
     }
     
     public function buildPaginationQuery(array $query = [])
