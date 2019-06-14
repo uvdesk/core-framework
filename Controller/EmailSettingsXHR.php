@@ -18,7 +18,7 @@ class EmailSettingsXHR extends Controller
             '{{ SUPPORT_EMAIL_ID }}' => $supportEmailConfiguration['id'],
             '{{ SUPPORT_EMAIL_NAME }}' => $supportEmailConfiguration['name'],
             '{{ SUPPORT_EMAIL_MAILER_ID }}' => $supportEmailConfiguration['mailer_id'],
-            '{{ SITE_URL }}' => $request->getHttpHost(),
+            '{{ SITE_URL }}' => $this->container->getParameter('uvdesk.site_url'),
         ]);
         
         // update uvdesk.yaml file
