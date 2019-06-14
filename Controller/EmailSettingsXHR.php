@@ -11,7 +11,6 @@ class EmailSettingsXHR extends Controller
 {
     public function updateSettingsXHR(Request $request)
     {
-        $siteUrl = $this->container->getParameter('uvdesk.site_url');
         $filePath = $this->get('kernel')->getProjectDir() . '/config/packages/uvdesk.yaml';
         $supportEmailConfiguration = json_decode($request->getContent(), true);
         
@@ -19,7 +18,7 @@ class EmailSettingsXHR extends Controller
             '{{ SUPPORT_EMAIL_ID }}' => $supportEmailConfiguration['id'],
             '{{ SUPPORT_EMAIL_NAME }}' => $supportEmailConfiguration['name'],
             '{{ SUPPORT_EMAIL_MAILER_ID }}' => $supportEmailConfiguration['mailer_id'],
-            '{{ SITE_URL }}' => $request->getHttpHost(),
+            '{{ SITE_URL }}' => $this->container->getParameter('uvdesk.site_url'),
         ]);
         
         // update uvdesk.yaml file
