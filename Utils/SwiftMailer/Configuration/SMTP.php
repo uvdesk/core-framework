@@ -89,8 +89,8 @@ MAILER;
             '[[ port ]]' => sprintf("port: %s", $this->getPort()),
             '[[ encryption ]]' => sprintf("encryption: %s", $this->getEncryptionMode()),
             '[[ authentication ]]' => sprintf("auth_mode: %s", $this->getAuthenticationMode()),
-            '[[ sender_address ]]' => '# sender_address: ~',
-            '[[ delivery_addresses ]]' => '# delivery_addresses: ~',
+            '[[ sender_address ]]' => sprintf("sender_address: %s", $this->getSenderAddress()),
+            '[[ delivery_addresses ]]' => "delivery_addresses: ['".$this->getDeliveryAddress()."']",
             '[[ disable_delivery ]]' => "disable_delivery: " . ($this->getDeliveryStatus() ? "false" : "true"),
         ];
 
@@ -108,7 +108,7 @@ MAILER;
             'port' => $this->getPort(),
             'encryption' => $this->getEncryptionMode(),
             'authentication' => $this->getAuthenticationMode(),
-            'delivery_addresses' => $this->getDeliveryAddresses(),
+            'delivery_addresses' => $this->getDeliveryAddress(),
             'sender_address' => $this->getSenderAddress(),
             'deliveryStatus' => $this->getDeliveryStatus(),
         ];
