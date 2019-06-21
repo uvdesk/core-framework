@@ -2,147 +2,81 @@
 
 namespace Webkul\UVDesk\CoreBundle\Controller;
 
-use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Webkul\UVDesk\CoreBundle\SwiftMailer\Event\ConfigurationUpdatedEvent;
 
 class SwiftMailer extends Controller
 {
-    public function loadSettings()
+    public function loadMailers()
     {
-        return $this->render('@UVDeskCore//Swiftmailer//settings.html.twig');
+        return $this->render('@UVDeskCore//SwiftMailer//listConfigurations.html.twig');
     }
     
-    public function createMailer(Request $request)
+    public function createMailerConfiguration(Request $request)
     {
-        $data = $request->request->all();
-        $errors = [];
+        if ($request->getMethod() == 'POST') {
+            $params = $request->request->all();
+            $swiftmailer = $this->get('swiftmailer.service');
 
-        if($request->getMethod() == 'POST') {
-            $isExistSwiftmailer = $this->checkExistingSwiftmailer($data['name'], $data['username']);
+            $swiftmailerConfiguration = $swiftmailer->createConfiguration($params['transport'], $params['id']);
 
-            if(!$isExistSwiftmailer) {
-                $filePath = dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml';
-                // get file content and index
-                $file = file($filePath);
+            if (!empty($swiftmailerConfiguration)) {
+                $swiftmailerConfiguration->initializeParams($params);
+                $configurations = $swiftmailer->parseSwiftMailerConfigurations();
+
+                $configurations[] = $swiftmailerConfiguration;
                 
-                $newSwiftMailer = [
-                    'transport' => $data['transport'],
-                    'username'  => $data["username"],
-                    'password'  => $data["password"],
-                ];
+                try {
+                    $swiftmailer->writeSwiftMailerConfigurations($configurations);
 
-                $file_content_array = Yaml::parse(file_get_contents($filePath));
-                
-                if (isset($file_content_array['swiftmailer']) && isset($file_content_array['swiftmailer']['mailers'])) {
-                    $file_content_array['swiftmailer']['mailers'][$data['name']] = $newSwiftMailer;
-                } else {
-                    $file_content_array['swiftmailer']['mailers'][$data['name']] = $newSwiftMailer;
-                }
-                
-                // Write the content with new swiftmailer details in file
-                $updateFile = file_put_contents($filePath, Yaml::dump($file_content_array, 6));
-
-                $this->addFlash('success', 'Swifmailer details added successfully.');
-                return $this->redirectToRoute('helpdesk_member_swiftmailer_settings');
-
-            } else {
-                $this->addFlash('warning', 'Swifmailer with same name or email already exist.');
-            }
-        }
-
-        return $this->render('@UVDeskCore//Swiftmailer//createMailer.html.twig', array(
-            'errors' => json_encode($errors)
-        ));
-    }
-
-    public function updateMailer($swiftmailerId, Request $request)
-    {
-        $data = $request->request->all();
-        $errors = [];
-        $swiftmailerDetails = $this->getswiftmailerDetails($swiftmailerId);
-
-        $filePath = dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml';
-        $file = file($filePath);
-
-        if($request->getMethod() == 'POST') {
-            $isExistSwiftmailer = $this->checkExistingSwiftmailer($swiftmailerId, $data['username']);
-            $isExistEmail = $this->checkExistingSwiftmailer(null, $data['username'], $swiftmailerDetails);
-            if(!$isExistEmail){
-                if($isExistSwiftmailer){
-                    $file_content_array = Yaml::parse(file_get_contents($filePath));
-                    $swiftmailers = $file_content_array['swiftmailer']['mailers'];
-                    unset($swiftmailers[$swiftmailerId]);
-                    if (empty($swiftmailers))
-                        $swiftmailers = null;
-                    $file_content_array['swiftmailer']['mailers'] = $swiftmailers;
-                }
-    
-                $newSwiftMailer = [
-                    'transport' => $data['transport'],
-                    'username'  => $data["username"],
-                    'password'  => (!empty($data["password"])) ? $data["password"] : $swiftmailerDetails['password'],
-                ];
-    
-                $file_content_array = Yaml::parse(file_get_contents($filePath));
-                
-                if (isset($file_content_array['swiftmailer']) && $file_content_array['swiftmailer']['mailers']) {
-                    $file_content_array['swiftmailer']['mailers'][$swiftmailerId] = $newSwiftMailer;
-                } else {
-                    $file_content_array['swiftmailer']['mailers'][$swiftmailerId] = $newSwiftMailer;
-                }
-                // Write the content with new swiftmailer details in file
-                $updateFile = file_put_contents($filePath, Yaml::dump($file_content_array, 6));
-    
-                $this->addFlash('success', 'Swifmailer details updated successfully.');
-                return $this->redirectToRoute('helpdesk_member_swiftmailer_settings');
-            } else {
-                $this->addFlash('warning', 'Swifmailer with same email already exist.');
-            }
-        }
-
-        return $this->render('@UVDeskCore//Swiftmailer//updateMailer.html.twig', array(
-            'errors' => json_encode($errors),
-            'swiftmailerDetails' => $swiftmailerDetails
-        ));
-
-    }
-
-    private function checkExistingSwiftmailer($uniqueId = null, $email = null, $currentswiftmailer =null)
-    {
-        $isExist = false;
-        $file_content_array = Yaml::parse(file_get_contents(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml'));
-        $existingSwiftmailer = isset($file_content_array['swiftmailer']['mailers'])? $file_content_array['swiftmailer']['mailers'] : '';
-
-        if ($existingSwiftmailer) {
-            foreach ($existingSwiftmailer as $index => $swiftmailerDetails) {
-                if ($index == $uniqueId || $swiftmailerDetails['username'] == $email && $currentswiftmailer['username'] != $swiftmailerDetails['username']) {
-                    $isExist = true;
+                    $this->addFlash('success', 'SwiftMailer configuration created successfully.');
+                    return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_settings'));
+                } catch (\Exception $e) {
+                    $this->addFlash('warning', $e->getMessage());
                 }
             }
         }
 
-        return $isExist;
+        return $this->render('@UVDeskCore//SwiftMailer//manageConfigurations.html.twig');
     }
 
-    private function getSwiftmailerDetails($swiftmailerId)
+    public function updateMailerConfiguration($id, Request $request)
     {
-        $parsedYAML = Yaml::parse(file_get_contents(dirname(__FILE__, 5) . '/config/packages/swiftmailer.yaml'));
+        $swiftmailerService = $this->get('swiftmailer.service');
+        $swiftmailerConfigurations = $swiftmailerService->parseSwiftMailerConfigurations();
 
-        if (!empty($parsedYAML['swiftmailer']['mailers']) && !empty($swiftmailerId)) {
-            foreach ($parsedYAML['swiftmailer']['mailers'] as $mailerId => $mailerDetails) {
-                if ($mailerId != $swiftmailerId) {
-                    continue;
-                }
-
-                $mailerResponse = $mailerDetails;
-                $mailerResponse['name'] = $swiftmailerId;
-
+        foreach ($swiftmailerConfigurations as $index => $configuration) {
+            if ($configuration->getId() == $id) {
+                $swiftmailerConfiguration = $configuration;
                 break;
             }
         }
 
-        return $mailerResponse ?? [];
+        if (empty($swiftmailerConfiguration)) {
+            return new Response('', 404);
+        }
+
+        if ($request->getMethod() == 'POST') {
+            $existingSwiftmailerConfiguration = clone $swiftmailerConfiguration;
+            $swiftmailerConfiguration->initializeParams($request->request->all(), true);
+            
+            // Updated swiftmailer configuration file
+            $swiftmailerConfigurations[$index] = $swiftmailerConfiguration;
+            $swiftmailerService->writeSwiftMailerConfigurations($swiftmailerConfigurations);
+            
+            // Dispatch swiftmailer configuration updated event
+            $event = new ConfigurationUpdatedEvent($swiftmailerConfiguration, $existingSwiftmailerConfiguration);
+            $this->get('uvdesk.core.event_dispatcher')->dispatch(ConfigurationUpdatedEvent::NAME, $event);
+            
+            $this->addFlash('success', 'SwiftMailer configuration updated successfully.');
+            return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_settings'));
+        }
+
+        return $this->render('@UVDeskCore//SwiftMailer//manageConfigurations.html.twig', [
+            'configuration' => $swiftmailerConfiguration->castArray(),
+        ]);
     }
 }

@@ -1,13 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\EventListener;
+namespace Webkul\UVDesk\CoreBundle\EventListener\Doctrine;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Webkul\UVDesk\CoreBundle\Entity as CoreEntities;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class ORMLifecycle
+class Lifecycle
 {
     private $container;
 

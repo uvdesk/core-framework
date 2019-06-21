@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\EventListener;
+namespace Webkul\UVDesk\CoreBundle\EventListener\Console;
 
 use Doctrine\ORM\EntityManager;
 use Webkul\UVDesk\CoreBundle\Entity\Mailbox;
@@ -9,7 +9,7 @@ use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Bundle\FrameworkBundle\Command as SymfonyFrameworkCommand;
 
-class ConsoleListener
+class Console
 {
     private $container;
     private $entityManager;

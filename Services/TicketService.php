@@ -486,7 +486,10 @@ class TicketService
 
         // for trashed tickets count
         $trashedQb = clone $queryBuilder;
-        $trashedQb->andwhere('ticket.isTrashed = 1');
+        $trashedQb->where('ticket.isTrashed = 1');
+        if ($currentUser->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
+            $trashedQb->andwhere('agent = ' . $currentUser->getId());
+        }
         $data['trashed'] = $trashedQb->getQuery()->getSingleScalarResult();
 
         return $data;
@@ -923,6 +926,7 @@ class TicketService
                 }, $threadDetails['attachments']);
             }
         }
+
         return $threadDetails ?? null;
     }
 
@@ -937,29 +941,11 @@ class TicketService
         return intval($qb->getQuery()->getSingleScalarResult());
     }
 
-    public function getAgentDraftReply($ticketId, $draftType)
+    public function getAgentDraftReply()
     {
-        return '';
-        // $userId = $this->getUser()->getId();
-        // $companyId = $this->getCompany()->getId();
-        // $qb = $this->em->createQueryBuilder();
-        // $qb->select('d')->from("UVDeskCoreBundle:Draft", 'd')
-        //         ->andwhere('d.ticket = :ticketId')
-        //         ->andwhere("d.field = '".$draftType."'")
-        //         ->andwhere('d.user = :userId')
-        //         ->andwhere("d.userType = 'agent'")
-        //         ->setParameter('ticketId',$ticketId)
-        //         ->setParameter('userId', $this->getUser()->getId());
-
-        // $result = $qb->getQuery()->getOneOrNullResult();
-
-        // if($result && trim(strip_tags($result->getContent())) ) {
-        //     return $result->getContent();
-        // }
-
-        // $data = $this->container->get('user.service')->getUserDetailById($userId,$companyId);
-
-        // return str_replace( "\n", '<br/>',$data->getSignature());
+	    $signature = $this->getUser()->getAgentInstance()->getSignature();
+        
+        return str_replace( "\n", '<br/>', $signature);
     }
 
     public function trans($text)
@@ -1233,7 +1219,6 @@ class TicketService
 
     public function isEmailBlocked($email, $website) 
     {
-
         $flag = false;
         $email = strtolower($email);
         $knowlegeBaseWebsite = $this->entityManager->getRepository('UVDeskSupportCenterBundle:KnowledgebaseWebsite')->findOneBy(['website' => $website->getId(), 'isActive' => 1]);
@@ -1252,12 +1237,12 @@ class TicketService
                 }
             }
         }
+
         // Whitelist
         if ($flag) {
             if (isset($email, $list['whiteList']['email']) && in_array($email, $list['whiteList']['email'])) {
                 // Emails
                 return false;
-
             } elseif (isset($list['whiteList']['domain'])) {
                 // Domains
                 foreach ($list['whiteList']['domain'] as $domain) {
