@@ -136,7 +136,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $qb->leftJoin('t.supportGroup', 'gr');
         $qb->leftJoin('t.priority', 'pr');
         $qb->leftJoin('t.type', 'tp');
-        // $qb->leftJoin('t.collaborators', 'tc');
+        $qb->leftJoin('t.collaborators', 'tc');
         $qb->addSelect("CONCAT(a.firstName,' ', a.lastName) AS name");
         $qb->andwhere("t.agent IS NULL OR ad.supportRole != 4");
 
@@ -155,8 +155,9 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             }
         }
 
-        $qb->andwhere('t.customer = :customerId');
+        $qb->andwhere('t.customer = :customerId OR tc.id =:collaboratorId');
         $qb->setParameter('customerId', $currentUser->getId());
+        $qb->setParameter('collaboratorId', $currentUser->getId());
         $qb->andwhere('t.isTrashed != 1');
 
         if(!isset($data['sort'])) {
