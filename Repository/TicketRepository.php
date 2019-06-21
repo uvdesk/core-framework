@@ -211,7 +211,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         return $json;
     }
 
-    public function prepareBaseTicketQuery(User $user, array $params, $filterByStatus = true, $container)
+    public function prepareBaseTicketQuery(User $user, $supportGroupIds = [], $supportTeamIds = [], $params = [], $filterByStatus = true)
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select("
@@ -253,7 +253,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             $queryBuilder->andWhere('ticket.status = :status')->setParameter('status', isset($params['status']) ? $params['status'] : 1);
         }
 
-        $this->addPermissionFilter($queryBuilder, $container);
+        $this->addPermissionFilter($queryBuilder, $user, $supportGroupIds, $supportTeamIds);
 
         // applyFilter according to params
         return $this->prepareTicketListQueryWithParams($queryBuilder, $params);
@@ -581,39 +581,35 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         return $queryBuilder;
     }
     
-    // Filter ticket based on permission
-    public function addPermissionFilter($qb, $container, $haveJoin = true) {
-        $currentUser = $container->get('user.service')->getCurrentUser();
-        if($currentUser->getRoles()[0] == "ROLE_AGENT" && $currentUser->getUserInstance()->getValues()[0]->getTicketAccesslevel() != self::GLOBAL_ACCESS) {
-
-            $supportGroupIds = $container->get('user.service')->getCurrentUserSupportGroupIds();
-            $supportTeamIds = $container->get('user.service')->getCurrentUserSupportTeamIds();
-
+    public function addPermissionFilter($qb, $user, $userSupportGroupIds, $userSupportTeamIds, $haveJoin = true) {
+        
+        if($user->getRoles()[0] == "ROLE_AGENT" && $user->getUserInstance()->getValues()[0]->getTicketAccesslevel() != self::GLOBAL_ACCESS) 
+        {
             if(!$haveJoin) {
                 $qb->leftJoin('ticket.supportGroup', 'supportGroup')
                 ->leftJoin('ticket.supportTeam', 'supportTeam');
             }
 
             if(!empty($this->params['group'])) {
-                $supportGroupIds =  array_intersect($supportGroupIds, explode(',', $this->params['group']) );
+                $supportGroupIds =  array_intersect($userSupportGroupIds, explode(',', $this->params['group']) );
             }
 
             if(!empty($this->params['team'])) {
-                $supportTeamIds =  array_intersect($supportTeamIds, explode(',', $this->params['team']) );
+                $supportTeamIds =  array_intersect($userSupportTeamIds, explode(',', $this->params['team']) );
             }
 
-            if($currentUser->getUserInstance()->getValues()[0]->getTicketAccesslevel() == self::GROUP_ACCESS) {
+            if($user->getUserInstance()->getValues()[0]->getTicketAccesslevel() == self::GROUP_ACCESS) {
                 $qb->andWhere("ticket.agent = :agentId OR supportGroup.id IN(:supportGroupIds) OR supportTeam.id IN(:supportTeamIds)")
-                    ->setParameter('agentId', $currentUser->getId())
+                    ->setParameter('agentId', $user->getId())
                     ->setParameter('supportGroupIds', $supportGroupIds)
                     ->setParameter('supportTeamIds', $supportTeamIds);
-            } elseif($currentUser->getUserInstance()->getValues()[0]->getTicketAccesslevel() == self::TEAM_ACCESS) {
+            } elseif($user->getUserInstance()->getValues()[0]->getTicketAccesslevel() == self::TEAM_ACCESS) {
                 $qb->andWhere("ticket.agent = :agentId OR supportTeam.id IN(:supportTeamIds)")
-                    ->setParameter('agentId', $currentUser->getId())
+                    ->setParameter('agentId', $user->getId())
                     ->setParameter('supportTeamIds', $supportTeamIds);
             } else {
                 $qb->andWhere("ticket.agent = :agentId")
-                    ->setParameter('agentId', $currentUser->getId());
+                    ->setParameter('agentId', $user->getId());
             }
         }
 

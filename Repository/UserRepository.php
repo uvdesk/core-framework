@@ -238,4 +238,45 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
 
         return $queryBuilder->getQuery()->getResult();
     }
+    
+    // Get Current user group Id's
+    public function getCurrentUserSupportGroupIds(User $user) {
+        static $groupIds = array();
+        if(count($groupIds))
+            return $groupIds;
+
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('ug.id')->from('UVDeskCoreBundle:User', 'u') 
+                ->leftJoin('u.userInstance','userInstance')
+                ->leftJoin('userInstance.supportGroups','ug')
+                ->andwhere('u.id = :userId')
+                ->andwhere('ug.isActive = 1')
+                ->setParameter('userId', $user->getId());
+
+        foreach ($qb->getQuery()->getResult() as $group) {
+            $groupIds[] = $group['id'];
+        }
+
+        return $groupIds ?: [0];
+    }
+
+    public function getCurrentUserSupportTeamIds(User $user) {
+        static $groupIds;
+        if(null !== $groupIds)
+            return $groupIds;
+
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('ut.id')->from('UVDeskCoreBundle:User', 'u')
+                ->leftJoin('u.userInstance','userInstance')
+                ->leftJoin('userInstance.supportTeams','ut')
+                ->andwhere('u.id = :userId')
+                ->andwhere('userInstance.supportRole != :agentRole')
+                ->andwhere('ut.isActive = 1')
+                ->setParameter('userId', $user->getId())
+                ->setParameter('agentRole', '4');
+
+        $groupIds = array_column($qb->getQuery()->getArrayResult(), 'id');
+
+        return $groupIds ?: [0];
+    }
 }
