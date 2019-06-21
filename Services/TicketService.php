@@ -344,7 +344,7 @@ class TicketService
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreBundle:Ticket');
 
         // Get base query
-        $baseQuery = $ticketRepository->prepareBaseTicketQuery($activeUser, $params);
+        $baseQuery = $ticketRepository->prepareBaseTicketQuery($activeUser, $params, true, $this->container);
         $ticketTabs = $ticketRepository->getTicketTabDetails($activeUser, $params);
 
         // Apply Pagination
