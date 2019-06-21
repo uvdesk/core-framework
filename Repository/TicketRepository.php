@@ -136,7 +136,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $qb->leftJoin('t.supportGroup', 'gr');
         $qb->leftJoin('t.priority', 'pr');
         $qb->leftJoin('t.type', 'tp');
-        // $qb->leftJoin('t.collaborators', 'tc');
+        $qb->leftJoin('t.collaborators', 'tc');
         $qb->addSelect("CONCAT(a.firstName,' ', a.lastName) AS name");
         $qb->andwhere("t.agent IS NULL OR ad.supportRole != 4");
 
@@ -155,8 +155,9 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             }
         }
 
-        $qb->andwhere('t.customer = :customerId');
+        $qb->andwhere('t.customer = :customerId OR tc.id =:collaboratorId');
         $qb->setParameter('customerId', $currentUser->getId());
+        $qb->setParameter('collaboratorId', $currentUser->getId());
         $qb->andwhere('t.isTrashed != 1');
 
         if(!isset($data['sort'])) {
@@ -210,7 +211,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         return $json;
     }
 
-    public function prepareBaseTicketQuery(User $user, array $params, $filterByStatus = true)
+    public function prepareBaseTicketQuery(User $user, $supportGroupIds = [], $supportTeamIds = [], $params = [], $filterByStatus = true)
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select("
@@ -252,9 +253,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             $queryBuilder->andWhere('ticket.status = :status')->setParameter('status', isset($params['status']) ? $params['status'] : 1);
         }
 
-        if ($user->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
-            $queryBuilder->andwhere('agent = ' . $user->getId());
-        }
+        $this->addPermissionFilter($queryBuilder, $user, $supportGroupIds, $supportTeamIds);
 
         // applyFilter according to params
         return $this->prepareTicketListQueryWithParams($queryBuilder, $params);
@@ -580,5 +579,40 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         }
 
         return $queryBuilder;
+    }
+    
+    public function addPermissionFilter($qb, $user, $userSupportGroupIds, $userSupportTeamIds, $haveJoin = true) {
+        
+        if($user->getRoles()[0] == "ROLE_AGENT" && $user->getUserInstance()->getValues()[0]->getTicketAccesslevel() != self::GLOBAL_ACCESS) 
+        {
+            if(!$haveJoin) {
+                $qb->leftJoin('ticket.supportGroup', 'supportGroup')
+                ->leftJoin('ticket.supportTeam', 'supportTeam');
+            }
+
+            if(!empty($this->params['group'])) {
+                $supportGroupIds =  array_intersect($userSupportGroupIds, explode(',', $this->params['group']) );
+            }
+
+            if(!empty($this->params['team'])) {
+                $supportTeamIds =  array_intersect($userSupportTeamIds, explode(',', $this->params['team']) );
+            }
+
+            if($user->getUserInstance()->getValues()[0]->getTicketAccesslevel() == self::GROUP_ACCESS) {
+                $qb->andWhere("ticket.agent = :agentId OR supportGroup.id IN(:supportGroupIds) OR supportTeam.id IN(:supportTeamIds)")
+                    ->setParameter('agentId', $user->getId())
+                    ->setParameter('supportGroupIds', $supportGroupIds)
+                    ->setParameter('supportTeamIds', $supportTeamIds);
+            } elseif($user->getUserInstance()->getValues()[0]->getTicketAccesslevel() == self::TEAM_ACCESS) {
+                $qb->andWhere("ticket.agent = :agentId OR supportTeam.id IN(:supportTeamIds)")
+                    ->setParameter('agentId', $user->getId())
+                    ->setParameter('supportTeamIds', $supportTeamIds);
+            } else {
+                $qb->andWhere("ticket.agent = :agentId")
+                    ->setParameter('agentId', $user->getId());
+            }
+        }
+
+        return $qb;
     }
 }

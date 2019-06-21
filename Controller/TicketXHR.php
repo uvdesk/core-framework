@@ -299,7 +299,7 @@ class TicketXHR extends Controller
                 if (empty($supportGroup)) {
                     if ($requestContent['value'] == "") {
                         if ($ticket->getSupportGroup() != null) {
-                            $ticket->getSupportGroup(null);
+                            $ticket->setSupportGroup(null);
                             $entityManager->persist($ticket);
                             $entityManager->flush();
                         }
