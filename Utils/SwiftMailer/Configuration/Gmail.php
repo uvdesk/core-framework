@@ -52,7 +52,7 @@ MAILER;
             'username' => $this->getUsername(),
             'password' => $this->getPassword(),
             'sender_address' => $this->getSenderAddress(),
-            'delivery_addresses' => $this->getDeliveryAddresses(),
+            'delivery_addresses' => $this->getDeliveryAddress(),
             'deliveryStatus' => $this->getDeliveryStatus(),
         ];
     }

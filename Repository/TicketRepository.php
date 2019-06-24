@@ -19,7 +19,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class TicketRepository extends \Doctrine\ORM\EntityRepository
 {
     const LIMIT = 15;
+
     const GLOBAL_ACCESS = 1;
+    const GROUP_ACCESS = 2;
+    const TEAM_ACCESS = 3;
+    
     const DEFAULT_PAGINATION_LIMIT = 15;
 
     private $container;
