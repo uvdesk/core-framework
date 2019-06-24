@@ -1,7 +1,5 @@
 <?php
-
 namespace Webkul\UVDesk\CoreBundle\Repository;
-
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Common\Collections\Criteria;
@@ -9,7 +7,6 @@ use Webkul\UVDesk\CoreBundle\Entity\User;
 use Webkul\UVDesk\CoreBundle\Entity\Ticket;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-
 /**
  * TicketRepository
  *
@@ -19,13 +16,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class TicketRepository extends \Doctrine\ORM\EntityRepository
 {
     const LIMIT = 15;
-    const DEFAULT_PAGINATION_LIMIT = 15;
+    const GLOBAL_ACCESS = 1;
+    const GROUP_ACCESS = 2;
+    const TEAM_ACCESS = 3;
 
-    public $params = [];
+    const DEFAULT_PAGINATION_LIMIT = 15;
     private $container;
     private $requestStack;
     private $safeFields = ['page', 'limit', 'sort', 'order', 'direction'];
-
     public function getTicketLabelCollection(Ticket $ticket, User $user)
     {
         // $queryBuilder = $this->getEntityManager()->createQueryBuilder()
@@ -35,10 +33,8 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         //     // ->leftJoin('supportLabel.user', 'user')
         //     ->where('ticket.id = :ticketId')->setParameter('ticketId', $ticket->getId())
         //     ->andWhere('supportLabel.user = :user')->setParameter('user', $user);
-
         return [];
     }
-
     public function getAllTickets(ParameterBag $obj = null, $container, $actAsUser = null)
     {
         $currentUser = $actAsUser ? : $container->get('user.service')->getCurrentUser();
@@ -70,37 +66,28 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             }
         }
         $qb->andwhere('t.isTrashed != 1');
-
         if(!isset($data['sort'])) {
             $qb->orderBy('t.id',Criteria::DESC);
         }
-
         $paginator = $container->get('knp_paginator');
-
         $newQb = clone $qb;
         $newQb->select('COUNT(DISTINCT t.id)');
-
         $results = $paginator->paginate(
             $qb->getQuery()->setHydrationMode(Query::HYDRATE_ARRAY)->setHint('knp_paginator.count', $newQb->getQuery()->getSingleScalarResult()),
             isset($data['page']) ? $data['page'] : 1,
             self::LIMIT,
             array('distinct' => true)
         );
-
         $paginationData = $results->getPaginationData();
         $queryParameters = $results->getParams();
-
         $queryParameters['page'] = "replacePage";
         $paginationData['url'] = '#'.$container->get('uvdesk.service')->buildPaginationQuery($queryParameters);
-
         $data = array();
         $userService = $container->get('user.service');
         $ticketService = $container->get('ticket.service');
         $translatorService = $container->get('translator');
-
         foreach ($results as $key => $ticket) {
             $ticket[0]['status']['code'] = $translatorService->trans($ticket[0]['status']['code']);
-
             $data[] = [
                 'id' => $ticket[0]['id'],
                 'subject' => $ticket[0]['subject'],
@@ -116,13 +103,10 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 // 'hasAttachments' => $ticketService->hasAttachments($ticket[0]['id'])
             ];
         }
-
         $json['tickets'] = $data;
         $json['pagination'] = $paginationData;
-
         return $json;
     }
-
     public function getAllCustomerTickets(ParameterBag $obj = null, $container, $actAsUser = null)
     {
         $currentUser = $actAsUser ? : $container->get('user.service')->getCurrentUser();
@@ -139,7 +123,6 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $qb->leftJoin('t.collaborators', 'tc');
         $qb->addSelect("CONCAT(a.firstName,' ', a.lastName) AS name");
         $qb->andwhere("t.agent IS NULL OR ad.supportRole != 4");
-
         $data = $obj->all();
         $data = array_reverse($data);
         foreach ($data as $key => $value) {
@@ -154,42 +137,32 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 }
             }
         }
-
         $qb->andwhere('t.customer = :customerId OR tc.id =:collaboratorId');
         $qb->setParameter('customerId', $currentUser->getId());
         $qb->setParameter('collaboratorId', $currentUser->getId());
         $qb->andwhere('t.isTrashed != 1');
-
         if(!isset($data['sort'])) {
             $qb->orderBy('t.id',Criteria::DESC);
         }
-
         $paginator = $container->get('knp_paginator');
-
         $newQb = clone $qb;
         $newQb->select('COUNT(DISTINCT t.id)');
-
         $results = $paginator->paginate(
             $qb->getQuery()->setHydrationMode(Query::HYDRATE_ARRAY)->setHint('knp_paginator.count', $newQb->getQuery()->getSingleScalarResult()),
             isset($data['page']) ? $data['page'] : 1,
             self::LIMIT,
             array('distinct' => true)
         );
-
         $paginationData = $results->getPaginationData();
         $queryParameters = $results->getParams();
-
         $queryParameters['page'] = "replacePage";
         $paginationData['url'] = '#'.$container->get('uvdesk.service')->buildPaginationQuery($queryParameters);
-
         $data = array();
         $userService = $container->get('user.service');
         $ticketService = $container->get('ticket.service');
         $translatorService = $container->get('translator');
-
         foreach ($results as $key => $ticket) {
             $ticket[0]['status']['code'] = $translatorService->trans($ticket[0]['status']['code']);
-
             $data[] = [
                 'id' => $ticket[0]['id'],
                 'subject' => $ticket[0]['subject'],
@@ -204,14 +177,40 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 'formatedCreatedAt' => $ticket[0]['createdAt']->format('d-m-Y h:ia'),
             ];
         }
-
         $json['tickets'] = $data;
         $json['pagination'] = $paginationData;
-
         return $json;
     }
-
-    public function prepareBaseTicketQuery(User $user, $supportGroupIds = [], $supportTeamIds = [], $params = [], $filterByStatus = true)
+    public function addPermissionFilter($qb, User $user, array $supportGroupReferences = [], array $supportTeamReferences = [])
+    {
+        $userInstance = $user->getAgentInstance();
+        if (!empty($userInstance) && ('ROLE_AGENT' == $userInstance->getSupportRole()->getCode() || $userInstance->getTicketAccesslevel() != self::GLOBAL_ACCESS)) {
+            $qualifiedGroups = empty($this->params['group']) ? $supportGroupReferences : array_intersect($supportGroupReferences, explode(',', $this->params['group']));
+            $qualifiedTeams = empty($this->params['team']) ? $supportTeamReferences : array_intersect($supportTeamReferences, explode(',', $this->params['team']));
+            switch ($userInstance->getTicketAccesslevel()) {
+                case self::GROUP_ACCESS:
+                    $qb
+                        ->andWhere("ticket.agent = :agentId OR supportGroup.id IN(:supportGroupIds) OR supportTeam.id IN(:supportTeamIds)")
+                        ->setParameter('agentId', $user->getId())
+                        ->setParameter('supportGroupIds', $qualifiedGroups)
+                        ->setParameter('supportTeamIds', $qualifiedTeams);
+                    break;
+                case self::TEAM_ACCESS:
+                    $qb
+                        ->andWhere("ticket.agent = :agentId OR supportTeam.id IN(:supportTeamIds)")
+                        ->setParameter('agentId', $user->getId())
+                        ->setParameter('supportTeamIds', $qualifiedTeams);
+                    break;
+                default:
+                    $qb
+                        ->andWhere("ticket.agent = :agentId")
+                        ->setParameter('agentId', $user->getId());
+                    break;
+            }
+        }
+        return $qb;
+    }
+    public function prepareBaseTicketQuery(User $user, array $supportGroupIds = [], array $supportTeamIds = [], array $params = [], bool $filterByStatus = true)
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select("
@@ -244,33 +243,26 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->where('customerInstance.supportRole = 4')
             ->andWhere("agent.id IS NULL OR agentInstance.supportRole != 4")
             ->andWhere('ticket.isTrashed = :isTrashed')->setParameter('isTrashed', isset($params['trashed']) ? true : false);
-
         if (!isset($params['sort'])) {
             $queryBuilder->orderBy('ticket.updatedAt', Criteria::DESC);
         }
-
         if ($filterByStatus) {
             $queryBuilder->andWhere('ticket.status = :status')->setParameter('status', isset($params['status']) ? $params['status'] : 1);
         }
-
         $this->addPermissionFilter($queryBuilder, $user, $supportGroupIds, $supportTeamIds);
-
         // applyFilter according to params
         return $this->prepareTicketListQueryWithParams($queryBuilder, $params);
     }
-
     public function prepareBasePaginationTicketTypesQuery(array $params)
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select("ticketType")
             ->from('UVDeskCoreBundle:TicketType', 'ticketType');
-
         // Apply filters
         foreach ($params as $field => $fieldValue) {
             if (in_array($field, $this->safeFields)) {
                 continue;
             }
-
             switch ($field) {
                 case 'search':
                     $queryBuilder->andwhere("ticketType.code LIKE :searchQuery OR ticketType.description LIKE :searchQuery");
@@ -284,17 +276,14 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                     break;
             }
         }
-
         // Define sort by
         if (empty($params['sort']) || 'a.id' == $params['sort']) {
             $queryBuilder->orderBy('ticketType.id', (empty($params['direction']) || 'ASC' == strtoupper($params['direction'])) ? Criteria::ASC : Criteria::DESC);
         } else {
             $queryBuilder->orderBy('ticketType.code', (empty($params['direction']) || 'ASC' == strtoupper($params['direction'])) ? Criteria::ASC : Criteria::DESC);
         }
-
         return $queryBuilder;
     }
-
     public function prepareBasePaginationTagsQuery(array $params)
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
@@ -302,13 +291,11 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->from('UVDeskCoreBundle:Tag', 'supportTag')
             ->leftJoin('supportTag.tickets', 'ticket')
             ->groupBy('supportTag.id');
-
         // Apply filters
         foreach ($params as $field => $fieldValue) {
             if (in_array($field, $this->safeFields)) {
                 continue;
             }
-
             switch ($field) {
                 case 'search':
                     $queryBuilder->andwhere("supportTag.name LIKE :searchQuery")->setParameter('searchQuery', '%' . urldecode(trim($fieldValue)) . '%');
@@ -317,17 +304,14 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                     break;
             }
         }
-
         // Define sort by
         if (empty($params['sort']) || 'a.id' == $params['sort']) {
             $queryBuilder->orderBy('supportTag.id', (empty($params['direction']) || 'ASC' == strtoupper($params['direction'])) ? Criteria::ASC : Criteria::DESC);
         } else {
             $queryBuilder->orderBy('supportTag.name', (empty($params['direction']) || 'ASC' == strtoupper($params['direction'])) ? Criteria::ASC : Criteria::DESC);
         }
-
         return $queryBuilder;
     }
-
     public function getTicketTabDetails($user, array $params)
     {
         $data = array(1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0);
@@ -355,7 +339,6 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->andWhere("agent.id IS NULL OR agentInstance.supportRole != 4")
             ->andWhere('ticket.isTrashed = :isTrashed')->setParameter('isTrashed', isset($params['trashed']) ? true : false)
             ->groupBy('status');
-
         // applyFilter according to params
         if ($user->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
             $queryBuilder->andwhere('agent = ' . $user->getId());
@@ -363,14 +346,11 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         
         $queryBuilder = $this->prepareTicketListQueryWithParams($queryBuilder, $params);
         $results = $queryBuilder->getQuery()->getResult();
-
         foreach($results as $status) {
             $data[$status['statusId']] += $status['countTicket'];
         }
-
         return $data;
     }
-
     public function countTicketTotalThreads($ticketId, $threadType = 'reply')
     {
         $totalThreads = $this->getEntityManager()->createQueryBuilder()
@@ -383,15 +363,12 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         
         return (int) $totalThreads;
     }
-
     public function getTicketNavigationIteration($ticket, $container)
     {
         $ticketsCollection = $this->getEntityManager()->getRepository('UVDeskCoreBundle:Ticket')
                    ->getAllTickets(null, $container);
-
         if ($ticketsCollection)
             $results = $ticketsCollection['tickets'];
-
         $nextPrevPage = array('next' => 0,'prev' => 0);
         for ($i = 0; $i < count($results); $i++) {
             if($results[$i]['id'] == $ticket->getId()) {
@@ -399,10 +376,8 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 $nextPrevPage['prev'] = isset($results[$i - 1]) ? $results[$i - 1]['id'] : 0;
             }
         }
-
         return $nextPrevPage;
     }
-
     public function countCustomerTotalTickets(User $user)
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
@@ -410,10 +385,8 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->from('UVDeskCoreBundle:Ticket', 'ticket')
             ->where('ticket.customer = :user')->setParameter('user', $user)
             ->andWhere('ticket.isTrashed != :isTrashed')->setParameter('isTrashed', true);
-
         return (int) $queryBuilder->getQuery()->getSingleScalarResult();
     }
-
     public function isLabelAlreadyAdded($ticket,$label)
     {
         $qb = $this->getEntityManager()->createQueryBuilder();
@@ -423,10 +396,8 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 ->andwhere('t.id = :ticketId')
                 ->setParameter('labelId',$label->getId())
                 ->setParameter('ticketId',$ticket->getId());
-
         return $qb->getQuery()->getSingleScalarResult() ? true : false;
     }
-
     public function isTicketCollaborator($ticket, $collaboratorEmail)
     {
         if ($ticket->getCollaborators()) {
@@ -436,10 +407,8 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 }
             }
         }
-
         return false;
     }
-
     public function getTicketDetails(ParameterBag $obj = null, $container)
     {
         $data = $obj->all();
@@ -461,10 +430,8 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 ->leftJoin('t.supportLabels', 'tl')
                 ->andwhere('t.id = :ticketId')
                 ->setParameter('ticketId', $data['ticketId']);
-
         $results = $qb->getQuery()->getArrayResult();
         $ticket = array_shift($results);
-
         return [
             'id' => $ticket[0]['id'],
             'subject' => $ticket[0]['subject'],
@@ -486,14 +453,12 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             'lastReply' => $ticketService->getLastReply($ticket[0]['id']),
         ];
     }
-
     public function prepareTicketListQueryWithParams($queryBuilder, $params)
     {
         foreach ($params as $field => $fieldValue) {
             if (in_array($field, $this->safeFields)) {
                 continue;
             }
-
             switch ($field) {
                 case 'label':
                     $queryBuilder->andwhere('supportLabel.id = :labelIds');
@@ -577,42 +542,6 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                     break;
             }
         }
-
         return $queryBuilder;
-    }
-    
-    public function addPermissionFilter($qb, $user, $userSupportGroupIds, $userSupportTeamIds, $haveJoin = true) {
-        
-        if($user->getRoles()[0] == "ROLE_AGENT" && $user->getUserInstance()->getValues()[0]->getTicketAccesslevel() != self::GLOBAL_ACCESS) 
-        {
-            if(!$haveJoin) {
-                $qb->leftJoin('ticket.supportGroup', 'supportGroup')
-                ->leftJoin('ticket.supportTeam', 'supportTeam');
-            }
-
-            if(!empty($this->params['group'])) {
-                $supportGroupIds =  array_intersect($userSupportGroupIds, explode(',', $this->params['group']) );
-            }
-
-            if(!empty($this->params['team'])) {
-                $supportTeamIds =  array_intersect($userSupportTeamIds, explode(',', $this->params['team']) );
-            }
-
-            if($user->getUserInstance()->getValues()[0]->getTicketAccesslevel() == self::GROUP_ACCESS) {
-                $qb->andWhere("ticket.agent = :agentId OR supportGroup.id IN(:supportGroupIds) OR supportTeam.id IN(:supportTeamIds)")
-                    ->setParameter('agentId', $user->getId())
-                    ->setParameter('supportGroupIds', $supportGroupIds)
-                    ->setParameter('supportTeamIds', $supportTeamIds);
-            } elseif($user->getUserInstance()->getValues()[0]->getTicketAccesslevel() == self::TEAM_ACCESS) {
-                $qb->andWhere("ticket.agent = :agentId OR supportTeam.id IN(:supportTeamIds)")
-                    ->setParameter('agentId', $user->getId())
-                    ->setParameter('supportTeamIds', $supportTeamIds);
-            } else {
-                $qb->andWhere("ticket.agent = :agentId")
-                    ->setParameter('agentId', $user->getId());
-            }
-        }
-
-        return $qb;
     }
 }
