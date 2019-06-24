@@ -12,7 +12,7 @@ abstract class BaseConfiguration
     protected $username;
     protected $password;
     protected $senderAddress;
-    protected $deliveryAddresses = [];
+    protected $deliveryAddress;
     protected $deliveryStatus = false;
 
     public function __construct($id = null)
@@ -67,14 +67,14 @@ abstract class BaseConfiguration
         return $this->senderAddress;
     }
 
-    public function setDeliveryAddresses(array $deliveryAddresses = [])
+    public function setDeliveryAddress($deliveryAddress)
     {
-        $this->deliveryAddresses = $deliveryAddresses;
+        $this->deliveryAddress = $deliveryAddress;
     }
 
-    public function getDeliveryAddresses()
+    public function getDeliveryAddress()
     {
-        return $this->deliveryAddresses;
+        return $this->deliveryAddress;
     }
 
     public function setDeliveryStatus(bool $deliveryStatus = true)

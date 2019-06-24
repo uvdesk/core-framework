@@ -19,9 +19,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class TicketRepository extends \Doctrine\ORM\EntityRepository
 {
     const LIMIT = 15;
+    const GLOBAL_ACCESS = 1;
     const DEFAULT_PAGINATION_LIMIT = 15;
 
-    public $params = [];
     private $container;
     private $requestStack;
     private $safeFields = ['page', 'limit', 'sort', 'order', 'direction'];
@@ -211,7 +211,40 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         return $json;
     }
 
-    public function prepareBaseTicketQuery(User $user, $supportGroupIds = [], $supportTeamIds = [], $params = [], $filterByStatus = true)
+    public function addPermissionFilter($qb, User $user, array $supportGroupReferences = [], array $supportTeamReferences = [])
+    {
+        $userInstance = $user->getAgentInstance();
+
+        if (!empty($userInstance) && ('ROLE_AGENT' == $userInstance->getSupportRole()->getCode() || $userInstance->getTicketAccesslevel() != self::GLOBAL_ACCESS)) {
+            $qualifiedGroups = empty($this->params['group']) ? $supportGroupReferences : array_intersect($supportGroupReferences, explode(',', $this->params['group']));
+            $qualifiedTeams = empty($this->params['team']) ? $supportTeamReferences : array_intersect($supportTeamReferences, explode(',', $this->params['team']));
+
+            switch ($userInstance->getTicketAccesslevel()) {
+                case self::GROUP_ACCESS:
+                    $qb
+                        ->andWhere("ticket.agent = :agentId OR supportGroup.id IN(:supportGroupIds) OR supportTeam.id IN(:supportTeamIds)")
+                        ->setParameter('agentId', $user->getId())
+                        ->setParameter('supportGroupIds', $qualifiedGroups)
+                        ->setParameter('supportTeamIds', $qualifiedTeams);
+                    break;
+                case self::TEAM_ACCESS:
+                    $qb
+                        ->andWhere("ticket.agent = :agentId OR supportTeam.id IN(:supportTeamIds)")
+                        ->setParameter('agentId', $user->getId())
+                        ->setParameter('supportTeamIds', $qualifiedTeams);
+                    break;
+                default:
+                    $qb
+                        ->andWhere("ticket.agent = :agentId")
+                        ->setParameter('agentId', $user->getId());
+                    break;
+            }
+        }
+
+        return $qb;
+    }
+
+    public function prepareBaseTicketQuery(User $user, array $supportGroupIds = [], array $supportTeamIds = [], array $params = [], bool $filterByStatus = true)
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select("
@@ -579,40 +612,5 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         }
 
         return $queryBuilder;
-    }
-    
-    public function addPermissionFilter($qb, $user, $userSupportGroupIds, $userSupportTeamIds, $haveJoin = true) {
-        
-        if($user->getRoles()[0] == "ROLE_AGENT" && $user->getUserInstance()->getValues()[0]->getTicketAccesslevel() != self::GLOBAL_ACCESS) 
-        {
-            if(!$haveJoin) {
-                $qb->leftJoin('ticket.supportGroup', 'supportGroup')
-                ->leftJoin('ticket.supportTeam', 'supportTeam');
-            }
-
-            if(!empty($this->params['group'])) {
-                $supportGroupIds =  array_intersect($userSupportGroupIds, explode(',', $this->params['group']) );
-            }
-
-            if(!empty($this->params['team'])) {
-                $supportTeamIds =  array_intersect($userSupportTeamIds, explode(',', $this->params['team']) );
-            }
-
-            if($user->getUserInstance()->getValues()[0]->getTicketAccesslevel() == self::GROUP_ACCESS) {
-                $qb->andWhere("ticket.agent = :agentId OR supportGroup.id IN(:supportGroupIds) OR supportTeam.id IN(:supportTeamIds)")
-                    ->setParameter('agentId', $user->getId())
-                    ->setParameter('supportGroupIds', $supportGroupIds)
-                    ->setParameter('supportTeamIds', $supportTeamIds);
-            } elseif($user->getUserInstance()->getValues()[0]->getTicketAccesslevel() == self::TEAM_ACCESS) {
-                $qb->andWhere("ticket.agent = :agentId OR supportTeam.id IN(:supportTeamIds)")
-                    ->setParameter('agentId', $user->getId())
-                    ->setParameter('supportTeamIds', $supportTeamIds);
-            } else {
-                $qb->andWhere("ticket.agent = :agentId")
-                    ->setParameter('agentId', $user->getId());
-            }
-        }
-
-        return $qb;
     }
 }
