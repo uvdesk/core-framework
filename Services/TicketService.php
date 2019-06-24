@@ -343,8 +343,11 @@ class TicketService
         $activeUser = $this->container->get('user.service')->getSessionUser();
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreBundle:Ticket');
 
+        $supportGroupReference = $this->entityManager->getRepository('UVDeskCoreBundle:User')->getUserSupportGroupReferences($activeUser);
+        $supportTeamReference  = $this->entityManager->getRepository('UVDeskCoreBundle:User')->getUserSupportTeamReferences($activeUser);
+
         // Get base query
-        $baseQuery = $ticketRepository->prepareBaseTicketQuery($activeUser, $params);
+        $baseQuery = $ticketRepository->prepareBaseTicketQuery($activeUser, $supportGroupReference, $supportTeamReference, $params);
         $ticketTabs = $ticketRepository->getTicketTabDetails($activeUser, $params);
 
         // Apply Pagination

@@ -4,6 +4,7 @@ namespace Webkul\UVDesk\CoreBundle\Repository;
 
 use Doctrine\ORM\Query;
 use Doctrine\Common\Collections\Criteria;
+use Webkul\UVDesk\CoreBundle\Entity\User;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -237,5 +238,33 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         }
 
         return $queryBuilder->getQuery()->getResult();
+    }
+    
+    public function getUserSupportGroupReferences(User $user)
+    {
+        $query = $this->getEntityManager()->createQueryBuilder()
+            ->select('ug.id')->from('UVDeskCoreBundle:User', 'u') 
+            ->leftJoin('u.userInstance','userInstance')
+            ->leftJoin('userInstance.supportGroups','ug')
+            ->andwhere('u.id = :userId')
+            ->setParameter('userId', $user->getId())
+            ->andwhere('ug.isActive = 1');
+
+        return array_map('current', $query->getQuery()->getResult());
+    }
+
+    public function getUserSupportTeamReferences(User $user)
+    {
+        $query = $this->getEntityManager()->createQueryBuilder()
+            ->select('ut.id')->from('UVDeskCoreBundle:User', 'u')
+            ->leftJoin('u.userInstance','userInstance')
+            ->leftJoin('userInstance.supportTeams','ut')
+            ->andwhere('u.id = :userId')
+            ->andwhere('userInstance.supportRole != :agentRole')
+            ->andwhere('ut.isActive = 1')
+            ->setParameter('userId', $user->getId())
+            ->setParameter('agentRole', '4');
+
+        return array_map('current', $query->getQuery()->getResult());
     }
 }

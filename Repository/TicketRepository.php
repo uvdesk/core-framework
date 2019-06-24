@@ -19,9 +19,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class TicketRepository extends \Doctrine\ORM\EntityRepository
 {
     const LIMIT = 15;
+    const GLOBAL_ACCESS = 1;
     const DEFAULT_PAGINATION_LIMIT = 15;
 
-    public $params = [];
     private $container;
     private $requestStack;
     private $safeFields = ['page', 'limit', 'sort', 'order', 'direction'];
@@ -136,7 +136,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $qb->leftJoin('t.supportGroup', 'gr');
         $qb->leftJoin('t.priority', 'pr');
         $qb->leftJoin('t.type', 'tp');
-        // $qb->leftJoin('t.collaborators', 'tc');
+        $qb->leftJoin('t.collaborators', 'tc');
         $qb->addSelect("CONCAT(a.firstName,' ', a.lastName) AS name");
         $qb->andwhere("t.agent IS NULL OR ad.supportRole != 4");
 
@@ -155,8 +155,9 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             }
         }
 
-        $qb->andwhere('t.customer = :customerId');
+        $qb->andwhere('t.customer = :customerId OR tc.id =:collaboratorId');
         $qb->setParameter('customerId', $currentUser->getId());
+        $qb->setParameter('collaboratorId', $currentUser->getId());
         $qb->andwhere('t.isTrashed != 1');
 
         if(!isset($data['sort'])) {
@@ -210,7 +211,40 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         return $json;
     }
 
-    public function prepareBaseTicketQuery(User $user, array $params, $filterByStatus = true)
+    public function addPermissionFilter($qb, User $user, array $supportGroupReferences = [], array $supportTeamReferences = [])
+    {
+        $userInstance = $user->getAgentInstance();
+
+        if (!empty($userInstance) && ('ROLE_AGENT' == $userInstance->getSupportRole()->getCode() || $userInstance->getTicketAccesslevel() != self::GLOBAL_ACCESS)) {
+            $qualifiedGroups = empty($this->params['group']) ? $supportGroupReferences : array_intersect($supportGroupReferences, explode(',', $this->params['group']));
+            $qualifiedTeams = empty($this->params['team']) ? $supportTeamReferences : array_intersect($supportTeamReferences, explode(',', $this->params['team']));
+
+            switch ($userInstance->getTicketAccesslevel()) {
+                case self::GROUP_ACCESS:
+                    $qb
+                        ->andWhere("ticket.agent = :agentId OR supportGroup.id IN(:supportGroupIds) OR supportTeam.id IN(:supportTeamIds)")
+                        ->setParameter('agentId', $user->getId())
+                        ->setParameter('supportGroupIds', $qualifiedGroups)
+                        ->setParameter('supportTeamIds', $qualifiedTeams);
+                    break;
+                case self::TEAM_ACCESS:
+                    $qb
+                        ->andWhere("ticket.agent = :agentId OR supportTeam.id IN(:supportTeamIds)")
+                        ->setParameter('agentId', $user->getId())
+                        ->setParameter('supportTeamIds', $qualifiedTeams);
+                    break;
+                default:
+                    $qb
+                        ->andWhere("ticket.agent = :agentId")
+                        ->setParameter('agentId', $user->getId());
+                    break;
+            }
+        }
+
+        return $qb;
+    }
+
+    public function prepareBaseTicketQuery(User $user, array $supportGroupIds = [], array $supportTeamIds = [], array $params = [], bool $filterByStatus = true)
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select("
@@ -252,9 +286,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             $queryBuilder->andWhere('ticket.status = :status')->setParameter('status', isset($params['status']) ? $params['status'] : 1);
         }
 
-        if ($user->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
-            $queryBuilder->andwhere('agent = ' . $user->getId());
-        }
+        $this->addPermissionFilter($queryBuilder, $user, $supportGroupIds, $supportTeamIds);
 
         // applyFilter according to params
         return $this->prepareTicketListQueryWithParams($queryBuilder, $params);
