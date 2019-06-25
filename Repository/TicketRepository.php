@@ -19,11 +19,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class TicketRepository extends \Doctrine\ORM\EntityRepository
 {
     const LIMIT = 15;
-    
-    const GLOBAL_ACCESS = 1;
-    const GROUP_ACCESS = 2;
-    const TEAM_ACCESS  = 3;
-
+    const TICKET_GLOBAL_ACCESS = 1;
+    const TICKET_GROUP_ACCESS = 2;
+    const TICKET_TEAM_ACCESS  = 3;
     const DEFAULT_PAGINATION_LIMIT = 15;
 
     private $container;
@@ -219,19 +217,19 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
     {
         $userInstance = $user->getAgentInstance();
 
-        if (!empty($userInstance) && ('ROLE_AGENT' == $userInstance->getSupportRole()->getCode() || $userInstance->getTicketAccesslevel() != self::GLOBAL_ACCESS)) {
+        if (!empty($userInstance) && ('ROLE_AGENT' == $userInstance->getSupportRole()->getCode() || $userInstance->getTicketAccesslevel() != self::TICKET_GLOBAL_ACCESS)) {
             $qualifiedGroups = empty($this->params['group']) ? $supportGroupReferences : array_intersect($supportGroupReferences, explode(',', $this->params['group']));
             $qualifiedTeams = empty($this->params['team']) ? $supportTeamReferences : array_intersect($supportTeamReferences, explode(',', $this->params['team']));
 
             switch ($userInstance->getTicketAccesslevel()) {
-                case self::GROUP_ACCESS:
+                case self::TICKET_GROUP_ACCESS:
                     $qb
                         ->andWhere("ticket.agent = :agentId OR supportGroup.id IN(:supportGroupIds) OR supportTeam.id IN(:supportTeamIds)")
                         ->setParameter('agentId', $user->getId())
                         ->setParameter('supportGroupIds', $qualifiedGroups)
                         ->setParameter('supportTeamIds', $qualifiedTeams);
                     break;
-                case self::TEAM_ACCESS:
+                case self::TICKET_TEAM_ACCESS:
                     $qb
                         ->andWhere("ticket.agent = :agentId OR supportTeam.id IN(:supportTeamIds)")
                         ->setParameter('agentId', $user->getId())

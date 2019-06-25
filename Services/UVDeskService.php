@@ -317,9 +317,8 @@ class UVDeskService
                         'name' => 'Support Center',
                         'link' => $router->generate('helpdesk_member_knowledgebase_theme'),
                         'isActive' => in_array($currentRoute, [
-                                            'helpdesk_member_knowledgebase_theme',
-                                    ]) ? true : false,
-                        
+                            'helpdesk_member_knowledgebase_theme',
+                        ]) ? true : false,
                         'isEnabled' => true,
                     ];
                 }
