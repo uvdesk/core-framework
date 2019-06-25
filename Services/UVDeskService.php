@@ -316,9 +316,10 @@ class UVDeskService
                     $navigationPanel['routes'][1] = [
                         'name' => 'Support Center',
                         'link' => $router->generate('helpdesk_member_knowledgebase_theme'),
-                        in_array($currentRoute, [
-                            'helpdesk_member_knowledgebase_theme',
-                        ]) ? true : false,
+                        'isActive' => in_array($currentRoute, [
+                                            'helpdesk_member_knowledgebase_theme',
+                                    ]) ? true : false,
+                        
                         'isEnabled' => true,
                     ];
                 }
