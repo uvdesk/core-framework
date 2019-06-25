@@ -87,7 +87,7 @@ MAILER;
             'port' => $this->getPort(),
             'encryption' => $this->getEncryptionMode(),
             'authentication' => $this->getAuthenticationMode(),
-            'delivery_addresses' => $this->getDeliveryAddresses(),
+            'delivery_addresses' => $this->getDeliveryAddress(),
             'sender_address' => $this->getSenderAddress(),
             'deliveryStatus' => $this->getDeliveryStatus(),
         ];
