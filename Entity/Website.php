@@ -52,6 +52,16 @@ class Website
      */
     private $isActive;
 
+    /**
+     * @var string
+     */
+    private $timezone;
+
+    /**
+     * @var string
+     */
+    private $timeformat;
+
 
     /**
      * Get id
@@ -135,7 +145,7 @@ class Website
         return $this->logo;
     }
 
-        /**
+    /**
      * Set themeColor
      *
      * @param string $themeColor
@@ -253,6 +263,52 @@ class Website
     public function getIsActive()
     {
         return $this->isActive;
+    }
+
+    /**
+     * Set timezone
+     *
+     * @param string $timezone
+     * @return website
+     */
+    public function setTimezone($timezone)
+    {
+        $this->timezone = $timezone;
+
+        return $this;
+    }
+
+    /**
+     * Get timezone
+     *
+     * @return string 
+     */
+    public function getTimezone()
+    {
+        return $this->timezone;
+    }
+
+    /**
+     * Set timeformat
+     *
+     * @param string $timeformat
+     * @return website
+     */
+    public function setTimeformat($timeformat)
+    {
+        $this->timeformat = $timeformat;
+
+        return $this;
+    }
+
+    /**
+     * Get timeformat
+     *
+     * @return string 
+     */
+    public function getTimeformat()
+    {
+        return $this->timeformat;
     }
     
 }

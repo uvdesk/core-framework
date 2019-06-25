@@ -317,9 +317,8 @@ class UVDeskService
                         'name' => 'Support Center',
                         'link' => $router->generate('helpdesk_member_knowledgebase_theme'),
                         'isActive' => in_array($currentRoute, [
-                                            'helpdesk_member_knowledgebase_theme',
-                                    ]) ? true : false,
-                        
+                            'helpdesk_member_knowledgebase_theme',
+                        ]) ? true : false,
                         'isEnabled' => true,
                     ];
                 }
@@ -698,5 +697,21 @@ class UVDeskService
         ];
 
         return $ticketData;
+    }
+       
+    public static function getTimeFormats()
+    {
+        return array(
+            'm-d-y G:i' => 'm-d-y G:i (01-15-1991 13:00)',
+            'm-d-y h:ia' => 'm-d-y h:ia (01-15-1991 01:00pm)',
+            'd-m-y G:i' => 'd-m-y G:i (15-01-1991 13:00)',
+            'd-m-y h:ia' => 'd-m-y h:ia (15-01-1991 01:00pm)',
+            'd-m G:i' => 'd-m G:i (15-01 13:00)',
+            'd-m h:ia' => 'd-m h:ia (15-01 01:00pm)',
+            'd-M G:i' => 'd-M G:i (15-Jan 13:00)',
+            'd-M h:ia' => 'd-M h:ia (15-Jan 01:00pm)',
+            'D-m G:i' => 'D-m G:i (Mon-01 13:00)',
+            'D-m h:ia' => 'D-m h:ia (Mon-01 01:00pm)',
+        );
     }
 }
