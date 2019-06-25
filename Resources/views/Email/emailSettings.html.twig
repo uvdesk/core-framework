@@ -63,9 +63,9 @@
     <script type="text/javascript">
         var emailSettingsModel = Backbone.Model.extend({
             defaults: {
-                'id': "{{ email_settings.id }}",
-                'name': "{{ email_settings.name }}",
-                'mailer_id': "{{ email_settings.mailer_id }}",
+                'id': "{{ email_settings ? email_settings.id : '' }}",
+                'name': "{{ email_settings ? email_settings.name : '' }}",
+                'mailer_id': "{{ email_settings ? email_settings.mailer_id : '' }}",
             },
             validation: {
                 'id': [
