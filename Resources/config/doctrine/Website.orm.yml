@@ -36,4 +36,12 @@ Webkul\UVDesk\CoreBundle\Entity\Website:
             nullable: true
             options:
                 default: true
+        timezone:
+            type: string
+            length: '191'
+            nullable: true
+        timeformat:
+            type: string
+            length: '191'
+            nullable: true
     lifecycleCallbacks: {  }
