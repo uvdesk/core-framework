@@ -930,7 +930,7 @@ class TicketService
             }
             
             $threadDetails['reply'] = html_entity_decode($threadDetails['message']);
-            $threadDetails['formatedCreatedAt'] = $threadDetails['createdAt']->format('d-m-Y h:ia');
+            $threadDetails['formatedCreatedAt'] = $this->timeZoneConverter($threadDetails['createdAt']);
             $threadDetails['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($threadDetails['createdAt']);
         
             if (!empty($threadDetails['attachments'])) {
@@ -943,7 +943,7 @@ class TicketService
                 }, $threadDetails['attachments']);
             }
         }
-
+        
         return $threadDetails ?? null;
     }
 
@@ -1162,7 +1162,7 @@ class TicketService
             }
             
             $threadDetails['reply'] = html_entity_decode($threadDetails['message']);
-            $threadDetails['formatedCreatedAt'] = $threadDetails['createdAt']->format('d-m-Y h:ia');
+            $threadDetails['formatedCreatedAt'] = $this->timeZoneConverter($threadDetails['createdAt']);
             $threadDetails['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($threadDetails['createdAt']);
 
             if (!empty($threadDetails['attachments'])) {
