@@ -15,9 +15,6 @@ class TicketXHR extends Controller
     {
         $entityManager = $this->getDoctrine()->getManager();
         $request = $this->container->get('request_stack')->getCurrentRequest();
-
-        dump($request);
-        die;
     }
 
     public function bookmarkTicketXHR()
@@ -453,7 +450,7 @@ class TicketXHR extends Controller
     {
         if ($request->isXmlHttpRequest()) {
             $paginationResponse = $this->get('ticket.service')->paginateMembersTicketCollection($request);
-           
+          
             return new Response(json_encode($paginationResponse), 200, ['Content-Type' => 'application/json']);
         }
 

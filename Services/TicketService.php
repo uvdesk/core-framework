@@ -343,6 +343,10 @@ class TicketService
         $activeUser = $this->container->get('user.service')->getSessionUser();
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreBundle:Ticket');
 
+        $website = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneBy(['code' => 'knowledgebase']);
+        $timeZone = $website->getTimezone();
+        $timeFormat = $website->getTimeformat();
+
         $supportGroupReference = $this->entityManager->getRepository('UVDeskCoreBundle:User')->getUserSupportGroupReferences($activeUser);
         $supportTeamReference  = $this->entityManager->getRepository('UVDeskCoreBundle:User')->getUserSupportTeamReferences($activeUser);
 
@@ -391,7 +395,14 @@ class TicketService
 
             $totalTicketReplies = (int) $ticketThreadCountQuery->getQuery()->getSingleScalarResult();
             $ticketHasAttachments = false;
-          
+
+
+            $totalTicketReplies = (int) $ticketThreadCountQuery->getQuery()->getSingleScalarResult();
+            $ticketHasAttachments = false;
+            
+            $dateString = $ticket['createdAt']->format('d-m-Y H:i:s');
+            $dateTimeZone = date_create($dateString, timezone_open($timeZone));
+            
             $ticketResponse = [
                 'id' => $ticket['id'],
                 'subject' => $ticket['subject'],
@@ -403,8 +414,8 @@ class TicketService
                 'team' => $ticketDetails['teamName'],
                 'priority' => $ticket['priority'],
                 'type' => $ticketDetails['typeName'],
-                'timestamp' => $ticket['createdAt']->getTimestamp(),
-                'formatedCreatedAt' => $ticket['createdAt']->format('d-m-Y h:ia'),
+                'timestamp' => $dateTimeZone,
+                'formatedCreatedAt' => $dateTimeZone->format($timeFormat),
                 'totalThreads' => $totalTicketReplies,
                 'agent' => null,
                 'customer' => null,
@@ -527,6 +538,10 @@ class TicketService
         $paginationParams = $pagination->getParams();
         $paginationData = $pagination->getPaginationData();
 
+        $website = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneBy(['code' => 'knowledgebase']);
+        $timeZone = $website->getTimezone();
+        $timeFormat = $website->getTimeformat();
+
         if (!empty($params['threadRequestedId'])) {
             $requestedThreadCollection = $baseQuery
                 ->andWhere('thread.id >= :threadRequestedId')->setParameter('threadRequestedId', (int) $params['threadRequestedId'])
@@ -546,6 +561,9 @@ class TicketService
         $paginationData['url'] = '#' . $this->container->get('uvdesk.service')->buildPaginationQuery($paginationParams);
 
         foreach ($pagination->getItems() as $threadDetails) {
+            $dateString = $threadDetails['createdAt']->format('d-m-Y H:i:s');
+            $dateTimeZone = date_create($dateString, timezone_open($timeZone));
+
             $threadResponse = [
                 'id' => $threadDetails['id'],
                 'user' => null,
@@ -554,8 +572,8 @@ class TicketService
 				'source' => $threadDetails['source'],
                 'threadType' => $threadDetails['threadType'],
                 'userType' => $threadDetails['createdBy'],
-                'timestamp' => $threadDetails['createdAt']->getTimestamp(),
-                'formatedCreatedAt' => $threadDetails['createdAt']->format('d-m-Y h:ia'),
+                'timestamp' => $dateTimeZone,
+                'formatedCreatedAt' => $dateTimeZone->format($timeFormat),
                 'bookmark' => $threadDetails['isBookmarked'],
                 'isLocked' => $threadDetails['isLocked'],
                 'replyTo' => $threadDetails['replyTo'],
@@ -1257,6 +1275,24 @@ class TicketService
         }
 
         return $flag;
+    }
+
+    public function timeZoneConverter($dateFlag)
+    {
+        $website = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneBy(['code' => 'knowledgebase']);
+        $timeZone = $website->getTimezone();
+        $timeFormat = $website->getTimeformat();
+
+        $parameterType = gettype($dateFlag);
+        if($parameterType == 'string'){
+            $datePattern = date_create($dateFlag, timezone_open($timeZone));
+            return date_format($datePattern, $timeFormat);
+        } else {
+            $dateString = $dateFlag->format('d-m-Y H:i:s');
+            $datePattern = date_create($dateString, timezone_open($timeZone));
+            return date_format($datePattern, $timeFormat);
+        }
+            
     }
 }
 

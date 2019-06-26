@@ -656,7 +656,7 @@ class UVDeskService
         ];
     }
 
-    public function getTimeFormats() {
+    public static function getTimeFormats() {
         return array(
             'm-d-y G:i' => 'm-d-y G:i (01-15-1991 13:00)',
             'm-d-y h:ia' => 'm-d-y h:ia (01-15-1991 01:00pm)',
