@@ -691,7 +691,7 @@ class UVDeskService
         ];
 
         $ticketData['userParameter'] = [
-            'customerFirstName' =>'uvdesk',
+            'customerFirstName' =>'UVdesk',
             'customerLastName' =>'Support',
             'customerEmail' => 'support@uvdesk.com',
         ];
