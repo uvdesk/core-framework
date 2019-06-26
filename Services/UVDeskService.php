@@ -316,7 +316,7 @@ class UVDeskService
                     $navigationPanel['routes'][1] = [
                         'name' => 'Support Center',
                         'link' => $router->generate('helpdesk_member_knowledgebase_theme'),
-                        in_array($currentRoute, [
+                        'isActive' => in_array($currentRoute, [
                             'helpdesk_member_knowledgebase_theme',
                         ]) ? true : false,
                         'isEnabled' => true,
@@ -656,7 +656,12 @@ class UVDeskService
         ];
     }
 
+<<<<<<< HEAD
     public static function getTimeFormats() {
+=======
+    public static function getTimeFormats()
+    {
+>>>>>>> 9358738f2e8cf5035b2ef342018ba064e402e2db
         return array(
             'm-d-y G:i' => 'm-d-y G:i (01-15-1991 13:00)',
             'm-d-y h:ia' => 'm-d-y h:ia (01-15-1991 01:00pm)',

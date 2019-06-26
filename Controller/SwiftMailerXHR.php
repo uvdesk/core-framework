@@ -31,7 +31,6 @@ class SwiftMailerXHR extends Controller
     {
         $params = $request->query->all();
         $swiftmailer = $this->get('swiftmailer.service');
-       
         $configurations = $swiftmailer->parseSwiftMailerConfigurations();
        
         if (!empty($configurations)) {
@@ -41,6 +40,7 @@ class SwiftMailerXHR extends Controller
                     break;
                 }
             }
+
             if (!empty($swiftmailerConfiguration)) {
                 unset($configurations[$index]);
 
@@ -48,8 +48,9 @@ class SwiftMailerXHR extends Controller
                 $event = new ConfigurationRemovedEvent($swiftmailerConfiguration);
                 $this->get('uvdesk.core.event_dispatcher')->dispatch(ConfigurationRemovedEvent::NAME, $event);
 
-                //removing swiftmailer configuration from swiftmailer.yaml file.
+                // Update swiftmailer configuration file
                 $swiftmailer->writeSwiftMailerConfigurations($configurations);
+                
                 return new JsonResponse([
                     'alertClass' => 'success',
                     'alertMessage' => 'Swiftmailer configuration removed successfully.',
