@@ -450,7 +450,6 @@ class TicketXHR extends Controller
     {
         if ($request->isXmlHttpRequest()) {
             $paginationResponse = $this->get('ticket.service')->paginateMembersTicketCollection($request);
-          
             return new Response(json_encode($paginationResponse), 200, ['Content-Type' => 'application/json']);
         }
 

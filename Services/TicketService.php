@@ -395,10 +395,6 @@ class TicketService
 
             $totalTicketReplies = (int) $ticketThreadCountQuery->getQuery()->getSingleScalarResult();
             $ticketHasAttachments = false;
-
-
-            $totalTicketReplies = (int) $ticketThreadCountQuery->getQuery()->getSingleScalarResult();
-            $ticketHasAttachments = false;
             
             $dateString = $ticket['createdAt']->format('d-m-Y H:i:s');
             $dateTimeZone = date_create($dateString, timezone_open($timeZone));
