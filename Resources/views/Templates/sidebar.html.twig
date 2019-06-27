@@ -60,7 +60,7 @@
 	<div style="overflow: hidden;">
 		<div class="uv-soft-top">
 			<a href="{{ path('helpdesk_member_dashboard') }}" class="uv-logo">
-				{% if websiteConfiguration is defined and websiteConfiguration.website.logo is not empty %}
+				{% if websiteConfiguration is defined and websiteConfiguration.website.logo is not null %}
 					<img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}{{ websiteConfiguration.website.logo }}" alt="{{ websiteConfiguration.website.name}}" class="uv-logo-image" />
 				{% else %}
 					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="123px" height="48px">
