@@ -844,6 +844,7 @@ class TicketService
                     'id' => $supportTag['id'],
                     'name' => $supportTag['name'],
                     'ticketCount' => $supportTag['totalTickets'],
+                    
                     'articleCount' => 0,
                 ];
             }, $pagination->getItems()),
