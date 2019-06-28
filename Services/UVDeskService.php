@@ -287,7 +287,7 @@ class UVDeskService
                             'isActive' => in_array($currentRoute, [
                                 'helpdesk_member_mailbox_settings',
                                 'helpdesk_member_mailbox_create_configuration',
-                                'helpdesk_member_swiftmailer_update_mailer_configuration',
+                                'helpdesk_member_mailbox_update_configuration',
                             ]) ? true : false,
                             'isEnabled' => true,
                             'permission' => 'ROLE_ADMIN',
@@ -655,7 +655,7 @@ class UVDeskService
             'knowledgebase' => $knowledgebaseURL,
         ];
     }
-
+       
     public static function getTimeFormats()
     {
         return array(

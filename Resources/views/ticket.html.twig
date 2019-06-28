@@ -322,7 +322,7 @@
 
                         <div class="uv-aside-ticket-brick">
                             <h3>TimeStamp</h3>
-                            <span class="uv-icon-timestamp"></span> <span>{{ initialThread.createdAt }}</span>
+                            <span class="uv-icon-timestamp"></span> <span>{{ ticket_service.timeZoneConverter(initialThread.createdAt) }}</span>
                         </div>
 
                         <div class="uv-aside-ticket-brick">
@@ -476,7 +476,7 @@
 
                                     <ul class="uv-search-list type" data-action="type">
                                         {% for type in ticketTypeCollection %}
-                                            <li data-index="{{ type.id }}"><a href="#">{{ type.description }}</a></li>
+                                            <li data-index="{{ type.id }}"><a href="#">{{ type.code }}</a></li>
                                         {% endfor %}
                                     </ul>
                                 </div>
@@ -690,7 +690,7 @@
                 <div class="uv-ticket-strip">
                     <span>
                         <span class="uv-ticket-strip-label">Created - </span>
-                        <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket.createdAt.format('d-m-Y h:ia') }}</span>
+                        <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(initialThread.createdAt) }}</span>
                     </span>
 
                     <span>
@@ -712,7 +712,7 @@
                         <div class="uv-ticket-main create">
                             <div class="uv-ticket-strip">
                                 <span>
-                                    <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket.createdAt.format('d-m-Y h:ia') }}</span>
+                                    <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(ticket.createdAt) }}</span>
                                     - {{ initialThread.user.name }} <span class="uv-ticket-strip-label">created Ticket</span>
                                 </span>
                             </div>

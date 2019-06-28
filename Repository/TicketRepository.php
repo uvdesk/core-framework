@@ -217,7 +217,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
     {
         $userInstance = $user->getAgentInstance();
 
-        if (!empty($userInstance) && ('ROLE_AGENT' == $userInstance->getSupportRole()->getCode() || $userInstance->getTicketAccesslevel() != self::TICKET_GLOBAL_ACCESS)) {
+        if (!empty($userInstance) && ('ROLE_AGENT' == $userInstance->getSupportRole()->getCode() && $userInstance->getTicketAccesslevel() != self::TICKET_GLOBAL_ACCESS)) {
             $qualifiedGroups = empty($this->params['group']) ? $supportGroupReferences : array_intersect($supportGroupReferences, explode(',', $this->params['group']));
             $qualifiedTeams = empty($this->params['team']) ? $supportTeamReferences : array_intersect($supportTeamReferences, explode(',', $this->params['team']));
 
@@ -499,7 +499,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
         $results = $qb->getQuery()->getArrayResult();
         $ticket = array_shift($results);
-
+        
         return [
             'id' => $ticket[0]['id'],
             'subject' => $ticket[0]['subject'],
@@ -511,7 +511,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             'subGroupName' => $ticket['supportTeamName'],
             'typeName' => $ticket['typeName'],
             'priority' => $ticket[0]['priority'],
-            'formatedCreatedAt' => $ticket[0]['createdAt']->format('d-m-Y h:ia'),
+            'formatedCreatedAt' => $ticketService->timeZoneConverter($ticket[0]['createdAt']),
             'ticketLabels' => $ticketService->getTicketLabels($ticket[0]['id']),
             'totalThreads' => $ticketService->getTicketTotalThreads($ticket[0]['id']),
             'agent' => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
@@ -614,5 +614,18 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         }
 
         return $queryBuilder;
+    }
+
+    public function getTagArticleCount($supportTag)
+    {
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder()
+            ->select('COUNT(articleTags) as totalArticle')
+            ->from('UVDeskSupportCenterBundle:ArticleTags', 'articleTags')
+            ->where('articleTags.tagId = :supportTag')
+            ->setParameter('supportTag', $supportTag);
+
+        $result = $queryBuilder->getQuery()->getResult();
+
+        return !empty($result) ? $result[0]['totalArticle'] : 0;
     }
 }

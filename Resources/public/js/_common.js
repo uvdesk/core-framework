@@ -659,7 +659,7 @@ $(function() {
         }
 
 	    uvHamburger.addEventListener("click", () => {
-            uvWrapper.classList.remove('uv-wrapper-gap');
+            uvWrapper.classList.toggle('uv-wrapper-gap');
             uvNav.classList.toggle("uv-navbar-gap");
             uvPaper.classList.toggle('uv-wrapper-padding');
             uvSidebar.classList.toggle("uv-sidebar-active");
