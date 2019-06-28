@@ -217,7 +217,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
     {
         $userInstance = $user->getAgentInstance();
 
-        if (!empty($userInstance) && ('ROLE_AGENT' == $userInstance->getSupportRole()->getCode() || $userInstance->getTicketAccesslevel() != self::TICKET_GLOBAL_ACCESS)) {
+        if (!empty($userInstance) && ('ROLE_AGENT' == $userInstance->getSupportRole()->getCode() && $userInstance->getTicketAccesslevel() != self::TICKET_GLOBAL_ACCESS)) {
             $qualifiedGroups = empty($this->params['group']) ? $supportGroupReferences : array_intersect($supportGroupReferences, explode(',', $this->params['group']));
             $qualifiedTeams = empty($this->params['team']) ? $supportTeamReferences : array_intersect($supportTeamReferences, explode(',', $this->params['team']));
 
@@ -614,5 +614,18 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         }
 
         return $queryBuilder;
+    }
+
+    public function getTagArticleCount($supportTag)
+    {
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder()
+        ->select('COUNT(articleTags) as totalArticle')
+        ->from('UVDeskSupportCenterBundle:ArticleTags', 'articleTags')
+        ->where('articleTags.tagId = :supportTag')
+        ->setParameter('supportTag', $supportTag);
+
+        $result = $queryBuilder->getQuery()->getResult();
+
+        return !empty($result) ? $result[0]['totalArticle'] : 0;
     }
 }

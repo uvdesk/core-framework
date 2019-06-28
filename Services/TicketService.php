@@ -840,11 +840,12 @@ class TicketService
 
         return [
             'tags' => array_map(function ($supportTag) {
+                $ticketRepository = $this->entityManager->getRepository('UVDeskCoreBundle:Ticket');
                 return [
                     'id' => $supportTag['id'],
                     'name' => $supportTag['name'],
                     'ticketCount' => $supportTag['totalTickets'],
-                    'articleCount' => 0,
+                    'articleCount' => $ticketRepository->getTagArticleCount($supportTag['id']),
                 ];
             }, $pagination->getItems()),
             'pagination_data' => $paginationData,
