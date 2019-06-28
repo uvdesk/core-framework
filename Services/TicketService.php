@@ -343,9 +343,9 @@ class TicketService
         $activeUser = $this->container->get('user.service')->getSessionUser();
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreBundle:Ticket');
 
-        $website = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneBy(['code' => 'knowledgebase']);
-        $timeZone = $website->getTimezone();
-        $timeFormat = $website->getTimeformat();
+        // $website = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneBy(['code' => 'knowledgebase']);
+        // $timeZone = $website->getTimezone();
+        // $timeFormat = $website->getTimeformat();
 
         $supportGroupReference = $this->entityManager->getRepository('UVDeskCoreBundle:User')->getUserSupportGroupReferences($activeUser);
         $supportTeamReference  = $this->entityManager->getRepository('UVDeskCoreBundle:User')->getUserSupportTeamReferences($activeUser);
@@ -410,8 +410,8 @@ class TicketService
                 'team' => $ticketDetails['teamName'],
                 'priority' => $ticket['priority'],
                 'type' => $ticketDetails['typeName'],
-                'timestamp' => $dateTimeZone,
-                'formatedCreatedAt' => $dateTimeZone->format($timeFormat),
+                'timestamp' => $ticket['createdAt']->getTimestamp(),
+                'formatedCreatedAt' => $ticket['createdAt']->format('d-m-Y h:ia'),
                 'totalThreads' => $totalTicketReplies,
                 'agent' => null,
                 'customer' => null,
@@ -568,8 +568,8 @@ class TicketService
 				'source' => $threadDetails['source'],
                 'threadType' => $threadDetails['threadType'],
                 'userType' => $threadDetails['createdBy'],
-                'timestamp' => $dateTimeZone,
-                'formatedCreatedAt' => $dateTimeZone->format($timeFormat),
+                'timestamp' => $threadDetails['createdAt']->getTimestamp(),
+                'formatedCreatedAt' => $threadDetails['createdAt']->format('d-m-Y h:ia'),
                 'bookmark' => $threadDetails['isBookmarked'],
                 'isLocked' => $threadDetails['isLocked'],
                 'replyTo' => $threadDetails['replyTo'],
@@ -930,7 +930,7 @@ class TicketService
             }
             
             $threadDetails['reply'] = html_entity_decode($threadDetails['message']);
-            $threadDetails['formatedCreatedAt'] = $this->timeZoneConverter($threadDetails['createdAt']);
+            $threadDetails['formatedCreatedAt'] = $threadDetails['createdAt']->format('d-m-Y h:ia');	
             $threadDetails['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($threadDetails['createdAt']);
         
             if (!empty($threadDetails['attachments'])) {
@@ -1162,7 +1162,7 @@ class TicketService
             }
             
             $threadDetails['reply'] = html_entity_decode($threadDetails['message']);
-            $threadDetails['formatedCreatedAt'] = $this->timeZoneConverter($threadDetails['createdAt']);
+            $threadDetails['formatedCreatedAt'] = $threadDetails['createdAt']->format('d-m-Y h:ia');
             $threadDetails['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($threadDetails['createdAt']);
 
             if (!empty($threadDetails['attachments'])) {
@@ -1273,22 +1273,22 @@ class TicketService
         return $flag;
     }
 
-    public function timeZoneConverter($dateFlag)
-    {
-        $website = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneBy(['code' => 'knowledgebase']);
-        $timeZone = $website->getTimezone();
-        $timeFormat = $website->getTimeformat();
+    // public function timeZoneConverter($dateFlag)
+    // {
+    //     $website = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneBy(['code' => 'knowledgebase']);
+    //     $timeZone = $website->getTimezone();
+    //     $timeFormat = $website->getTimeformat();
 
-        $parameterType = gettype($dateFlag);
-        if($parameterType == 'string'){
-            $datePattern = date_create($dateFlag, timezone_open($timeZone));
-            return date_format($datePattern, $timeFormat);
-        } else {
-            $dateString = $dateFlag->format('d-m-Y H:i:s');
-            $datePattern = date_create($dateString, timezone_open($timeZone));
-            return date_format($datePattern, $timeFormat);
-        }
+    //     $parameterType = gettype($dateFlag);
+    //     if($parameterType == 'string'){
+    //         $datePattern = date_create($dateFlag, timezone_open($timeZone));
+    //         return date_format($datePattern, $timeFormat);
+    //     } else {
+    //         $dateString = $dateFlag->format('d-m-Y H:i:s');
+    //         $datePattern = date_create($dateString, timezone_open($timeZone));
+    //         return date_format($datePattern, $timeFormat);
+    //     }
             
-    }
+    // }
 }
 
