@@ -853,12 +853,12 @@ class TicketService
         $paginationData['url'] = '#' . $this->container->get('uvdesk.service')->buildPaginationQuery($paginationParams);
 
         return [
-            'tags' => array_map(function ($supportTag) {
+            'tags' => array_map(function ($supportTag) use ($ticketRepository) {
                 return [
                     'id' => $supportTag['id'],
                     'name' => $supportTag['name'],
                     'ticketCount' => $supportTag['totalTickets'],
-                    'articleCount' => 0,
+                    'articleCount' => $ticketRepository->getTagArticleCount($supportTag['id']),
                 ];
             }, $pagination->getItems()),
             'pagination_data' => $paginationData,

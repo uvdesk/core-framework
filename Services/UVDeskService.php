@@ -655,7 +655,7 @@ class UVDeskService
             'knowledgebase' => $knowledgebaseURL,
         ];
     }
-
+       
     public static function getTimeFormats()
     {
         return array(
