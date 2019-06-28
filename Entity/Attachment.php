@@ -4,18 +4,28 @@ namespace Webkul\UVDesk\CoreBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * Attachment
+
+/** 
+ * @ORM\Entity()
+ * @ORM\HasLifecycleCallbacks()
+ * @ORM\Table(name="uv_ticket_attachments")
  */
+
 class Attachment
 {
     /**
      * @var integer
+     * 
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue
+     * 
      */
     private $id;
 
     /**
      * @var string
+     * @ORM\Column(type="text", nullable=true)
      */
     private $name;
 
@@ -54,6 +64,7 @@ class Attachment
     }
     /**
      * @var string
+     * @ORM\Column(name="path", type="text", nullable=true)
      */
     private $path;
 
@@ -82,6 +93,9 @@ class Attachment
     }
     /**
      * @var \Webkul\TicketBundle\Entity\Thread
+     * 
+     * @ORM\ManyToOne(targetEntity="Thread", inversedBy="attachments")
+     * @ORM\JoinColumn(name="thread_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $thread;
 
@@ -91,6 +105,7 @@ class Attachment
      *
      * @param \Webkul\TicketBundle\Entity\Thread $thread
      * @return Attachment
+     * 
      */
     public function setThread(\Webkul\UVDesk\CoreBundle\Entity\Thread $thread = null)
     {
@@ -111,16 +126,22 @@ class Attachment
     
     /**
      * @var string
+     * 
+     * @ORM\Column(name="content_type", length=255, type="string", nullable=true)
      */
     private $contentType;
 
     /**
      * @var integer
+     * 
+     * @ORM\Column(name="size", type="integer", nullable=true)
      */
     private $size;
 
     /**
      * @var string
+     * 
+     * 
      */
     public $attachmentThumb;
 
@@ -186,6 +207,8 @@ class Attachment
     }
     /**
      * @var string
+     * 
+     * @ORM\Column(name="content_id", type="string", length=255, nullable=true)
      */
     private $contentId;
 
@@ -214,6 +237,8 @@ class Attachment
     }
     /**
      * @var string
+     * 
+     * @ORM\Column(name="file_system", type="string", length=255, nullable=true)
      */
     private $fileSystem;
 
