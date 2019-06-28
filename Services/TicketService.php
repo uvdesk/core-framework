@@ -392,9 +392,6 @@ class TicketService
             $totalTicketReplies = (int) $ticketThreadCountQuery->getQuery()->getSingleScalarResult();
             $ticketHasAttachments = false;
             
-            $dateString = $ticket['createdAt']->format('d-m-Y H:i:s');
-            $dateTimeZone = date_create($dateString, timezone_open($timeZone));
-            
             $ticketResponse = [
                 'id' => $ticket['id'],
                 'subject' => $ticket['subject'],
@@ -530,10 +527,6 @@ class TicketService
         $paginationParams = $pagination->getParams();
         $paginationData = $pagination->getPaginationData();
 
-        $website = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneBy(['code' => 'knowledgebase']);
-        $timeZone = $website->getTimezone();
-        $timeFormat = $website->getTimeformat();
-
         if (!empty($params['threadRequestedId'])) {
             $requestedThreadCollection = $baseQuery
                 ->andWhere('thread.id >= :threadRequestedId')->setParameter('threadRequestedId', (int) $params['threadRequestedId'])
@@ -553,9 +546,6 @@ class TicketService
         $paginationData['url'] = '#' . $this->container->get('uvdesk.service')->buildPaginationQuery($paginationParams);
 
         foreach ($pagination->getItems() as $threadDetails) {
-            $dateString = $threadDetails['createdAt']->format('d-m-Y H:i:s');
-            $dateTimeZone = date_create($dateString, timezone_open($timeZone));
-
             $threadResponse = [
                 'id' => $threadDetails['id'],
                 'user' => null,
