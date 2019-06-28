@@ -37,7 +37,7 @@
                         <option value="">Select type</option>
 
                         {% for type in ticketTypeCollection %}
-                            <option value="{{ type.id }}">{{ type.description }}</option>
+                            <option value="{{ type.id }}">{{ type.code }}</option>
                         {% endfor %}
                     </select>
                 </div>
