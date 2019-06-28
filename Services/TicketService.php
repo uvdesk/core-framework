@@ -343,10 +343,6 @@ class TicketService
         $activeUser = $this->container->get('user.service')->getSessionUser();
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreBundle:Ticket');
 
-        // $website = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneBy(['code' => 'knowledgebase']);
-        // $timeZone = $website->getTimezone();
-        // $timeFormat = $website->getTimeformat();
-
         $supportGroupReference = $this->entityManager->getRepository('UVDeskCoreBundle:User')->getUserSupportGroupReferences($activeUser);
         $supportTeamReference  = $this->entityManager->getRepository('UVDeskCoreBundle:User')->getUserSupportTeamReferences($activeUser);
 
@@ -1272,23 +1268,5 @@ class TicketService
 
         return $flag;
     }
-
-    // public function timeZoneConverter($dateFlag)
-    // {
-    //     $website = $this->entityManager->getRepository('UVDeskCoreBundle:Website')->findOneBy(['code' => 'knowledgebase']);
-    //     $timeZone = $website->getTimezone();
-    //     $timeFormat = $website->getTimeformat();
-
-    //     $parameterType = gettype($dateFlag);
-    //     if($parameterType == 'string'){
-    //         $datePattern = date_create($dateFlag, timezone_open($timeZone));
-    //         return date_format($datePattern, $timeFormat);
-    //     } else {
-    //         $dateString = $dateFlag->format('d-m-Y H:i:s');
-    //         $datePattern = date_create($dateString, timezone_open($timeZone));
-    //         return date_format($datePattern, $timeFormat);
-    //     }
-            
-    // }
 }
 
