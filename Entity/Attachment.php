@@ -10,7 +10,6 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(name="uv_ticket_attachments")
  */
-
 class Attachment
 {
     /**
