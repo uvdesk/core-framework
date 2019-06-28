@@ -251,13 +251,6 @@
                             msg: '{{ "Please specify a valid email address"|trans }}'
                         }
                     ],
-                    {% if configuration is defined and configuration.id is not empty %}
-                    id: function(value) {
-                        if (value == undefined || value == '') {
-                            return "Please enter the mailer id";
-                        }
-                    },
-                    {% endif %}
                     password: function(value) {
                         if (value == undefined || value == '') {
                             return "Please enter the password associated with your email address";
