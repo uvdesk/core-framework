@@ -22,7 +22,7 @@ class SwiftMailer extends Controller
             $swiftmailer = $this->get('swiftmailer.service');
 
             $swiftmailerConfiguration = $swiftmailer->createConfiguration($params['transport'], $params['id']);
-
+            
             if (!empty($swiftmailerConfiguration)) {
                 $swiftmailerConfiguration->initializeParams($params);
                 $configurations = $swiftmailer->parseSwiftMailerConfigurations();
@@ -47,26 +47,28 @@ class SwiftMailer extends Controller
     {
         $swiftmailerService = $this->get('swiftmailer.service');
         $swiftmailerConfigurations = $swiftmailerService->parseSwiftMailerConfigurations();
-
+        
         foreach ($swiftmailerConfigurations as $index => $configuration) {
             if ($configuration->getId() == $id) {
                 $swiftmailerConfiguration = $configuration;
                 break;
             }
         }
-
+       
         if (empty($swiftmailerConfiguration)) {
             return new Response('', 404);
         }
 
         if ($request->getMethod() == 'POST') {
+            $params = $request->request->all();   
             $existingSwiftmailerConfiguration = clone $swiftmailerConfiguration;
-            $swiftmailerConfiguration->initializeParams($request->request->all(), true);
-            
+            $swiftmailerConfiguration = $swiftmailerService->createConfiguration($params['transport'], $params['id']);
+            $swiftmailerConfiguration->initializeParams($params);
+
             // Updated swiftmailer configuration file
-            $swiftmailerConfigurations[$index] = $swiftmailerConfiguration;
+            $swiftmailerConfigurations[$index] = $swiftmailerConfiguration;            
             $swiftmailerService->writeSwiftMailerConfigurations($swiftmailerConfigurations);
-            
+              
             // Dispatch swiftmailer configuration updated event
             $event = new ConfigurationUpdatedEvent($swiftmailerConfiguration, $existingSwiftmailerConfiguration);
             $this->get('uvdesk.core.event_dispatcher')->dispatch(ConfigurationUpdatedEvent::NAME, $event);
