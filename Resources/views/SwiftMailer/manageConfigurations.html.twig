@@ -9,7 +9,11 @@
 		{{ include('@UVDeskCore/Templates/panel-sidebar.html.twig') }}
 
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
-			<h1>Update configuration</h1>
+        {% if configuration is defined and configuration.id is not empty %}
+		    <h1>Update configuration</h1>
+        {% else %}
+            <h1>Add configuration</h1>
+        {% endif %}
 
             <div class="uv-hr"></div>
 			
