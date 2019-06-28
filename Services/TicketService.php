@@ -839,8 +839,7 @@ class TicketService
         $paginationData['url'] = '#' . $this->container->get('uvdesk.service')->buildPaginationQuery($paginationParams);
 
         return [
-            'tags' => array_map(function ($supportTag) {
-                $ticketRepository = $this->entityManager->getRepository('UVDeskCoreBundle:Ticket');
+            'tags' => array_map(function ($supportTag) use ($ticketRepository) {
                 return [
                     'id' => $supportTag['id'],
                     'name' => $supportTag['name'],
