@@ -28,7 +28,7 @@ class AgentPrivileges extends DoctrineFixture
                 $supportPrivilege->setName($supportPrivilegeSeed['name']);
                 $supportPrivilege->setDescription($supportPrivilegeSeed['description']);
                 $supportPrivilege->setPrivileges($supportPrivilegeSeed['privileges']);
-                $supportPrivilege->setCreatedAt(new \Datetime);
+                $supportPrivilege->setCreatedAt(new \Datetime());
 
                 $entityManager->persist($supportPrivilege);
             }
