@@ -396,8 +396,14 @@ class TicketService
             $totalTicketReplies = (int) $ticketThreadCountQuery->getQuery()->getSingleScalarResult();
             $ticketHasAttachments = false;
             
-            $dateString = $ticket['createdAt']->format('d-m-Y H:i:s');
-            $dateTimeZone = date_create($dateString, timezone_open($timeZone));
+            if(is_null($timeZone) && is_null($timeFormat)){
+                $dateTimeZone = $ticket['createdAt'];
+                $timeFormatString = 'd-m-Y H:i:s';
+            } else {
+                $dateString = $ticket['createdAt']->format('d-m-Y H:i:s');
+                $dateTimeZone = date_create($dateString, timezone_open($timeZone));
+                $timeFormatString = $timeFormat;
+            }          
             
             $ticketResponse = [
                 'id' => $ticket['id'],
@@ -411,7 +417,7 @@ class TicketService
                 'priority' => $ticket['priority'],
                 'type' => $ticketDetails['typeName'],
                 'timestamp' => $dateTimeZone,
-                'formatedCreatedAt' => $dateTimeZone->format($timeFormat),
+                'formatedCreatedAt' => $dateTimeZone->format($timeFormatString),
                 'totalThreads' => $totalTicketReplies,
                 'agent' => null,
                 'customer' => null,
@@ -557,8 +563,14 @@ class TicketService
         $paginationData['url'] = '#' . $this->container->get('uvdesk.service')->buildPaginationQuery($paginationParams);
 
         foreach ($pagination->getItems() as $threadDetails) {
-            $dateString = $threadDetails['createdAt']->format('d-m-Y H:i:s');
-            $dateTimeZone = date_create($dateString, timezone_open($timeZone));
+            if(is_null($timeZone) || is_null($timeFormat)){
+                $dateTimeZone = $threadDetails['createdAt'];
+                $timeFormatString = 'd-m-Y H:i:s';
+            } else {
+                $dateString = $threadDetails['createdAt']->format('d-m-Y H:i:s');
+                $dateTimeZone = date_create($dateString, timezone_open($timeZone));
+                $timeFormatString = $timeFormat; 
+            }
 
             $threadResponse = [
                 'id' => $threadDetails['id'],
@@ -569,7 +581,8 @@ class TicketService
                 'threadType' => $threadDetails['threadType'],
                 'userType' => $threadDetails['createdBy'],
                 'timestamp' => $dateTimeZone,
-                'formatedCreatedAt' => $dateTimeZone->format($timeFormat),
+                'formatedCreatedAt' => $dateTimeZone->format($timeFormatString),
+
                 'bookmark' => $threadDetails['isBookmarked'],
                 'isLocked' => $threadDetails['isLocked'],
                 'replyTo' => $threadDetails['replyTo'],
@@ -668,7 +681,6 @@ class TicketService
                 case 'status':
                     $status = $this->entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->find($data['targetId']);
                     $flag = 0;
-                    // dump($ticket->getStatus());die;
                     if($ticket->getStatus() != $status) {
                         $notePlaceholders = $this->getNotePlaceholderValues(
                                 $ticket->getStatus()->getCode(),
@@ -1281,12 +1293,21 @@ class TicketService
 
         $parameterType = gettype($dateFlag);
         if($parameterType == 'string'){
-            $datePattern = date_create($dateFlag, timezone_open($timeZone));
-            return date_format($datePattern, $timeFormat);
+            if(is_null($timeZone) || is_null($timeFormat)){
+                $datePattern = date_create($dateFlag);
+                return date_format($datePattern,'d-m-Y H:i:s');
+            } else {
+                $datePattern = date_create($dateFlag, timezone_open($timeZone));
+                return date_format($datePattern, $timeFormat);
+            }
         } else {
-            $dateString = $dateFlag->format('d-m-Y H:i:s');
-            $datePattern = date_create($dateString, timezone_open($timeZone));
-            return date_format($datePattern, $timeFormat);
+            if(is_null($timeZone) || is_null($timeFormat)){
+                return date_format($dateFlag,'d-m-Y H:i:s');
+            } else {
+                $dateString = $dateFlag->format('d-m-Y H:i:s');
+                $datePattern = date_create($dateString, timezone_open($timeZone));
+                return date_format($datePattern, $timeFormat);
+            }
         }
             
     }
