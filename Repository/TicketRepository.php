@@ -511,7 +511,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             'subGroupName' => $ticket['supportTeamName'],
             'typeName' => $ticket['typeName'],
             'priority' => $ticket[0]['priority'],
-            'formatedCreatedAt' => $ticketService->timeZoneConverter($ticket[0]['createdAt']),
+            'formatedCreatedAt' => $ticketService->timeZoneConverter($ticket[0]['createdAt']),      
             'ticketLabels' => $ticketService->getTicketLabels($ticket[0]['id']),
             'totalThreads' => $ticketService->getTicketTotalThreads($ticket[0]['id']),
             'agent' => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,

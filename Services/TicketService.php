@@ -582,7 +582,6 @@ class TicketService
                 'userType' => $threadDetails['createdBy'],
                 'timestamp' => $dateTimeZone,
                 'formatedCreatedAt' => $dateTimeZone->format($timeFormatString),
-
                 'bookmark' => $threadDetails['isBookmarked'],
                 'isLocked' => $threadDetails['isLocked'],
                 'replyTo' => $threadDetails['replyTo'],
@@ -942,7 +941,7 @@ class TicketService
             }
             
             $threadDetails['reply'] = html_entity_decode($threadDetails['message']);
-            $threadDetails['formatedCreatedAt'] = $this->timeZoneConverter($threadDetails['createdAt']);
+            $threadDetails['formatedCreatedAt'] = $this->timeZoneConverter($threadDetails['createdAt']);	
             $threadDetails['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($threadDetails['createdAt']);
         
             if (!empty($threadDetails['attachments'])) {
