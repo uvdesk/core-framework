@@ -1,8 +1,11 @@
 <?php
+
 namespace Webkul\UVDesk\CoreBundle\Fixtures;
+
 use Doctrine\Common\Persistence\ObjectManager;
 use Webkul\UVDesk\CoreBundle\Entity as CoreEntities;
 use Doctrine\Bundle\FixturesBundle\Fixture as DoctrineFixture;
+
 class WelcomeTicket extends DoctrineFixture
 {
     private static $seedData = [
@@ -42,6 +45,7 @@ class WelcomeTicket extends DoctrineFixture
             'customerEmail' => 'support@uvdesk.com',
         ]
     ];
+    
     public function load(ObjectManager $entityManager)
     {
         $availableTicketPriority = $entityManager->getRepository('UVDeskCoreBundle:TicketPriority')->findOneBy(['code' => 'low']);
