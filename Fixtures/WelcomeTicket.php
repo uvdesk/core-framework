@@ -44,68 +44,59 @@ class WelcomeTicket extends DoctrineFixture
             'customerLastName' =>'Support',
             'customerEmail' => 'support@uvdesk.com',
         ]
-
     ];
-
+    
     public function load(ObjectManager $entityManager)
     {
         $availableTicketPriority = $entityManager->getRepository('UVDeskCoreBundle:TicketPriority')->findOneBy(['code' => 'low']);
         $availableTicketStatus = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findOneBy(['code' => 'open']);
         $supportRole = $entityManager->getRepository('UVDeskCoreBundle:SupportRole')->findOneBy(['code' => 'ROLE_CUSTOMER']);
-        $superAdmin = $entityManager->getRepository('UVDeskCoreBundle:UserInstance')->findOneBy(['supportRole' => 1])->getUser();;
         
-        if (!empty($superAdmin)) {
-            // Setting user details:
-            $user = new CoreEntities\User();
-            $user->setEmail(self::$seedData['userParameter']['customerEmail']);
-            $user->setFirstName(self::$seedData['userParameter']['customerFirstName']);
-            $user->setLastName(self::$seedData['userParameter']['customerLastName']);
-            $user->setIsEnabled(true);
+        // Setting user details:
+        $user = new CoreEntities\User();
+        $user->setEmail(self::$seedData['userParameter']['customerEmail']);
+        $user->setFirstName(self::$seedData['userParameter']['customerFirstName']);
+        $user->setLastName(self::$seedData['userParameter']['customerLastName']);
+        $user->setIsEnabled(true);
+        $entityManager->persist($user);
+        $entityManager->flush();
 
-            $entityManager->persist($user);
+        // Setting user Instance:
+        $userInstance = new CoreEntities\UserInstance();
+        $userInstance->setUser($user);
+        $userInstance->setSupportRole($supportRole);
+        $userInstance->setDesignation(null);
+        $userInstance->setSignature(null);
+        $userInstance->setSource('website');
+        $userInstance->setIsActive(true);
+        $userInstance->setIsVerified(true);
+        $entityManager->persist($userInstance);
+        $entityManager->flush();
+
+        // Setting up ticket Data
+        $ticket =  new CoreEntities\Ticket();
+        $ticket->setSource('website');
+        $ticket->setCustomer($user);
+        $ticket->setSubject(self::$seedData['ticketParameters']['subject']);
+        $ticket->setStatus($availableTicketStatus);
+        $ticket->setPriority($availableTicketPriority);
+        $ticket->setCreatedAt((new \DateTime));
+        $ticket->setUpdatedAt((new \DateTime));
+        $entityManager->persist($ticket);
+        $entityManager->flush();
+
+        if (!empty($ticket)) {
+            $thread = new CoreEntities\Thread();
+            $thread->setTicket($ticket);
+            $thread->setUser($user);
+            $thread->setMessage(self::$seedData['ticketParameters']['message']);
+            $thread->setCreatedAt(new \DateTime());
+            $thread->setUpdatedAt(new \DateTime());
+            $thread->setSource('website');
+            $thread->setThreadType('create');
+            $thread->setCreatedBy('customer');
+            $entityManager->persist($thread);
             $entityManager->flush();
-
-            // Setting user Instance:
-            $userInstance = new CoreEntities\UserInstance();
-            $userInstance->setUser($user);
-            $userInstance->setSupportRole($supportRole);
-            $userInstance->setDesignation(null);
-            $userInstance->setSignature(null);
-            $userInstance->setSource('website');
-            $userInstance->setIsActive(true);
-            $userInstance->setIsVerified(true);
-
-            $entityManager->persist($userInstance);
-            $entityManager->flush();
-
-            // setting up ticket Data
-            $ticket =  new CoreEntities\Ticket();
-            $ticket->setSource('website');
-            $ticket->setCustomer($user);
-            $ticket->setAgent($superAdmin);
-            $ticket->setSubject(self::$seedData['ticketParameters']['subject']);
-            $ticket->setStatus($availableTicketStatus);
-            $ticket->setPriority($availableTicketPriority);
-            $ticket->setCreatedAt((new \DateTime));
-            $ticket->setUpdatedAt((new \DateTime));
-
-            $entityManager->persist($ticket);
-            $entityManager->flush();
-
-            if (!empty($ticket)) {
-                $thread = new CoreEntities\Thread();
-                $thread->setTicket($ticket);
-                $thread->setUser($user);
-                $thread->setMessage(self::$seedData['ticketParameters']['message']);
-                $thread->setCreatedAt(new \DateTime());
-                $thread->setUpdatedAt(new \DateTime());
-                $thread->setSource('website');
-                $thread->setThreadType('create');
-                $thread->setCreatedBy('customer');
-
-                $entityManager->persist($thread);
-                $entityManager->flush();
-            }
         }
     }
 }
