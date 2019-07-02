@@ -43,9 +43,10 @@
                     <label class="uv-field-label">{{ 'Swiftmailer id (Select from drop down)'|trans }}</label>
                     <div class="uv-field-block">
                         <select name="mailer_id" class="uv-select" type="text" value='<%= (typeof(mailer_id) !== "undefined") ? mailer_id : "" %>'>
-                            <% if (typeof(mailer_id) == "undefined") { %>
-                                <option>Select swiftmailer</option>
-                            <% } %>
+                            
+                            {% if mailer_id is null %}
+                            <option>Select Swiftmailer Id</option>
+                            {% endif %}
 
                             {% for swiftmailer in swiftmailers %}
                                 <option <%= typeof(mailer_id) !== 'undefined' && mailer_id == "{{swiftmailer}}" ? selected="selected" : "" %>>{{ swiftmailer }}</option>
