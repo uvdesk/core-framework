@@ -72,11 +72,13 @@ class Account extends Controller
                             return $this->redirect($this->generateUrl('helpdesk_member_profile'));
                         }
                     }
+                    
                     $user->setFirstName($data['firstName']);
                     $user->setLastName($data['lastName']);
                     $user->setEmail($data['email']);
                     $user->setTimezone($data['timezone']);
                     $user->setTimeformat($data['timeformat']);
+                    
                     $em->persist($user);
                     $em->flush();
 
