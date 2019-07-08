@@ -64,14 +64,14 @@ class SwiftMailer extends Controller
             $existingSwiftmailerConfiguration = clone $swiftmailerConfiguration;
             $swiftmailerConfiguration = $swiftmailerService->createConfiguration($params['transport'], $params['id']);
             $swiftmailerConfiguration->initializeParams($params);
-
-            // Updated swiftmailer configuration file
-            $swiftmailerConfigurations[$index] = $swiftmailerConfiguration;            
-            $swiftmailerService->writeSwiftMailerConfigurations($swiftmailerConfigurations);
               
             // Dispatch swiftmailer configuration updated event
             $event = new ConfigurationUpdatedEvent($swiftmailerConfiguration, $existingSwiftmailerConfiguration);
             $this->get('uvdesk.core.event_dispatcher')->dispatch(ConfigurationUpdatedEvent::NAME, $event);
+
+            // Updated swiftmailer configuration file
+            $swiftmailerConfigurations[$index] = $swiftmailerConfiguration;            
+            $swiftmailerService->writeSwiftMailerConfigurations($swiftmailerConfigurations);
             
             $this->addFlash('success', 'SwiftMailer configuration updated successfully.');
             return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_settings'));
