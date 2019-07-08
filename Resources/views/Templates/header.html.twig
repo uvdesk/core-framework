@@ -133,6 +133,7 @@
     .user-name {
         font-weight: 800;
         margin-top: 2px;
+        font-size: medium;
     }
     @media screen and (min-width: 901px) and (max-width: 1400px) {
         .uv-sidebar.uv-sidebar-active ~ .uv-paper .uv-mob-aside{
@@ -278,7 +279,14 @@
 
     .uv-main-logo {
         position: absolute;
-        padding: 10px 0 0px 50px; 
+        padding: 10px 0 0px 30px; 
+    }
+    .dropdown-divider {
+        border-top: 1px solid #e1e4e8;
+        display: block;
+        height: 0;
+        margin: 10px 0 10px -19px;
+        width: 195px;
     }
 </style>
 
@@ -567,18 +575,32 @@
             <div class="uv-dropdown-list uv-bottom-right uv-text-left">
                 <div class="uv-dropdown-container">
                 
-                    <label>Howdy</label>
-                   <p class="user-name">{{ currentUser.firstName }} {{ currentUser.lastName }}</p>
-                    <hr/>
+                    <label>Signed in as </label>
+                        <p class="user-name">{{ currentUser.firstName }} {{ currentUser.lastName }}</p>
+                    <div role="none" class="dropdown-divider"></div>
+
                     <ul>
-                        <li><a href="{{ path('edit_profile') }}">Profile</a></li>
-                        <li><a class="uv-text-danger" href="{{ path('helpdesk_member_handle_logout') }}">Sign Out</a></li>
+                        <li><a href="{{ path('edit_profile') }}" class='profiler'>Your Profile</a></li>   
+                    </ul>
+                    
+                    <ul>
+                        <li data-action="create" class="uv-open-popup" data-target="create-ticket-modal">Create Ticket</li>
+						{% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT') %}
+                            <li><a href="{{ path('helpdesk_member_create_account') }}">Create Agent</a></li>
+                        {% endif %}
+						{% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER') %}                        
+                            <li><a href="{{ path('helpdesk_member_create_customer_account') }}">Create Customer</a></li>
+                        {% endif %}
+
+                        <div role="none" class="dropdown-divider"></div>
+                        {# <li><a href="https://support.uvdesk.com/en/customer/create-ticket/">UVdesk Contact</a></li> #}
+                        <li><a class="uv-text-danger" href="https://support.uvdesk.com/en/customer/create-ticket/">Sign Out</a></li>
                     </ul>
                 </div>
             </div>
         </span>
 
-        <span class="new">
+        {# <span class="new">
             <div class="uv-action-new uv-dropdown-other">
                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20px" height="20px"><path fill-rule="evenodd"  fill="rgb(255, 255, 255)"
                 d="M20.000,12.000 L12.000,12.000 L12.000,20.000 L8.000,20.000 L8.000,12.000 L0.000,12.000 L0.000,8.000 L8.000,8.000 L8.000,-0.000 L12.000,-0.000 L12.000,8.000 L20.000,8.000 L20.000,12.000 Z"/></svg>
@@ -598,7 +620,7 @@
                     </ul>
                 </div>
             </div>
-        </span>
+        </span> #}
     </div>
 </div>
 

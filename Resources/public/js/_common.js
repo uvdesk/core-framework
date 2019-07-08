@@ -625,7 +625,7 @@ $(function() {
 	    var uvSidebar =  document.querySelector(".uv-sidebar");
         var uvWrapper =  document.querySelector(".uv-wrapper");
         var uvNav =  document.querySelector(".uv-navbar");
-	    
+        
         var getCookie = name => {
             var value = "; " + document.cookie;
             var parts = value.split("; " + name + "=");
@@ -635,11 +635,13 @@ $(function() {
 
         let sidebarCookieValue = getCookie('uv-sidebar');
         if (sidebarCookieValue) {
+            uvSidebar.classList.add('reloading');
             uvSidebar.classList.remove('uv-sidebar-active');
             uvPaper.classList.add('uv-wrapper-padding');
             uvWrapper.classList.add('uv-wrapper-gap');
             uvNav.classList.add('uv-navbar-gap');
         } else {
+            uvSidebar.classList.remove('reloading');
             uvSidebar.classList.add('uv-sidebar-active');
             uvWrapper.classList.remove('uv-wrapper-gap');
             uvNav.classList.remove('uv-navbar-gap');
