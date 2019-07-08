@@ -2139,17 +2139,17 @@ kbd {
 }
 .uv-sidebar {
   background-color: #FFFFFF;
-  width: 300px;
+  width: 235px;
   position: absolute;
   height: auto;
-  top: 0;
+  top: 71px;
   bottom: 0;
   left: 0;
   box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.18);
   border-right: solid 1px #D3D3D3;
   z-index: 2;
   overflow: hidden;
-  transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.0s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .uv-sidebar .uv-soft-top {
   display: block;
@@ -2184,6 +2184,7 @@ kbd {
   vertical-align: middle;
   cursor: pointer;
   margin: 24px 0px;
+  padding-left: 32px;
 }
 .uv-sidebar .uv-soft-top .uv-hamburger:hover svg path {
   fill: #7C70F4;
@@ -2229,6 +2230,7 @@ kbd {
 }
 .uv-sidebar-active .uv-soft-top .uv-hamburger {
   margin: 24px 20px;
+  padding-left: unset;
 }
 .uv-sidebar-active ul.uv-menubar {
   list-style-type: none;
@@ -2248,7 +2250,6 @@ kbd {
   top: 0;
   bottom: 0;
   z-index: 1;
-  padding-left: 60px;
   background-color: #FFFFFF;
   transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -2262,6 +2263,7 @@ kbd {
   display: inline-block;
   width: 50%;
   vertical-align: middle;
+  padding: 0 0 0 230px;
 }
 .uv-paper .uv-navbar .uv-search-bar {
   width: 100%;
@@ -5062,7 +5064,7 @@ br[data-mce-bogus="1"] {
     margin: 10px 7px;
   }
   .uv-sidebar .uv-soft-top .uv-hamburger {
-    display: none;
+    /* display: none; */
   }
   .uv-sidebar .uv-soft-top .uv-company-logo img {
     height: 48px;
@@ -5157,14 +5159,14 @@ br[data-mce-bogus="1"] {
 }
 @media screen and (min-width: 901px) and (max-width: 1400px) {
   .uv-sidebar {
-    width: 60px;
+    /* width: 60px; */
   }
   .uv-sidebar .uv-soft-top a.uv-logo {
     display: block;
     margin: 10px 7px;
   }
   .uv-sidebar .uv-soft-top .uv-hamburger {
-    display: none;
+    /* display: none; */
   }
   .uv-sidebar .uv-soft-top .uv-company-logo img {
     height: 48px;
@@ -5179,10 +5181,10 @@ br[data-mce-bogus="1"] {
     transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .uv-sidebar ul.uv-menubar li a .uv-menu-item {
-    display: none;
+    /* display: none; */
   }
   .uv-paper {
-    padding-left: 60px;
+    /* padding-left: 60px; */
   }
   .uv-paper .uv-wrapper {
     left: 60px;

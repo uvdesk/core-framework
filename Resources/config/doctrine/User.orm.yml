@@ -42,4 +42,12 @@ Webkul\UVDesk\CoreBundle\Entity\User:
             length: 191
             nullable: true
             unique: true
+        timezone:
+            type: string
+            length: '191'
+            nullable: true
+        timeformat:
+            type: string
+            length: '191'
+            nullable: true
     lifecycleCallbacks: {  }

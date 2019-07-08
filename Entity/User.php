@@ -65,6 +65,16 @@ class User implements AdvancedUserInterface
      */
     private $activeInstance;
 
+     /**
+     * @var string
+     */
+    private $timezone;
+
+    /**
+     * @var string
+     */
+    private $timeformat;
+
     /**
      * Constructor
      */
@@ -353,6 +363,52 @@ class User implements AdvancedUserInterface
     public function isEnabled()
     {
         return $this->isEnabled;
+    }
+
+    /**
+     * Set timezone
+     *
+     * @param string $timezone
+     * @return User
+     */
+    public function setTimezone($timezone)
+    {
+        $this->timezone = $timezone;
+
+        return $this;
+    }
+
+    /**
+     * Get timezone
+     *
+     * @return string 
+     */
+    public function getTimezone()
+    {
+        return $this->timezone;
+    }
+
+    /**
+     * Set timeformat
+     *
+     * @param string $timeformat
+     * @return User
+     */
+    public function setTimeformat($timeformat)
+    {
+        $this->timeformat = $timeformat;
+
+        return $this;
+    }
+
+    /**
+     * Get timeformat
+     *
+     * @return string 
+     */
+    public function getTimeformat()
+    {
+        return $this->timeformat;
     }
 
     /**

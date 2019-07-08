@@ -29,9 +29,9 @@ class Account extends Controller
         $dataFiles = $request->files->get('user_form');
 
         if ($request->getMethod() == "POST") {
-            $data     = $request->request->all();
+            $data     = $request->request->all();           
             $dataFiles = $request->files->get('user_form');
-
+            
             // Profile upload validation
             $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
             if(isset($dataFiles['profileImage'])){
@@ -50,7 +50,7 @@ class Account extends Controller
                     $errorFlag = 1;
             }
 
-            if (!$errorFlag) {
+            if (!$errorFlag) {            
                 $password = $user->getPassword();
               
                 $form = $this->createForm(UserProfile::class, $user);
@@ -72,14 +72,17 @@ class Account extends Controller
                             return $this->redirect($this->generateUrl('helpdesk_member_profile'));
                         }
                     }
-                   
+                    
                     $user->setFirstName($data['firstName']);
                     $user->setLastName($data['lastName']);
                     $user->setEmail($data['email']);
+                    $user->setTimezone($data['timezone']);
+                    $user->setTimeformat($data['timeformat']);
+                    
                     $em->persist($user);
                     $em->flush();
-                    $userInstance = $em->getRepository('UVDeskCoreBundle:UserInstance')->findOneBy(array('user' => $user->getId()));
 
+                    $userInstance = $em->getRepository('UVDeskCoreBundle:UserInstance')->findOneBy(array('user' => $user->getId()));
                     $userInstance = $this->container->get('user.service')->getUserDetailById($user->getId());
 
                     if (isset($dataFiles['profileImage'])) {
