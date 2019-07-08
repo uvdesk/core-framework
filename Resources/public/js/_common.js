@@ -625,24 +625,7 @@ $(function() {
 	    var uvSidebar =  document.querySelector(".uv-sidebar");
         var uvWrapper =  document.querySelector(".uv-wrapper");
         var uvNav =  document.querySelector(".uv-navbar");
-	    var uvSlideIn = () => {
-            if (window.innerWidth <= 1400) {
-                uvSidebar.classList.add("slide-in");
-                uvSidebar.classList.add('uv-sidebar-active');   
-                uvWrapper.classList.remove('uv-wrapper-gap');
-                uvNav.classList.remove('uv-navbar-gap');
-                uvPaper.classList.remove('uv-wrapper-padding');
-                document.cookie = "uv-sidebar=0; uv-wrapper-status=0;"
-            } else {
-                uvSidebar.classList.remove("slide-in");
-            }
-	    }
-
-	    window.onresize = () => {
-            uvSlideIn();
-	    }
-	    uvSlideIn();
-
+	    
         var getCookie = name => {
             var value = "; " + document.cookie;
             var parts = value.split("; " + name + "=");
@@ -673,5 +656,5 @@ $(function() {
             else
                 document.cookie = "uv-sidebar=0; uv-wrapper-status=0;"
         });
-	}
+	} 
 });
