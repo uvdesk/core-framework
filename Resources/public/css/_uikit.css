@@ -538,7 +538,7 @@ span.uv-sorting:hover.ascend {
 .uv-dropdown-list label {
   font-size: 15px;
   display: inline-block;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   color: #9E9E9E;
   font-weight: 700;
   padding-bottom: 5px;
@@ -2142,15 +2142,20 @@ kbd {
   width: 235px;
   position: absolute;
   height: auto;
-  top: 71px;
+  top: 70px;
   bottom: 0;
   left: 0;
   box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.18);
   border-right: solid 1px #D3D3D3;
   z-index: 2;
   overflow: hidden;
+  transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reloading {
   transition: 0.0s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .uv-sidebar .uv-soft-top {
   display: block;
   width: 300px;
@@ -2250,6 +2255,7 @@ kbd {
   top: 0;
   bottom: 0;
   z-index: 1;
+  
   background-color: #FFFFFF;
   transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -2277,7 +2283,7 @@ kbd {
   background-image: url("./../images/icon-search.svg");
   background-repeat: no-repeat;
   background-position: 0px 0px;
-  background-color: transparent;
+  background-color: #bdbaba30;
   transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .uv-paper .uv-navbar .uv-search-bar:focus {
@@ -2446,7 +2452,7 @@ kbd {
   color: #9E9E9E;
 }
 .uv-paper .uv-navbar .uv-profile:after {
-  background-image: url(./../images/uvdesk-sprite.svg);
+  /* background-image: url(./../images/uvdesk-sprite.svg); */
   background-position: -68px 0px;
   width: 6px;
   height: 24px;
