@@ -2188,7 +2188,7 @@ kbd {
   display: inline-block;
   vertical-align: middle;
   cursor: pointer;
-  margin: 24px 0px;
+  margin: 24px -12px;
   padding-left: 32px;
 }
 .uv-sidebar .uv-soft-top .uv-hamburger:hover svg path {
@@ -3439,7 +3439,7 @@ kbd {
   display: inline-block;
 }
 .uv-inner-section .uv-action-bar label.uv-margin-left-27 {
-  margin-left: 27px;
+  margin-left: 10px;
 }
 .uv-inner-section .uv-icon-filter {
   background-image: url("./../images/uvdesk-sprite.svg");
@@ -5165,7 +5165,6 @@ br[data-mce-bogus="1"] {
 }
 @media screen and (min-width: 901px) and (max-width: 1400px) {
   .uv-sidebar {
-    /* width: 60px; */
   }
   .uv-sidebar .uv-soft-top a.uv-logo {
     display: block;
@@ -5194,7 +5193,7 @@ br[data-mce-bogus="1"] {
   }
   .uv-paper .uv-wrapper {
     left: 60px;
-    transition: none;
+    transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .uv-inner-section .uv-aside {
     width: 250px;
