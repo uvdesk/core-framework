@@ -625,19 +625,7 @@ $(function() {
 	    var uvSidebar =  document.querySelector(".uv-sidebar");
         var uvWrapper =  document.querySelector(".uv-wrapper");
         var uvNav =  document.querySelector(".uv-navbar");
-	    var uvSlideIn = () => {
-            if (window.innerWidth <= 768) {
-                uvSidebar.classList.add("slide-in");
-            } else {
-                uvSidebar.classList.remove("slide-in");
-            }
-	    }
-
-	    window.onresize = () => {
-            uvSlideIn();
-	    }
-	    uvSlideIn();
-
+	    
         var getCookie = name => {
             var value = "; " + document.cookie;
             var parts = value.split("; " + name + "=");
@@ -668,5 +656,5 @@ $(function() {
             else
                 document.cookie = "uv-sidebar=0; uv-wrapper-status=0;"
         });
-	}
+	} 
 });
