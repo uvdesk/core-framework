@@ -6,26 +6,36 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * EmailTemplatesCompany
+ * 
+ * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreBundle\Repository\SavedRepliesRepository")
+ * @ORM\Table(name="uv_saved_replies")
+ * @ORM\HasLifecycleCallbacks
  */
 class SavedReplies
 {
     /**
      * @var integer
+     * @ORM\Id()
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
      * @var string
+     * @ORM\Column(name="name", type="string", length=255)
      */
     private $name;
 
     /**
      * @var string
+     * @ORM\Column(name="subject", type="string", length=255, nullable=true)
      */
     private $subject;
 
     /**
      * @var string
+     * @ORM\Column(type="text")
      */
     private $message;
 
@@ -108,12 +118,13 @@ class SavedReplies
     }
     /**
      * @var integer
+     * @ORM\Column(name="template_id", type="integer", nullable=true)
      */
     private $templateId;
 
     /**
      * Set templateId
-     *
+     * 
      * @param integer $templateId
      * @return Savedreplies
      */
@@ -135,6 +146,8 @@ class SavedReplies
     }
     /**
      * @var \Webkul\UserBundle\Entity\UserData
+     * @ORM\ManyToOne(targetEntity="UserInstance", inversedBy="userSaveReplies")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=true, onDelete="CASCADE")
      */
     private $user;
 
@@ -161,7 +174,7 @@ class SavedReplies
         return $this->user;
     }
     /**
-     * @var boolean
+     * @ORM\Column(type="boolean", options={"default": true}, nullable=true)
      */
     private $isPredefind;
 
@@ -185,11 +198,14 @@ class SavedReplies
      * @return boolean 
      */
     public function getIsPredefind()
-    {
+    {   
         return $this->isPredefind;
     }
     /**
      * @var string
+     * 
+     * @ORM\Column(name="message_inline", type="text", nullable=true)
+     * 
      */
     private $messageInline;
 
@@ -218,6 +234,7 @@ class SavedReplies
     }
     /**
      * @var string
+     * @ORM\Column(name="template_for", type="string", nullable=true, options={"default": null})
      */
     private $templateFor;
 
@@ -246,6 +263,13 @@ class SavedReplies
     }
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * 
+     * @ORM\ManyToMany(targetEntity="SupportGroup")
+     * @ORM\JoinTable(name="uv_saved_replies_groups",
+     *      joinColumns={@ORM\JoinColumn(name="savedReply_id", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="CASCADE")},
+     * )
+     * 
      */
     private $groups;
 
@@ -290,6 +314,11 @@ class SavedReplies
     }
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\ManyToMany(targetEntity="SupportTeam")
+     * @ORM\JoinTable(name="uv_saved_replies_teams",     
+     *      joinColumns={@ORM\JoinColumn(name="savedReply_id", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="subgroup_id", referencedColumnName="id", onDelete="CASCADE")},
+     * )
      */
     private $teams;
 

@@ -2,103 +2,133 @@
 
 namespace Webkul\UVDesk\CoreBundle\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * Thread
+ * 
+ * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreBundle\Repository\ThreadRepository")
+ * @ORM\HasLifecycleCallbacks()
+ * @ORM\Table(name="uv_thread")
+ * 
  */
 class Thread
 {
     /**
      * @var integer
+     * @ORM\Id()
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191)
      */
     private $source;
 
     /**
      * @var string
+     * @ORM\Column(type="text", nullable=true)
      */
     private $messageId;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191)
      */
     private $threadType;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191)
      */
     private $createdBy;
 
     /**
      * @var array
+     * @ORM\Column(type="array", nullable=true)
      */
     private $cc;
 
     /**
      * @var array
+     * @ORM\Column(type="array", nullable=true)
      */
     private $bcc;
 
     /**
      * @var array
+     * @ORM\Column(type="array", nullable=true)
      */
     private $replyTo;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $deliveryStatus;
 
     /**
      * @var boolean
+     * @ORM\Column(type="boolean", options={"default": false})
      */
     private $isLocked = false;
 
     /**
      * @var boolean
+     * @ORM\Column(type="boolean", options={"default": false})
      */
     private $isBookmarked = false;
 
     /**
      * @var string
+     * @ORM\Column(type="text")
      */
     private $message;
 
     /**
      * @var \DateTime
+     * @ORM\Column(type="datetime")
      */
     private $createdAt;
 
     /**
      * @var \DateTime
+     * @ORM\Column(type="datetime")
      */
     private $updatedAt;
 
     /**
      * @var \DateTime
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $agentViewedAt;
 
     /**
      * @var \DateTime
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $customerViewedAt;
 
     /**
      * @var \Webkul\UVDesk\CoreBundle\Entity\Ticket
+     * @ORM\ManyToOne(targetEntity="Ticket", inversedBy="threads")
+     * @ORM\JoinColumn(name="ticket_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $ticket;
 
     /**
      * @var \Webkul\UVDesk\CoreBundle\Entity\User
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="SET NULL")
      */
     private $user;
 
     /**
      * @var \Webkul\UVDesk\CoreBundle\Entity\Attachment
+     * @ORM\OneToMany(targetEntity="Attachment", mappedBy="thread", cascade={"remove"}, orphanRemoval=true)
      */
     private $attachments;
 

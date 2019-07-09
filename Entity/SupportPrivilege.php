@@ -2,38 +2,51 @@
 
 namespace Webkul\UVDesk\CoreBundle\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * SupportPrivilege
+ * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreBundle\Repository\SupportPrivilegeRepository")
+ * @ORM\HasLifecycleCallbacks
+ * @ORM\Table(name="uv_support_privilege")
  */
 class SupportPrivilege
 {
     /**
      * @var integer
+     * @ORM\Id()
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191)
      */
     private $name;
 
     /**
      * @var string
+     * @ORM\Column(type="text")
      */
     private $description;
 
     /**
      * @var array
+     * @ORM\Column(type="array", nullable=true)
      */
     private $privileges;
 
     /**
      * @var \DateTime
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $createdAt;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\ManyToMany(targetEntity="UserInstance", mappedBy="supportPrivileges")
      */
     private $users;
 
