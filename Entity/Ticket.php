@@ -2,8 +2,13 @@
 
 namespace Webkul\UVDesk\CoreBundle\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * Ticket
+ * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreBundle\Repository\TicketRepository")
+ * @ORM\HasLifecycleCallbacks
+ * @ORM\Table(name="uv_ticket")
  */
 class Ticket
 {
@@ -11,134 +16,181 @@ class Ticket
     const AGENT_GROUP_ACCESS = 'TICKET_GROUP';
     const AGENT_TEAM_ACCESS = 'TICKET_TEAM';
     const AGENT_INDIVIDUAL_ACCESS = 'TICKET_INDIVIDUAL';
-    
+
     /**
      * @var integer
+     * @ORM\Id()
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191)
      */
     private $source;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191, nullable=true)
      */
     private $mailboxEmail;
 
     /**
      * @var string
+     * @ORM\Column(type="text", nullable=true)
      */
     private $subject;
 
     /**
      * @var string
+     * @ORM\Column(type="text", nullable=true)
      */
     private $referenceIds;
 
     /**
      * @var boolean
+     * @ORM\Column(type="boolean", options={"default": true})
      */
     private $isNew = true;
 
     /**
      * @var boolean
+     * @ORM\Column(type="boolean", options={"default": false})
      */
     private $isReplied = false;
 
     /**
      * @var boolean
+     * @ORM\Column(type="boolean", options={"default": true})
      */
     private $isReplyEnabled = true;
 
     /**
      * @var boolean
+     * @ORM\Column(type="boolean", options={"default": false})
      */
     private $isStarred = false;
 
     /**
      * @var boolean
+     * @ORM\Column(type="boolean", options={"default": false})
      */
     private $isTrashed = false;
 
     /**
      * @var boolean
+     * @ORM\Column(type="boolean", options={"default": false})
      */
     private $isAgentViewed = false;
 
     /**
      * @var boolean
+     * @ORM\Column(type="boolean", options={"default": false})
      */
     private $isCustomerViewed = false;
 
     /**
      * @var \DateTime
+     * @ORM\Column(type="datetime")
      */
     private $createdAt;
 
     /**
      * @var \DateTime
+     * @ORM\Column(type="datetime")
      */
     private $updatedAt;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\OneToMany(targetEntity="Thread", mappedBy="ticket")
      */
     private $threads;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\OneToMany(targetEntity="TicketRating", mappedBy="ticket")
      */
     private $ratings;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\ManyToMany(targetEntity="User")
+     * @ORM\JoinTable(name="uv_tickets_collaborators",
+     *      joinColumns={@ORM\JoinColumn(name="ticket_id", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")}
+     * )
      */
     private $collaborators;
 
     /**
      * @var \Webkul\UVDesk\CoreBundle\Entity\TicketStatus
+     * @ORM\ManyToOne(targetEntity="TicketStatus")
+     * @ORM\JoinColumn(name="status_id", referencedColumnName="id")
      */
     private $status;
 
     /**
      * @var \Webkul\UVDesk\CoreBundle\Entity\TicketPriority
+     * @ORM\ManyToOne(targetEntity="TicketPriority")
+     * @ORM\JoinColumn(name="priority_id", referencedColumnName="id")
      */
     private $priority;
 
     /**
      * @var \Webkul\UVDesk\CoreBundle\Entity\TicketType
+     * @ORM\ManyToOne(targetEntity="TicketType")
+     * @ORM\JoinColumn(name="type_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
      */
     private $type;
 
     /**
      * @var \Webkul\UVDesk\CoreBundle\Entity\User
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="customer_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $customer;
 
     /**
      * @var \Webkul\UVDesk\CoreBundle\Entity\User
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="agent_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      */
     private $agent;
 
     /**
      * @var \Webkul\UVDesk\CoreBundle\Entity\SupportGroup
+     * @ORM\ManyToOne(targetEntity="SupportGroup", inversedBy="tickets")
+     * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      */
     private $supportGroup;
 
     /**
      * @var \Webkul\UVDesk\CoreBundle\Entity\SupportTeam
+     * @ORM\ManyToOne(targetEntity="SupportTeam")
+     * @ORM\JoinColumn(name="subGroup_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
      */
     private $supportTeam;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\ManyToMany(targetEntity="Tag")
+     * @ORM\JoinTable(name="uv_tickets_tags",
+     *      joinColumns={@ORM\JoinColumn(name="ticket_id", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="tag_id", referencedColumnName="id", onDelete="CASCADE")}
+     * )
      */
     private $supportTags;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\ManyToMany(targetEntity="SupportLabel")
+     * @ORM\JoinTable(name="uv_tickets_labels",
+     *      joinColumns={@ORM\JoinColumn(name="ticket_id", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="label_id", referencedColumnName="id", onDelete="CASCADE")}
+     * )
      */
     private $supportLabels;
 
@@ -554,7 +606,7 @@ class Ticket
         $this->collaborators[] = $collaborators;
         return $this;
     }
-    
+
     /**
      * Remove collaborators
      *
@@ -568,7 +620,7 @@ class Ticket
     /**
      * Get collaborators
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getCollaborators()
     {
@@ -814,7 +866,7 @@ class Ticket
     /**
      * Get formatted $createdAt
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getFormatedCreatedAt()
     {

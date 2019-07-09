@@ -1,39 +1,53 @@
 <?php
 
 namespace Webkul\UVDesk\CoreBundle\Entity;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * TicketRating
+ * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreBundle\Repository\TicketRatingRepository")
+ * @ORM\HasLifecycleCallbacks()
+ * @ORM\Table(name="uv_ticket_rating")
  */
 class TicketRating
 {
     /**
      * @var integer
+     * @ORM\Id()
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
      * @var integer
+     * @ORM\Column(type="integer", options={"default": 0})
      */
     private $stars = 0;
 
     /**
      * @var string
+     * @ORM\Column(type="text", nullable=true)
      */
     private $feedback;
 
     /**
      * @var \DateTime
+     * @ORM\Column(type="datetime")
      */
     private $createdAt;
 
     /**
      * @var \Webkul\UVDesk\CoreBundle\Entity\Ticket
+     * @ORM\ManyToOne(targetEntity="Ticket", inversedBy="ratings")
+     * @ORM\JoinColumn(name="ticket_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $ticket;
 
     /**
      * @var \Webkul\UVDesk\CoreBundle\Entity\User
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $customer;
 

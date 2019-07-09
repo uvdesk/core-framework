@@ -3,55 +3,69 @@
 namespace Webkul\UVDesk\CoreBundle\Entity;
 
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
-
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * User
+ * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreBundle\Repository\UserRepository")
+ * @ORM\HasLifecycleCallbacks()
+ * @ORM\Table(name="uv_user")
  */
 class User implements AdvancedUserInterface
 {
     /**
      * @var integer
+     * @ORM\Id()
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191, unique=true, nullable=true)
      */
     private $email;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191, unique=true, nullable=true)
      */
     private $proxyId;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191, nullable=true)
      */
     private $password;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191)
      */
     private $firstName;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191, nullable=true)
      */
     private $lastName;
 
     /**
      * @var boolean
+     * @ORM\Column(type="boolean", options={"default": false})
      */
     private $isEnabled;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191, unique=true, nullable=true)
      */
     private $verificationCode;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\OneToMany(targetEntity="UserInstance", mappedBy="user")
      */
     private $userInstance;
 
@@ -67,11 +81,13 @@ class User implements AdvancedUserInterface
 
      /**
      * @var string
+     * @ORM\Column(type="string", length=191, unique=true, nullable=true)
      */
     private $timezone;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191, unique=true, nullable=true)
      */
     private $timeformat;
 
@@ -354,7 +370,7 @@ class User implements AdvancedUserInterface
     {
         return true;
     }
-    
+
     /**
      * Checks whether the user is enabled
      *
@@ -363,52 +379,6 @@ class User implements AdvancedUserInterface
     public function isEnabled()
     {
         return $this->isEnabled;
-    }
-
-    /**
-     * Set timezone
-     *
-     * @param string $timezone
-     * @return User
-     */
-    public function setTimezone($timezone)
-    {
-        $this->timezone = $timezone;
-
-        return $this;
-    }
-
-    /**
-     * Get timezone
-     *
-     * @return string 
-     */
-    public function getTimezone()
-    {
-        return $this->timezone;
-    }
-
-    /**
-     * Set timeformat
-     *
-     * @param string $timeformat
-     * @return User
-     */
-    public function setTimeformat($timeformat)
-    {
-        $this->timeformat = $timeformat;
-
-        return $this;
-    }
-
-    /**
-     * Get timeformat
-     *
-     * @return string 
-     */
-    public function getTimeformat()
-    {
-        return $this->timeformat;
     }
 
     /**
@@ -489,6 +459,52 @@ class User implements AdvancedUserInterface
     public function getCurrentInstance()
     {
         return $this->activeInstance;
+    }
+
+
+    /**
+     * Set timezone
+     *
+     * @param string $timezone
+     * @return User
+     */
+    public function setTimezone($timezone)
+    {
+        $this->timezone = $timezone;
+
+        return $this;
+    }
+
+    /**
+     * Get timezone
+     *
+     * @return string
+     */
+    public function getTimezone()
+    {
+        return $this->timezone;
+    }
+
+    /**
+     * Set timeformat
+     *
+     * @param string $timeformat
+     * @return User
+     */
+    public function setTimeformat($timeformat)
+    {
+        $this->timeformat = $timeformat;
+        return $this;
+    }
+
+    /**
+     * Get timeformat
+     *
+     * @return string
+     */
+    public function getTimeformat()
+    {
+        return $this->timeformat;
     }
 }
 
