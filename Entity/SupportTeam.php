@@ -2,48 +2,66 @@
 
 namespace Webkul\UVDesk\CoreBundle\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * SupportTeam
+ * 
+ * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreBundle\Repository\SupportTeamRepository")
+ * @ORM\HasLifecycleCallbacks()
+ * @ORM\Table(name="uv_support_team")
  */
 class SupportTeam
 {
     /**
      * @var integer
+     * @ORM\Id()
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191)
+     * 
      */
     private $name;
 
     /**
      * @var string
+     * @ORM\Column(type="text")
      */
     private $description;
 
     /**
      * @var \DateTime
+     * @ORM\Column(type="datetime")
      */
     private $createdAt;
 
     /**
      * @var boolean
+     * @ORM\Column(type="boolean", options={"default": false})
      */
     private $isActive = false;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\ManyToMany(targetEntity="UserInstance", mappedBy="supportTeams")
      */
     private $users;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\ManyToMany(targetEntity="UserInstance", mappedBy="leadSupportTeams")
+     * 
      */
     private $leads;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\ManyToMany(targetEntity="SupportGroup", mappedBy="supportTeams")
      */
     private $supportGroups;
 

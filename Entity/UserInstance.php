@@ -2,73 +2,93 @@
 
 namespace Webkul\UVDesk\CoreBundle\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * UserInstance
+ * @ORM\Entity(repositoryClass=null)
+ * @ORM\HasLifecycleCallbacks()
+ * @ORM\Table(name="uv_user_instance")
  */
 class UserInstance
 {
     /**
      * @var integer
+     * @ORM\Id()
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191)
      */
     private $source;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191, nullable=true)
      */
     private $skypeId;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191, nullable=true)
      */
     private $contactNumber;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191, nullable=true)
      */
     private $designation;
 
     /**
      * @var string
+     * @ORM\Column(type="text", nullable=true)
      */
     private $signature;
 
     /**
      * @var string
+     * @ORM\Column(type="text", nullable=true)
      */
     private $profileImagePath;
 
     /**
      * @var \DateTime
+     * @ORM\Column(type="datetime")
      */
     private $createdAt;
 
     /**
      * @var \DateTime
+     * @ORM\Column(type="datetime")
      */
     private $updatedAt;
 
     /**
      * @var boolean
+     * @ORM\Column(type="boolean", options={"default": false})
      */
     private $isActive = false;
 
     /**
      * @var boolean
+     * @ORM\Column(type="boolean", options={"default": false})
      */
     private $isVerified = false;
 
     /**
      * @var boolean
+     * @ORM\Column(type="boolean", options={"default": false})
      */
     private $isStarred = false;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=32, nullable=true)
      */
     private $ticketAccessLevel;
 
@@ -79,46 +99,73 @@ class UserInstance
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\OneToMany(targetEntity="EmailTemplates", mappedBy="user", cascade={"remove"}, orphanRemoval=true)
      */
     private $userSavedReplies;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\OneToMany(targetEntity="SavedFilters", mappedBy="user", cascade={"remove"}, orphanRemoval=true)
      */
     private $userSavedFilters;
 
     /**
      * @var \Webkul\UVDesk\CoreBundle\Entity\User
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="userInstance")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $user;
 
     /**
      * @var \Webkul\UVDesk\CoreBundle\Entity\SupportRole
+     * @ORM\ManyToOne(targetEntity="SupportRole")
+     * @ORM\JoinColumn(name="supportRole_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $supportRole;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\ManyToMany(targetEntity="SupportPrivilege", inversedBy="users")
+     * @ORM\JoinTable(name="uv_user_support_privileges",
+     *      joinColumns={@ORM\JoinColumn(name="userInstanceId", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="supportPrivilegeId", referencedColumnName="id", onDelete="CASCADE")}
+     * )
      */
     private $supportPrivileges;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\ManyToMany(targetEntity="SupportTeam", inversedBy="users")
+     * @ORM\JoinTable(name="uv_user_support_teams",
+     *      joinColumns={@ORM\JoinColumn(name="userInstanceId", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="supportTeamId", referencedColumnName="id", onDelete="CASCADE")})
      */
     private $supportTeams;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\ManyToMany(targetEntity="SupportGroup", inversedBy="users")
+     * @ORM\JoinTable(name="uv_user_support_groups",
+     *      joinColumns={@ORM\JoinColumn(name="userInstanceId", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="supportGroupId", referencedColumnName="id", onDelete="CASCADE")})
      */
     private $supportGroups;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\ManyToMany(targetEntity="SupportTeam", inversedBy="leads")
+     * @ORM\JoinTable(name="uv_lead_support_teams",
+     *      joinColumns={@ORM\JoinColumn(name="leadUserInstanceId", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="supportTeamId", referencedColumnName="id", onDelete="CASCADE")})
      */
     private $leadSupportTeams;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\ManyToMany(targetEntity="SupportGroup", inversedBy="admins")
+     * @ORM\JoinTable(name="uv_admin_support_groups",
+     *      joinColumns={@ORM\JoinColumn(name="adminUserInstanceId", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="supportGroupId", referencedColumnName="id", onDelete="CASCADE")})
      */
     private $adminSupportGroups;
 

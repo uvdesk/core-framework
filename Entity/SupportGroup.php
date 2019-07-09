@@ -2,53 +2,76 @@
 
 namespace Webkul\UVDesk\CoreBundle\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * SupportGroup
+ * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreBundle\Repository\SupportGroupRepository")
+ * @ORM\HasLifecycleCallbacks
+ * @ORM\Table(name="uv_support_group")
  */
 class SupportGroup
 {
     /**
      * @var integer
+     * @ORM\Id()
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * 
      */
     private $id;
 
     /**
      * @var string
+     * @ORM\Column(name="name", type="string", length=191)
      */
     private $name;
 
     /**
      * @var string
+     * @ORM\Column(name="description", type="text")
      */
     private $description;
 
     /**
      * @var \DateTime
+     * @ORM\Column(name="created_at", type="datetime")
      */
     private $createdAt;
 
     /**
      * @var boolean
+     * @ORM\Column(name="is_active", type="boolean", options={"default": false})
      */
     private $isActive = false;
 
     /**
      * @var boolean
+     * @ORM\Column(name="user_view", type="boolean", options={"default": false})
      */
     private $userView = false;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * 
+     * @ORM\ManyToMany(targetEntity="UserInstance", mappedBy="supportGroups")
      */
     private $users;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\ManyToMany(targetEntity="UserInstance", mappedBy="adminSupportGroups")
      */
     private $admins;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\ManyToMany(targetEntity="SupportTeam", inversedBy="supportGroups")
+     * @ORM\JoinTable(
+     *      name="uv_support_groups_teams",
+     *      joinColumns={@ORM\JoinColumn(name="supportGroup_id", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="supportTeam_id", referencedColumnName="id", onDelete="CASCADE")}
+     * )
      */
     private $supportTeams;
 

@@ -2,23 +2,34 @@
 
 namespace Webkul\UVDesk\CoreBundle\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * SupportRole
+ * @ORM\Entity(repositoryClass=null)
+ * @ORM\HasLifecycleCallbacks()
+ * @ORM\Table(name="uv_support_role")
+ * 
  */
 class SupportRole
 {
     /**
      * @var integer
+     * @ORM\Id()
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
      * @var string
+     * @ORM\Column(name="code", length=191, unique=true)
      */
     private $code;
 
     /**
      * @var string
+     * @ORM\Column(name="description", type="string", length=191, nullable=true)
      */
     private $description;
 

@@ -6,21 +6,29 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Tag
+ * @ORM\Entity(repositoryClass=null)
+ * @ORM\HasLifecycleCallbacks()
+ * @ORM\Table(name="uv_tag")
  */
 class Tag
 {
     /**
      * @var integer
+     * @ORM\Id()
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=255)
      */
     private $name;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
+     * @ORM\ManyToMany(targetEntity="Ticket", mappedBy="supportTags")
      */
     private $tickets;
 

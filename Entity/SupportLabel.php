@@ -2,28 +2,41 @@
 
 namespace Webkul\UVDesk\CoreBundle\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * SupportLabel
+ * @ORM\Entity(repositoryClass=null)
+ * @ORM\HasLifecycleCallbacks()
+ * @ORM\Table(name="uv_support_label")
  */
 class SupportLabel
 {
     /**
      * @var integer
+     * @ORM\Id()
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
      * @var string
+     * @ORM\Column(name="name", length=191, type="string")
      */
     private $name;
 
     /**
      * @var string
+     * @ORM\Column(name="color_code", type="string", length=191, nullable=true)
      */
     private $colorCode;
 
     /**
      * @var \Webkul\UVDesk\CoreBundle\Entity\User
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
+     *      
      */
     private $user;
 
