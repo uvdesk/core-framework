@@ -465,7 +465,7 @@
                         <label class="uv-aside-select-label">Type</label>
                         <div>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_TYPE') %}
-                                <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.type ? ticket.type.id : '-- --' }}">{{ ticket.type ? ticket.type.description : 'Not Assigned' }}</span>
+                                <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.type ? ticket.type.id : '-- --' }}">{{ ticket.type ? ticket.type.code : 'Not Assigned' }}</span>
                                 <div class="uv-dropdown-list uv-bottom-left">
                                     <div class="uv-dropdown-container">
                                         <label>Type</label>
@@ -482,7 +482,7 @@
                                 </div>
                             {% else %}
                                 <span class="uv-aside-select-value">
-                                    {{ ticket.type ? ticket.type.description : 'Not Assigned' }}
+                                    {{ ticket.type ? ticket.type.code : 'Not Assigned' }}
                                 </span>
                             {% endif %}
                         </div>
