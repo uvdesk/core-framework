@@ -2,63 +2,79 @@
 
 namespace Webkul\UVDesk\CoreBundle\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * website
+ * @ORM\Entity(repositoryClass=null)
+ * @ORM\HasLifecycleCallbacks()
+ * @ORM\Table(name="uv_website")
  */
 class Website
 {
     /**
      * @var int
+     * @ORM\Id()
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191)
      */
     private $name;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191, unique=true)
      */
     private $code;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191, nullable=true)
      */
     private $logo;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191)
      */
     private $themeColor;
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=191, nullable=true)
      */
     private $favicon;
 
     /**
      * @var \DateTime
+     * @ORM\Column(type="datetime")
      */
     private $createdAt;
 
     /**
      * @var \DateTime
+     * @ORM\Column(type="datetime")
      */
     private $updatedAt;
 
     /**
      * @var bool
+     * @ORM\Column(type="boolean", nullable=true, options={"default": true})
      */
     private $isActive;
 
     /**
-     * @var string
+     * @ORM\Column(type="string", length=191, nullable=true)
      */
     private $timezone;
 
     /**
-     * @var string
+     * @ORM\Column(type="string", length=191, nullable=true)
      */
     private $timeformat;
 
@@ -145,7 +161,7 @@ class Website
         return $this->logo;
     }
 
-    /**
+        /**
      * Set themeColor
      *
      * @param string $themeColor
@@ -265,50 +281,28 @@ class Website
         return $this->isActive;
     }
 
-    /**
-     * Set timezone
-     *
-     * @param string $timezone
-     * @return website
-     */
-    public function setTimezone($timezone)
+    public function getTimezone(): ?string
+    {
+        return $this->timezone;
+    }
+
+    public function setTimezone(?string $timezone): self
     {
         $this->timezone = $timezone;
 
         return $this;
     }
 
-    /**
-     * Get timezone
-     *
-     * @return string 
-     */
-    public function getTimezone()
+    public function getTimeformat(): ?string
     {
-        return $this->timezone;
+        return $this->timeformat;
     }
 
-    /**
-     * Set timeformat
-     *
-     * @param string $timeformat
-     * @return website
-     */
-    public function setTimeformat($timeformat)
+    public function setTimeformat(?string $timeformat): self
     {
         $this->timeformat = $timeformat;
 
         return $this;
-    }
-
-    /**
-     * Get timeformat
-     *
-     * @return string 
-     */
-    public function getTimeformat()
-    {
-        return $this->timeformat;
     }
     
 }
