@@ -37,7 +37,7 @@ helpdesk_member_create_ticket:
 
 search_ticket_filter_options_xhr:
     path: /ticket/search-filter-options
-    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::getSearchFilterOptionsXhr
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::getSearchFilterOptionsXhr
 
 helpdesk_member_trash_ticket:
     path:     /ticket/trash/{ticketId}
@@ -86,7 +86,7 @@ helpdesk_member_ticket_download_attachment_zip:
 
 helpdesk_member_ticket_manage_collaborators_xhr:
     path:     /ticket/collaborator/{id}
-    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::updateCollaboratorXHR
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::updateCollaboratorXHR
     defaults: { id: 0 }
 
 helpdesk_member_ticket_search_filter_options:
@@ -151,17 +151,17 @@ helpdesk_member_ticket_tag_collection_xhr:
 
 helpdesk_member_ticket_create_tag_xhr:
     path:     /support-tags/create/{id}
-    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::createTicketTagXHR
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::createTicketTagXHR
     defaults: { id: 0 }
 
 helpdesk_member_update_ticket_tag_xhr:
     path:     /support-tags/update/{tagId}
-    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::updateTicketTagXHR
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::updateTicketTagXHR
     defaults: { tagId: 0 }
 
 helpdesk_member_remove_ticket_tag_xhr:
     path:     /support-tags/remove/{tagId}
-    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::removeTicketTagXHR
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::removeTicketTagXHR
     defaults: { tagId: 0 }
 
 # Ticket Type Resources
@@ -191,7 +191,7 @@ helpdesk_member_update_ticket_type:
 
 helpdesk_member_ticket_quick_view_xhr:
     path:     /ticket/quick-view/{ticketId}
-    controller: Webkul\UVDesk\CoreBundle\Controller\Ticket::getTicketQuickViewDetailsXhr
+    controller: Webkul\UVDesk\CoreBundle\Controller\TicketXHR::getTicketQuickViewDetailsXhr
     defaults: { ticketId: 0 }
 
 # Saved Replies

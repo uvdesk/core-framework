@@ -4,10 +4,14 @@ namespace Webkul\UVDesk\CoreBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Webkul\UVDesk\CoreBundle\Entity as CoreBundleEntities;
 use Webkul\UVDesk\CoreBundle\Entity\SupportLabel;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Webkul\UVDesk\CoreBundle\Workflow\Events as CoreWorkflowEvents;
+use Webkul\UVDesk\CoreBundle\Form as CoreBundleForms;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Webkul\UVDesk\CoreBundle\DataProxies as CoreBundleDataProxies;
 
 class TicketXHR extends Controller
 {
@@ -713,17 +717,205 @@ class TicketXHR extends Controller
     }
 
     public function createTicketTagXHR(Request $request)
-    {
-        
+    { 
+        $json = [];
+        $content = json_decode($request->getContent(), true);
+
+        $em = $this->getDoctrine()->getManager();
+        $ticket = $em->getRepository('UVDeskCoreBundle:Ticket')->find($content['ticketId']);
+        if($request->getMethod() == "POST") {
+            $tag = new CoreBundleEntities\Tag();
+            if ($content['name'] != "") {
+                $checkTag = $em->getRepository('UVDeskCoreBundle:Tag')->findOneBy(array('name' => $content['name']));
+                if(!$checkTag) {
+                    $tag->setName($content['name']);
+                    $em->persist($tag);
+                    $em->flush();
+                    //$json['tag'] = json_decode($this->objectSerializer($tag));
+                    $ticket->addSupportTag($tag);
+                } else {
+                    //$json['tag'] = json_decode($this->objectSerializer($checkTag));
+                    $ticket->addSupportTag($checkTag);
+                }
+                $em->persist($ticket);
+                $em->flush();
+                $json['alertClass'] = 'success';
+                $json['alertMessage'] = 'Success ! Tag added successfully.';
+            } else {
+                $json['alertClass'] = 'danger';
+                $json['alertMessage'] = 'Please enter tag name.';
+            }
+        } elseif($request->getMethod() == "DELETE") {
+            $tag = $em->getRepository('UVDeskCoreBundle:Tag')->findOneBy(array('id' => $request->attributes->get('id')));
+            if($tag) {
+                $articles = $em->getRepository('UVDeskSupportCenterBundle:ArticleTags')->findOneBy(array('tagId' => $tag->getId()));
+                if($articles)
+                    foreach ($articles as $entry) {
+                        $em->remove($entry);
+                    }
+
+                $ticket->removeSupportTag($tag);
+                $em->persist($ticket);
+                $em->flush();
+                $json['alertClass'] = 'success';
+                $json['alertMessage'] = 'Success ! Tag unassigned successfully.';
+
+            } else {
+                $json['alertClass'] = 'danger';
+                $json['alertMessage'] = 'Error ! Invalid tag.';
+            }
+        }
+
+        $response = new Response(json_encode($json));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
     }
 
-    public function updateTicketTagXHR($tagId)
+    public function getSearchFilterOptionsXhr(Request $request)
     {
-        
+        $json = [];
+        if ($request->isXmlHttpRequest()) {
+            if($request->query->get('type') == 'agent') {
+                $json = $this->get('user.service')->getAgentsPartialDetails($request);
+            } elseif($request->query->get('type') == 'customer') {
+                $json = $this->get('user.service')->getCustomersPartial($request);
+            } elseif($request->query->get('type') == 'group') {
+                $json = $this->get('user.service')->getSupportGroups($request);
+            } elseif($request->query->get('type') == 'team') {
+                $json = $this->get('user.service')->getSupportTeams($request);
+            } elseif($request->query->get('type') == 'tag') {
+                $json = $this->get('ticket.service')->getTicketTags($request);
+            } elseif($request->query->get('type') == 'label') {
+                $json = $this->get('ticket.service')->getLabels($request);
+            }
+        }
+
+        $response = new Response(json_encode($json));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
+    }
+    
+    public function updateCollaboratorXHR(Request $request)
+    {
+        $json = [];
+        $content = json_decode($request->getContent(), true);
+        $em = $this->getDoctrine()->getManager();
+        $ticket = $em->getRepository('UVDeskCoreBundle:Ticket')->find($content['ticketId']);
+        if($request->getMethod() == "POST") {
+            if($content['email'] == $ticket->getCustomer()->getEmail()) {
+                $json['alertClass'] = 'danger';
+                $json['alertMessage'] = $this->get('translator')->trans('Error ! Customer can not be added as collaborator.');
+            } else {
+                $data = array(
+                    'from' => $content['email'],
+                    'firstName' => ($firstName = ucfirst(current(explode('@', $content['email'])))),
+                    'lastName' => ' ',
+                    'role' => 4,
+                );
+                
+                $supportRole = $em->getRepository('UVDeskCoreBundle:SupportRole')->findOneByCode('ROLE_CUSTOMER');
+
+                $collaborator = $this->get('user.service')->createUserInstance($data['from'], $data['firstName'], $supportRole);
+                $checkTicket = $em->getRepository('UVDeskCoreBundle:Ticket')->isTicketCollaborator($ticket, $content['email']);
+                
+                if (!$checkTicket) {
+                    $ticket->addCollaborator($collaborator);
+                    $em->persist($ticket);
+                    $em->flush();
+    
+                    $ticket->lastCollaborator = $collaborator;
+                   
+                    if ($collaborator->getCustomerInstance())
+                        $json['collaborator'] = $collaborator->getCustomerInstance()->getPartialDetails();
+                    else
+                        $json['collaborator'] = $collaborator->getAgentInstance()->getPartialDetails();
+                    
+                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Collaborator::getId(), [
+                        'entity' => $ticket,
+                    ]);
+    
+                    $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                    
+                    $json['alertClass'] = 'success';
+                    $json['alertMessage'] = $this->get('translator')->trans('Success ! Collaborator added successfully.');
+                } else {
+                    $json['alertClass'] = 'danger';
+                    $message = "Collaborator is already added.";
+                    $json['alertMessage'] = $this->get('translator')->trans('Error ! ' . $message); 
+                }
+            }
+        } elseif($request->getMethod() == "DELETE") {
+            $collaborator = $em->getRepository('UVDeskCoreBundle:User')->findOneBy(array('id' => $request->attributes->get('id')));
+            if($collaborator) {
+                $ticket->removeCollaborator($collaborator);
+                $em->persist($ticket);
+                $em->flush();
+
+                $json['alertClass'] = 'success';
+                $json['alertMessage'] = $this->get('translator')->trans('Success ! Collaborator removed successfully.');
+            } else {
+                $json['alertClass'] = 'danger';
+                $json['alertMessage'] = $this->get('translator')->trans('Error ! Invalid Collaborator.');
+            }
+        }
+
+        $response = new Response(json_encode($json));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
+    }
+
+    // Apply quick Response action
+    public function getTicketQuickViewDetailsXhr(Request $request)
+    {
+        $json = [];
+
+        if ($request->isXmlHttpRequest()) {
+            $ticketId = $request->query->get('ticketId');
+            $json = $this->getDoctrine()->getRepository('UVDeskCoreBundle:Ticket')->getTicketDetails($request->query,$this->container);
+        }
+
+        $response = new Response(json_encode($json));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
+    }
+
+    public function updateTicketTagXHR(Request $request, $tagId)
+    {
+        $content = json_decode($request->getContent(), true);
+        $entityManager = $this->getDoctrine()->getManager();
+
+        if (isset($content['name']) && $content['name'] != "") {
+            $checkTag = $entityManager->getRepository('UVDeskCoreBundle:Tag')->findOneBy(array('id' => $tagId));
+            if($checkTag) {
+                $checkTag->setName($content['name']);
+                $entityManager->persist($checkTag);
+                $entityManager->flush();
+            }
+
+            $json['alertClass'] = 'success';
+            $json['alertMessage'] = 'Success ! Tag updated successfully.';
+        }
+
+        $response = new Response(json_encode($json));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
     }
 
     public function removeTicketTagXHR($tagId)
     {
+        $entityManager = $this->getDoctrine()->getManager();
+        $checkTag = $entityManager->getRepository('UVDeskCoreBundle:Tag')->findOneBy(array('id' => $tagId));
         
+        if($checkTag) {
+            $entityManager->remove($checkTag);
+            $entityManager->flush();
+
+            $json['alertClass'] = 'success';
+            $json['alertMessage'] = 'Success ! Tag removed successfully.';
+        }
+
+        $response = new Response(json_encode($json));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
     }
 }
