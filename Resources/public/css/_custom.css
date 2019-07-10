@@ -43,6 +43,7 @@ td.uv-last {
 }
 .uv-dropdown-list {
     z-index: 10000;
+    margin: -7px 16px 0 0;
 }
 .uv-field-block .uv-dropdown-list.uv-bottom-left, .uv-field-block .uv-dropdown-list.uv-bottom-right  {
     top: 50px;
