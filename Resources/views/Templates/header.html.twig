@@ -311,7 +311,7 @@
         <span class="uv-icon-aside-menu"></span>
     </div>
     <div class = 'uv-main-logo'>
-        <a href="/en/member/dashboard">
+        <a href="{{ path('helpdesk_member_dashboard') }}">
         {% if websiteConfiguration is defined and websiteConfiguration.website.logo is not null %}
 			<img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}{{ websiteConfiguration.website.logo }}" alt="{{ websiteConfiguration.website.name}}" class="uv-logo-image" />
 		{% else %}
