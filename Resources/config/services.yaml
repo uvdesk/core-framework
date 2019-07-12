@@ -77,6 +77,12 @@ services:
         tags:
             - { name: kernel.event_listener, event: console.command }
             - { name: kernel.event_listener, event: console.terminate }
+    
+    Webkul\UVDesk\CoreBundle\EventListener\Swiftmailer:
+        arguments: ['@service_container']
+        tags:
+            - { name: uvdesk.event_listener, event: swiftmailer.configuration.updated, method: onSwiftmailerConfigurationUpdated }
+            - { name: uvdesk.event_listener, event: swiftmailer.configuration.removed, method: onSwiftmailerConfigurationRemoved }
 
     Webkul\UVDesk\CoreBundle\Extension\TwigExtension:
         tags:
