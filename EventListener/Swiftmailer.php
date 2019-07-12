@@ -2,9 +2,6 @@
 
 namespace Webkul\UVDesk\CoreBundle\EventListener;
 
-use Symfony\Component\Yaml\Yaml;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Webkul\UVDesk\MailboxBundle\Utils\Mailbox\Mailbox;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreBundle\EventListener\EventListenerInterface;
 use Webkul\UVDesk\CoreBundle\SwiftMailer\Event\ConfigurationRemovedEvent;
@@ -13,58 +10,65 @@ use Webkul\UVDesk\CoreBundle\SwiftMailer\Event\ConfigurationUpdatedEvent;
 class Swiftmailer implements EventListenerInterface
 {
     protected $container;
-    protected $requestStack;
 
-    public final function __construct(ContainerInterface $container, RequestStack $requestStack)
+    public final function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->requestStack = $requestStack;
     }
 
-    public function onSwiftMailerConfigUvdeskYmlRemove(ConfigurationRemovedEvent $event)
+    private function getPathToConfigurationFile()
     {
-        $configuration = $event->getSwiftMailerConfiguration(); 
-        $oldMailerId = $configuration->getId();
-        $newMailerId = null;
-        // updating uvdesk.yaml file.
-        $this->updateUvdeskYmlFile($oldMailerId, $newMailerId);
-        return;
+        return $this->container->getParameter('kernel.project_dir') . '/config/packages/uvdesk.yaml';
     }
 
-    public function onSwiftMailerConfigUvdeskYmlUpdate(ConfigurationUpdatedEvent $event)
+    private function updateSwiftmailerConfigurationId($swiftmailerId = null)
     {
-        $updatedConfiguration = $event->getUpdatedSwiftMailerConfiguration();
-        $existingConfiguration = $event->getExistingSwiftMailerConfiguration();
-        $newMailerId = $updatedConfiguration->getId();
-        $oldMailerId = $existingConfiguration->getId();
-        // updating uvdesk.yaml file.
-        $this->updateUvdeskYmlFile($oldMailerId, $newMailerId);
-        return;
-    }
-
-    public function updateUvdeskYmlFile($oldMailerId, $newMailerId)
-    {
-        $filePath = $this->container->get('kernel')->getProjectDir() . '/config/packages/uvdesk.yaml';
-        $file_content = file_get_contents($filePath);
-        $file_content_array = Yaml::parse($file_content, 6); 
-        $result = $file_content_array['uvdesk']['support_email'];
-       
-        if($result['mailer_id'] == $oldMailerId){
-            $templatePath = $this->container->get('kernel')->getProjectDir() . '/vendor/uvdesk/core-framework/Templates/uvdesk.php';
-            
-            $malierIdValue = is_null($newMailerId) ? '~' : $newMailerId;
-
-            $file_data_array = strtr(require $templatePath, [
-                '{{ SITE_URL }}' => $file_content_array['uvdesk']['site_url'],
-                '{{ SUPPORT_EMAIL_ID }}' => $file_content_array['uvdesk']['support_email']['id'] ,
-                '{{ SUPPORT_EMAIL_NAME }}' => $file_content_array['uvdesk']['support_email']['name'],
-                '{{ SUPPORT_EMAIL_MAILER_ID }}'  => $malierIdValue,
+        $supportId = $this->container->getParameter('uvdesk.support_email.id');
+        $supportName = $this->container->getParameter('uvdesk.support_email.name');
+        
+        if (!empty($supportId) && !empty($supportName)) {
+            $template = require __DIR__ . '/../Templates/uvdesk.php';
+            $content = strtr($template, [
+                '{{ SITE_URL }}' => $this->container->getParameter('uvdesk.site_url'),
+                '{{ SUPPORT_EMAIL_ID }}' => $supportId,
+                '{{ SUPPORT_EMAIL_NAME }}' => $supportName,
+                '{{ SUPPORT_EMAIL_MAILER_ID }}'  => $swiftmailerId ?? '~',
             ]);
-            // updating contents of uvdesk.yaml file.
-            file_put_contents($filePath, $file_data_array);
+
+            file_put_contents($this->getPathToConfigurationFile(), $content);
         }
+
         return;
     }
 
-    
+    public function onSwiftmailerConfigurationUpdated(ConfigurationUpdatedEvent $event)
+    {
+        $swiftmailerId = $this->container->hasParameter('uvdesk.support_email.mailer_id') ? $this->container->getParameter('uvdesk.support_email.mailer_id') : null;
+        
+        if (!empty($swiftmailerId)) {
+            $updatedSwiftmailerConfiguration = $event->getUpdatedSwiftMailerConfiguration();
+            $existingSwiftmailerConfiguration = $event->getExistingSwiftMailerConfiguration();
+
+            if ($existingSwiftmailerConfiguration->getId() == $swiftmailerId) {
+                $this->updateSwiftmailerConfigurationId($updatedSwiftmailerConfiguration->getId());
+            }
+        }
+
+        return;
+    }
+
+    public function onSwiftmailerConfigurationRemoved(ConfigurationRemovedEvent $event)
+    {
+        $swiftmailerId = $this->container->hasParameter('uvdesk.support_email.mailer_id') ? $this->container->getParameter('uvdesk.support_email.mailer_id') : null;
+        
+        if (!empty($swiftmailerId)) {
+            $swiftmailerConfiguration = $event->getSwiftMailerConfiguration();
+
+            if ($swiftmailerConfiguration->getId() == $swiftmailerId) {
+                $this->updateSwiftmailerConfigurationId(null);
+            }
+        }
+
+        return;
+    }
 }
