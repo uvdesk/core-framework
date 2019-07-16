@@ -2,43 +2,67 @@
 
 namespace Webkul\UVDesk\CoreBundle\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * EmailTemplates
+ * 
+ * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreBundle\Repository\EmailTemplatesRepository")
+ * @ORM\Table(name="uv_email_templates")
+ * 
  */
 class EmailTemplates
 {
     /**
      * @var integer
+     * 
+     * @ORM\Id()
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * 
      */
     private $id;
 
     /**
      * @var string
+     * 
+     * @ORM\Column(name="name", type="string", length=191)
      */
     private $name;
 
     /**
      * @var string
+     * 
+     * @ORM\Column(name="subject", type="string", length=191)
      */
     private $subject;
 
     /**
      * @var string
+     * 
+     * @ORM\Column(name="message", type="text")
+     * 
      */
     private $message;
 
     /**
      * @var string
+     * 
+     * @ORM\Column(name="template_type", type="string", nullable=true)
      */
     private $templateType;
 
     /**
      * @var boolean
+     * 
+     * @ORM\Column(name="is_predefined", type="boolean", options={"default": true})
      */
     private $isPredefined = true;
 
     /**
      * @var \Webkul\UVDesk\CoreBundle\Entity\UserInstance
+     * @ORM\ManyToOne(targetEntity="Webkul\UVDesk\CoreBundle\Entity\UserInstance", inversedBy="userSavedReplies")
+     * @ORM\JoinColumn(name="user_id", nullable=true, onDelete="CASCADE", referencedColumnName="id")
      */
     private $user;
 

@@ -29,8 +29,3 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
-            UVDeskCoreBundle:
-                type: annotation
-                dir: '/Entity'
-                prefix: 'Webkul\UVDesk\CoreBundle\Entity'
-                alias: UVDeskCoreBundle

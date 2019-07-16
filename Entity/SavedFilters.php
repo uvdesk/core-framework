@@ -2,43 +2,60 @@
 
 namespace Webkul\UVDesk\CoreBundle\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * SavedFilters
+ * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreBundle\Repository\SavedRepliesRepository")
+ * @ORM\Table(name="uv_saved_filters")
+ * @ORM\HasLifecycleCallbacks()
  */
 class SavedFilters
 {
     /**
      * @var integer
+     * @ORM\Id()
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
      * @var string
+     * @ORM\Column(name="name", type="string", length=191)
      */
     private $name;
 
     /**
      * @var array
+     * @ORM\Column(name="filtering", type="text", nullable=true)
      */
     private $filtering;
 
     /**
      * @var string
+     * @ORM\Column(name="route", type="string", length=190, nullable=true)
      */
     private $route;
 
     /**
      * @var \DateTime
+     * @ORM\Column(name="date_added", type="datetime")
      */
     private $dateAdded;
 
     /**
      * @var \DateTime
+     * @ORM\Column(name="date_updated", type="datetime")
      */
     private $dateUpdated;
 
     /**
      * @var \Webkul\UVDesk\CoreBundle\Entity\UserInstance
+     * 
+     * @ORM\ManyToOne(targetEntity="UserInstance", inversedBy="userSavedFilters")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=true, onDelete="CASCADE")
+     * 
      */
     private $user;
 
