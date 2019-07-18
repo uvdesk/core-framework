@@ -44,8 +44,8 @@
                     <div class="uv-field-block">
                         <select name="mailer_id" class="uv-select" type="text" value='<%= (typeof(mailer_id) !== "undefined") ? mailer_id : "" %>'>
                             
-                            <% if (mailer_id) { %>
-                                <option>None Selected</option>
+                            <% if (!mailer_id) { %>
+                            <option>None Selected</option>
                             <% } %>
 
                             {% for swiftmailer in swiftmailers %}
