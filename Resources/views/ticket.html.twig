@@ -270,6 +270,19 @@
                 position: initial !important;
             }
         }
+
+        .uv-ticket-action-bar-rt .app-glyph {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 10px;
+            cursor: pointer;
+            height: 20px;
+            width: 20px;
+        }
+
+        .uv-ticket-action-bar-rt .app-glyph:last-child {
+            margin-right: 0px;
+        }
     </style>
 {% endblock %}
 
@@ -465,7 +478,7 @@
                         <label class="uv-aside-select-label">Type</label>
                         <div>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_TYPE') %}
-                                <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.type ? ticket.type.id : '-- --' }}">{{ ticket.type ? ticket.type.code : 'Not Assigned' }}</span>
+                                <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.type ? ticket.type.id : '-- --' }}">{{ ticket.type ? ticket.type.description : 'Not Assigned' }}</span>
                                 <div class="uv-dropdown-list uv-bottom-left">
                                     <div class="uv-dropdown-container">
                                         <label>Type</label>
@@ -476,13 +489,13 @@
 
                                     <ul class="uv-search-list type" data-action="type">
                                         {% for type in ticketTypeCollection %}
-                                            <li data-index="{{ type.id }}"><a href="#">{{ type.code }}</a></li>
+                                            <li data-index="{{ type.id }}"><a href="#">{{ type.description }}</a></li>
                                         {% endfor %}
                                     </ul>
                                 </div>
                             {% else %}
                                 <span class="uv-aside-select-value">
-                                    {{ ticket.type ? ticket.type.code : 'Not Assigned' }}
+                                    {{ ticket.type ? ticket.type.description : 'Not Assigned' }}
                                 </span>
                             {% endif %}
                         </div>
@@ -665,6 +678,10 @@
                             </ul>
                         </div>
                     </div>
+
+                    <div class="uv-ticket-action-bar-rt">
+                        {{ uvdesk_extensibles.getRegisteredComponent("Webkul\\UVDesk\\CoreFrameworkBundle\\Widgets\\TicketWidget").embedSideFilterIcons()|raw }}
+                    </div>
                 </div>
 
                 {# Ticket Active Users #}
@@ -690,7 +707,7 @@
                 <div class="uv-ticket-strip">
                     <span>
                         <span class="uv-ticket-strip-label">Created - </span>
-                        <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(initialThread.createdAt) }}</span>                       
+                        <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(initialThread.createdAt) }}</span>
                     </span>
 
                     <span>
@@ -712,7 +729,7 @@
                         <div class="uv-ticket-main create">
                             <div class="uv-ticket-strip">
                                 <span>
-                                   <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(ticket.createdAt) }}</span>
+                                    <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(ticket.createdAt) }}</span>
                                     - {{ initialThread.user.name }} <span class="uv-ticket-strip-label">created Ticket</span>
                                 </span>
                             </div>
@@ -1145,6 +1162,8 @@
             </div>
         </div>
     {% endif %}
+
+    {{ uvdesk_extensibles.getRegisteredComponent("Webkul\\UVDesk\\CoreFrameworkBundle\\Widgets\\TicketWidget").embedSideFilterContent()|raw }}
 {% endblock %}
 
 {% block footer %}

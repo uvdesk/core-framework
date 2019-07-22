@@ -8,4 +8,5 @@ twig:
         ticket_service: "@ticket.service"
         csrf_token_generator: "@security.csrf.token_manager"
         email_service: "@email.service"
+        uvdesk_extensibles: '@uvdesk.extensibles'
         uvdesk_core_file_system: '@uvdesk.core.file_system.service'
