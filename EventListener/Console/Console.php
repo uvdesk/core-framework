@@ -2,7 +2,7 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\EventListener\Console;
 
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Mailbox;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
@@ -14,7 +14,7 @@ class Console
     private $container;
     private $entityManager;
 
-    public function __construct(ContainerInterface $container, EntityManager $entityManager)
+    public function __construct(ContainerInterface $container, EntityManagerInterface $entityManager)
     {
         $this->container = $container;
         $this->entityManager = $entityManager;
