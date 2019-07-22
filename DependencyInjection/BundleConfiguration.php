@@ -5,7 +5,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\DependencyInjection;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-class Configuration implements ConfigurationInterface
+class BundleConfiguration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder()
     {
