@@ -1,16 +1,16 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Controller;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\EventDispatcher\GenericEvent;
-use Webkul\UVDesk\CoreBundle\Form as CoreBundleForms;
+use Webkul\UVDesk\CoreFrameworkBundle\Form as CoreFrameworkBundleForms;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Webkul\UVDesk\CoreBundle\Entity as CoreBundleEntities;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Webkul\UVDesk\CoreBundle\DataProxies as CoreBundleDataProxies;
-use Webkul\UVDesk\CoreBundle\Workflow\Events as CoreWorkflowEvents;
+use Webkul\UVDesk\CoreFrameworkBundle\DataProxies as CoreFrameworkBundleDataProxies;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 
 class Ticket extends Controller
 {
@@ -18,10 +18,10 @@ class Ticket extends Controller
     {
         $entityManager = $this->getDoctrine()->getManager();
         
-        return $this->render('@UVDeskCore//ticketList.html.twig', [
-            'ticketStatusCollection' => $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findAll(),
-            'ticketTypeCollection' => $entityManager->getRepository('UVDeskCoreBundle:TicketType')->findByIsActive(true),
-            'ticketPriorityCollection' => $entityManager->getRepository('UVDeskCoreBundle:TicketPriority')->findAll(),
+        return $this->render('@CoreFramework//ticketList.html.twig', [
+            'ticketStatusCollection' => $entityManager->getRepository('CoreFrameworkBundle:TicketStatus')->findAll(),
+            'ticketTypeCollection' => $entityManager->getRepository('CoreFrameworkBundle:TicketType')->findByIsActive(true),
+            'ticketPriorityCollection' => $entityManager->getRepository('CoreFrameworkBundle:TicketPriority')->findAll(),
         ]);
     }
 
@@ -29,8 +29,8 @@ class Ticket extends Controller
     {
         $entityManager = $this->getDoctrine()->getManager();
         $request = $this->container->get('request_stack')->getCurrentRequest();
-        $userRepository = $entityManager->getRepository('UVDeskCoreBundle:User');
-        $ticketRepository = $entityManager->getRepository('UVDeskCoreBundle:Ticket');
+        $userRepository = $entityManager->getRepository('CoreFrameworkBundle:User');
+        $ticketRepository = $entityManager->getRepository('CoreFrameworkBundle:Ticket');
 
         $ticket = $ticketRepository->findOneById($ticketId);
 
@@ -55,7 +55,7 @@ class Ticket extends Controller
         $customer = $ticket->getCustomer();
         $user = $this->get('user.service')->getSessionUser();
        
-        return $this->render('@UVDeskCore//ticket.html.twig', [
+        return $this->render('@CoreFramework//ticket.html.twig', [
             'ticket' => $ticket,
             'totalReplies' => $ticketRepository->countTicketTotalThreads($ticket->getId()),
             'totalCustomerTickets' => $ticketRepository->countCustomerTotalTickets($customer),
@@ -65,9 +65,9 @@ class Ticket extends Controller
             'currentUserDetails' => $user->getAgentInstance()->getPartialDetails(),
             'supportGroupCollection' => $userRepository->getSupportGroups(),
             'supportTeamCollection' => $userRepository->getSupportTeams(),
-            'ticketStatusCollection' => $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findAll(),
-            'ticketTypeCollection' => $entityManager->getRepository('UVDeskCoreBundle:TicketType')->findByIsActive(true),
-            'ticketPriorityCollection' => $entityManager->getRepository('UVDeskCoreBundle:TicketPriority')->findAll(),
+            'ticketStatusCollection' => $entityManager->getRepository('CoreFrameworkBundle:TicketStatus')->findAll(),
+            'ticketTypeCollection' => $entityManager->getRepository('CoreFrameworkBundle:TicketType')->findByIsActive(true),
+            'ticketPriorityCollection' => $entityManager->getRepository('CoreFrameworkBundle:TicketPriority')->findAll(),
             'ticketNavigationIteration' => $ticketRepository->getTicketNavigationIteration($ticket, $this->container),
             'ticketLabelCollection' => $ticketRepository->getTicketLabelCollection($ticket, $user),
         ]);
@@ -93,7 +93,7 @@ class Ticket extends Controller
             $expectedReferralURL = $this->generateUrl('helpdesk_member_ticket', ['ticketId' => $referralId], UrlGeneratorInterface::ABSOLUTE_URL);
 
             if ($referralURL === $expectedReferralURL) {
-                $referralTicket = $entityManager->getRepository('UVDeskCoreBundle:Ticket')->findOneById($referralId);
+                $referralTicket = $entityManager->getRepository('CoreFrameworkBundle:Ticket')->findOneById($referralId);
                 
                 if (!empty($referralTicket)) {
                     $ticketValidationGroup = 'CustomerCreateTicket';
@@ -101,10 +101,10 @@ class Ticket extends Controller
             }
         }
 
-        $ticketType = $entityManager->getRepository('UVDeskCoreBundle:TicketType')->findOneById($requestParams['type']);
+        $ticketType = $entityManager->getRepository('CoreFrameworkBundle:TicketType')->findOneById($requestParams['type']);
 
-        $ticketProxy = new CoreBundleDataProxies\CreateTicketDataClass();
-        $form = $this->createForm(CoreBundleForms\CreateTicket::class, $ticketProxy);
+        $ticketProxy = new CoreFrameworkBundleDataProxies\CreateTicketDataClass();
+        $form = $this->createForm(CoreFrameworkBundleForms\CreateTicket::class, $ticketProxy);
 
         // Validate Ticket Details
         $form->submit($requestParams);
@@ -123,10 +123,10 @@ class Ticket extends Controller
             $customerPartialDetails = $customer->getCustomerInstance()->getPartialDetails();
         } else if (null != $ticketProxy->getFrom() && null != $ticketProxy->getName()) {
             // Create customer if account does not exists
-            $customer = $entityManager->getRepository('UVDeskCoreBundle:User')->findOneByEmail($ticketProxy->getFrom());
+            $customer = $entityManager->getRepository('CoreFrameworkBundle:User')->findOneByEmail($ticketProxy->getFrom());
 
             if (empty($customer) || null == $customer->getCustomerInstance()) {
-                $role = $entityManager->getRepository('UVDeskCoreBundle:SupportRole')->findOneByCode('ROLE_CUSTOMER');
+                $role = $entityManager->getRepository('CoreFrameworkBundle:SupportRole')->findOneByCode('ROLE_CUSTOMER');
                 
                 // Create User Instance
                 $customer = $this->get('user.service')->createUserInstance($ticketProxy->getFrom(), $ticketProxy->getName(), $role, [
@@ -183,7 +183,7 @@ class Ticket extends Controller
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
-        return $this->render('@UVDeskCore/ticketTypeList.html.twig');
+        return $this->render('@CoreFramework/ticketTypeList.html.twig');
     }
 
     public function ticketType(Request $request)
@@ -196,17 +196,17 @@ class Ticket extends Controller
         $em = $this->getDoctrine()->getManager();
 
         if($id = $request->attributes->get('ticketTypeId')) {
-            $type = $em->getRepository('UVDeskCoreBundle:TicketType')->find($id);
+            $type = $em->getRepository('CoreFrameworkBundle:TicketType')->find($id);
             if (!$type) {
                 $this->noResultFound();
             }
         } else {
-            $type = new CoreBundleEntities\TicketType();
+            $type = new CoreFrameworkBundleEntities\TicketType();
         }
 
         if ($request->getMethod() == "POST") {
             $data = $request->request->all();
-            $ticketType = $em->getRepository('UVDeskCoreBundle:TicketType')->findOneByCode($data['code']);
+            $ticketType = $em->getRepository('CoreFrameworkBundle:TicketType')->findOneByCode($data['code']);
             
             if (!empty($ticketType) && $id != $ticketType->getId()) {
                 $this->addFlash('warning', sprintf('Error! Ticket type with same name already exist'));
@@ -228,7 +228,7 @@ class Ticket extends Controller
             }
         }
 
-        return $this->render('@UVDeskCore/ticketTypeAdd.html.twig', array(
+        return $this->render('@CoreFramework/ticketTypeAdd.html.twig', array(
             'type' => $type,
             'errors' => json_encode($errorContext)
         ));
@@ -242,7 +242,7 @@ class Ticket extends Controller
 
         $enabled_bundles = $this->container->getParameter('kernel.bundles');
 
-        return $this->render('@UVDeskCore/supportTagList.html.twig', [
+        return $this->render('@CoreFramework/supportTagList.html.twig', [
             'articlesEnabled' => in_array('UVDeskSupportCenterBundle', array_keys($enabled_bundles)),
         ]);
     }
@@ -256,7 +256,7 @@ class Ticket extends Controller
         $json = [];
         if($request->getMethod() == "DELETE") {
             $em = $this->getDoctrine()->getManager();
-            $tag = $em->getRepository('UVDeskCoreBundle:Tag')->find($tagId);
+            $tag = $em->getRepository('CoreFrameworkBundle:Tag')->find($tagId);
             if($tag) {
                 $em->remove($tag);
                 $em->flush();
@@ -274,7 +274,7 @@ class Ticket extends Controller
     {
         $ticketId = $request->attributes->get('ticketId');
         $entityManager = $this->getDoctrine()->getManager();
-        $ticket = $entityManager->getRepository('UVDeskCoreBundle:Ticket')->find($ticketId);
+        $ticket = $entityManager->getRepository('CoreFrameworkBundle:Ticket')->find($ticketId);
 
         if (!$ticket) {
             $this->noResultFound();
@@ -301,7 +301,7 @@ class Ticket extends Controller
     public function downloadZipAttachment(Request $request)
     {
         $threadId = $request->attributes->get('threadId');
-        $attachmentRepository = $this->getDoctrine()->getManager()->getRepository('UVDeskCoreBundle:Attachment');
+        $attachmentRepository = $this->getDoctrine()->getManager()->getRepository('CoreFrameworkBundle:Attachment');
         
         $attachment = $attachmentRepository->findByThread($threadId);
 
@@ -334,7 +334,7 @@ class Ticket extends Controller
     public function downloadAttachment(Request $request)
     {
         $attachmendId = $request->attributes->get('attachmendId');
-        $attachmentRepository = $this->getDoctrine()->getManager()->getRepository('UVDeskCoreBundle:Attachment');
+        $attachmentRepository = $this->getDoctrine()->getManager()->getRepository('CoreFrameworkBundle:Attachment');
         $attachment = $attachmentRepository->findOneById($attachmendId);
         $baseurl = $request->getScheme() . '://' . $request->getHttpHost() . $request->getBasePath();
 

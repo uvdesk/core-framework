@@ -1,4 +1,4 @@
-{% extends "@UVDeskCore//Templates//layout.html.twig" %}
+{% extends "@CoreFramework//Templates//layout.html.twig" %}
 
 {% block title %} 
 	{{ 'Swift Mailer Settings'|trans }}
@@ -6,7 +6,7 @@
 
 {% block pageContent %}
 	<div class="uv-inner-section">
-		{{ include('@UVDeskCore/Templates/panel-sidebar.html.twig') }}
+		{{ include('@CoreFramework/Templates/panel-sidebar.html.twig') }}
 
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
         {% if configuration is defined and configuration.id is not empty %}

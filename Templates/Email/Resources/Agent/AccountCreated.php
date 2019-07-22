@@ -1,8 +1,8 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Templates\Email\Resources\Agent;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Templates\Email\Resources\Agent;
 
-use Webkul\UVDesk\CoreBundle\Templates\Email\UVDeskEmailTemplateInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Templates\Email\UVDeskEmailTemplateInterface;
 
 abstract class AccountCreated implements UVDeskEmailTemplateInterface
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\EventListener;
+namespace Webkul\UVDesk\CoreFrameworkBundle\EventListener;
 
 interface EventListenerInterface
 {

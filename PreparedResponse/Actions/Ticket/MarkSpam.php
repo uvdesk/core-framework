@@ -1,10 +1,10 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Ticket;
+namespace Webkul\UVDesk\CoreFrameworkBundle\PreparedResponse\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
 
 class MarkSpam extends PreparedResponseAction
@@ -33,7 +33,7 @@ class MarkSpam extends PreparedResponseAction
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         if($entity instanceof Ticket) {
-            $status = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->find(6);
+            $status = $entityManager->getRepository('CoreFrameworkBundle:TicketStatus')->find(6);
             $entity->setStatus($status);
             $entityManager->persist($entity);
             $entityManager->flush();

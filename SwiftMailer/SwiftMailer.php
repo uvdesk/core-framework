@@ -1,13 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\SwiftMailer;
+namespace Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer;
 
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreBundle\Utils\SwiftMailer\Configuration as MailerConfigurations;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\SwiftMailer\Configuration as MailerConfigurations;
 
 class SwiftMailer
 {

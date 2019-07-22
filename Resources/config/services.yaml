@@ -1,89 +1,89 @@
 services:
     uvdesk.service:
         public: true
-        class: Webkul\UVDesk\CoreBundle\Services\UVDeskService
+        class: Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService
         arguments: ['@service_container', '@request_stack', '@doctrine.orm.entity_manager']
 
     user.provider:
         public: true
-        class: Webkul\UVDesk\CoreBundle\Providers\UserProvider
+        class: Webkul\UVDesk\CoreFrameworkBundle\Providers\UserProvider
         arguments: ['@security.firewall.map', '@service_container', '@request_stack', '@doctrine.orm.entity_manager']
 
     user.service:
         public: true
-        class: Webkul\UVDesk\CoreBundle\Services\UserService
+        class: Webkul\UVDesk\CoreFrameworkBundle\Services\UserService
         arguments: ['@service_container', '@request_stack', '@doctrine.orm.entity_manager']
 
     email.service:
         public: true
-        class: Webkul\UVDesk\CoreBundle\Services\EmailService
+        class: Webkul\UVDesk\CoreFrameworkBundle\Services\EmailService
         arguments: ['@service_container', '@request_stack', '@doctrine.orm.entity_manager']
 
     ticket.service:
         public: true
-        class: Webkul\UVDesk\CoreBundle\Services\TicketService
+        class: Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService
         arguments: ['@service_container', '@request_stack', '@doctrine.orm.entity_manager']
 
     uvdesk.core.file_system.service:
         public: true
-        class: Webkul\UVDesk\CoreBundle\FileSystem\FileSystem
+        class: Webkul\UVDesk\CoreFrameworkBundle\FileSystem\FileSystem
         arguments: ['@service_container', '@request_stack']
 
     swiftmailer.service:
         public: true
-        class: Webkul\UVDesk\CoreBundle\SwiftMailer\SwiftMailer
+        class: Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer
         arguments: ['@service_container']
     
-    Webkul\UVDesk\CoreBundle\EventDispatcher\Core:
+    Webkul\UVDesk\CoreFrameworkBundle\EventDispatcher\Core:
         arguments: ['@service_container', '@request_stack']
     
     uvdesk.core.event_dispatcher:
         public: true
-        alias: Webkul\UVDesk\CoreBundle\EventDispatcher\Core
+        alias: Webkul\UVDesk\CoreFrameworkBundle\EventDispatcher\Core
     
-    Webkul\UVDesk\CoreBundle\Guides\:
+    Webkul\UVDesk\CoreFrameworkBundle\Guides\:
         resource: '../../Guides/*'
         tags: ['console.command']
 
-    Webkul\UVDesk\CoreBundle\Console\:
+    Webkul\UVDesk\CoreFrameworkBundle\Console\:
         resource: '../../Console/*'
         arguments: ['@service_container', '@doctrine.orm.entity_manager']
         tags: ['console.command']
 
-    Webkul\UVDesk\CoreBundle\Fixtures\:
+    Webkul\UVDesk\CoreFrameworkBundle\Fixtures\:
         resource: '../../Fixtures/*'
         arguments: ['@service_container', '@doctrine.orm.entity_manager']
         tags: ['doctrine.fixture.orm']
 
-    Webkul\UVDesk\CoreBundle\Security\TicketVoter:
+    Webkul\UVDesk\CoreFrameworkBundle\Security\TicketVoter:
         arguments: ['@service_container', '@security.access.decision_manager']
         tags:
             - { name: security.voter }
 
-    Webkul\UVDesk\CoreBundle\FileSystem\UploadManagers\:
+    Webkul\UVDesk\CoreFrameworkBundle\FileSystem\UploadManagers\:
         public: true
         resource: '../../FileSystem/UploadManagers/*'
         arguments: ['@service_container', '@request_stack']
     
-    Webkul\UVDesk\CoreBundle\EventListener\Doctrine\Lifecycle:
+    Webkul\UVDesk\CoreFrameworkBundle\EventListener\Doctrine\Lifecycle:
         arguments: ['@service_container']
         tags:
             - { name: doctrine.event_listener, event: prePersist }
             - { name: doctrine.event_listener, event: preUpdate }
             - { name: doctrine.event_listener, event: postLoad }
     
-    Webkul\UVDesk\CoreBundle\EventListener\Console\Console:
+    Webkul\UVDesk\CoreFrameworkBundle\EventListener\Console\Console:
         arguments: ['@service_container', '@doctrine.orm.entity_manager']
         tags:
             - { name: kernel.event_listener, event: console.command }
             - { name: kernel.event_listener, event: console.terminate }
     
-    Webkul\UVDesk\CoreBundle\EventListener\Swiftmailer:
+    Webkul\UVDesk\CoreFrameworkBundle\EventListener\Swiftmailer:
         arguments: ['@service_container']
         tags:
             - { name: uvdesk.event_listener, event: swiftmailer.configuration.updated, method: onSwiftmailerConfigurationUpdated }
             - { name: uvdesk.event_listener, event: swiftmailer.configuration.removed, method: onSwiftmailerConfigurationRemoved }
 
-    Webkul\UVDesk\CoreBundle\Extension\TwigExtension:
+    Webkul\UVDesk\CoreFrameworkBundle\Extension\TwigExtension:
         tags:
             - { name: twig.extension }

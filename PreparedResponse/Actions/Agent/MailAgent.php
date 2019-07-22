@@ -1,8 +1,8 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Agent;
+namespace Webkul\UVDesk\CoreFrameworkBundle\PreparedResponse\Actions\Agent;
 
-use Webkul\UVDesk\CoreBundle\Entity as CoreEntities;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
@@ -33,7 +33,7 @@ class MailAgent extends PreparedResponseAction
                 'id' => $emailTemplate->getId(),
                 'name' => $emailTemplate->getName(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findAll());
+        }, $entityManager->getRepository('CoreFrameworkBundle:EmailTemplates')->findAll());
     }
 
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
@@ -43,7 +43,7 @@ class MailAgent extends PreparedResponseAction
         switch (true) {
             // Agent created
             case $entity instanceof CoreEntities\User:
-                $emailTemplate = $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findOneById($value);
+                $emailTemplate = $entityManager->getRepository('CoreFrameworkBundle:EmailTemplates')->findOneById($value);
 
                 if (empty($emailTemplate)) {
                     // @TODO: Send default email template
@@ -58,7 +58,7 @@ class MailAgent extends PreparedResponseAction
                 break;
             // Ticket created
             case $entity instanceof CoreEntities\Ticket:
-                $emailTemplate = $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findOneById($value);
+                $emailTemplate = $entityManager->getRepository('CoreFrameworkBundle:EmailTemplates')->findOneById($value);
 
                 if (empty($emailTemplate)) {
                     break;

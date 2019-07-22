@@ -1,12 +1,12 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Providers;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Providers;
 
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-use Webkul\UVDesk\CoreBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bundle\SecurityBundle\Security\FirewallMap;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -32,8 +32,8 @@ class UserProvider implements UserProviderInterface
     {
         $queryBuilder = $this->entityManager->createQueryBuilder()
             ->select('user, userInstance')
-            ->from('UVDeskCoreBundle:User', 'user')
-            ->leftJoin('UVDeskCoreBundle:UserInstance', 'userInstance', 'WITH', 'user.id = userInstance.user')
+            ->from('CoreFrameworkBundle:User', 'user')
+            ->leftJoin('CoreFrameworkBundle:UserInstance', 'userInstance', 'WITH', 'user.id = userInstance.user')
             ->leftJoin('userInstance.supportRole', 'supportRole')
             ->where('user.email = :email')->setParameter('email', trim($username))
             ->setMaxResults(1);

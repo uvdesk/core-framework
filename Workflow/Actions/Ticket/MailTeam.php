@@ -1,10 +1,10 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class MailTeam extends WorkflowAction
@@ -33,7 +33,7 @@ class MailTeam extends WorkflowAction
                 'id' => $emailTemplate->getId(),
                 'name' => $emailTemplate->getName(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findAll());
+        }, $entityManager->getRepository('CoreFrameworkBundle:EmailTemplates')->findAll());
 
         $supportTeamCollection = array_map(function ($supportTeam) {
             return [
@@ -56,7 +56,7 @@ class MailTeam extends WorkflowAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        $emailTemplate = $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findOneById($value['value']);
+        $emailTemplate = $entityManager->getRepository('CoreFrameworkBundle:EmailTemplates')->findOneById($value['value']);
         if($entity instanceof Ticket && $emailTemplate) {
             $mailData = array();
             if($entity instanceof Ticket) {

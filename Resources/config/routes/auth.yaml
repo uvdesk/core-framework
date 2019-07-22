@@ -1,17 +1,17 @@
 # Authentication Resources
 helpdesk_member_handle_login:
     path:     /login
-    controller: Webkul\UVDesk\CoreBundle\Controller\Authentication::login
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Authentication::login
 
 helpdesk_member_handle_logout:
     path:     /logout
-    controller: Webkul\UVDesk\CoreBundle\Controller\Authentication::logout
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Authentication::logout
 
 helpdesk_member_forgot_account_password:
     path:     /forgot-password
-    controller: Webkul\UVDesk\CoreBundle\Controller\Authentication::forgotPassword
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Authentication::forgotPassword
 
 helpdesk_member_update_account_credentials:
     path:     /update-credentials/{email}/{verificationCode}
-    controller: Webkul\UVDesk\CoreBundle\Controller\Authentication::updateCredentials
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Authentication::updateCredentials
     defaults: { email: '', verificationCode: '' }

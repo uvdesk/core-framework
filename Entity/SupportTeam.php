@@ -1,13 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Entity;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * SupportTeam
  * 
- * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreBundle\Repository\SupportTeamRepository")
+ * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreFrameworkBundle\Repository\SupportTeamRepository")
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(name="uv_support_team")
  */
@@ -184,11 +184,11 @@ class SupportTeam
     /**
      * Add user
      *
-     * @param \Webkul\UVDesk\CoreBundle\Entity\UserInstance $user
+     * @param \Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance $user
      *
      * @return SupportTeam
      */
-    public function addUser(\Webkul\UVDesk\CoreBundle\Entity\UserInstance $user)
+    public function addUser(\Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance $user)
     {
         $this->users[] = $user;
 
@@ -198,9 +198,9 @@ class SupportTeam
     /**
      * Remove user
      *
-     * @param \Webkul\UVDesk\CoreBundle\Entity\UserInstance $user
+     * @param \Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance $user
      */
-    public function removeUser(\Webkul\UVDesk\CoreBundle\Entity\UserInstance $user)
+    public function removeUser(\Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance $user)
     {
         $this->users->removeElement($user);
     }
@@ -218,11 +218,11 @@ class SupportTeam
     /**
      * Add lead
      *
-     * @param \Webkul\UVDesk\CoreBundle\Entity\UserInstance $lead
+     * @param \Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance $lead
      *
      * @return SupportTeam
      */
-    public function addLead(\Webkul\UVDesk\CoreBundle\Entity\UserInstance $lead)
+    public function addLead(\Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance $lead)
     {
         $this->leads[] = $lead;
 
@@ -232,9 +232,9 @@ class SupportTeam
     /**
      * Remove lead
      *
-     * @param \Webkul\UVDesk\CoreBundle\Entity\UserInstance $lead
+     * @param \Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance $lead
      */
-    public function removeLead(\Webkul\UVDesk\CoreBundle\Entity\UserInstance $lead)
+    public function removeLead(\Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance $lead)
     {
         $this->leads->removeElement($lead);
     }
@@ -252,11 +252,11 @@ class SupportTeam
     /**
      * Add supportGroup
      *
-     * @param \Webkul\UVDesk\CoreBundle\Entity\SupportGroup $supportGroup
+     * @param \Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup $supportGroup
      *
      * @return SupportTeam
      */
-    public function addSupportGroup(\Webkul\UVDesk\CoreBundle\Entity\SupportGroup $supportGroup)
+    public function addSupportGroup(\Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup $supportGroup)
     {
         $this->supportGroups[] = $supportGroup;
 
@@ -266,9 +266,9 @@ class SupportTeam
     /**
      * Remove supportGroup
      *
-     * @param \Webkul\UVDesk\CoreBundle\Entity\SupportGroup $supportGroup
+     * @param \Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup $supportGroup
      */
-    public function removeSupportGroup(\Webkul\UVDesk\CoreBundle\Entity\SupportGroup $supportGroup)
+    public function removeSupportGroup(\Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup $supportGroup)
     {
         $this->supportGroups->removeElement($supportGroup);
     }

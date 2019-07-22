@@ -1,10 +1,10 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Ticket;
+namespace Webkul\UVDesk\CoreFrameworkBundle\PreparedResponse\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
 
 class MailTeam extends PreparedResponseAction
@@ -33,7 +33,7 @@ class MailTeam extends PreparedResponseAction
                 'id' => $emailTemplate->getId(),
                 'name' => $emailTemplate->getName(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findAll());
+        }, $entityManager->getRepository('CoreFrameworkBundle:EmailTemplates')->findAll());
 
         $supportTeamCollection = array_map(function ($supportTeam) {
             return [
@@ -56,7 +56,7 @@ class MailTeam extends PreparedResponseAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        $emailTemplate = $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findOneById($value['value']);
+        $emailTemplate = $entityManager->getRepository('CoreFrameworkBundle:EmailTemplates')->findOneById($value['value']);
         if($entity instanceof Ticket && $emailTemplate) {
             $mailData = array();
             if($entity instanceof Ticket) {

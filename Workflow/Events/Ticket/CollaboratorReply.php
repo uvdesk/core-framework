@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Workflow\Events\Ticket;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;

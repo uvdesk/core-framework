@@ -1,8 +1,8 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\DependencyInjection\Compilers;
+namespace Webkul\UVDesk\CoreFrameworkBundle\DependencyInjection\Compilers;
 
-use Webkul\UVDesk\CoreBundle\EventDispatcher\Core;
+use Webkul\UVDesk\CoreFrameworkBundle\EventDispatcher\Core;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;

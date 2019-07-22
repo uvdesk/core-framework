@@ -1,10 +1,10 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Ticket;
+namespace Webkul\UVDesk\CoreFrameworkBundle\PreparedResponse\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
 
 class UpdateAgent extends PreparedResponseAction
@@ -48,13 +48,13 @@ class UpdateAgent extends PreparedResponseAction
             if ($value == 'responsePerforming' && is_object($currentUser = $container->get('security.token_storage')->getToken()->getUser())) {
                 $agent = $currentUser;
             } else {
-                $agent = $entityManager->getRepository('UVDeskCoreBundle:User')->find($value);
+                $agent = $entityManager->getRepository('CoreFrameworkBundle:User')->find($value);
                 if ($agent) {
-                    $agent = $entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(array('email' => $agent->getEmail()));
+                    $agent = $entityManager->getRepository('CoreFrameworkBundle:User')->findOneBy(array('email' => $agent->getEmail()));
                 }
             }
             if ($agent) {
-                if($entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(array('id' => $agent->getId()))) {
+                if($entityManager->getRepository('CoreFrameworkBundle:User')->findOneBy(array('id' => $agent->getId()))) {
                     $entity->setAgent($agent);
                     $entityManager->persist($entity);
                     $entityManager->flush();

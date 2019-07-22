@@ -1,8 +1,8 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Customer;
+namespace Webkul\UVDesk\CoreFrameworkBundle\PreparedResponse\Actions\Customer;
 
-use Webkul\UVDesk\CoreBundle\Entity as CoreEntities;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
@@ -33,7 +33,7 @@ class MailCustomer extends PreparedResponseAction
                 'id' => $emailTemplate->getId(),
                 'name' => $emailTemplate->getName(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findAll());
+        }, $entityManager->getRepository('CoreFrameworkBundle:EmailTemplates')->findAll());
     }
 
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
@@ -43,7 +43,7 @@ class MailCustomer extends PreparedResponseAction
         switch (true) {
             // Customer created
             case $entity instanceof CoreEntities\User:
-                $emailTemplate = $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findOneById($value);
+                $emailTemplate = $entityManager->getRepository('CoreFrameworkBundle:EmailTemplates')->findOneById($value);
 
                 if (empty($emailTemplate)) {
                     // @TODO: Send default email template

@@ -583,7 +583,7 @@
                 {% if currentUserDetails is defined and currentUserDetails.thumbnail is defined and currentUserDetails.thumbnail is not empty %}
                     <img class='uv-avatar' src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}{{ currentUserDetails.thumbnail }}"/>
                 {% else %}
-                    <img class='uv-avatar' src="{{ asset('bundles/uvdeskcore/images/uv-avatar-batman.png') }}"/>
+                    <img class='uv-avatar' src="{{ asset('bundles/coreframework/images/uv-avatar-batman.png') }}"/>
                 {% endif %}
                 
             </div>
@@ -744,5 +744,5 @@
 {# Ticket Create Popup #}	
 {% if user_service.isAccessAuthorized('ROLE_AGENT_CREATE_TICKET') %}	
     {{ ticket_service.appendTwigSnippet('createMemberTicket')|raw }}	
-    {# {% include('UVDeskCoreBundle:Snippets:createMemberTicketSnippet.html.twig') only %} #}	
+    {# {% include('CoreFrameworkBundle:Snippets:createMemberTicketSnippet.html.twig') only %} #}	
 {% endif %} 

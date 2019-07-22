@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Console;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Console;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\DBAL\DBALException;
@@ -103,9 +103,9 @@ class ConfigureHelpdesk extends Command
 
         // Check 3: Check if super admin account exists
         $output->writeln("  [-] Checking if an active super admin account exists");
-        $supperAdminUserInstance = $this->entityManager->getRepository('UVDeskCoreBundle:UserInstance')->findOneBy([
+        $supperAdminUserInstance = $this->entityManager->getRepository('CoreFrameworkBundle:UserInstance')->findOneBy([
             'isActive' => true,
-            'supportRole' => $this->entityManager->getRepository('UVDeskCoreBundle:SupportRole')->findOneByCode('ROLE_SUPER_ADMIN'),
+            'supportRole' => $this->entityManager->getRepository('CoreFrameworkBundle:SupportRole')->findOneByCode('ROLE_SUPER_ADMIN'),
         ]);
         
         if (empty($supperAdminUserInstance)) {

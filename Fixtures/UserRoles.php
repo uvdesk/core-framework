@@ -1,9 +1,9 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Fixtures;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Fixtures;
 
 use Doctrine\Common\Persistence\ObjectManager;
-use Webkul\UVDesk\CoreBundle\Entity as CoreEntities;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Doctrine\Bundle\FixturesBundle\Fixture as DoctrineFixture;
 
 class UserRoles extends DoctrineFixture
@@ -29,7 +29,7 @@ class UserRoles extends DoctrineFixture
 
     public function load(ObjectManager $entityManager)
     {
-        $availablePermissions = $entityManager->getRepository('UVDeskCoreBundle:SupportRole')->findAll();
+        $availablePermissions = $entityManager->getRepository('CoreFrameworkBundle:SupportRole')->findAll();
         $availablePermissions = array_map(function ($permission) {
             return $permission->getCode();
         }, $availablePermissions);

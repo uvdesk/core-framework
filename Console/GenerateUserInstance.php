@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Console;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Console;
 
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Console\Command\Command;
@@ -8,7 +8,7 @@ use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Webkul\UVDesk\CoreBundle\Entity as CoreEntities;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -52,7 +52,7 @@ class GenerateUserInstance extends Command
     protected function interact(InputInterface $input, OutputInterface $output)
     {
         // Check if the provided role is valid. Skip otherwise.
-        $this->role = $this->entityManager->getRepository('UVDeskCoreBundle:SupportRole')->findOneByCode($input->getArgument('role'));
+        $this->role = $this->entityManager->getRepository('CoreFrameworkBundle:SupportRole')->findOneByCode($input->getArgument('role'));
         
         if (empty($this->role)) {
             return;
@@ -64,7 +64,7 @@ class GenerateUserInstance extends Command
         $email = $this->promptUserEmailInteractively($input, $output);
         
         // Retrieve existing user or generate new empty user
-        $this->user = $this->entityManager->getRepository('UVDeskCoreBundle:User')->findOneByEmail($email) ?: (new CoreEntities\User())->setEmail($email);
+        $this->user = $this->entityManager->getRepository('CoreFrameworkBundle:User')->findOneByEmail($email) ?: (new CoreEntities\User())->setEmail($email);
 
         // Prompt user name
         $username = trim($this->user->getFirstName() . ' ' . $this->user->getLastName());
@@ -123,7 +123,7 @@ class GenerateUserInstance extends Command
                 $username = explode(' ', $name, 2);
                 $encodedPassword = $this->container->get('security.password_encoder')->encodePassword($this->user, $password);
 
-                $this->user = $this->entityManager->getRepository('UVDeskCoreBundle:User')->findOneByEmail($email) ?: (new CoreEntities\User())->setEmail($email);
+                $this->user = $this->entityManager->getRepository('CoreFrameworkBundle:User')->findOneByEmail($email) ?: (new CoreEntities\User())->setEmail($email);
                 $this->user
                     ->setFirstName($username[0])
                     ->setLastName(!empty($username[1]) ? $username[1] : null)
@@ -140,7 +140,7 @@ class GenerateUserInstance extends Command
         if ($this->user->getId() != null) {
             // If user id is set, that means the entity has been persisted to database before. Check for any existing accounts
             $targetRole = $this->role->getId();
-            $userInstanceCollection = $this->entityManager->getRepository('UVDeskCoreBundle:UserInstance')->findByUser($this->user);
+            $userInstanceCollection = $this->entityManager->getRepository('CoreFrameworkBundle:UserInstance')->findByUser($this->user);
 
             foreach ($userInstanceCollection as $userInstance) {
                 $userRole = $userInstance->getSupportRole()->getId();

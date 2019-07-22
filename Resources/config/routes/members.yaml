@@ -1,166 +1,166 @@
 # Agent Panel Resources
 helpdesk_member_dashboard:
     path:     /dashboard
-    controller: Webkul\UVDesk\CoreBundle\Controller\Account::loadDashboard
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Account::loadDashboard
 
 helpdesk_member_profile:
     path:     /profile
-    controller: Webkul\UVDesk\CoreBundle\Controller\Account::loadProfile
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Account::loadProfile
     defaults: { panelId: 'account' }
 
 helpdesk_member_account_xhr:
     path:     /agent/xhr/{agentId}
-    controller: Webkul\UVDesk\CoreBundle\Controller\AccountXHR::deleteAgent
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\AccountXHR::deleteAgent
     defaults: { agentId: 0 }
 
 helpdesk_member_account:
     path:     /agent/{agentId}
-    controller: Webkul\UVDesk\CoreBundle\Controller\Account::editAgent
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Account::editAgent
     defaults: { panelId: 'users', agentId: 0 }
 
 helpdesk_member_account_collection:
     path:     /agents
-    controller: Webkul\UVDesk\CoreBundle\Controller\Account::listAgents
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Account::listAgents
     defaults: { panelId: 'users' }
 
 helpdesk_member_account_collection_xhr:
     path:     /agents/xhr
-    controller: Webkul\UVDesk\CoreBundle\Controller\AccountXHR::listAgentsXHR
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\AccountXHR::listAgentsXHR
 
 helpdesk_member_create_account:
     path:     /create/agent
-    controller: Webkul\UVDesk\CoreBundle\Controller\Account::createAgent
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Account::createAgent
     defaults: { panelId: 'users' }
 
 # Support Group Resources
 helpdesk_member_support_group_collection:
     path:     /groups
-    controller: Webkul\UVDesk\CoreBundle\Controller\Group::listGroups
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Group::listGroups
     defaults: { panelId: 'users' }
 
 helpdesk_member_support_group_collection_xhr:
     path:     /groups/xhr
-    controller: Webkul\UVDesk\CoreBundle\Controller\GroupXHR::listGroupsXHR
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\GroupXHR::listGroupsXHR
 
 helpdesk_member_create_support_group:
     path:     /create/group
-    controller: Webkul\UVDesk\CoreBundle\Controller\Group::createGroup
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Group::createGroup
     defaults: { panelId: 'users' }
 
 helpdesk_member_update_support_group:
     path:     /group/{supportGroupId}
-    controller: Webkul\UVDesk\CoreBundle\Controller\Group::editGroup
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Group::editGroup
     defaults: { panelId: 'users' }
 
 helpdesk_member_remove_support_group_xhr:
     path:      /group/delete/xhr/{supportGroupId}
-    controller: Webkul\UVDesk\CoreBundle\Controller\GroupXHR::deleteGroupXHR
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\GroupXHR::deleteGroupXHR
     defaults:  { supportGroupId: 0 }
 
 # Support Team Resources
 helpdesk_member_support_team_collection:
     path:     /teams
-    controller: Webkul\UVDesk\CoreBundle\Controller\Team::listTeams
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Team::listTeams
     defaults: { panelId: 'users' }
 
 helpdesk_member_support_team_collection_xhr:
     path:     /teams/xhr
-    controller: Webkul\UVDesk\CoreBundle\Controller\TeamXHR::listTeamsXHR
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\TeamXHR::listTeamsXHR
 
 helpdesk_member_create_support_team:
     path:     /create/team
-    controller: Webkul\UVDesk\CoreBundle\Controller\Team::createTeam
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Team::createTeam
     defaults: { panelId: 'users' }
 
 helpdesk_member_update_support_team:
     path:     /team/{supportTeamId}
-    controller: Webkul\UVDesk\CoreBundle\Controller\Team::editTeam
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Team::editTeam
     defaults: { panelId: 'users' }
 
 helpdesk_member_remove_support_team_xhr:
     path:     /team/delete/xhr/{supportTeamId}
-    controller: Webkul\UVDesk\CoreBundle\Controller\TeamXHR::deleteTeamXHR
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\TeamXHR::deleteTeamXHR
     defaults: { supportTeamId: 0 }
 
 # Support Privilege Resources
 helpdesk_member_privilege_collection:
     path:     /privileges
-    controller: Webkul\UVDesk\CoreBundle\Controller\Privilege::listPrivilege
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Privilege::listPrivilege
     defaults: { panelId: 'users' }
 
 helpdesk_member_privilege_collection_xhr:
     path:     /privileges/xhr
-    controller: Webkul\UVDesk\CoreBundle\Controller\PrivilegeXHR::listPrivilegeXHR
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\PrivilegeXHR::listPrivilegeXHR
     defaults: { panelId: 'users' }
 
 helpdesk_member_create_privilege:
     path:     /create/privilege
-    controller: Webkul\UVDesk\CoreBundle\Controller\Privilege::createPrivilege
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Privilege::createPrivilege
     defaults: { panelId: 'users' }
 
 helpdesk_member_update_privilege:
     path:     /privilege/{supportPrivilegeId}
-    controller: Webkul\UVDesk\CoreBundle\Controller\Privilege::editPrivilege
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Privilege::editPrivilege
     defaults: { panelId: 'users' }
 
 helpdesk_member_remove_privilege_xhr:
     path:     /privilege/delete/xhr/{supportPrivilegeId}
-    controller: Webkul\UVDesk\CoreBundle\Controller\PrivilegeXHR::deletePrivilegeXHR
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\PrivilegeXHR::deletePrivilegeXHR
     defaults: { supportPrivilegeId: 0 }
 
 # User Profile
 edit_profile:
     path:     /profile
-    # defaults: { _controller: UVDeskCoreBundle:UserActivity:editProfile}
-    controller: Webkul\UVDesk\CoreBundle\Controller\UserActivityController::editProfile
+    # defaults: { _controller: CoreFrameworkBundle:UserActivity:editProfile}
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\UserActivityController::editProfile
     defaults: { panelId: 'usersprofile' }
 
 access_token_xhr:
     path:     member/access-token
-    defaults: { _controller: UVDeskCoreBundle:Api:accessTokenXhr }
+    defaults: { _controller: CoreFrameworkBundle:Api:accessTokenXhr }
     methods: [ GET, POST ]
 
 helpdesk_member_saved_filters_xhr:
     path:     /saved-filter-xhr/{filterId}
-    controller: Webkul\UVDesk\CoreBundle\Controller\AccountXHR::savedFiltersXHR
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\AccountXHR::savedFiltersXHR
     defaults: { filterId: 0 }
 
 # Theme
 helpdesk_member_helpdesk_theme:
     path:     /theme/helpdesk
-    controller: Webkul\UVDesk\CoreBundle\Controller\Theme::updateHelpdeskTheme
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Theme::updateHelpdeskTheme
     defaults: { panelId: 'themes', id: 0 }
 
 # Swiftmailer
 helpdesk_member_swiftmailer_settings:
     path:     /settings/swiftmailer
-    controller: Webkul\UVDesk\CoreBundle\Controller\SwiftMailer::loadMailers
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\SwiftMailer::loadMailers
     defaults: { panelId: 'settings'}
 
 helpdesk_member_swiftmailer_load_configurations_xhr:
     path:     /settings/swiftmailer/xhr
-    controller: Webkul\UVDesk\CoreBundle\Controller\SwiftMailerXHR::loadMailersXHR
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\SwiftMailerXHR::loadMailersXHR
 
 helpdesk_member_swiftmailer_create_mailer_configuration:
     path:     /settings/swiftmailer/create
-    controller: Webkul\UVDesk\CoreBundle\Controller\SwiftMailer::createMailerConfiguration
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\SwiftMailer::createMailerConfiguration
     defaults: { panelId: 'settings'}
 
 helpdesk_member_swiftmailer_update_mailer_configuration:
     path:     /settings/swiftmailer/update/{id}
-    controller: Webkul\UVDesk\CoreBundle\Controller\SwiftMailer::updateMailerConfiguration
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\SwiftMailer::updateMailerConfiguration
     defaults: { panelId: 'settings'}
 
 helpdesk_member_swiftmailer_remove_mailer_configuration_xhr:
     path:     /settings/swiftmailer/xhr/remove-configurations
-    controller: Webkul\UVDesk\CoreBundle\Controller\SwiftMailerXHR::removeMailerConfiguration
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\SwiftMailerXHR::removeMailerConfiguration
 
 # Email Settigs
 helpdesk_member_emails_settings:
     path:     /settings/email/settings
-    controller: Webkul\UVDesk\CoreBundle\Controller\EmailSettings::loadSettings
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\EmailSettings::loadSettings
     defaults: { panelId: 'settings'}
 
 helpdesk_member_update_emails_settings_xhr:
     path:     /email/xhr/settings_update
-    controller: Webkul\UVDesk\CoreBundle\Controller\EmailSettingsXHR::updateSettingsXHR
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\EmailSettingsXHR::updateSettingsXHR

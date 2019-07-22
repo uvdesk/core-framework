@@ -1,11 +1,11 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions\Ticket;
 
-use Webkul\UVDesk\CoreBundle\Entity as CoreEntities;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class MailCustomer extends WorkflowAction
@@ -34,7 +34,7 @@ class MailCustomer extends WorkflowAction
                 'id' => $emailTemplate->getId(),
                 'name' => $emailTemplate->getName(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findAll());
+        }, $entityManager->getRepository('CoreFrameworkBundle:EmailTemplates')->findAll());
 
         return $emailTemplateCollection;
     }
@@ -48,7 +48,7 @@ class MailCustomer extends WorkflowAction
                 $currentThread = $entity->currentThread;
                 $createdThread = $entity->createdThread;
 
-                $emailTemplate = $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findOneById($value);
+                $emailTemplate = $entityManager->getRepository('CoreFrameworkBundle:EmailTemplates')->findOneById($value);
 
                 if (empty($emailTemplate)) {
                     break;
@@ -56,7 +56,7 @@ class MailCustomer extends WorkflowAction
 
                 $attachments = [];
                 if (!empty($createdThread)) {
-                    $threadAttachments = $entityManager->getRepository('UVDeskCoreBundle:Attachment')->findByThread($createdThread);
+                    $threadAttachments = $entityManager->getRepository('CoreFrameworkBundle:Attachment')->findByThread($createdThread);
 
                     foreach ($threadAttachments as $attachment) {
                         $attachments[] = $_SERVER['DOCUMENT_ROOT'] . $attachment->getPath();

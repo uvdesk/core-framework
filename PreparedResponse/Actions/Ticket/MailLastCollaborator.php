@@ -1,10 +1,10 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Ticket;
+namespace Webkul\UVDesk\CoreFrameworkBundle\PreparedResponse\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
 
 class MailLastCollaborator extends PreparedResponseAction
@@ -33,7 +33,7 @@ class MailLastCollaborator extends PreparedResponseAction
                 'id' => $emailTemplate->getId(),
                 'name' => $emailTemplate->getName(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findAll());
+        }, $entityManager->getRepository('CoreFrameworkBundle:EmailTemplates')->findAll());
 
         return $emailTemplateCollection;
     }
@@ -42,7 +42,7 @@ class MailLastCollaborator extends PreparedResponseAction
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         if($entity instanceof Ticket) {
-            $emailTemplate = $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findOneById($value);
+            $emailTemplate = $entityManager->getRepository('CoreFrameworkBundle:EmailTemplates')->findOneById($value);
             if(count($entity->getCollaborators()) && $emailTemplate) {
                 $mailData = array();
                 $createThread = $container->get('ticket.service')->getCreateReply($entity->getId(),false);

@@ -1,10 +1,10 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class UpdateTag extends WorkflowAction
@@ -33,7 +33,7 @@ class UpdateTag extends WorkflowAction
                 'id' => $tag->getId(),
                 'name' => $tag->getName(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreBundle:Tag')->findAll());
+        }, $entityManager->getRepository('CoreFrameworkBundle:Tag')->findAll());
     }
 
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
@@ -49,7 +49,7 @@ class UpdateTag extends WorkflowAction
                 }
             }
             if(!$isAlreadyAdded) {
-                $tag = $entityManager->getRepository('UVDeskCoreBundle:Tag')->find($value);
+                $tag = $entityManager->getRepository('CoreFrameworkBundle:Tag')->find($value);
                 if($tag) {
                     $entity->addSupportTag($tag);
                     $entityManager->persist($entity);

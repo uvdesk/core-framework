@@ -1,9 +1,9 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Fixtures;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Fixtures;
 
 use Doctrine\Common\Persistence\ObjectManager;
-use Webkul\UVDesk\CoreBundle\Entity as CoreEntities;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Doctrine\Bundle\FixturesBundle\Fixture as DoctrineFixture;
 
 class AgentPrivileges extends DoctrineFixture
@@ -20,7 +20,7 @@ class AgentPrivileges extends DoctrineFixture
 
     public function load(ObjectManager $entityManager)
     {
-        $availableSupportPrivileges = $entityManager->getRepository('UVDeskCoreBundle:SupportPrivilege')->findAll();
+        $availableSupportPrivileges = $entityManager->getRepository('CoreFrameworkBundle:SupportPrivilege')->findAll();
 
         if (empty($availableSupportPrivileges)) {
             foreach (self::$seeds as $supportPrivilegeSeed) {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Fixtures;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Fixtures;
 
 use Doctrine\Common\Persistence\ObjectManager;
-use Webkul\UVDesk\CoreBundle\Entity as CoreEntities;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Doctrine\Bundle\FixturesBundle\Fixture as DoctrineFixture;
 
 class AgentGroups extends DoctrineFixture
@@ -18,7 +18,7 @@ class AgentGroups extends DoctrineFixture
 
     public function load(ObjectManager $entityManager)
     {
-        $availableSupportGroups = $entityManager->getRepository('UVDeskCoreBundle:SupportGroup')->findAll();
+        $availableSupportGroups = $entityManager->getRepository('CoreFrameworkBundle:SupportGroup')->findAll();
 
         if (empty($availableSupportGroups)) {
             foreach (self::$seeds as $supportGroupSeed) {

@@ -1,10 +1,10 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Controller;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
-use Webkul\UVDesk\CoreBundle\Form;
-use Webkul\UVDesk\CoreBundle\Entity\User;
-use Webkul\UVDesk\CoreBundle\Entity\SupportTeam;
+use Webkul\UVDesk\CoreFrameworkBundle\Form;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -18,7 +18,7 @@ class Team extends Controller
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
-        return $this->render('@UVDeskCore/Teams/listSupportTeams.html.twig');
+        return $this->render('@CoreFramework/Teams/listSupportTeams.html.twig');
     }
 
     public function createTeam(Request $request)
@@ -53,7 +53,7 @@ class Team extends Controller
                 $usersList = array_map(function ($user) { return 'user.id = ' . $user; }, $usersList);
 
                 $userList = $em->createQueryBuilder()->select('user')
-                    ->from('UVDeskCoreBundle:User', 'user')
+                    ->from('CoreFrameworkBundle:User', 'user')
                     ->where(implode(' OR ', $usersList))
                     ->getQuery()->getResult();
             }
@@ -62,7 +62,7 @@ class Team extends Controller
                 $usersGroup = array_map(function ($group) { return 'p.id = ' . $group; }, $usersGroup);
             
                 $userGroup = $em->createQueryBuilder('p')->select('p')
-                    ->from('UVDeskCoreBundle:SupportGroup', 'p')
+                    ->from('CoreFrameworkBundle:SupportGroup', 'p')
                     ->where(implode(' OR ', $usersGroup))
                     ->getQuery()->getResult();
             }
@@ -86,7 +86,7 @@ class Team extends Controller
             return $this->redirect($this->generateUrl('helpdesk_member_support_team_collection'));
         }
 
-        return $this->render('@UVDeskCore/Teams/createSupportTeam.html.twig', [
+        return $this->render('@CoreFramework/Teams/createSupportTeam.html.twig', [
             'team' => $supportTeam,
             'errors' => json_encode($errors)
         ]);
@@ -99,7 +99,7 @@ class Team extends Controller
         }
 
         if($request->attributes->get('supportTeamId')){
-            $supportTeam = $this->getDoctrine()->getRepository('UVDeskCoreBundle:SupportTeam')
+            $supportTeam = $this->getDoctrine()->getRepository('CoreFrameworkBundle:SupportTeam')
                         ->findSubGroupById(['id' => $request->attributes->get('supportTeamId')]);
 
             if(!$supportTeam)
@@ -126,7 +126,7 @@ class Team extends Controller
             if (!empty($usersList)) {
                 $usersList = array_map(function ($user) { return 'p.id = ' . $user; }, $usersList);
                 $userList = $em->createQueryBuilder('p')->select('p')
-                    ->from('UVDeskCoreBundle:User', 'p')
+                    ->from('CoreFrameworkBundle:User', 'p')
                     ->where(implode(' OR ', $usersList))
                     ->getQuery()->getResult();
             }
@@ -135,7 +135,7 @@ class Team extends Controller
                 $usersGroup = array_map(function ($group) { return 'p.id = ' . $group; }, $usersGroup);
             
                 $userGroup = $em->createQueryBuilder('p')->select('p')
-                    ->from('UVDeskCoreBundle:SupportGroup', 'p')
+                    ->from('CoreFrameworkBundle:SupportGroup', 'p')
                     ->where(implode(' OR ', $usersGroup))
                     ->getQuery()->getResult();
             }
@@ -174,7 +174,7 @@ class Team extends Controller
             $this->addFlash('success', 'Success ! Team information updated successfully.');
             return $this->redirect($this->generateUrl('helpdesk_member_support_team_collection'));
         } 
-        return $this->render('@UVDeskCore/Teams/updateSupportTeam.html.twig', [
+        return $this->render('@CoreFramework/Teams/updateSupportTeam.html.twig', [
                 'team' => $supportTeam,
                 'errors' => json_encode($errors)
         ]);

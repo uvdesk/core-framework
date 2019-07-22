@@ -1,11 +1,11 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Services;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Webkul\UVDesk\CoreBundle\Utils\TokenGenerator;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

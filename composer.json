@@ -49,10 +49,10 @@
         "uvdesk/support-center-bundle": "Provide your customers with convenience by introducing the Support Center Portal to your UVDesk Community Helpdesk System"
     },
     "autoload": {
-        "psr-4": { "Webkul\\UVDesk\\CoreBundle\\": "" }
+        "psr-4": { "Webkul\\UVDesk\\CoreFrameworkBundle\\": "" }
     },
     "extra": {
-        "uvdesk-package-extension": "Webkul\\UVDesk\\CoreBundle\\Package\\Composer"
+        "uvdesk-package-extension": "Webkul\\UVDesk\\CoreFrameworkBundle\\Package\\Composer"
     },
     "minimum-stability": "dev"
 }

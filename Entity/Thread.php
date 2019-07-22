@@ -1,13 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Entity;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Thread
  * 
- * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreBundle\Repository\ThreadRepository")
+ * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreFrameworkBundle\Repository\ThreadRepository")
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(name="uv_thread")
  * 
@@ -113,21 +113,21 @@ class Thread
     private $customerViewedAt;
 
     /**
-     * @var \Webkul\UVDesk\CoreBundle\Entity\Ticket
+     * @var \Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket
      * @ORM\ManyToOne(targetEntity="Ticket", inversedBy="threads")
      * @ORM\JoinColumn(name="ticket_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $ticket;
 
     /**
-     * @var \Webkul\UVDesk\CoreBundle\Entity\User
+     * @var \Webkul\UVDesk\CoreFrameworkBundle\Entity\User
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="SET NULL")
      */
     private $user;
 
     /**
-     * @var \Webkul\UVDesk\CoreBundle\Entity\Attachment
+     * @var \Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment
      * @ORM\OneToMany(targetEntity="Attachment", mappedBy="thread", cascade={"remove"}, orphanRemoval=true)
      */
     private $attachments;
@@ -513,11 +513,11 @@ class Thread
     /**
      * Set ticket
      *
-     * @param \Webkul\UVDesk\CoreBundle\Entity\Ticket $ticket
+     * @param \Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket $ticket
      *
      * @return Thread
      */
-    public function setTicket(\Webkul\UVDesk\CoreBundle\Entity\Ticket $ticket = null)
+    public function setTicket(\Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket $ticket = null)
     {
         $this->ticket = $ticket;
 
@@ -527,7 +527,7 @@ class Thread
     /**
      * Get ticket
      *
-     * @return \Webkul\UVDesk\CoreBundle\Entity\Ticket
+     * @return \Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket
      */
     public function getTicket()
     {
@@ -537,11 +537,11 @@ class Thread
     /**
      * Set user
      *
-     * @param \Webkul\UVDesk\CoreBundle\Entity\User $user
+     * @param \Webkul\UVDesk\CoreFrameworkBundle\Entity\User $user
      *
      * @return Thread
      */
-    public function setUser(\Webkul\UVDesk\CoreBundle\Entity\User $user = null)
+    public function setUser(\Webkul\UVDesk\CoreFrameworkBundle\Entity\User $user = null)
     {
         $this->user = $user;
 
@@ -551,7 +551,7 @@ class Thread
     /**
      * Get user
      *
-     * @return \Webkul\UVDesk\CoreBundle\Entity\User
+     * @return \Webkul\UVDesk\CoreFrameworkBundle\Entity\User
      */
     public function getUser()
     {
@@ -561,10 +561,10 @@ class Thread
     /**
      * Add attachments
      *
-     * @param \Webkul\UVDesk\CoreBundle\Entity\Attachment $attachments
+     * @param \Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment $attachments
      * @return Thread
      */
-    public function addAttachment(\Webkul\UVDesk\CoreBundle\Entity\Attachment $attachments)
+    public function addAttachment(\Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment $attachments)
     {
         $this->attachments[] = $attachments;
 
@@ -576,7 +576,7 @@ class Thread
      *
      * @param \Webkul\TicketBundle\Entity\Attachment $attachments
      */
-    public function removeAttachment(\Webkul\UVDesk\CoreBundle\Entity\Attachment $attachments)
+    public function removeAttachment(\Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment $attachments)
     {
         $this->attachments->removeElement($attachments);
     }

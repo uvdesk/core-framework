@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Controller;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\HttpFoundation\Request;

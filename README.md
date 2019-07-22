@@ -4,10 +4,10 @@
 
 [UVDesk Community Edition][1] is an easy-to-use, highly customizable open-source **helpdesk solution** built on top of the reliable [Symfony][2] **PHP framework**, enabling organizations to provide their customers with the best level of support solution possible.
 
-UVDeskCoreBundle
+CoreFrameworkBundle
 --------------
 
-The standalone **UVDeskCoreBundle** lies at the heart of the [UVDesk Community][1] helpdesk, providing the core essential functionalities and integration tools to easily integrate any other community helpdesk packages, furhter extending the capabilities of the helpdesk system.
+The standalone **CoreFrameworkBundle** lies at the heart of the [UVDesk Community][1] helpdesk, providing the core essential functionalities and integration tools to easily integrate any other community helpdesk packages, furhter extending the capabilities of the helpdesk system.
 
 The core framework bundle comes loaded with the following features:
 
@@ -36,7 +36,7 @@ $ composer require uvdesk/core-framework
 License
 --------------
 
-The **UVDeskCoreBundle** and libraries included within the bundle are released under the MIT or BSD license.
+The **CoreFrameworkBundle** and libraries included within the bundle are released under the MIT or BSD license.
 
 [1]: https://www.uvdesk.com/
 [2]: https://symfony.com/

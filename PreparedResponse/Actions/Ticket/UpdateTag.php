@@ -1,9 +1,9 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Ticket;
+namespace Webkul\UVDesk\CoreFrameworkBundle\PreparedResponse\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
 
@@ -33,7 +33,7 @@ class UpdateTag extends PreparedResponseAction
                 'id' => $tag->getId(),
                 'name' => $tag->getName(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreBundle:Tag')->findAll());
+        }, $entityManager->getRepository('CoreFrameworkBundle:Tag')->findAll());
     }
 
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
@@ -49,7 +49,7 @@ class UpdateTag extends PreparedResponseAction
                 }
             }
             if(!$isAlreadyAdded) {
-                $tag = $entityManager->getRepository('UVDeskCoreBundle:Tag')->find($value);
+                $tag = $entityManager->getRepository('CoreFrameworkBundle:Tag')->find($value);
                 if($tag) {
                     $entity->addSupportTag($tag);
                     $entityManager->persist($entity);

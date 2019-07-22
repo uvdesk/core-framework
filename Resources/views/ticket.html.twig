@@ -1,4 +1,4 @@
-{% extends "@UVDeskCore//Templates//layout.html.twig" %}
+{% extends "@CoreFramework//Templates//layout.html.twig" %}
 
 {% block title %}{{ '#' ~ ticket.id ~ ' ' ~ ticket.subject }}{% endblock %}
 
@@ -127,7 +127,7 @@
             display: inline-block;
             vertical-align: middle;
             margin: 5px 0px 5px 10px;
-            background-image: url("{{ asset('bundles/uvdeskcore/images/app-glyph-custom.svg') }}");
+            background-image: url("{{ asset('bundles/coreframework/images/app-glyph-custom.svg') }}");
         }
         .uv-no-threads {
             padding: 80px 20px;
@@ -174,7 +174,7 @@
             height: 18px;
             display: inline-block;
             vertical-align: middle;
-            background-image: url("{{ asset('bundles/uvdeskcore/images/uvdesk-sprite.svg') }}");
+            background-image: url("{{ asset('bundles/coreframework/images/uvdesk-sprite.svg') }}");
             background-position: 0px -396px;
             transition: transform .15s;
             transform: scale(1);
@@ -1150,8 +1150,8 @@
 {% block footer %}
     {{ parent() }}
 
-    {{ include('@UVDeskCore\\Templates\\attachment.html.twig') }}
-    {{ include("@UVDeskCore/Templates/tinyMCE.html.twig") }}
+    {{ include('@CoreFramework\\Templates\\attachment.html.twig') }}
+    {{ include("@CoreFramework/Templates/tinyMCE.html.twig") }}
 
     <script id="thread_list_empty_tmp" type="text/template">
         <div class="uv-no-threads">Nothing interesting here...</div>
@@ -1245,7 +1245,7 @@
                             <label>{{ 'Language'|trans }}</label>
                             {% for localeCode, localeName in uvdesk_service.getLocales() %}
                                 <li data-value="{{ localeCode }}">
-                                    <img class="locale-image" src='{{ asset("bundles/uvdeskcore/images/country-flags/" ~ localeCode|lower|replace({" ": "-"}) ~ ".png") }}' alt="{{ localeCode }}" width="24px">
+                                    <img class="locale-image" src='{{ asset("bundles/coreframework/images/country-flags/" ~ localeCode|lower|replace({" ": "-"}) ~ ".png") }}' alt="{{ localeCode }}" width="24px">
                                     <span>{{ localeName|trans }}</span>
                                 </li>
                             {% endfor %}

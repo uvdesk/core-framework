@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Controller;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -20,7 +20,7 @@ class EmailSettings extends Controller
         $file_content_array = Yaml::parse($file_content, 6);
         $result = $file_content_array['uvdesk']['support_email'];
 
-        return $this->render('@UVDeskCore//Email//emailSettings.html.twig', [
+        return $this->render('@CoreFramework//Email//emailSettings.html.twig', [
             'email_settings' => $result,
             'swiftmailers' => $swiftmailerConfigurations,
         ]);

@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Console;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Console;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Question\Question;

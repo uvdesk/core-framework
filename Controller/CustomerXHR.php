@@ -1,13 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Controller;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
-use Webkul\UVDesk\CoreBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Webkul\UVDesk\CoreBundle\Workflow\Events as CoreWorkflowEvents;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class CustomerXHR extends Controller
@@ -21,7 +21,7 @@ class CustomerXHR extends Controller
         $json = array();
         
         if($request->isXmlHttpRequest()) {
-            $repository = $this->getDoctrine()->getRepository('UVDeskCoreBundle:User');
+            $repository = $this->getDoctrine()->getRepository('CoreFrameworkBundle:User');
             $json =  $repository->getAllCustomer($request->query, $this->container);
         }
         $response = new Response(json_encode($json));
@@ -40,7 +40,7 @@ class CustomerXHR extends Controller
         if($request->getMethod() == "DELETE") {
             $em = $this->getDoctrine()->getManager();
             $id = $request->attributes->get('customerId');
-            $user = $em->getRepository('UVDeskCoreBundle:User')->findOneBy(['id' => $id]);
+            $user = $em->getRepository('CoreFrameworkBundle:User')->findOneBy(['id' => $id]);
 
             if($user) {
 

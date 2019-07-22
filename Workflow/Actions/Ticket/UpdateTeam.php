@@ -1,10 +1,10 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class UpdateTeam extends WorkflowAction
@@ -33,7 +33,7 @@ class UpdateTeam extends WorkflowAction
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         if($entity instanceof Ticket) {
-            $subGroup = $entityManager->getRepository('UVDeskCoreBundle:SupportTeam')->find($value);
+            $subGroup = $entityManager->getRepository('CoreFrameworkBundle:SupportTeam')->find($value);
             if($subGroup) {
                 $entity->setSupportTeam($subGroup);
                 $entityManager->persist($entity);

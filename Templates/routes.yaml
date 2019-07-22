@@ -1,6 +1,6 @@
 # This file is the entry point to configure the routes for your dependencies.
 uvdesk_core_bundle_member_routing_resources:
-    resource: "@UVDeskCoreBundle/Resources/config/members.yaml"
+    resource: "@CoreFrameworkBundle/Resources/config/members.yaml"
     prefix:   /{_locale}/%uvdesk_site_path.member_prefix%/
     requirements:
         _locale: %app_locales%
@@ -8,7 +8,7 @@ uvdesk_core_bundle_member_routing_resources:
         _locale: %locale%
 
 uvdesk_core_bundle_public_routing_resources:
-    resource: "@UVDeskCoreBundle/Resources/config/public.yaml"
+    resource: "@CoreFrameworkBundle/Resources/config/public.yaml"
     prefix:   /
     requirements:
         _locale: %app_locales%
