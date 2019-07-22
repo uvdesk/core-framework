@@ -15,6 +15,11 @@
         {% set website = user_service.getWebsiteDetails('helpdesk') %}
 
         {{ include('@CoreFramework/Templates/lightskin.html.twig') }}
+
+        <!-- Custom Stylesheets -->
+        {% for stylesheet in uvdesk_extensibles.getRegisteredComponent('Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\Dashboard').getDashboardTemplate().getStylesheetResources() %}
+            <link href="{{ asset(stylesheet) }}" type="text/css" rel="stylesheet" media="all" />
+        {% endfor %}
         
         {% block templateCSS %}{% endblock %}
 
@@ -31,8 +36,8 @@
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>	
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-       
     </head>
+
     <body>
         <div class="uv-notifications-wrapper">
             <noscript>
@@ -41,6 +46,7 @@
                 </div>
                 <style>.uv-loader-view {display: none;}</style>
             </noscript>
+
             {% if uvdesk_service.requestHeadersSent() == false %}
                 {% for flashMessage in app.session.flashbag.get('success') %}
                     <div class="uv-notification page-load uv-success">
@@ -48,6 +54,7 @@
                         <p>{{ flashMessage|raw }}</p>
                     </div>
                 {% endfor %}
+                
                 {% for flashMessage in app.session.flashbag.get('warning') %}
                     <div class="uv-notification page-load uv-error">
                         <span class="uv-notification-close"></span>
@@ -146,6 +153,11 @@
                     'alertMessage' : '{{ "Error : Something went wrong, please try again later"|trans }}',
                 };
             </script>
+
+            {# Custom Javascript #}
+            {% for javascript in uvdesk_extensibles.getRegisteredComponent('Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\Dashboard').getDashboardTemplate().getJavascriptResources() %}
+                <script src="{{ asset(javascript) }}" type="text/javascript"></script>
+            {% endfor %}
         {% endblock %}
     </body>
 </html>

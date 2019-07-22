@@ -74,16 +74,6 @@ class UVDeskService
 		return str_replace('/' . $request->getLocale() . '/', '/' . $locale . '/', $request->getRequestUri());
     }
 
-    public function getHelpdeskDashboadPanelItems()
-    {
-        return $this->container->getParameter('uvdesk.helpdesk.dashboard_items');
-    }
-
-    public function getHelpdeskNavigationSidebarItems()
-    {
-        return $this->container->getParameter('uvdesk.helpdesk.navigation_items');
-    }
-
 	public function getPanelSidebarRoutes()
 	{
 		$router = $this->container->get('router');

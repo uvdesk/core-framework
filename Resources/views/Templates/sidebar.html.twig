@@ -32,7 +32,7 @@
         padding: 17px 18px;
     }
 
-	.uv-logo-image {
+    .uv-logo-image {
 		height: 50px;
 		width: 50px;	
 	}
@@ -41,7 +41,7 @@
 		width: 30px;
 		height: 30px;
 	}
-	
+
     @media only screen and (max-width: 900px) {
         .uv-sidebar ul.uv-menubar.uv-language li a {
             width: 58px;
@@ -62,31 +62,18 @@
 {% endif %}
 
 <div class="uv-sidebar {% if app.request.cookies.get('uv-sidebar-status') %}uv-sidebar-active{% endif %}">
-	
-		<div class="uv-soft-top">
-			<span class="uv-hamburger ">
-				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="hamburger-click-area">
-                    <path fill-rule="evenodd"  fill="rgb(158, 158, 158)" d="M19.000,2.000 L6.000,2.000 C5.448,2.000 5.000,1.552 5.000,1.000 C5.000,0.448 5.448,-0.000 6.000,-0.000 L19.000,-0.000 C19.552,-0.000 20.000,0.448 20.000,1.000 C20.000,1.552 19.552,2.000 19.000,2.000 ZM20.000,7.000 C20.000,7.552 19.552,8.000 19.000,8.000 L1.000,8.000 C0.448,8.000 0.000,7.552 0.000,7.000 C0.000,6.448 0.448,6.000 1.000,6.000 L19.000,6.000 C19.552,6.000 20.000,6.448 20.000,7.000 ZM3.000,12.000 L15.000,12.000 C15.552,12.000 16.000,12.448 16.000,13.000 C16.000,13.552 15.552,14.000 15.000,14.000 L3.000,14.000 C2.448,14.000 2.000,13.552 2.000,13.000 C2.000,12.448 2.448,12.000 3.000,12.000 Z"/>
-				</svg>
-			</span>
-		</div>
-		
+	<div class="uv-soft-top">
+        <span class="uv-hamburger ">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="hamburger-click-area">
+                <path fill-rule="evenodd"  fill="rgb(158, 158, 158)" d="M19.000,2.000 L6.000,2.000 C5.448,2.000 5.000,1.552 5.000,1.000 C5.000,0.448 5.448,-0.000 6.000,-0.000 L19.000,-0.000 C19.552,-0.000 20.000,0.448 20.000,1.000 C20.000,1.552 19.552,2.000 19.000,2.000 ZM20.000,7.000 C20.000,7.552 19.552,8.000 19.000,8.000 L1.000,8.000 C0.448,8.000 0.000,7.552 0.000,7.000 C0.000,6.448 0.448,6.000 1.000,6.000 L19.000,6.000 C19.552,6.000 20.000,6.448 20.000,7.000 ZM3.000,12.000 L15.000,12.000 C15.552,12.000 16.000,12.448 16.000,13.000 C16.000,13.552 15.552,14.000 15.000,14.000 L3.000,14.000 C2.448,14.000 2.000,13.552 2.000,13.000 C2.000,12.448 2.448,12.000 3.000,12.000 Z"/>
+            </svg>
+        </span>
+    </div>
+
 	<ul class="uv-menubar">
 		{# Sidebar Navigation #}
         {% set route = app.request.attributes.get('_route') %}
-
-		{% for navigationItem in uvdesk_service.getHelpdeskNavigationSidebarItems() %}
-			<li data-toggle="tooltip" data-placement="right" title="{{ navigationItem.name }}" class="{{ (route == navigationItem.route) or (navigationItem.route == "helpdesk_member_ticket_collection" and route == "helpdesk_member_ticket") or (navigationItem.route == "helpdesk_member_knowledgebase_folders_collection" and (route == "helpdesk_member_knowledgebase_category_collection" or route == "helpdesk_member_knowledgebase_article_collection")) ? 'uv-active-sidebar' }}">
-				<a href="{{ path(navigationItem.route) }}">
-					<span class="uv-icon">
-						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20px" height="18px">
-							{{ navigationItem.icon_svg | raw }}
-						</svg>
-					</span>
-
-					<span class="uv-menu-item">{{ navigationItem.name }}</span>
-				</a>
-			</li>
-		{% endfor %}
+        
+		{{ uvdesk_extensibles.getRegisteredComponent('Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\Dashboard').getNavigationTemplate().render()|raw }}
 	</ul>
 </div>
