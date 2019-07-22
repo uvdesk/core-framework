@@ -815,7 +815,7 @@ class TicketXHR extends Controller
                 
                 $supportRole = $em->getRepository('UVDeskCoreBundle:SupportRole')->findOneByCode('ROLE_CUSTOMER');
 
-                $collaborator = $this->get('user.service')->createUserInstance($data['from'], $data['firstName'], $supportRole);
+                $collaborator = $this->get('user.service')->createUserInstance($data['from'], $data['firstName'], $supportRole, $extras = ["active" => true]);
                 $checkTicket = $em->getRepository('UVDeskCoreBundle:Ticket')->isTicketCollaborator($ticket, $content['email']);
                 
                 if (!$checkTicket) {
