@@ -615,17 +615,4 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
         return $queryBuilder;
     }
-
-    public function getTagArticleCount($supportTag)
-    {
-        $queryBuilder = $this->getEntityManager()->createQueryBuilder()
-            ->select('COUNT(articleTags) as totalArticle')
-            ->from('UVDeskSupportCenterBundle:ArticleTags', 'articleTags')
-            ->where('articleTags.tagId = :supportTag')
-            ->setParameter('supportTag', $supportTag);
-
-        $result = $queryBuilder->getQuery()->getResult();
-
-        return !empty($result) ? $result[0]['totalArticle'] : 0;
-    }
 }

@@ -2442,7 +2442,7 @@ kbd {
   vertical-align: middle;
   border-radius: 3px;
   margin-right: 10px;
-  height: 40px;
+  height: 40px !important;
 }
 .uv-paper .uv-navbar .uv-howdy,
 .uv-paper .uv-navbar .uv-user {
