@@ -157,11 +157,15 @@ class Ticket extends Controller
         $thread = $this->get('ticket.service')->createTicketBase($ticketData);
 
         // Trigger ticket created event
-        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Create::getId(), [
-            'entity' =>  $thread->getTicket(),
-        ]);
-
-        $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+        try {
+            $event = new GenericEvent(CoreWorkflowEvents\Ticket\Create::getId(), [
+                'entity' =>  $thread->getTicket(),
+            ]);
+    
+            $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+        } catch (\Exception $e) {
+            // Skip Automation
+        }
 
         if (!empty($thread)) {
             $ticket = $thread->getTicket();

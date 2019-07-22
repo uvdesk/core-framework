@@ -2,7 +2,7 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Collections\Criteria;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +20,7 @@ class UserService
 	protected $requestStack;
     protected $entityManager;
 
-    public function __construct(ContainerInterface $container, RequestStack $requestStack, EntityManager $entityManager)
+    public function __construct(ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager)
     {
         $this->container = $container;
 		$this->requestStack = $requestStack;

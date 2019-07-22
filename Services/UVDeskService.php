@@ -2,7 +2,7 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
@@ -34,7 +34,7 @@ class UVDeskService
         '  ',
     ];
 
-	public function __construct(ContainerInterface $container, RequestStack $requestStack, EntityManager $entityManager)
+	public function __construct(ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager)
 	{
 		$this->container = $container;
 		$this->requestStack = $requestStack;
@@ -601,7 +601,7 @@ class UVDeskService
         ];
         
         // get file content and index
-        $file = file($filePath);   
+        $file = file($filePath);
         foreach ($file as $index => $content) {
             if (false !== strpos($content, 'uvdesk_site_path.member_prefix')) {
                 list($member_panel_line, $member_panel_text) = array($index, $content);
@@ -616,7 +616,7 @@ class UVDeskService
         $updatedFileContent = $file;
 
         // get old member-prefix
-        $oldMemberPrefix = substr($member_panel_text, strpos($member_panel_text, 'uvdesk_site_path.member_prefix') + strlen('uvdesk_site_path.member_prefix: ')); 
+        $oldMemberPrefix = substr($member_panel_text, strpos($member_panel_text, 'uvdesk_site_path.member_prefix') + strlen('uvdesk_site_path.member_prefix: '));
         $oldMemberPrefix = preg_replace('/([\r\n\t])/','', $oldMemberPrefix);
 
         $updatedPrefixForMember = (null !== $member_panel_line) ? substr($member_panel_text, 0, strpos($member_panel_text, 'uvdesk_site_path.member_prefix') + strlen('uvdesk_site_path.member_prefix: ')) . $website_prefixes['member_prefix'] . PHP_EOL: '';
@@ -655,7 +655,7 @@ class UVDeskService
             'knowledgebase' => $knowledgebaseURL,
         ];
     }
-       
+
     public static function getTimeFormats()
     {
         return array(

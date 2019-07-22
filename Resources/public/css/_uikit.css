@@ -2255,7 +2255,6 @@ kbd {
   top: 0;
   bottom: 0;
   z-index: 1;
-  
   background-color: #FFFFFF;
   transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -4137,6 +4136,7 @@ kbd {
   transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .uv-filter-view .uv-filter-head {
+  position: relative;
   margin-left: 20px;
   width: 280px;
   display: inline-block;
@@ -4145,21 +4145,29 @@ kbd {
   border-bottom: solid 1px #D3D3D3;
 }
 .uv-filter-view .uv-filter-head .uv-filter-title {
-  width: 200px;
+  /* width: 200px; */
   float: left;
 }
 .uv-filter-view .uv-filter-head .uv-filter-title h6 {
-  font-size: 15px;
   display: inline-block;
   vertical-align: top;
+  line-height: 1.4em;
+  font-size: 16px;
+  margin-bottom: 10px;
 }
 .uv-filter-view .uv-filter-head .uv-filter-title span {
-  display: inline-block;
-  font-style: italic;
+  display: block;
+  font-style: normal;
+  line-height: 1.4em;
   color: #6F6F6F;
+  font-size: 14px;
 }
 .uv-filter-view .uv-filter-head .uv-filter-toggle {
   float: right;
+  position: absolute;
+  position: absolute;
+  right: 18px;
+  top: 20px;
 }
 .uv-filter-view .uv-filter-head .uv-filter-toggle span {
   display: inline-block;
@@ -4173,7 +4181,7 @@ kbd {
   padding-left: 20px;
   padding-bottom: 20px;
   position: absolute;
-  top: 105px;
+  top: 113px;
   right: 0px;
   left: 0px;
   bottom: 0px;
@@ -4446,7 +4454,8 @@ span.uv-app-price {
   box-shadow: 0px 19px 35px 0px rgba(0, 0, 0, 0.1), 0px 10px 32px 0px rgba(0, 0, 0, 0.12);
 }
 .uv-app-screen {
-  padding-right: 25px;
+  position: relative;
+  margin-right: 25px;
 }
 .uv-app-screen .uv-app-splash {
   text-align: center;
@@ -5164,14 +5173,9 @@ br[data-mce-bogus="1"] {
   }
 }
 @media screen and (min-width: 901px) and (max-width: 1400px) {
-  .uv-sidebar {
-  }
   .uv-sidebar .uv-soft-top a.uv-logo {
     display: block;
     margin: 10px 7px;
-  }
-  .uv-sidebar .uv-soft-top .uv-hamburger {
-    /* display: none; */
   }
   .uv-sidebar .uv-soft-top .uv-company-logo img {
     height: 48px;
@@ -5185,15 +5189,9 @@ br[data-mce-bogus="1"] {
     padding: 15px 17px;
     transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .uv-sidebar ul.uv-menubar li a .uv-menu-item {
-    /* display: none; */
-  }
-  .uv-paper {
-    /* padding-left: 60px; */
-  }
   .uv-paper .uv-wrapper {
     left: 60px;
-    transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: none;
   }
   .uv-inner-section .uv-aside {
     width: 250px;

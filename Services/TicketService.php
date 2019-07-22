@@ -3,7 +3,7 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 
 use Doctrine\ORM\Query;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread;
@@ -20,7 +20,7 @@ class TicketService
 	protected $requestStack;
     protected $entityManager;
     
-    public function __construct(ContainerInterface $container, RequestStack $requestStack, EntityManager $entityManager)
+    public function __construct(ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager)
     {
         $this->container = $container;
 		$this->requestStack = $requestStack;

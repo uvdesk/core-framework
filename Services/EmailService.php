@@ -1,7 +1,7 @@
 <?php
 namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
@@ -16,7 +16,7 @@ class EmailService
     private $container;
     private $entityManager;
 
-    public function __construct(ContainerInterface $container, RequestStack $request, EntityManager $entityManager)
+    public function __construct(ContainerInterface $container, RequestStack $request, EntityManagerInterface $entityManager)
     {
         $this->request = $request;
         $this->container = $container;
