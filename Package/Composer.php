@@ -9,7 +9,8 @@ class Composer extends ComposerPackageExtension
 {
     public function loadConfiguration()
     {
-        ($composerPackage = new ComposerPackage())
+        $composerPackage = new ComposerPackage();
+        $composerPackage
             ->movePackageConfig('config/packages/uvdesk.yaml', 'Templates/config.yaml')
             ->movePackageConfig('templates/mail.html.twig', 'Templates/Email/base.html.twig')
             ->movePackageConfig('config/packages/security.yaml', 'Templates/security.yaml')
