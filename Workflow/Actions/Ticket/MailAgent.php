@@ -5,6 +5,7 @@ namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreBundle\Entity\Attachment;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class MailAgent extends WorkflowAction
@@ -65,18 +66,26 @@ class MailAgent extends WorkflowAction
            
             if($emails && $emailTemplate) {
                 $mailData = array();
+                $attachments = [];
                 if ($entity instanceof Ticket) {
                     $createThread = $container->get('ticket.service')->getCreateReply($entity->getId(), false);
                     $mailData['references'] = $createThread['messageId'];
+                    $createdThread = $entity->createdThread;
+                    if (!empty($createdThread)) {
+                        $threadAttachments = $entityManager->getRepository('UVDeskCoreBundle:Attachment')->findByThread($createdThread);
+                        foreach ($threadAttachments as $attachment) {
+                            $attachments[] = $_SERVER['DOCUMENT_ROOT'] . $attachment->getPath();
+                        }
+                    }
                 }
-
+                
                 $mailData['email'] = $emails;
                 $placeHolderValues   = $container->get('email.service')->getTicketPlaceholderValues($entity, 'agent');
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(),$placeHolderValues);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(),$placeHolderValues);
-
+                
                 foreach($mailData['email'] as $email){
-                    $messageId = $container->get('email.service')->sendMail($subject, $message, $email);
+                    $messageId = $container->get('email.service')->sendMail($subject, $message, $email, [], null, $attachments);
                 }
             } else {
                 // Email Template/Emails Not Found. Disable Workflow/Prepared Response

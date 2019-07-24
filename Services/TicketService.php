@@ -160,11 +160,11 @@ class TicketService
     public function createThread(Ticket $ticket, array $threadData)
     {
         $threadData['isLocked'] = 0;
-      
+        
         if ('forward' === $threadData['threadType']) {
             $threadData['replyTo'] = $threadData['to'];
         }
-
+        
         $collaboratorEmails = array_merge(!empty($threadData['cccol']) ? $threadData['cccol'] : [], !empty($threadData['cc']) ? $threadData['cc'] : []);
         if (!empty($collaboratorEmails)) {
             $threadData['cc'] = $collaboratorEmails;
@@ -244,10 +244,11 @@ class TicketService
                     ->setPath($uploadedFileAttributes['path'])
                     ->setSize($uploadedFileAttributes['size'])
                     ->setContentType($uploadedFileAttributes['content-type']);
-                
-                $this->entityManager->persist($threadAttachment);
+
+                    $this->entityManager->persist($threadAttachment);
+                    $thread->addAttachment($threadAttachment);
+                }
             }
-        }
 
         $this->entityManager->flush();
     }
@@ -923,7 +924,7 @@ class TicketService
                 ->getMaxResults(1);
 
         $threadResponse = $qb->getQuery()->getArrayResult();
-
+        
         if((!empty($threadResponse[0][0]))) {
             $threadDetails = $threadResponse[0][0];
             $userService = $this->container->get('user.service');
