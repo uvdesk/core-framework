@@ -324,7 +324,7 @@ class EmailService
         }
 
         $router = $this->container->get('router');
-        $helpdeskWebsite = $this->entityManager->getRepository('CoreFrameworkBundle:Website')->findOneByCode('helpdesk');
+        $helpdeskWebsite = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneByCode('helpdesk');
 
         // Link to company knowledgebase
         if (false == array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
@@ -334,8 +334,8 @@ class EmailService
         }
 
         // Resolve path to helpdesk brand image
-        $companyLogoURL = sprintf('http://%s%s', $this->container->getParameter('uvdesk.site_url'), '/bundles/coreframework/images/uv-avatar-uvdesk.png');
-        $helpdeskKnowledgebaseWebsite = $this->entityManager->getRepository('CoreFrameworkBundle:Website')->findOneByCode('knowledgebase');
+        $companyLogoURL = sprintf('http://%s%s', $this->container->getParameter('uvdesk.site_url'), '/bundles/uvdeskcoreframework/images/uv-avatar-uvdesk.png');
+        $helpdeskKnowledgebaseWebsite = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneByCode('knowledgebase');
 
         if (!empty($helpdeskKnowledgebaseWebsite) && null != $helpdeskKnowledgebaseWebsite->getLogo()) {
             $companyLogoURL = sprintf('http://%s%s', $this->container->getParameter('uvdesk.site_url'), $helpdeskKnowledgebaseWebsite->getLogo());
@@ -368,11 +368,11 @@ class EmailService
         $supportTags = array_map(function ($supportTag) { return $supportTag->getName(); }, $ticket->getSupportTags()->toArray());
         
         $router = $this->container->get('router');
-        $helpdeskWebsite = $this->entityManager->getRepository('CoreFrameworkBundle:Website')->findOneByCode('helpdesk');
+        $helpdeskWebsite = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneByCode('helpdesk');
         
         // Resolve path to helpdesk brand image
-        $companyLogoURL = sprintf('http://%s%s', $this->container->getParameter('uvdesk.site_url'), '/bundles/coreframework/images/uv-avatar-uvdesk.png');
-        $helpdeskKnowledgebaseWebsite = $this->entityManager->getRepository('CoreFrameworkBundle:Website')->findOneByCode('knowledgebase');
+        $companyLogoURL = sprintf('http://%s%s', $this->container->getParameter('uvdesk.site_url'), '/bundles/uvdeskcoreframework/images/uv-avatar-uvdesk.png');
+        $helpdeskKnowledgebaseWebsite = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneByCode('knowledgebase');
 
         if (!empty($helpdeskKnowledgebaseWebsite) && null != $helpdeskKnowledgebaseWebsite->getLogo()) {
             $companyLogoURL = sprintf('http://%s%s', $this->container->getParameter('uvdesk.site_url'), $helpdeskKnowledgebaseWebsite->getLogo());

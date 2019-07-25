@@ -51,15 +51,15 @@ class UpdateAgent extends WorkflowAction
                     $agent = $currentUser;
                 }
             } else {
-                $agent = $entityManager->getRepository('CoreFrameworkBundle:User')->find($value);
+                $agent = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->find($value);
 
                 if ($agent) {
-                    $agent = $entityManager->getRepository('CoreFrameworkBundle:User')->findOneBy(array('email' => $agent->getEmail()));
+                    $agent = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(array('email' => $agent->getEmail()));
                 }
             }
 
             if (!empty($agent)) {
-                if ($entityManager->getRepository('CoreFrameworkBundle:User')->findOneBy(array('id' => $agent->getId()))) {
+                if ($entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(array('id' => $agent->getId()))) {
                     $entity->setAgent($agent);
                     $entityManager->persist($entity);
                     $entityManager->flush();

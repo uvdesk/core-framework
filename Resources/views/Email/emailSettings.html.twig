@@ -1,10 +1,15 @@
-{% extends "@CoreFramework//Templates//layout.html.twig" %}
+{% extends "@UVDeskCoreFramework//Templates//layout.html.twig" %}
 
 {% block title %}Email Settings{% endblock %}
 
 {% block pageContent %}
     <div class="uv-inner-section">
-        {{ include('@CoreFramework/Templates/panel-sidebar.html.twig') }}
+        {# Append Panel Aside #}
+		{% set asideTemplate = 'Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\AsideTemplate' %}
+		{% set asideSidebarReference = 'Webkul\\UVDesk\\CoreFrameworkBundle\\UIComponents\\Dashboard\\Panel\\Sidebars\\Settings' %}
+
+		{{ uvdesk_extensibles.getRegisteredComponent(asideTemplate).renderSidebar(asideSidebarReference) | raw }}
+
         <div class="uv-view">
             <div class="uv-action-bar">
                 <div class="uv-action-bar-col-lt">

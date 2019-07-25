@@ -33,7 +33,7 @@ class MarkSpam extends WorkflowAction
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         if($entity instanceof Ticket) {
-            $status = $entityManager->getRepository('CoreFrameworkBundle:TicketStatus')->find(6);
+            $status = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->find(6);
             $entity->setStatus($status);
             $entityManager->persist($entity);
             $entityManager->flush();

@@ -40,7 +40,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
     {
         return $this->getEntityManager()->createQueryBuilder()
             ->select("thread")
-            ->from('CoreFrameworkBundle:Thread', 'thread')
+            ->from('UVDeskCoreFrameworkBundle:Thread', 'thread')
             ->where('thread.ticket = :ticket')->setParameter('ticket', $ticket)
             ->orderBy('thread.id', Criteria::DESC)
             ->setMaxResults(1)
@@ -52,7 +52,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select("thread, attachments, user, userInstance")
-            ->from('CoreFrameworkBundle:Thread', 'thread')
+            ->from('UVDeskCoreFrameworkBundle:Thread', 'thread')
             ->leftJoin('thread.user', 'user')
             ->leftJoin('user.userInstance', 'userInstance')
             ->leftJoin('thread.attachments', 'attachments')

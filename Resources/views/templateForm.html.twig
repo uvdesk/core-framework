@@ -1,4 +1,4 @@
-{% extends "@CoreFramework/Templates/layout.html.twig" %}
+{% extends "@UVDeskCoreFramework/Templates/layout.html.twig" %}
 
 {% block title %}
     {% if template.id %}
@@ -10,7 +10,12 @@
 
 {% block pageContent %}
 	<div class="uv-inner-section">
-		{{ include('@CoreFramework/Templates/panel-sidebar.html.twig') }}
+		{# Append Panel Aside #}
+		{% set asideTemplate = 'Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\AsideTemplate' %}
+		{% set asideSidebarReference = 'Webkul\\UVDesk\\CoreFrameworkBundle\\UIComponents\\Dashboard\\Panel\\Sidebars\\Settings' %}
+
+		{{ uvdesk_extensibles.getRegisteredComponent(asideTemplate).renderSidebar(asideSidebarReference) | raw }}
+		
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
 			<h1>
 				{% if template.id %}
@@ -90,7 +95,7 @@
 {% endblock %}
 {% block footer %}
 	{{ parent() }}
-	{{ include('@CoreFramework/Templates/tinyMCE.html.twig') }}
+	{{ include('@UVDeskCoreFramework/Templates/tinyMCE.html.twig') }}
 	
 	<script type="text/javascript">
 		var toolbarOptions = sfTinyMce.options.toolbar;

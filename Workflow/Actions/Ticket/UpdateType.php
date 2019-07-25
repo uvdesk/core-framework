@@ -33,14 +33,14 @@ class UpdateType extends WorkflowAction
                 'id' => $ticketType->getId(),
                 'name' => $ticketType->getDescription(),
             ];
-        }, $entityManager->getRepository('CoreFrameworkBundle:TicketType')->findAll());
+        }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findAll());
     }
 
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         if($entity instanceof Ticket && $value) {
-            $type = $entityManager->getRepository('CoreFrameworkBundle:TicketType')->find($value);
+            $type = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->find($value);
             if($type) {
                 $entity->setType($type);
                 $entityManager->persist($entity);

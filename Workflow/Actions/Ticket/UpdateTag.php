@@ -33,7 +33,7 @@ class UpdateTag extends WorkflowAction
                 'id' => $tag->getId(),
                 'name' => $tag->getName(),
             ];
-        }, $entityManager->getRepository('CoreFrameworkBundle:Tag')->findAll());
+        }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:Tag')->findAll());
     }
 
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
@@ -49,7 +49,7 @@ class UpdateTag extends WorkflowAction
                 }
             }
             if(!$isAlreadyAdded) {
-                $tag = $entityManager->getRepository('CoreFrameworkBundle:Tag')->find($value);
+                $tag = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Tag')->find($value);
                 if($tag) {
                     $entity->addSupportTag($tag);
                     $entityManager->persist($entity);

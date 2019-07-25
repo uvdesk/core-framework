@@ -33,7 +33,7 @@ class MailCustomer extends PreparedResponseAction
                 'id' => $emailTemplate->getId(),
                 'name' => $emailTemplate->getName(),
             ];
-        }, $entityManager->getRepository('CoreFrameworkBundle:EmailTemplates')->findAll());
+        }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findAll());
 
         return $emailTemplateCollection;
     }
@@ -47,7 +47,7 @@ class MailCustomer extends PreparedResponseAction
                 // $currentThread = $entity->currentThread;
                 // $createdThread = $entity->createdThread;
 
-                $emailTemplate = $entityManager->getRepository('CoreFrameworkBundle:EmailTemplates')->findOneById($value);
+                $emailTemplate = $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findOneById($value);
 
                 if (empty($emailTemplate)) {
                     break;

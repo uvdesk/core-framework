@@ -20,7 +20,7 @@ class Group extends Controller
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
-        return $this->render('@CoreFramework/Groups/listSupportGroups.html.twig');
+        return $this->render('@UVDeskCoreFramework/Groups/listSupportGroups.html.twig');
     }
 
     public function editGroup(Request $request)
@@ -30,7 +30,7 @@ class Group extends Controller
         }
 
         if($request->attributes->get('supportGroupId')){
-            $group = $this->getDoctrine()->getRepository('CoreFrameworkBundle:SupportGroup')
+            $group = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')
                 ->findGroupById(['id' => $request->attributes->get('supportGroupId'),
             ]); 
                             
@@ -68,7 +68,7 @@ class Group extends Controller
                 $usersList = array_map(function ($user) { return 'user.id = ' . $user; }, $usersList);
 
                 $userList = $em->createQueryBuilder()->select('user')
-                    ->from('CoreFrameworkBundle:User', 'user')
+                    ->from('UVDeskCoreFrameworkBundle:User', 'user')
                     ->where(implode(' OR ', $usersList))
                     ->getQuery()->getResult();
             }
@@ -77,7 +77,7 @@ class Group extends Controller
                 $userTeam = array_map(function ($team) { return 'team.id = ' . $team; }, $userTeam);
 
                 $userTeam = $em->createQueryBuilder()->select('team')
-                    ->from('CoreFrameworkBundle:SupportTeam', 'team')
+                    ->from('UVDeskCoreFrameworkBundle:SupportTeam', 'team')
                     ->where(implode(' OR ', $userTeam))
                     ->getQuery()->getResult();
             }
@@ -127,7 +127,7 @@ class Group extends Controller
             return $this->redirect($this->generateUrl('helpdesk_member_support_group_collection'));
         }
 
-        return $this->render('@CoreFramework/Groups/updateSupportGroup.html.twig', [
+        return $this->render('@UVDeskCoreFramework/Groups/updateSupportGroup.html.twig', [
             'group' => $group,
             'errors' => json_encode($errors)
         ]);
@@ -167,7 +167,7 @@ class Group extends Controller
                 $usersList = array_map(function ($user) { return 'user.id = ' . $user; }, $usersList);
 
                 $userList = $em->createQueryBuilder()->select('user')
-                    ->from('CoreFrameworkBundle:User', 'user')
+                    ->from('UVDeskCoreFrameworkBundle:User', 'user')
                     ->where(implode(' OR ', $usersList))
                     ->getQuery()->getResult();
             }
@@ -176,7 +176,7 @@ class Group extends Controller
                 $userTeam = array_map(function ($team) { return 'team.id = ' . $team; }, $userTeam);
 
                 $userTeam = $em->createQueryBuilder()->select('team')
-                    ->from('CoreFrameworkBundle:SupportTeam', 'team')
+                    ->from('UVDeskCoreFrameworkBundle:SupportTeam', 'team')
                     ->where(implode(' OR ', $userTeam))
                     ->getQuery()->getResult();
             }
@@ -201,7 +201,7 @@ class Group extends Controller
             return $this->redirect($this->generateUrl('helpdesk_member_support_group_collection'));
         }
 
-        return $this->render('@CoreFramework/Groups/createSupportGroup.html.twig', [
+        return $this->render('@UVDeskCoreFramework/Groups/createSupportGroup.html.twig', [
             'group' => $group,
             'errors' => json_encode($errors)
         ]);

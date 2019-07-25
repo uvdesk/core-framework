@@ -34,7 +34,7 @@ class MailCustomer extends WorkflowAction
                 'id' => $emailTemplate->getId(),
                 'name' => $emailTemplate->getName(),
             ];
-        }, $entityManager->getRepository('CoreFrameworkBundle:EmailTemplates')->findAll());
+        }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findAll());
 
         return $emailTemplateCollection;
     }
@@ -48,7 +48,7 @@ class MailCustomer extends WorkflowAction
                 $currentThread = $entity->currentThread;
                 $createdThread = $entity->createdThread;
 
-                $emailTemplate = $entityManager->getRepository('CoreFrameworkBundle:EmailTemplates')->findOneById($value);
+                $emailTemplate = $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findOneById($value);
 
                 if (empty($emailTemplate)) {
                     break;
@@ -56,7 +56,7 @@ class MailCustomer extends WorkflowAction
 
                 $attachments = [];
                 if (!empty($createdThread)) {
-                    $threadAttachments = $entityManager->getRepository('CoreFrameworkBundle:Attachment')->findByThread($createdThread);
+                    $threadAttachments = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Attachment')->findByThread($createdThread);
 
                     foreach ($threadAttachments as $attachment) {
                         $attachments[] = $_SERVER['DOCUMENT_ROOT'] . $attachment->getPath();

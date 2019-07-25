@@ -49,7 +49,7 @@ class TicketStatuses extends DoctrineFixture
 
     public function load(ObjectManager $entityManager)
     {
-        $availableTicketStatuses = $entityManager->getRepository('CoreFrameworkBundle:TicketStatus')->findAll();
+        $availableTicketStatuses = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->findAll();
         $availableTicketStatuses = array_map(function ($ticketStatus) {
             return $ticketStatus->getCode();
         }, $availableTicketStatuses);

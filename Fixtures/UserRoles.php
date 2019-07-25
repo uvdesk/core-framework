@@ -29,7 +29,7 @@ class UserRoles extends DoctrineFixture
 
     public function load(ObjectManager $entityManager)
     {
-        $availablePermissions = $entityManager->getRepository('CoreFrameworkBundle:SupportRole')->findAll();
+        $availablePermissions = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportRole')->findAll();
         $availablePermissions = array_map(function ($permission) {
             return $permission->getCode();
         }, $availablePermissions);

@@ -17,12 +17,12 @@ class SavedReplies extends Controller
 
     public function loadSavedReplies(Request $request) 
     {        
-        return $this->render('@CoreFramework//savedRepliesList.html.twig');
+        return $this->render('@UVDeskCoreFramework//savedRepliesList.html.twig');
     }
 
     public function updateSavedReplies(Request $request) 
     {
-        $repository = $this->getDoctrine()->getRepository('CoreFrameworkBundle:SavedReplies');
+        $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:SavedReplies');
         if($request->attributes->get('template'))
             $template = $repository->getSavedReply($request->attributes->get('template'), $this->container);
         else
@@ -35,7 +35,7 @@ class SavedReplies extends Controller
         if ($request->getMethod() == 'POST') {
             if(empty($request->request->get('message'))){
                 $this->addFlash('warning', 'Error! Saved reply body can not be blank');
-                return $this->render('@CoreFramework//savedReplyForm.html.twig', array(
+                return $this->render('@UVDeskCoreFramework//savedReplyForm.html.twig', array(
                     'template' => $template,
                     'errors' => json_encode($errors)
                 ));
@@ -58,7 +58,7 @@ class SavedReplies extends Controller
             }
             foreach($groups as $key => $groupId) {
                 if($groupId) {
-                    $group = $em->getRepository('CoreFrameworkBundle:SupportGroup')->findOneBy([ 'id' => $groupId ]);
+                    $group = $em->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')->findOneBy([ 'id' => $groupId ]);
                     if($group && (empty($previousGroupIds) || !in_array($groupId, $previousGroupIds)) ) {
                         $template->addSupportGroup($group);
                         $em->persist($template);
@@ -80,7 +80,7 @@ class SavedReplies extends Controller
             }
             foreach($teams as $key => $teamId) {
                 if($teamId) {
-                    $team = $em->getRepository('CoreFrameworkBundle:SupportTeam')->findOneBy([ 'id' => $teamId ]);
+                    $team = $em->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')->findOneBy([ 'id' => $teamId ]);
                     if($team && (empty($previousTeamIds) || !in_array($teamId, $previousTeamIds)) ) {
                         $template->addSupportTeam($team);
                         $em->persist($template);
@@ -102,7 +102,7 @@ class SavedReplies extends Controller
             return $this->redirectToRoute('helpdesk_member_saved_replies');
         }
 
-        return $this->render('@CoreFramework//savedReplyForm.html.twig', array(
+        return $this->render('@UVDeskCoreFramework//savedReplyForm.html.twig', array(
             'template' => $template,
             'errors' => json_encode($errors)
         ));
@@ -115,7 +115,7 @@ class SavedReplies extends Controller
         }
 
         $entityManager = $this->getDoctrine()->getManager();
-        $savedReplyRepository = $entityManager->getRepository('CoreFrameworkBundle:SavedReplies');
+        $savedReplyRepository = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SavedReplies');
         
         if ($request->getMethod() == 'GET') {
             $responseContent = $savedReplyRepository->getSavedReplies($request->query, $this->container);

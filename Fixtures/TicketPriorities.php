@@ -33,7 +33,7 @@ class TicketPriorities extends DoctrineFixture
 
     public function load(ObjectManager $entityManager)
     {
-        $availableTicketPriorities = $entityManager->getRepository('CoreFrameworkBundle:TicketPriority')->findAll();
+        $availableTicketPriorities = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketPriority')->findAll();
         $availableTicketPriorities = array_map(function ($ticketPriority) {
             return $ticketPriority->getCode();
         }, $availableTicketPriorities);

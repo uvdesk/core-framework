@@ -14,7 +14,7 @@ class GroupXHR extends Controller
         }
 
         if (true === $request->isXmlHttpRequest()) {
-            $paginationResponse = $this->getDoctrine()->getRepository('CoreFrameworkBundle:SupportGroup')->getAllGroups($request->query, $this->container);
+            $paginationResponse = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')->getAllGroups($request->query, $this->container);
 
             return new Response(json_encode($paginationResponse), 200, ['Content-Type' => 'application/json']);
         }
@@ -31,7 +31,7 @@ class GroupXHR extends Controller
         $request = $this->get('request_stack')->getCurrentRequest();
         if ($request->getMethod() == "DELETE") {
             $entityManager = $this->getDoctrine()->getManager();
-            $supportGroup = $entityManager->getRepository('CoreFrameworkBundle:SupportGroup')->findOneById($supportGroupId);
+            $supportGroup = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')->findOneById($supportGroupId);
 
             if (!empty($supportGroup)) {
                 $entityManager->remove($supportGroup);

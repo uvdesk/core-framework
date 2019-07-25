@@ -33,7 +33,7 @@ class UpdateTeam extends WorkflowAction
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         if($entity instanceof Ticket) {
-            $subGroup = $entityManager->getRepository('CoreFrameworkBundle:SupportTeam')->find($value);
+            $subGroup = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')->find($value);
             if($subGroup) {
                 $entity->setSupportTeam($subGroup);
                 $entityManager->persist($entity);

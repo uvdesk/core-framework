@@ -10,7 +10,7 @@ class HelpdeskBranding extends DoctrineFixture
 {
     public function load(ObjectManager $entityManager)
     {
-        $website = $entityManager->getRepository('CoreFrameworkBundle:Website')->findOneByCode('helpdesk');
+        $website = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneByCode('helpdesk');
         
         if (empty($website)) {
             ($website = new CoreEntities\Website())

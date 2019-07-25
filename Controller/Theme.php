@@ -12,7 +12,7 @@ class Theme extends Controller
         if ($request->getMethod() == "POST") {
             $values = $request->request->all();
             $entityManager = $this->getDoctrine()->getManager();
-            $website = $entityManager->getRepository('CoreFrameworkBundle:Website')->findOneByCode('helpdesk');
+            $website = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneByCode('helpdesk');
 
             $website->setName($values['helpdeskName']);
             $website->setThemeColor($values['themeColor']);
@@ -21,6 +21,6 @@ class Theme extends Controller
             $entityManager->flush();
         }
 
-        return $this->render('@CoreFramework/theme.html.twig');
+        return $this->render('@UVDeskCoreFramework/theme.html.twig');
     }
 }

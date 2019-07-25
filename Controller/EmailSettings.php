@@ -20,7 +20,7 @@ class EmailSettings extends Controller
         $file_content_array = Yaml::parse($file_content, 6);
         $result = $file_content_array['uvdesk']['support_email'];
 
-        return $this->render('@CoreFramework//Email//emailSettings.html.twig', [
+        return $this->render('@UVDeskCoreFramework//Email//emailSettings.html.twig', [
             'email_settings' => $result,
             'swiftmailers' => $swiftmailerConfigurations,
         ]);

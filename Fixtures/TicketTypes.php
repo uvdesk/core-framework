@@ -18,7 +18,7 @@ class TicketTypes extends DoctrineFixture
 
     public function load(ObjectManager $entityManager)
     {
-        $availableTicketTypes = $entityManager->getRepository('CoreFrameworkBundle:TicketType')->findAll();
+        $availableTicketTypes = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findAll();
         $availableTicketTypes = array_map(function ($ticketType) {
             return $ticketType->getCode();
         }, $availableTicketTypes);

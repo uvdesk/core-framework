@@ -24,7 +24,6 @@ helpdesk_member_dashboard:
 helpdesk_member_profile:
     path:     /profile
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Account::loadProfile
-    defaults: { panelId: 'account' }
 
 helpdesk_member_account_xhr:
     path:     /agent/xhr/{agentId}
@@ -34,12 +33,11 @@ helpdesk_member_account_xhr:
 helpdesk_member_account:
     path:     /agent/{agentId}
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Account::editAgent
-    defaults: { panelId: 'users', agentId: 0 }
+    defaults: { agentId: 0 }
 
 helpdesk_member_account_collection:
     path:     /agents
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Account::listAgents
-    defaults: { panelId: 'users' }
 
 helpdesk_member_account_collection_xhr:
     path:     /agents/xhr
@@ -48,13 +46,11 @@ helpdesk_member_account_collection_xhr:
 helpdesk_member_create_account:
     path:     /create/agent
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Account::createAgent
-    defaults: { panelId: 'users' }
 
 # Support Group Resources
 helpdesk_member_support_group_collection:
     path:     /groups
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Group::listGroups
-    defaults: { panelId: 'users' }
 
 helpdesk_member_support_group_collection_xhr:
     path:     /groups/xhr
@@ -63,12 +59,10 @@ helpdesk_member_support_group_collection_xhr:
 helpdesk_member_create_support_group:
     path:     /create/group
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Group::createGroup
-    defaults: { panelId: 'users' }
 
 helpdesk_member_update_support_group:
     path:     /group/{supportGroupId}
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Group::editGroup
-    defaults: { panelId: 'users' }
 
 helpdesk_member_remove_support_group_xhr:
     path:      /group/delete/xhr/{supportGroupId}
@@ -79,7 +73,6 @@ helpdesk_member_remove_support_group_xhr:
 helpdesk_member_support_team_collection:
     path:     /teams
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Team::listTeams
-    defaults: { panelId: 'users' }
 
 helpdesk_member_support_team_collection_xhr:
     path:     /teams/xhr
@@ -88,12 +81,10 @@ helpdesk_member_support_team_collection_xhr:
 helpdesk_member_create_support_team:
     path:     /create/team
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Team::createTeam
-    defaults: { panelId: 'users' }
 
 helpdesk_member_update_support_team:
     path:     /team/{supportTeamId}
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Team::editTeam
-    defaults: { panelId: 'users' }
 
 helpdesk_member_remove_support_team_xhr:
     path:     /team/delete/xhr/{supportTeamId}
@@ -104,22 +95,18 @@ helpdesk_member_remove_support_team_xhr:
 helpdesk_member_privilege_collection:
     path:     /privileges
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Privilege::listPrivilege
-    defaults: { panelId: 'users' }
 
 helpdesk_member_privilege_collection_xhr:
     path:     /privileges/xhr
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\PrivilegeXHR::listPrivilegeXHR
-    defaults: { panelId: 'users' }
 
 helpdesk_member_create_privilege:
     path:     /create/privilege
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Privilege::createPrivilege
-    defaults: { panelId: 'users' }
 
 helpdesk_member_update_privilege:
     path:     /privilege/{supportPrivilegeId}
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Privilege::editPrivilege
-    defaults: { panelId: 'users' }
 
 helpdesk_member_remove_privilege_xhr:
     path:     /privilege/delete/xhr/{supportPrivilegeId}
@@ -129,7 +116,6 @@ helpdesk_member_remove_privilege_xhr:
 # User Profile
 edit_profile:
     path:     /profile
-    # defaults: { _controller: CoreFrameworkBundle:UserActivity:editProfile}
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\UserActivityController::editProfile
     defaults: { panelId: 'usersprofile' }
 
@@ -147,13 +133,12 @@ helpdesk_member_saved_filters_xhr:
 helpdesk_member_helpdesk_theme:
     path:     /theme/helpdesk
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Theme::updateHelpdeskTheme
-    defaults: { panelId: 'themes', id: 0 }
+    defaults: { id: 0 }
 
 # Swiftmailer
 helpdesk_member_swiftmailer_settings:
     path:     /settings/swiftmailer
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\SwiftMailer::loadMailers
-    defaults: { panelId: 'settings'}
 
 helpdesk_member_swiftmailer_load_configurations_xhr:
     path:     /settings/swiftmailer/xhr
@@ -162,12 +147,10 @@ helpdesk_member_swiftmailer_load_configurations_xhr:
 helpdesk_member_swiftmailer_create_mailer_configuration:
     path:     /settings/swiftmailer/create
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\SwiftMailer::createMailerConfiguration
-    defaults: { panelId: 'settings'}
 
 helpdesk_member_swiftmailer_update_mailer_configuration:
     path:     /settings/swiftmailer/update/{id}
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\SwiftMailer::updateMailerConfiguration
-    defaults: { panelId: 'settings'}
 
 helpdesk_member_swiftmailer_remove_mailer_configuration_xhr:
     path:     /settings/swiftmailer/xhr/remove-configurations
@@ -177,7 +160,6 @@ helpdesk_member_swiftmailer_remove_mailer_configuration_xhr:
 helpdesk_member_emails_settings:
     path:     /settings/email/settings
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\EmailSettings::loadSettings
-    defaults: { panelId: 'settings'}
 
 helpdesk_member_update_emails_settings_xhr:
     path:     /email/xhr/settings_update
@@ -307,7 +289,6 @@ helpdesk_member_thread_update_xhr:
 email_templates_action:
     path:     /templates
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Email::templates
-    defaults: { panelId: 'settings' }
 
 email_templates_xhraction:
     path:     /template-ajax/{template}
@@ -317,18 +298,16 @@ email_templates_xhraction:
 email_templates_addaction:
     path:     /template/add
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Email::templateForm
-    defaults: { panelId: 'settings' }
 
 email_templates_editaction:
     path:     /template/edit/{template}
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Email::templateForm
-    defaults: { template: 0, panelId: 'settings' }
+    defaults: { template: 0 }
 
 # Ticket Tag Resources
 helpdesk_member_ticket_tag_collection:
     path:     /support-tags
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Ticket::listTagCollection
-    defaults: { panelId: 'productivity' }
 
 helpdesk_member_ticket_tag_collection_xhr:
     path:     /support-tags/xhr
@@ -353,7 +332,6 @@ helpdesk_member_remove_ticket_tag_xhr:
 helpdesk_member_ticket_type_collection:
     path:     /ticket-types
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Ticket::listTicketTypeCollection
-    defaults: { panelId: 'productivity' }
 
 helpdesk_member_ticket_type_collection_xhr:
     path:     /ticket-types/xhr
@@ -362,7 +340,6 @@ helpdesk_member_ticket_type_collection_xhr:
 helpdesk_member_create_ticket_type:
     path:     /ticket-types/create
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Ticket::ticketType
-    defaults: { panelId: 'productivity' }
 
 helpdesk_member_remove_ticket_type:
     path:     /ticket-types/remove/{typeId}
@@ -372,7 +349,6 @@ helpdesk_member_remove_ticket_type:
 helpdesk_member_update_ticket_type:
     path:     /ticket-types/update/{ticketTypeId}
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Ticket::ticketType
-    defaults: { panelId: 'productivity' }
 
 helpdesk_member_ticket_quick_view_xhr:
     path:     /ticket/quick-view/{ticketId}
@@ -383,7 +359,6 @@ helpdesk_member_ticket_quick_view_xhr:
 helpdesk_member_saved_replies:
     path:     /saved-replies
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\SavedReplies::loadSavedReplies
-    defaults: { panelId: 'productivity' }
 
 helpdesk_member_saved_replies_xhr:
     path:     /saved-replies/xhr/{template}
@@ -393,12 +368,12 @@ helpdesk_member_saved_replies_xhr:
 helpdesk_member_update_saved_replies:
     path:     /saved-reply/edit/{template}
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\SavedReplies::updateSavedReplies
-    defaults: { panelId: 'productivity', template: 0}
+    defaults: { template: 0}
 
 helpdesk_member_create_saved_replies:
     path:     /saved-reply/add/{template}
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\SavedReplies::updateSavedReplies
-    defaults: { panelId: 'productivity',  template: 0}
+    defaults: { template: 0}
 
 # Apply Prepared Response 
 helpdesk_member_ticket_prepared_response_xhr:
@@ -410,7 +385,6 @@ helpdesk_member_ticket_prepared_response_xhr:
 helpdesk_member_manage_customer_account_collection:
     path:     /customers
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Customer::listCustomers
-    defaults: { panelId: 'users' }
 
 helpdesk_member_manage_customer_account_collection_xhr:
     path:     /customers/xhr
@@ -423,7 +397,7 @@ helpdesk_member_bookmark_customer_xhr:
 helpdesk_member_manage_customer_account:
     path:     /customer/{customerId}
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Customer::editCustomer
-    defaults: { panelId: 'users', customerId: 0 }
+    defaults: { customerId: 0 }
 
 helpdesk_member_remove_customer_account_xhr:
     path:     /customer/xhr/{customerId}
@@ -433,4 +407,3 @@ helpdesk_member_remove_customer_account_xhr:
 helpdesk_member_create_customer_account:
     path:     /create/customer
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Customer::createCustomer
-    defaults: { panelId: 'users' }

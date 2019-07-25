@@ -18,7 +18,7 @@ class Team extends Controller
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
-        return $this->render('@CoreFramework/Teams/listSupportTeams.html.twig');
+        return $this->render('@UVDeskCoreFramework/Teams/listSupportTeams.html.twig');
     }
 
     public function createTeam(Request $request)
@@ -53,7 +53,7 @@ class Team extends Controller
                 $usersList = array_map(function ($user) { return 'user.id = ' . $user; }, $usersList);
 
                 $userList = $em->createQueryBuilder()->select('user')
-                    ->from('CoreFrameworkBundle:User', 'user')
+                    ->from('UVDeskCoreFrameworkBundle:User', 'user')
                     ->where(implode(' OR ', $usersList))
                     ->getQuery()->getResult();
             }
@@ -62,7 +62,7 @@ class Team extends Controller
                 $usersGroup = array_map(function ($group) { return 'p.id = ' . $group; }, $usersGroup);
             
                 $userGroup = $em->createQueryBuilder('p')->select('p')
-                    ->from('CoreFrameworkBundle:SupportGroup', 'p')
+                    ->from('UVDeskCoreFrameworkBundle:SupportGroup', 'p')
                     ->where(implode(' OR ', $usersGroup))
                     ->getQuery()->getResult();
             }
@@ -86,7 +86,7 @@ class Team extends Controller
             return $this->redirect($this->generateUrl('helpdesk_member_support_team_collection'));
         }
 
-        return $this->render('@CoreFramework/Teams/createSupportTeam.html.twig', [
+        return $this->render('@UVDeskCoreFramework/Teams/createSupportTeam.html.twig', [
             'team' => $supportTeam,
             'errors' => json_encode($errors)
         ]);
@@ -99,7 +99,7 @@ class Team extends Controller
         }
 
         if($request->attributes->get('supportTeamId')){
-            $supportTeam = $this->getDoctrine()->getRepository('CoreFrameworkBundle:SupportTeam')
+            $supportTeam = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')
                         ->findSubGroupById(['id' => $request->attributes->get('supportTeamId')]);
 
             if(!$supportTeam)
@@ -126,7 +126,7 @@ class Team extends Controller
             if (!empty($usersList)) {
                 $usersList = array_map(function ($user) { return 'p.id = ' . $user; }, $usersList);
                 $userList = $em->createQueryBuilder('p')->select('p')
-                    ->from('CoreFrameworkBundle:User', 'p')
+                    ->from('UVDeskCoreFrameworkBundle:User', 'p')
                     ->where(implode(' OR ', $usersList))
                     ->getQuery()->getResult();
             }
@@ -135,7 +135,7 @@ class Team extends Controller
                 $usersGroup = array_map(function ($group) { return 'p.id = ' . $group; }, $usersGroup);
             
                 $userGroup = $em->createQueryBuilder('p')->select('p')
-                    ->from('CoreFrameworkBundle:SupportGroup', 'p')
+                    ->from('UVDeskCoreFrameworkBundle:SupportGroup', 'p')
                     ->where(implode(' OR ', $usersGroup))
                     ->getQuery()->getResult();
             }
@@ -174,7 +174,7 @@ class Team extends Controller
             $this->addFlash('success', 'Success ! Team information updated successfully.');
             return $this->redirect($this->generateUrl('helpdesk_member_support_team_collection'));
         } 
-        return $this->render('@CoreFramework/Teams/updateSupportTeam.html.twig', [
+        return $this->render('@UVDeskCoreFramework/Teams/updateSupportTeam.html.twig', [
                 'team' => $supportTeam,
                 'errors' => json_encode($errors)
         ]);

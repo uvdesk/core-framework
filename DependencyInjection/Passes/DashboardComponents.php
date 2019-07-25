@@ -7,7 +7,10 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Dashboard;
+use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\AsideTemplate;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\NavigationInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\PanelSidebarInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\PanelSidebarItemInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\HomepageSectionInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\HomepageSectionItemInterface;
 
@@ -31,6 +34,20 @@ class DashboardComponents implements CompilerPassInterface
             // Homepage Panel Section Items
             foreach ($container->findTaggedServiceIds(HomepageSectionItemInterface::class) as $reference => $tags) {
                 $dashboardDefinition->addMethodCall('appendHomepageSectionItem', array(new Reference($reference)));
+            }
+        }
+
+        if ($container->has(AsideTemplate::class)) {
+            $panelSidebarTemplateDefinition = $container->findDefinition(AsideTemplate::class);
+
+            // Dashboard Panel Sidebars
+            foreach ($container->findTaggedServiceIds(PanelSidebarInterface::class) as $reference => $tags) {
+                $panelSidebarTemplateDefinition->addMethodCall('addPanelSidebar', array(new Reference($reference)));
+            }
+
+            // Homepage Panel Sidebar Items
+            foreach ($container->findTaggedServiceIds(PanelSidebarItemInterface::class) as $reference => $tags) {
+                $panelSidebarTemplateDefinition->addMethodCall('addPanelSidebarItem', array(new Reference($reference)));
             }
         }
     }

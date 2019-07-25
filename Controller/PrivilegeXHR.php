@@ -18,7 +18,7 @@ class PrivilegeXHR extends Controller
         }
 
         if (true === $request->isXmlHttpRequest()) {
-            $paginationResponse = $this->getDoctrine()->getRepository('CoreFrameworkBundle:SupportPrivilege')->getAllPrivileges($request->query, $this->container);
+            $paginationResponse = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:SupportPrivilege')->getAllPrivileges($request->query, $this->container);
 
             return new Response(json_encode($paginationResponse), 200, ['Content-Type' => 'application/json']);
         }
@@ -36,7 +36,7 @@ class PrivilegeXHR extends Controller
 
         if ("DELETE" == $request->getMethod()) {
             $entityManager = $this->getDoctrine()->getManager();
-            $supportPrivilege = $entityManager->getRepository('CoreFrameworkBundle:SupportPrivilege')->findOneById($supportPrivilegeId);
+            $supportPrivilege = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportPrivilege')->findOneById($supportPrivilegeId);
 
             if (!empty($supportPrivilege)) {
                 $entityManager->remove($supportPrivilege);

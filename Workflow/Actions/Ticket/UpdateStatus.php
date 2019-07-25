@@ -33,7 +33,7 @@ class UpdateStatus extends WorkflowAction
                 'id' => $ticketStatus->getId(),
                 'name' => $ticketStatus->getDescription(),
             ];
-        }, $entityManager->getRepository('CoreFrameworkBundle:TicketStatus')->findAll());
+        }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->findAll());
     }
 
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
@@ -41,7 +41,7 @@ class UpdateStatus extends WorkflowAction
         $entityManager = $container->get('doctrine.orm.entity_manager');
 
         if ($entity instanceof Ticket && !empty($value)) {
-            $ticketStatus = $entityManager->getRepository('CoreFrameworkBundle:TicketStatus')->findOneById($value);
+            $ticketStatus = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->findOneById($value);
             $entity->setStatus($ticketStatus);
             $entityManager->persist($entity);
             $entityManager->flush();

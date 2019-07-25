@@ -32,8 +32,8 @@ class UserProvider implements UserProviderInterface
     {
         $queryBuilder = $this->entityManager->createQueryBuilder()
             ->select('user, userInstance')
-            ->from('CoreFrameworkBundle:User', 'user')
-            ->leftJoin('CoreFrameworkBundle:UserInstance', 'userInstance', 'WITH', 'user.id = userInstance.user')
+            ->from('UVDeskCoreFrameworkBundle:User', 'user')
+            ->leftJoin('UVDeskCoreFrameworkBundle:UserInstance', 'userInstance', 'WITH', 'user.id = userInstance.user')
             ->leftJoin('userInstance.supportRole', 'supportRole')
             ->where('user.email = :email')->setParameter('email', trim($username))
             ->setMaxResults(1);

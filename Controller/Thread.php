@@ -16,7 +16,7 @@ class Thread extends Controller
         $entityManager = $this->getDoctrine()->getManager();
         $request = $this->container->get('request_stack')->getCurrentRequest();
         $params = $request->request->all();
-        $ticket = $entityManager->getRepository('CoreFrameworkBundle:Ticket')->findOneById($ticketId);
+        $ticket = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($ticketId);
 
         // Validate Request
         if (empty($ticket)) {
@@ -59,7 +59,7 @@ class Thread extends Controller
         ];
 
         if(!empty($params['status'])){
-            $ticketStatus = $entityManager->getRepository('CoreFrameworkBundle:TicketStatus')->findOneByCode($params['status']);
+            $ticketStatus = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->findOneByCode($params['status']);
             $ticket->setStatus($ticketStatus);
         }
         if (isset($params['to'])) {
@@ -97,7 +97,7 @@ class Thread extends Controller
         $updateTicketToStatus = !empty($params['status']) ? (trim($params['status']) ?: null) : null;
        
         if (!empty($updateTicketToStatus) && $this->get('user.service')->isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS')) {
-            $ticketStatus = $entityManager->getRepository('CoreFrameworkBundle:TicketStatus')->findOneById($updateTicketToStatus);
+            $ticketStatus = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->findOneById($updateTicketToStatus);
 
             if (!empty($ticketStatus) && $ticketStatus->getId() === $ticket->getStatus()->getId()) {
                 $ticket->setStatus($ticketStatus);
@@ -127,7 +127,7 @@ class Thread extends Controller
         if ($request->getMethod() == "PUT") {
             // $this->isAuthorized('ROLE_AGENT_EDIT_THREAD_NOTE');
             if (str_replace(' ','',str_replace('&nbsp;','',trim(strip_tags($content['reply'], '<img>')))) != "") {
-                $thread = $em->getRepository('CoreFrameworkBundle:Thread')->find($request->attributes->get('threadId'));
+                $thread = $em->getRepository('UVDeskCoreFrameworkBundle:Thread')->find($request->attributes->get('threadId'));
                 $thread->setMessage($content['reply']);
                 $em->persist($thread);
                 $em->flush();
@@ -160,7 +160,7 @@ class Thread extends Controller
         $em = $this->getDoctrine()->getManager();
         
         if ($request->getMethod() == "DELETE") {
-            $thread = $em->getRepository('CoreFrameworkBundle:Thread')->findOneBy(array('id' => $request->attributes->get('threadId'), 'ticket' => $content['ticketId']));
+            $thread = $em->getRepository('UVDeskCoreFrameworkBundle:Thread')->findOneBy(array('id' => $request->attributes->get('threadId'), 'ticket' => $content['ticketId']));
             
             if ($thread) {
                 // Trigger thread deleted event
@@ -178,7 +178,7 @@ class Thread extends Controller
                 $json['alertMessage'] = 'Error ! Invalid thread.';
             }
         } elseif ($request->getMethod() == "PATCH") {
-            $thread = $em->getRepository('CoreFrameworkBundle:Thread')->findOneBy(array('id' => $request->attributes->get('threadId'), 'ticket' => $content['ticketId']));
+            $thread = $em->getRepository('UVDeskCoreFrameworkBundle:Thread')->findOneBy(array('id' => $request->attributes->get('threadId'), 'ticket' => $content['ticketId']));
 
             if ($thread) {
                 if ($content['updateType'] == 'lock') { 

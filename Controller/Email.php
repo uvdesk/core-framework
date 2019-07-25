@@ -17,7 +17,7 @@ class Email extends Controller
     
     protected function getTemplate($request)
     {
-        $emailTemplateRepository = $this->getDoctrine()->getRepository('CoreFrameworkBundle:EmailTemplates');
+        $emailTemplateRepository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates');
       
         $data = $emailTemplateRepository->findOneby([
             'id' => $request->attributes->get('template'),
@@ -37,7 +37,7 @@ class Email extends Controller
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
-        return $this->render('@CoreFramework//templateList.html.twig');
+        return $this->render('@UVDeskCoreFramework//templateList.html.twig');
     }
 
     public function templateForm(Request $request) 
@@ -86,7 +86,7 @@ class Email extends Controller
             return $this->redirectToRoute('email_templates_action');
         }
         
-        return $this->render('@CoreFramework//templateForm.html.twig', array(
+        return $this->render('@UVDeskCoreFramework//templateForm.html.twig', array(
             'template' => $template,
         ));
     } 
@@ -101,7 +101,7 @@ class Email extends Controller
         $error = false;
         if($request->isXmlHttpRequest()) {
             if($request->getMethod() == 'GET') {
-                $repository = $this->getDoctrine()->getRepository('CoreFrameworkBundle:EmailTemplates');
+                $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates');
                 $json =  $repository->getEmailTemplates($request->query, $this->container);
             }else{
                 if($request->attributes->get('template')){

@@ -21,7 +21,7 @@ class CustomerXHR extends Controller
         $json = array();
         
         if($request->isXmlHttpRequest()) {
-            $repository = $this->getDoctrine()->getRepository('CoreFrameworkBundle:User');
+            $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:User');
             $json =  $repository->getAllCustomer($request->query, $this->container);
         }
         $response = new Response(json_encode($json));
@@ -40,7 +40,7 @@ class CustomerXHR extends Controller
         if($request->getMethod() == "DELETE") {
             $em = $this->getDoctrine()->getManager();
             $id = $request->attributes->get('customerId');
-            $user = $em->getRepository('CoreFrameworkBundle:User')->findOneBy(['id' => $id]);
+            $user = $em->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(['id' => $id]);
 
             if($user) {
 

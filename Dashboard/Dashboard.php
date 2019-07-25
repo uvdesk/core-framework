@@ -4,6 +4,8 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Dashboard;
 
 use Webkul\UVDesk\CoreFrameworkBundle\Framework\ExtendableComponentInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\NavigationInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\PanelSidebarInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\PanelSidebarItemInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\HomepageSectionInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\HomepageSectionItemInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\StylesheetResourceInterface;

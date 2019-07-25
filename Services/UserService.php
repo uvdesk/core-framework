@@ -94,7 +94,7 @@ class UserService
         }
         
         $userPrivileges = array();
-        $user = $this->entityManager->getRepository('CoreFrameworkBundle:User')->find($userId);
+        $user = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->find($userId);
         $privileges = $user->getAgentInstance()->getSupportPrivileges();  
       
         if ($privileges) {
@@ -111,7 +111,7 @@ class UserService
     public function getSupportPrivileges()
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("supportPrivilege")->from('CoreFrameworkBundle:SupportPrivilege', 'supportPrivilege');
+        $qb->select("supportPrivilege")->from('UVDeskCoreFrameworkBundle:SupportPrivilege', 'supportPrivilege');
         
         return $qb->getQuery()->getArrayResult();
     }
@@ -122,7 +122,7 @@ class UserService
         if(null !== $results)
             return $results;
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('supportGroup.id, supportGroup.name')->from('CoreFrameworkBundle:SupportGroup', 'supportGroup')
+        $qb->select('supportGroup.id, supportGroup.name')->from('UVDeskCoreFrameworkBundle:SupportGroup', 'supportGroup')
                 ->andwhere('supportGroup.isActive = 1');
         if($request) {
             $qb->andwhere("supportGroup.name LIKE :groupName");
@@ -140,7 +140,7 @@ class UserService
             return $results;
         $queryBuilder = $this->entityManager->createQueryBuilder()
             ->select("user.id, user.email, CONCAT(user.firstName, ' ', user.lastName) as name, userInstance.profileImagePath as smallThumbnail")
-            ->from('CoreFrameworkBundle:User', 'user')
+            ->from('UVDeskCoreFrameworkBundle:User', 'user')
             ->leftJoin('user.userInstance', 'userInstance')
             ->leftJoin('userInstance.supportRole', 'supportRole')
             ->where('supportRole.code != :customerRole')->setParameter('customerRole', 'ROLE_CUSTOMER')
@@ -155,7 +155,7 @@ class UserService
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('supportTeam.id, supportTeam.name')
-           ->from('CoreFrameworkBundle:SupportTeam', 'supportTeam');
+           ->from('UVDeskCoreFrameworkBundle:SupportTeam', 'supportTeam');
         $qb->andwhere('supportTeam.isActive = 1');
         
         if($request) {
@@ -170,7 +170,7 @@ class UserService
 
     public function createUserInstance($email, $name, SupportRole $role, array $extras = [])
     {
-        $user = $this->entityManager->getRepository('CoreFrameworkBundle:User')->findOneByEmail($email) ?: new User();
+        $user = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($email) ?: new User();
         
         if (null == $user->getId()) {
             $name = explode(' ', trim($name));
@@ -229,7 +229,7 @@ class UserService
     {
         $queryBuilder = $this->entityManager->createQueryBuilder()
             ->select("user.id, user.email, CONCAT(user.firstName, ' ', user.lastName) as name, userInstance.profileImagePath as smallThumbnail")
-            ->from('CoreFrameworkBundle:User', 'user')
+            ->from('UVDeskCoreFrameworkBundle:User', 'user')
             ->leftJoin('user.userInstance', 'userInstance')
             ->leftJoin('userInstance.supportRole', 'supportRole')
             ->where('supportRole.code != :customerRole')->setParameter('customerRole', 'ROLE_CUSTOMER')
@@ -257,7 +257,7 @@ class UserService
             return $agents;
 
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("u.id, userInstance.id as udId,u.email,CONCAT(u.firstName,' ', u.lastName) AS name,userInstance.profileImagePath as smallThumbnail")->from('CoreFrameworkBundle:User', 'u')
+        $qb->select("u.id, userInstance.id as udId,u.email,CONCAT(u.firstName,' ', u.lastName) AS name,userInstance.profileImagePath as smallThumbnail")->from('UVDeskCoreFrameworkBundle:User', 'u')
                 ->leftJoin('u.userInstance', 'userInstance')
                 ->andwhere('userInstance.supportRole != :roles')
                 ->setParameter('roles', 4)
@@ -279,7 +279,7 @@ class UserService
         if(!$agentId) return;
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select("DISTINCT u.id,u.email,CONCAT(u.firstName,' ', u.lastName) AS name,u.firstName,u.lastName,userInstance.profileImagePath,userInstance.profileImagePath as smallThumbnail,userInstance.isActive, userInstance.isVerified, userInstance.designation, userInstance.contactNumber,userInstance.signature,userInstance.ticketAccessLevel")
-            ->from('CoreFrameworkBundle:User', 'u')
+            ->from('UVDeskCoreFrameworkBundle:User', 'u')
             ->leftJoin('u.userInstance', 'userInstance')
             ->andwhere('userInstance.supportRole != :roles')
             ->andwhere('u.id = :agentId')
@@ -295,7 +295,7 @@ class UserService
     {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select("DISTINCT user.id, user.email, CONCAT(user.firstName, ' ', user.lastName) AS name, userInstance.profileImagePath as smallThumbnail")
-            ->from('CoreFrameworkBundle:User', 'user')
+            ->from('UVDeskCoreFrameworkBundle:User', 'user')
             ->leftJoin('user.userInstance', 'userInstance')
                 ->leftJoin('userInstance.supportGroups', 'supportGroup')
                 ->andWhere('userInstance.supportRole != :roles')->setParameter('roles', 4)
@@ -310,7 +310,7 @@ class UserService
     {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select("DISTINCT user.id, supportTeam.id as udId,user.email,CONCAT(user.firstName,' ', user.lastName) AS name,userInstance.profileImagePath as smallThumbnail")
-                ->from('CoreFrameworkBundle:User', 'user')
+                ->from('UVDeskCoreFrameworkBundle:User', 'user')
                 ->leftJoin('user.userInstance', 'userInstance')
                 ->leftJoin('userInstance.supportTeams', 'supportTeam')
                 ->andwhere('userInstance.supportRole != :roles')
@@ -327,7 +327,7 @@ class UserService
     public function getCustomerDetailsById($customerId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("user.id,user.email,CONCAT(user.firstName,' ', user.lastName) AS name,user.firstName,user.lastName,userInstance.contactNumber,userInstance.profileImagePath,userInstance.profileImagePath as smallThumbnail,userInstance.isActive, userInstance.isVerified")->from('CoreFrameworkBundle:User', 'user')
+        $qb->select("user.id,user.email,CONCAT(user.firstName,' ', user.lastName) AS name,user.firstName,user.lastName,userInstance.contactNumber,userInstance.profileImagePath,userInstance.profileImagePath as smallThumbnail,userInstance.isActive, userInstance.isVerified")->from('UVDeskCoreFrameworkBundle:User', 'user')
                 ->leftJoin('user.userInstance', 'userInstance')
                 ->andwhere('userInstance.supportRole = :roles')
                 ->andwhere('user.id = :customerId')
@@ -341,7 +341,7 @@ class UserService
     public function getCustomerPartialDetailById($customerId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("u.id,u.email,CONCAT(u.firstName,' ', u.lastName) AS name,u.firstName,u.lastName,userInstance.contactNumber,userInstance.profileImagePath,userInstance.profileImagePath as smallThumbnail")->from('CoreFrameworkBundle:User', 'u')
+        $qb->select("u.id,u.email,CONCAT(u.firstName,' ', u.lastName) AS name,u.firstName,u.lastName,userInstance.contactNumber,userInstance.profileImagePath,userInstance.profileImagePath as smallThumbnail")->from('UVDeskCoreFrameworkBundle:User', 'u')
             ->leftJoin('u.userInstance', 'userInstance')
             ->andwhere('userInstance.supportRole = :roles')
             ->andwhere('u.id = :customerId')
@@ -357,10 +357,10 @@ class UserService
     {
         $qb = $this->entityManager->createQueryBuilder();
         if ($this->getCurrentUser()->getRoles()[0] == "ROLE_AGENT") {
-            $qb->from('CoreFrameworkBundle:Ticket', 't')->leftJoin('t.customer', 'u');
-            $this->entityManager->getRepository('CoreFrameworkBundle:Ticket')->addPermissionFilter($qb, $this->container, false);
+            $qb->from('UVDeskCoreFrameworkBundle:Ticket', 't')->leftJoin('t.customer', 'u');
+            $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->addPermissionFilter($qb, $this->container, false);
         } else {
-            $qb->from('CoreFrameworkBundle:User', 'u');
+            $qb->from('UVDeskCoreFrameworkBundle:User', 'u');
         }
 
         $qb->select("DISTINCT u.id,CONCAT(u.firstName,' ', u.lastName) AS name, userInstance.profileImagePath as smallThumbnail ")
@@ -390,17 +390,17 @@ class UserService
     public function getCustomersCount()
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select($qb->expr()->countDistinct('c.id')."as customerCount")->from('CoreFrameworkBundle:Ticket', 't')
+        $qb->select($qb->expr()->countDistinct('c.id')."as customerCount")->from('UVDeskCoreFrameworkBundle:Ticket', 't')
                 ->leftJoin('t.customer', 'c');
 
-        $this->entityManager->getRepository('CoreFrameworkBundle:Ticket')->addPermissionFilter($qb, $this->container, false);
+        $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->addPermissionFilter($qb, $this->container, false);
 
         return $qb->getQuery()->getSingleScalarResult();
     }
 
     public function getUserSubGroupIds($userId) {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('supportTeams.id')->from('CoreFrameworkBundle:User', 'user')
+        $qb->select('supportTeams.id')->from('UVDeskCoreFrameworkBundle:User', 'user')
                 ->leftJoin('user.userInstance','userInstance')
                 ->leftJoin('userInstance.supportTeams','supportTeams')
                 ->andwhere('user.id = :userId')
@@ -414,7 +414,7 @@ class UserService
 
     public function getUserGroupIds($userId) {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('supportGroup.id')->from('CoreFrameworkBundle:User', 'user')
+        $qb->select('supportGroup.id')->from('UVDeskCoreFrameworkBundle:User', 'user')
                 ->leftJoin('user.userInstance','userInstance')
                 ->leftJoin('userInstance.supportGroups','supportGroup')
                 ->andwhere('user.id = :userId')
@@ -433,7 +433,7 @@ class UserService
         $user->setIsEnabled($data['isActive']);
         $this->entityManager->persist($user);
         // $this->entityManager->flush();
-        $role = $this->entityManager->getRepository('CoreFrameworkBundle:SupportRole')->find($data['role']);
+        $role = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportRole')->find($data['role']);
     
         $userInstance = new UserInstance();
         $userInstance->setSupportRole($role);
@@ -503,7 +503,7 @@ class UserService
 
         // find current user from session(admin or customer)
         $em = $this->entityManager;
-        $websiteRepo = $em->getRepository('CoreFrameworkBundle:Website');
+        $websiteRepo = $em->getRepository('UVDeskCoreFrameworkBundle:Website');
         $configurationRepo = $em->getRepository('UVDeskSupportCenterBundle:KnowledgebaseWebsite');
 
         $website = $websiteRepo->findOneByCode($code);
@@ -517,7 +517,7 @@ class UserService
     {
         // find current user from session(admin or customer)
         $em = $this->entityManager;
-        $websiteRepo = $em->getRepository('CoreFrameworkBundle:Website');
+        $websiteRepo = $em->getRepository('UVDeskCoreFrameworkBundle:Website');
 
         $website = $websiteRepo->findOneBy(['code' => $currentUser]);
 
@@ -556,12 +556,12 @@ class UserService
 
     public function removeCustomer($customer)
     {
-        $userData = $this->entityManager->getRepository('CoreFrameworkBundle:UserInstance')->findBy(array('user' => $customer->getId()));
+        $userData = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findBy(array('user' => $customer->getId()));
         $count = count($userData);
 
         // getCustomerTickets
         $qb = $this->entityManager->createQueryBuilder();
-        $query = $qb->delete('CoreFrameworkBundle:Ticket', 't')
+        $query = $qb->delete('UVDeskCoreFrameworkBundle:Ticket', 't')
                     ->andwhere('t.customer = :customerId')
                     ->setParameter('customerId', $customer->getId())
                     ->getQuery();
@@ -569,7 +569,7 @@ class UserService
         $query->execute();
 
         $qb = $this->entityManager->createQueryBuilder();
-        $query = $qb->delete('CoreFrameworkBundle:UserInstance', 'userInstance')
+        $query = $qb->delete('UVDeskCoreFrameworkBundle:UserInstance', 'userInstance')
                     ->andwhere('userInstance.user = :customerId')
                     ->andwhere('userInstance.supportRole = :roleId')
                     ->setParameter('customerId', $customer->getId())
@@ -586,11 +586,11 @@ class UserService
     
     public function removeAgent($user)
     {
-        $userData = $this->entityManager->getRepository('CoreFrameworkBundle:UserInstance')->findBy(array('user' => $user->getId()));
+        $userData = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findBy(array('user' => $user->getId()));
         $count = count($userData);
 
         $qb = $this->entityManager->createQueryBuilder();
-        $query = $qb->delete('CoreFrameworkBundle:UserInstance', 'ud')
+        $query = $qb->delete('UVDeskCoreFrameworkBundle:UserInstance', 'ud')
                     ->andwhere('ud.user = :userId')
                     ->andwhere('ud.supportRole != :roleId')
                     ->setParameter('userId', $user->getId())
@@ -607,7 +607,7 @@ class UserService
         }
 
         $qb = $this->entityManager->createQueryBuilder();
-        $query = $qb->update('CoreFrameworkBundle:Ticket', 't')
+        $query = $qb->update('UVDeskCoreFrameworkBundle:Ticket', 't')
                     ->set('t.agent', ':nullAgent')
                     ->andwhere('t.agent = :agentId')
                     ->setParameter('agentId', $user->getId())
@@ -625,7 +625,7 @@ class UserService
 
     public function getWebsiteView()
     {
-        $website = $this->entityManager->getRepository('CoreFrameworkBundle:Website')->findOneBy(['code'=>'knowledgebase']);
+        $website = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code'=>'knowledgebase']);
         $layout  = $this->entityManager->getRepository('UVDeskSupportCenterBundle:KnowledgebaseWebsite')->findOneBy(['website'=>$website->getId()]);
       
         $homepageContent = $layout->getHomepageContent();
@@ -633,7 +633,7 @@ class UserService
     }
 
     public function getUserDetailById($userId) {
-        $user = $this->entityManager->getRepository('CoreFrameworkBundle:User')->find($userId);
+        $user = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->find($userId);
         foreach ($user->getUserInstance() as $row) {
             if($row->getSupportRole()->getId() != 4)
                 return $row;
@@ -644,7 +644,7 @@ class UserService
     public function getUserPrivilegeIds($userId) 
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('supportPrivileges.id')->from('CoreFrameworkBundle:User', 'user')
+        $qb->select('supportPrivileges.id')->from('UVDeskCoreFrameworkBundle:User', 'user')
                 ->leftJoin('user.userInstance','userInstance')
                 ->leftJoin('userInstance.supportPrivileges','supportPrivileges')
                 ->andwhere('user.id = :userId')

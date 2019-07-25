@@ -7,7 +7,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Webkul\UVDesk\CoreFrameworkBundle\DependencyInjection\Passes;
 use Webkul\UVDesk\CoreFrameworkBundle\DependencyInjection\CoreFramework;
 
-class CoreFrameworkBundle extends Bundle
+class UVDeskCoreFrameworkBundle extends Bundle
 {
     public function getContainerExtension()
     {
@@ -22,7 +22,8 @@ class CoreFrameworkBundle extends Bundle
             ->addCompilerPass(new Passes\Events())
             ->addCompilerPass(new Passes\Routes())
             ->addCompilerPass(new Passes\Extendables())
-            ->addCompilerPass(new Passes\Widgets())
-            ->addCompilerPass(new Passes\DashboardComponents());
+            ->addCompilerPass(new Passes\DashboardComponents())
+            ->addCompilerPass(new Passes\Ticket\Widgets())
+            ->addCompilerPass(new Passes\Ticket\QuickActionButtons());
     }
 }

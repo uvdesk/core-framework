@@ -12,7 +12,7 @@ class SwiftMailer extends Controller
 {
     public function loadMailers()
     {
-        return $this->render('@CoreFramework//SwiftMailer//listConfigurations.html.twig');
+        return $this->render('@UVDeskCoreFramework//SwiftMailer//listConfigurations.html.twig');
     }
     
     public function createMailerConfiguration(Request $request)
@@ -40,7 +40,7 @@ class SwiftMailer extends Controller
             }
         }
 
-        return $this->render('@CoreFramework//SwiftMailer//manageConfigurations.html.twig');
+        return $this->render('@UVDeskCoreFramework//SwiftMailer//manageConfigurations.html.twig');
     }
 
     public function updateMailerConfiguration($id, Request $request)
@@ -77,7 +77,7 @@ class SwiftMailer extends Controller
             return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_settings'));
         }
 
-        return $this->render('@CoreFramework//SwiftMailer//manageConfigurations.html.twig', [
+        return $this->render('@UVDeskCoreFramework//SwiftMailer//manageConfigurations.html.twig', [
             'configuration' => $swiftmailerConfiguration->castArray(),
         ]);
     }

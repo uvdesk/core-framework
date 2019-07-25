@@ -16,7 +16,7 @@ class Authentication extends Controller
     public function login(Request $request)
     {
         if (null == $this->get('user.service')->getSessionUser()) {
-            return $this->render('@CoreFramework//login.html.twig', [
+            return $this->render('@UVDeskCoreFramework//login.html.twig', [
                 'last_username' => $this->get('security.authentication_utils')->getLastUsername(),
                 'error' => $this->get('security.authentication_utils')->getLastAuthenticationError(),
             ]);
@@ -45,8 +45,8 @@ class Authentication extends Controller
                 $form->handleRequest($request);
                 
                 if ($form->isValid()) {
-                    $repository = $this->getDoctrine()->getRepository('CoreFrameworkBundle:User');
-                    $user = $entityManager->getRepository('CoreFrameworkBundle:User')->findOneBy(array('email' => $form->getData()->getEmail()));
+                    $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:User');
+                    $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(array('email' => $form->getData()->getEmail()));
                   
                     if($user) {
                         // Trigger agent forgot password event
@@ -64,7 +64,7 @@ class Authentication extends Controller
                 }
             }
 
-            return $this->render("@CoreFramework//forgotPassword.html.twig");
+            return $this->render("@UVDeskCoreFramework//forgotPassword.html.twig");
         }
         
         return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));       
@@ -80,7 +80,7 @@ class Authentication extends Controller
         $request = $this->container->get('request_stack')->getCurrentRequest();
 
         // Validate request
-        $user = $entityManager->getRepository('CoreFrameworkBundle:User')->findOneByEmail($email);
+        $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($email);
 
         if (empty($user) || null == $user->getAgentInstance() || $user->getVerificationCode() != $verificationCode) {
             return $this->redirect($this->generateUrl('helpdesk_member_handle_login'));
@@ -103,7 +103,7 @@ class Authentication extends Controller
             }
         }
        
-        return $this->render("@CoreFramework//resetPassword.html.twig");
+        return $this->render("@UVDeskCoreFramework//resetPassword.html.twig");
     }
 
     protected function encodePassword(User $user, $plainPassword)

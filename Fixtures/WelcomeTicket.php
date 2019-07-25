@@ -48,9 +48,9 @@ class WelcomeTicket extends DoctrineFixture
     
     public function load(ObjectManager $entityManager)
     {
-        $availableTicketPriority = $entityManager->getRepository('CoreFrameworkBundle:TicketPriority')->findOneBy(['code' => 'low']);
-        $availableTicketStatus = $entityManager->getRepository('CoreFrameworkBundle:TicketStatus')->findOneBy(['code' => 'open']);
-        $supportRole = $entityManager->getRepository('CoreFrameworkBundle:SupportRole')->findOneBy(['code' => 'ROLE_CUSTOMER']);
+        $availableTicketPriority = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketPriority')->findOneBy(['code' => 'low']);
+        $availableTicketStatus = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->findOneBy(['code' => 'open']);
+        $supportRole = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportRole')->findOneBy(['code' => 'ROLE_CUSTOMER']);
         
         // Setting user details:
         $user = new CoreEntities\User();

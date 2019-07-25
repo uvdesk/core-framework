@@ -15,7 +15,7 @@ class Privilege extends Controller
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
-        return $this->render('@CoreFramework/Privileges/listSupportPriveleges.html.twig');
+        return $this->render('@UVDeskCoreFramework/Privileges/listSupportPriveleges.html.twig');
     }
 
     public function createPrivilege(Request $request)
@@ -43,7 +43,7 @@ class Privilege extends Controller
 
         }
 
-        return $this->render('@CoreFramework/Privileges/createSupportPrivelege.html.twig', [
+        return $this->render('@UVDeskCoreFramework/Privileges/createSupportPrivelege.html.twig', [
             'errors' => json_encode($formErrors),
             'supportPrivilege' => $supportPrivilege,
             'supportPrivilegeResources' => $supportPrivilegeResources,
@@ -59,7 +59,7 @@ class Privilege extends Controller
         $entityManager = $this->getDoctrine()->getManager();
         $request = $this->get('request_stack')->getCurrentRequest();
         
-        $supportPrivilege = $entityManager->getRepository('CoreFrameworkBundle:SupportPrivilege')->findOneById($supportPrivilegeId);
+        $supportPrivilege = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportPrivilege')->findOneById($supportPrivilegeId);
         
         if (empty($supportPrivilege)) {
             $this->noResultFound();
@@ -83,7 +83,7 @@ class Privilege extends Controller
             return $this->redirect($this->generateUrl('helpdesk_member_privilege_collection'));
         }
  
-        return $this->render('@CoreFramework/Privileges/updateSupportPrivelege.html.twig', [
+        return $this->render('@UVDeskCoreFramework/Privileges/updateSupportPrivelege.html.twig', [
             'errors' => json_encode($formErrors),
             'supportPrivilege' => $supportPrivilege,
             'supportPrivilegeResources' => $supportPrivilegeResources,

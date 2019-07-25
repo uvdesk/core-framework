@@ -17,7 +17,7 @@ class TeamXHR extends Controller
         }
 
         if (true === $request->isXmlHttpRequest()) {
-            $paginationResponse = $this->getDoctrine()->getRepository('CoreFrameworkBundle:SupportTeam')->getAllSupportTeams($request->query, $this->container);
+            $paginationResponse = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')->getAllSupportTeams($request->query, $this->container);
 
             return new Response(json_encode($paginationResponse), 200, ['Content-Type' => 'application/json']);
         }
@@ -35,7 +35,7 @@ class TeamXHR extends Controller
 
         if ("DELETE" == $request->getMethod()) {
             $entityManager = $this->getDoctrine()->getManager();
-            $supportTeam = $entityManager->getRepository('CoreFrameworkBundle:SupportTeam')->findOneById($supportTeamId);
+            $supportTeam = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')->findOneById($supportTeamId);
 
             if (!empty($supportTeam)) {
                 $entityManager->remove($supportTeam);

@@ -48,13 +48,13 @@ class UpdateAgent extends PreparedResponseAction
             if ($value == 'responsePerforming' && is_object($currentUser = $container->get('security.token_storage')->getToken()->getUser())) {
                 $agent = $currentUser;
             } else {
-                $agent = $entityManager->getRepository('CoreFrameworkBundle:User')->find($value);
+                $agent = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->find($value);
                 if ($agent) {
-                    $agent = $entityManager->getRepository('CoreFrameworkBundle:User')->findOneBy(array('email' => $agent->getEmail()));
+                    $agent = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(array('email' => $agent->getEmail()));
                 }
             }
             if ($agent) {
-                if($entityManager->getRepository('CoreFrameworkBundle:User')->findOneBy(array('id' => $agent->getId()))) {
+                if($entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(array('id' => $agent->getId()))) {
                     $entity->setAgent($agent);
                     $entityManager->persist($entity);
                     $entityManager->flush();

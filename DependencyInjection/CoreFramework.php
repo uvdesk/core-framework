@@ -7,12 +7,16 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Webkul\UVDesk\CoreFrameworkBundle\Definition\RouterInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Widgets\TicketWidgetInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Definition\RoutingResourceInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Framework\ExtendableComponentInterface;
+
+use Webkul\UVDesk\CoreFrameworkBundle\Tickets\WidgetInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Tickets\QuickActionButtonInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\NavigationInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\HomepageSectionInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\HomepageSectionItemInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\PanelSidebarInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\PanelSidebarItemInterface;
 
 class CoreFramework extends Extension
 {
@@ -74,7 +78,8 @@ class CoreFramework extends Extension
         }
 
         $container->registerForAutoconfiguration(RouterInterface::class)->addTag('routing.loader');
-        $container->registerForAutoconfiguration(TicketWidgetInterface::class)->addTag(TicketWidgetInterface::class);
+        $container->registerForAutoconfiguration(WidgetInterface::class)->addTag(WidgetInterface::class);
+        $container->registerForAutoconfiguration(QuickActionButtonInterface::class)->addTag(QuickActionButtonInterface::class);
         
         $container->registerForAutoconfiguration(RoutingResourceInterface::class)->addTag(RoutingResourceInterface::class);
         $container->registerForAutoconfiguration(ExtendableComponentInterface::class)->addTag(ExtendableComponentInterface::class);
@@ -84,5 +89,7 @@ class CoreFramework extends Extension
         $container->registerForAutoconfiguration(NavigationInterface::class)->addTag(NavigationInterface::class);
         $container->registerForAutoconfiguration(HomepageSectionInterface::class)->addTag(HomepageSectionInterface::class);
         $container->registerForAutoconfiguration(HomepageSectionItemInterface::class)->addTag(HomepageSectionItemInterface::class);
+        $container->registerForAutoconfiguration(PanelSidebarInterface::class)->addTag(PanelSidebarInterface::class);
+        $container->registerForAutoconfiguration(PanelSidebarItemInterface::class)->addTag(PanelSidebarItemInterface::class);
     }
 }

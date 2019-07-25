@@ -65,7 +65,7 @@ class Console
 
         $output = $event->getOutput();
         // $mailboxes = $this->container->getParameter('uvdesk.mailboxes');
-        // $mailboxRepository = $this->entityManager->getRepository('CoreFrameworkBundle:Mailbox');
+        // $mailboxRepository = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Mailbox');
 
         // // Check for any duplicate mailboxes for an email
         // foreach (array_count_values(array_column($mailboxes, 'email')) as $email => $occurrences) {

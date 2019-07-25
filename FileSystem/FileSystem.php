@@ -33,7 +33,7 @@ class FileSystem
 
     private function getAssetIconURL(Attachment $attachment = null)
     {
-        $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/unknown.png';
+        $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/unknown.png';
 
         if (!empty($attachment)) {
             switch (strrchr($attachment->getName(), '.') ?: '') {
@@ -44,66 +44,66 @@ class FileSystem
                     $relativePathToAsset = $attachment->getPath();
                     break;
                 case '.zip':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/zip.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/zip.png';
                     break;
                 case '.doc':
                 case '.docx':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/doc.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/doc.png';
                     break;
                 case '.pdf':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/pdf.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/pdf.png';
                     break;
                 case '.xls':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/xls.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/xls.png';
                     break;
                 case '.csv':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/csv.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/csv.png';
                     break;
                 case '.ppt':
                 case '.pptx':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/ppt.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/ppt.png';
                     break;
                 case '.aspx':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/aspx.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/aspx.png';
                     break;
                 case '.c':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/c.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/c.png';
                     break;
                 case '.css':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/css.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/css.png';
                     break;
                 case '.html':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/html.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/html.png';
                     break;
                 case '.txt':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/txt.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/txt.png';
                     break;
                 case '.xml':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/xml.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/xml.png';
                     break;
                 case '.yaml':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/yaml.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/yaml.png';
                     break;
                 case '.php':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/php.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/php.png';
                     break;
                 case '.odt':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/odt.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/odt.png';
                     break;
                 case '.ods':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/ods.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/ods.png';
                     break;
                 case '.jsp':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/jsp.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/jsp.png';
                     break;
                 case '.json':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/json.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/json.png';
                     break;
                 case '.js':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/js.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/js.png';
                     break;
                 case '.java':
-                    $relativePathToAsset = '/bundles/coreframework/images/icons/file-system/java.png';
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/java.png';
                     break;
                 default:
                     break;

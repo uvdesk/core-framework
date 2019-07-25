@@ -20,7 +20,7 @@ class AgentPrivileges extends DoctrineFixture
 
     public function load(ObjectManager $entityManager)
     {
-        $availableSupportPrivileges = $entityManager->getRepository('CoreFrameworkBundle:SupportPrivilege')->findAll();
+        $availableSupportPrivileges = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportPrivilege')->findAll();
 
         if (empty($availableSupportPrivileges)) {
             foreach (self::$seeds as $supportPrivilegeSeed) {

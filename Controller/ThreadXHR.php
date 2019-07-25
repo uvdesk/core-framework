@@ -15,7 +15,7 @@ class ThreadXHR extends Controller
         $request = $this->container->get('request_stack')->getCurrentRequest();
 
         if (true === $request->isXmlHttpRequest()) {
-            $ticket = $entityManager->getRepository('CoreFrameworkBundle:Ticket')->findOneById($ticketId);
+            $ticket = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($ticketId);
 
             if (!empty($ticket)) {
                 $paginationResponse = $this->get('ticket.service')->paginateMembersTicketThreadCollection($ticket, $request);

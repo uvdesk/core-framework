@@ -7,7 +7,7 @@ services:
     # Services
     Webkul\UVDesk\CoreFrameworkBundle\:
         resource: '../../../*'
-        exclude: '../../../{DependencyInjection,Entity,Package,Templates,Migrations,Tests}'
+        exclude: '../../../{DependencyInjection,Entity,Package,Templates,Migrations,Tests,UIComponents/Dashboard/Aside}'
     
     Webkul\UVDesk\CoreFrameworkBundle\Controller\:
         resource: '../../../Controller/*'

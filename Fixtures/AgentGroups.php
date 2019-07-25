@@ -18,7 +18,7 @@ class AgentGroups extends DoctrineFixture
 
     public function load(ObjectManager $entityManager)
     {
-        $availableSupportGroups = $entityManager->getRepository('CoreFrameworkBundle:SupportGroup')->findAll();
+        $availableSupportGroups = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')->findAll();
 
         if (empty($availableSupportGroups)) {
             foreach (self::$seeds as $supportGroupSeed) {
