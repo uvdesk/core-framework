@@ -61,32 +61,20 @@
     .uv-margin-icon-srch {
         margin: 5px 0px 0px 5px;
     }
-    @media only screen and (max-width: 1350px){
-        .uv-mob-aside{
-            position: fixed;
-            z-index: 999;
-            top: 138px;
-            left: 460px;
-            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+    
+    .uv-mob-aside{
+        position: fixed;
+        z-index: 999;
+        top: 105px;
+        left: 288px;
+        transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    @media only screen and (min-width: 1400px){
-        .uv-mob-aside{
-            position: fixed;
-            z-index: 999;
-            top: 138px;
-            left: 488px;
-            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-    }
-    
-    
     .uv-sidebar.uv-sidebar-active ~ .uv-paper .uv-mob-aside{
         left: 320px;
     }
     .uv-mob-aside.uv-mob-aside-collapsed{
-        left: 218px;
+        left: 286px;
     }
     .uv-sidebar.uv-sidebar-active ~ .uv-paper .uv-mob-aside.uv-mob-aside-collapsed{
         left: 45px;
@@ -149,18 +137,19 @@
         margin-top: 2px;
         font-size: medium;
     }
+
     @media screen and (min-width: 901px) and (max-width: 1400px) {
         .uv-sidebar.uv-sidebar-active ~ .uv-paper .uv-mob-aside{
             left: 290px;
         }
         .uv-mob-aside.uv-mob-aside-collapsed{
-            left: 217px;
+            left: 40px;
         }
         .uv-rtl .uv-sidebar.uv-sidebar-active ~ .uv-paper .uv-mob-aside{
             right: 290px;
         }
         .uv-rtl  .uv-mob-aside.uv-mob-aside-collapsed{
-            right: 252px;
+            right: 52px;
         }
     }
     @media screen and (max-width: 1024px) {
@@ -204,7 +193,7 @@
         right: 20px;
     }
     .uv-filter-view .uv-filter-head .uv-filter-toggle span{
-        background-position: -21px -244px;
+        background-position: -21px -245px;
     }
     .uv-view.uv-aside-view{
         padding: 25px 0px 25px 25px;
@@ -220,7 +209,7 @@
         right: 20px;
     }
     .uv-filter-view .uv-filter-head .uv-filter-toggle span{
-        background-position: -21px -244px;
+        background-position: -21px -245px;
     }
 
 
@@ -290,11 +279,12 @@
     .uv-dropdown-list ul.uv-search-list.flags-active li:first-child {
         border-top: unset;
     }
-
-    .uv-main-logo {
+    
+    {# .uv-main-logo {
         position: absolute;
         padding: 10px 0 0px 30px; 
-    }
+    } #}
+
     .dropdown-divider {
         border-top: 1px solid #e1e4e8;
         display: block;
@@ -310,17 +300,8 @@
     <div class="uv-mob-aside {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-mob-aside-collapsed{% endif %}">
         <span class="uv-icon-aside-menu"></span>
     </div>
-    <div class = 'uv-main-logo'>
-        <a href="{{ path('helpdesk_member_dashboard') }}">
-        {% if websiteConfiguration is defined and websiteConfiguration.website.logo is not null %}
-			<img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}{{ websiteConfiguration.website.logo }}" alt="{{ websiteConfiguration.website.name}}" class="uv-logo-image" />
-		{% else %}
-			<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="123px" height="48px">
-			<path fill-rule="evenodd"  fill="rgb(124, 112, 244)" d="M122.389,29.602 L120.229,29.602 L116.821,23.985 L114.637,26.529 L114.637,29.602 L112.693,29.602 L112.693,12.512 L114.637,12.512 L114.637,24.081 L114.709,24.081 L119.677,17.937 L121.861,17.937 L117.949,22.617 L122.389,29.602 ZM106.405,22.881 C108.085,23.505 109.957,24.201 109.957,26.409 C109.957,28.305 108.445,29.890 105.685,29.890 C104.029,29.890 102.445,29.194 101.341,28.281 L102.325,26.961 C103.333,27.777 104.365,28.353 105.757,28.353 C107.293,28.353 108.061,27.537 108.061,26.529 C108.061,25.329 106.669,24.801 105.397,24.321 C103.741,23.721 101.917,22.929 101.917,20.961 C101.917,19.089 103.405,17.649 105.925,17.649 C107.389,17.649 108.661,18.249 109.549,18.969 L108.613,20.217 C107.821,19.617 106.981,19.185 105.949,19.185 C104.485,19.185 103.813,19.977 103.813,20.865 C103.813,21.945 105.085,22.377 106.405,22.881 ZM91.813,24.201 C91.957,26.721 93.469,28.305 95.701,28.305 C96.806,28.305 97.742,27.945 98.606,27.393 L99.302,28.689 C98.294,29.338 97.046,29.890 95.461,29.890 C92.341,29.890 89.869,27.609 89.869,23.793 C89.869,19.977 92.437,17.649 95.101,17.649 C98.078,17.649 99.758,19.785 99.758,23.121 C99.758,23.529 99.734,23.913 99.686,24.201 L91.813,24.201 ZM95.149,19.209 C93.517,19.209 92.029,20.553 91.789,22.905 L98.030,22.905 C98.030,20.529 96.974,19.209 95.149,19.209 ZM84.998,28.233 L84.926,28.233 C84.014,29.122 82.766,29.890 81.398,29.890 C78.469,29.890 76.573,27.681 76.573,23.793 C76.573,20.001 78.973,17.649 81.638,17.649 C82.982,17.649 83.870,18.153 84.902,18.993 L84.806,17.000 L84.806,12.512 L86.798,12.512 L86.798,29.602 L85.166,29.602 L84.998,28.233 ZM84.806,20.529 C83.822,19.641 82.934,19.305 81.974,19.305 C80.101,19.305 78.613,21.105 78.613,23.769 C78.613,26.553 79.789,28.233 81.830,28.233 C82.910,28.233 83.846,27.705 84.806,26.625 L84.806,20.529 ZM68.822,29.602 L64.621,17.937 L66.661,17.937 L68.870,24.561 C69.206,25.713 69.590,26.889 69.950,27.993 L70.046,27.993 C70.382,26.889 70.766,25.713 71.102,24.561 L73.310,17.937 L75.254,17.937 L71.126,29.602 L68.822,29.602 ZM60.566,27.777 L60.494,27.777 C59.414,29.050 58.262,29.890 56.654,29.890 C54.182,29.890 53.078,28.305 53.078,25.329 L53.078,17.937 L55.070,17.937 L55.070,25.065 C55.070,27.249 55.718,28.185 57.254,28.185 C58.454,28.185 59.294,27.585 60.398,26.217 L60.398,17.937 L62.366,17.937 L62.366,29.602 L60.734,29.602 L60.566,27.777 ZM27.000,45.000 C26.973,44.292 27.011,42.899 27.000,43.000 C43.768,41.329 42.000,26.000 42.000,26.000 L45.000,26.000 C45.563,40.575 33.324,44.708 27.000,45.000 ZM42.000,24.500 C42.000,23.672 42.672,23.000 43.500,23.000 C44.328,23.000 45.000,23.672 45.000,24.500 L45.000,25.000 L42.000,25.000 L42.000,24.500 ZM39.000,31.000 L38.000,31.000 L38.000,18.000 L39.000,18.000 C39.945,18.000 41.000,19.066 41.000,20.000 L41.000,29.000 C41.000,29.934 39.945,31.000 39.000,31.000 ZM10.492,33.000 C8.555,33.000 6.986,31.433 6.986,29.501 C6.986,27.569 8.555,26.002 10.492,26.002 C12.428,26.002 13.998,27.569 13.998,29.501 C13.998,31.433 12.428,33.000 10.492,33.000 ZM37.000,19.000 L33.000,22.000 C28.171,24.696 23.059,25.515 17.000,23.000 C14.589,21.999 13.107,20.137 12.000,19.000 C10.074,21.163 6.902,23.525 3.000,24.000 L3.386,29.280 C3.386,33.462 5.179,37.850 8.000,41.000 C9.633,42.824 10.936,44.167 13.000,45.000 L12.000,48.000 C9.232,47.008 7.143,45.393 5.000,43.000 C1.629,39.236 -0.000,34.011 -0.000,29.000 L-0.000,18.000 C-0.000,8.047 7.935,-0.000 18.000,-0.000 C27.872,-0.000 36.692,8.308 37.000,18.000 C37.036,19.142 37.000,19.000 37.000,19.000 ZM27.504,26.002 C29.440,26.002 31.010,27.569 31.010,29.501 C31.010,31.433 29.440,33.000 27.504,33.000 C25.567,33.000 23.997,31.433 23.997,29.501 C23.997,27.569 25.567,26.002 27.504,26.002 ZM23.999,41.989 C25.097,41.989 25.987,42.889 25.987,44.000 C25.987,45.111 25.097,46.011 23.999,46.011 C22.902,46.011 22.012,45.111 22.012,44.000 C22.012,42.889 22.902,41.989 23.999,41.989 Z"/>
-			</svg>
-		{% endif %}
-        </a>
-    </div>
+
+    <!-- Search Box -->
     <div class="uv-search-wrapper uv-no-error-success-icon">
         <input placeholder="Search" class="uv-search-bar" type="text" name="">
         <div class="uv-search-result-wrapper" id="beauty-scroll">
@@ -394,76 +375,6 @@
                         </svg>
                     </div>
                     <p>{{ 'Customers'|trans }}</p>
-                </div>
-            </a>
-
-            <a href="{{ path('helpdesk_member_knowledgebase_folders_collection') }}">
-                <div class="uv-search-result-row">
-                    <div class="uv-brick-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" class="uv-margin-icon-srch">
-                            <path fill-rule="evenodd" fill="rgb(158, 158, 158)" d="M14.000,0.000 L2.000,0.000 C0.969,0.000 0.000,0.901 0.000,2.000 L0.000,18.000 C0.000,19.099 0.969,20.000 2.000,20.000 L14.000,20.000 C15.031,20.000 16.000,19.099 16.000,18.000 L16.000,2.000 C16.000,0.901 15.031,0.000 14.000,0.000 ZM3.000,3.000 L9.000,3.000 L9.000,11.000 L6.000,9.000 L3.000,11.000 L3.000,3.000 Z"></path>
-                        </svg>
-                    </div>
-                    <p>{{ 'Knowledgebase'|trans }}</p>
-                </div>
-            </a>
-
-            <a href="{{ path('helpdesk_member_knowledgebase_folders_collection') }}">
-                <div class="uv-search-result-row">
-                    <div class="uv-brick-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
-                            <path fill-rule="evenodd" d="M25.216,11.023h-14.4a4.708,4.708,0,0,0-4.777,4.624L6.011,43.394a4.729,4.729,0,0,0,4.8,4.625H49.223a4.729,4.729,0,0,0,4.8-4.625L54,21a5.234,5.234,0,0,0-5-5H30Z"
-                            />
-                        </svg>
-                    </div>
-                    <p>{{ 'Folders'|trans }}</p>
-                </div>
-            </a>
-            
-            <a href="{{ path('helpdesk_member_knowledgebase_category_collection') }}">
-                <div class="uv-search-result-row">
-                    <div class="uv-brick-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
-                            <path fill-rule="evenodd" d="M6,18h6V12l-6,.014V18Zm10-6v6H54V12H16ZM6,28h6V22l-6,.014V28Zm10-6v6H54V22H16ZM6,38h6V32l-6,.014V38Zm10-6v6H54V32H16ZM6,48h6V42l-6,.014V48Zm10-6v6H54V42H16Z"
-                            />
-                        </svg>
-                    </div>
-                    <p>{{ 'Categories'|trans }}</p>
-                </div>
-            </a>
-
-            <a href="{{ path('helpdesk_member_knowledgebase_article_collection')}}">
-                <div class="uv-search-result-row">
-                    <div class="uv-brick-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
-                            <path fill-rule="evenodd" d="M34.743,5.977h-19a4.769,4.769,0,0,0-4.726,4.8L11,49.19a4.77,4.77,0,0,0,4.726,4.8h28.52a4.79,4.79,0,0,0,4.749-4.8V20.381ZM32,23V9L46,23H32Z"
-                            />
-                        </svg>
-                    </div>
-                    <p>{{ 'Articles'|trans }}</p>
-                </div>
-            </a>
-            <a href="{{ path('prepare_response_action')}}">
-                <div class="uv-search-result-row">
-                    <div class="uv-brick-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
-                            <path fill-rule="evenodd" d="M25.783,21.527L10.245,6.019,6.016,10.248,21.524,25.756ZM37.512,6.019l6.119,6.119L6.016,49.783l4.229,4.229L47.89,16.4l6.119,6.119V6.019h-16.5ZM38.5,34.245l-4.229,4.229,9.389,9.389-6.149,6.149h16.5v-16.5L47.89,43.634Z"
-                            />
-                        </svg>
-                    </div>
-                    <p>{{ 'Prepared Responses'|trans }}</p>
-                </div>
-            </a>
-
-            <a href="{{ path('helpdesk_member_workflow_collection') }}">
-                <div class="uv-search-result-row">
-                    <div class="uv-brick-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
-                            <path fill-rule="evenodd" d="M25.783,21.527L10.245,6.019,6.016,10.248,21.524,25.756ZM37.512,6.019l6.119,6.119L6.016,49.783l4.229,4.229L47.89,16.4l6.119,6.119V6.019h-16.5ZM38.5,34.245l-4.229,4.229,9.389,9.389-6.149,6.149h16.5v-16.5L47.89,43.634Z"
-                            />
-                        </svg>
-                    </div>
-                    <p>{{ 'Workflows'|trans }}</p>
                 </div>
             </a>
 
@@ -549,33 +460,13 @@
                     <p>{{ 'Swift Mailer'|trans }}</p>
                 </div>
             </a>
-            <a href="{{ path('helpdesk_member_knowledgebase_spam') }}">
-                <div class="uv-search-result-row">
-                    <div class="uv-brick-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
-                            <path fill-rule="evenodd" d="M29.994,5.98A24.007,24.007,0,1,0,53.974,29.987,24,24,0,0,0,29.994,5.98ZM12,29.365A17.359,17.359,0,0,1,29.36,12a17.148,17.148,0,0,1,10.634,3.668L15.666,40A17.156,17.156,0,0,1,12,29.365ZM30.629,48a14.544,14.544,0,0,1-9.634-3.537L44.455,21a14.549,14.549,0,0,1,3.536,9.636A17.358,17.358,0,0,1,30.629,48Z"
-                            />
-                        </svg>
-                    </div>
-                    <p>{{ 'Block Spam'|trans }}</p>
-                </div>
-            </a>
-            <a href="{{ path('helpdesk_member_mailbox_settings') }}">
-                <div class="uv-search-result-row">
-                    <div class="uv-brick-icon">
-                       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
-							<path fill-rule="evenodd" d="M30,33L6,18V12L30,27,54,12v6ZM5.9,5.992A5.589,5.589,0,0,0,1.745,7.817,5.882,5.882,0,0,0-.016,12.027v35.93a5.875,5.875,0,0,0,1.761,4.211A5.581,5.581,0,0,0,5.9,53.992H54.069a5.588,5.588,0,0,0,4.155-1.825A5.8,5.8,0,0,0,60,48V12a5.847,5.847,0,0,0-1.776-4.183,5.6,5.6,0,0,0-4.155-1.825H5.9Z"></path>
-						</svg>
-                    </div>
-                    <p>{{ 'Mailbox'|trans }}</p>
-                </div>
-            </a>
+
             <div class="uv-search-result-row uv-no-results" style="display: none">
                 <p>{{ 'No result found'|trans }}</p>
             </div>
         </div>
     </div>
-    
+
     <div class="uv-actions">
         <!-- Profile Navigations -->
         <span style="position: relative" class="">
@@ -583,9 +474,8 @@
                 {% if currentUserDetails is defined and currentUserDetails.thumbnail is defined and currentUserDetails.thumbnail is not empty %}
                     <img class='uv-avatar' src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}{{ currentUserDetails.thumbnail }}"/>
                 {% else %}
-                    <img class='uv-avatar' src="{{ asset('bundles/uvdeskcore/images/uv-avatar-batman.png') }}"/>
+                    <img class='uv-avatar' src="{{ asset('bundles/uvdeskcoreframework/images/uv-avatar-batman.png') }}"/>
                 {% endif %}
-                
             </div>
 
             <div class="uv-dropdown-list uv-bottom-right uv-text-left">
@@ -614,28 +504,6 @@
                 </div>
             </div>
         </span>
-
-        {# <span class="new">
-            <div class="uv-action-new uv-dropdown-other">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20px" height="20px"><path fill-rule="evenodd"  fill="rgb(255, 255, 255)"
-                d="M20.000,12.000 L12.000,12.000 L12.000,20.000 L8.000,20.000 L8.000,12.000 L0.000,12.000 L0.000,8.000 L8.000,8.000 L8.000,-0.000 L12.000,-0.000 L12.000,8.000 L20.000,8.000 L20.000,12.000 Z"/></svg>
-            </div>
-
-            <div class="uv-dropdown-list uv-bottom-right uv-text-left">
-                <div class="uv-dropdown-container">
-                    <label>Create New</label>
-                    <ul>
-                        <li data-action="create" class="uv-open-popup" data-target="create-ticket-modal">Ticket</li>
-						{% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT') %}
-                            <li><a href="{{ path('helpdesk_member_create_account') }}">Agent</a></li>
-                        {% endif %}
-						{% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER') %}                        
-                            <li><a href="{{ path('helpdesk_member_create_customer_account') }}">Customer</a></li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </div>
-        </span> #}
     </div>
 </div>
 
@@ -741,8 +609,9 @@
         var sidePanelUV =  new SidePanelUV();
     });
 </script>
+
 {# Ticket Create Popup #}	
 {% if user_service.isAccessAuthorized('ROLE_AGENT_CREATE_TICKET') %}	
     {{ ticket_service.appendTwigSnippet('createMemberTicket')|raw }}	
-    {# {% include('UVDeskCoreBundle:Snippets:createMemberTicketSnippet.html.twig') only %} #}	
+    {# {% include('UVDeskCoreFrameworkBundle:Snippets:createMemberTicketSnippet.html.twig') only %} #}	
 {% endif %} 

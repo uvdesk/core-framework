@@ -1,9 +1,9 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Fixtures;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Fixtures;
 
 use Doctrine\Common\Persistence\ObjectManager;
-use Webkul\UVDesk\CoreBundle\Entity as CoreEntities;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Doctrine\Bundle\FixturesBundle\Fixture as DoctrineFixture;
 
 class TicketStatuses extends DoctrineFixture
@@ -49,7 +49,7 @@ class TicketStatuses extends DoctrineFixture
 
     public function load(ObjectManager $entityManager)
     {
-        $availableTicketStatuses = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findAll();
+        $availableTicketStatuses = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->findAll();
         $availableTicketStatuses = array_map(function ($ticketStatus) {
             return $ticketStatus->getCode();
         }, $availableTicketStatuses);

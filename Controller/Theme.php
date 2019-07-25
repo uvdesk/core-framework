@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Controller;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -12,7 +12,7 @@ class Theme extends Controller
         if ($request->getMethod() == "POST") {
             $values = $request->request->all();
             $entityManager = $this->getDoctrine()->getManager();
-            $website = $entityManager->getRepository('UVDeskCoreBundle:Website')->findOneByCode('helpdesk');
+            $website = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneByCode('helpdesk');
 
             $website->setName($values['helpdeskName']);
             $website->setThemeColor($values['themeColor']);
@@ -21,6 +21,6 @@ class Theme extends Controller
             $entityManager->flush();
         }
 
-        return $this->render('@UVDeskCore/theme.html.twig');
+        return $this->render('@UVDeskCoreFramework/theme.html.twig');
     }
 }

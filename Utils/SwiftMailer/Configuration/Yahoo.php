@@ -1,8 +1,8 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Utils\SwiftMailer\Configuration;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Utils\SwiftMailer\Configuration;
 
-use Webkul\UVDesk\CoreBundle\Utils\SwiftMailer\BaseConfiguration;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\SwiftMailer\BaseConfiguration;
 
 class Yahoo extends BaseConfiguration
 {

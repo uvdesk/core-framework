@@ -1,9 +1,9 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Fixtures;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Fixtures;
 
 use Doctrine\Common\Persistence\ObjectManager;
-use Webkul\UVDesk\CoreBundle\Entity as CoreEntities;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Doctrine\Bundle\FixturesBundle\Fixture as DoctrineFixture;
 
 class WelcomeTicket extends DoctrineFixture
@@ -48,9 +48,9 @@ class WelcomeTicket extends DoctrineFixture
     
     public function load(ObjectManager $entityManager)
     {
-        $availableTicketPriority = $entityManager->getRepository('UVDeskCoreBundle:TicketPriority')->findOneBy(['code' => 'low']);
-        $availableTicketStatus = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findOneBy(['code' => 'open']);
-        $supportRole = $entityManager->getRepository('UVDeskCoreBundle:SupportRole')->findOneBy(['code' => 'ROLE_CUSTOMER']);
+        $availableTicketPriority = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketPriority')->findOneBy(['code' => 'low']);
+        $availableTicketStatus = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->findOneBy(['code' => 'open']);
+        $supportRole = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportRole')->findOneBy(['code' => 'ROLE_CUSTOMER']);
         
         // Setting user details:
         $user = new CoreEntities\User();

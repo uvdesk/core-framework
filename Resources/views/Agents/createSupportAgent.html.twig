@@ -1,4 +1,4 @@
-{% extends "@UVDeskCore//Templates//layout.html.twig" %}
+{% extends "@UVDeskCoreFramework//Templates//layout.html.twig" %}
 
 {% block title %}Create Agent{% endblock %}
 
@@ -20,7 +20,7 @@
             width: 8px;
             height: 20px;
             display: inline-block;
-            background-image: url(../../../bundles/uvdeskcore/images/uvdesk-sprite.svg);
+            background-image: url(../../../bundles/uvdeskcoreframework/images/uvdesk-sprite.svg);
             background-position: 44px -158px;
             margin: 5px 0 0 10px;
             float: right;
@@ -38,8 +38,11 @@
 
 {% block pageContent %}
 	<div class="uv-inner-section">
-        {# Agent Panel Sidebar #}
-        {{ include('@UVDeskCore/Templates/panel-sidebar.html.twig') }}
+        {# Append Panel Aside #}
+		{% set asideTemplate = 'Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\AsideTemplate' %}
+		{% set asideSidebarReference = 'Webkul\\UVDesk\\CoreFrameworkBundle\\UIComponents\\Dashboard\\Panel\\Sidebars\\Users' %}
+
+		{{ uvdesk_extensibles.getRegisteredComponent(asideTemplate).renderSidebar(asideSidebarReference) | raw }}
         
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
             <h1>Create Agent</h1>

@@ -1,10 +1,10 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Ticket;
+namespace Webkul\UVDesk\CoreFrameworkBundle\PreparedResponse\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
 
 class UpdateType extends PreparedResponseAction
@@ -33,14 +33,14 @@ class UpdateType extends PreparedResponseAction
                 'id' => $ticketType->getId(),
                 'name' => $ticketType->getDescription(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreBundle:TicketType')->findAll());
+        }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findAll());
     }
 
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         if($entity instanceof Ticket && $value) {
-            $type = $entityManager->getRepository('UVDeskCoreBundle:TicketType')->find($value);
+            $type = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->find($value);
             if($type) {
                 $entity->setType($type);
                 $entityManager->persist($entity);

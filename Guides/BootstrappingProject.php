@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Guides;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Guides;
 
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Console\Command\Command;

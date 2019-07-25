@@ -1,9 +1,9 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\SwiftMailer\Event;
+namespace Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\Event;
 
 use Symfony\Component\EventDispatcher\Event;
-use Webkul\UVDesk\CoreBundle\Utils\SwiftMailer\BaseConfiguration;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\SwiftMailer\BaseConfiguration;
 
 /**
  * The swiftmailer.configuration.updated event is dispatched each time a mailer configuration

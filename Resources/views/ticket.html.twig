@@ -1,4 +1,4 @@
-{% extends "@UVDeskCore//Templates//layout.html.twig" %}
+{% extends "@UVDeskCoreFramework//Templates//layout.html.twig" %}
 
 {% block title %}{{ '#' ~ ticket.id ~ ' ' ~ ticket.subject }}{% endblock %}
 
@@ -127,7 +127,7 @@
             display: inline-block;
             vertical-align: middle;
             margin: 5px 0px 5px 10px;
-            background-image: url("{{ asset('bundles/uvdeskcore/images/app-glyph-custom.svg') }}");
+            background-image: url("{{ asset('bundles/uvdeskcoreframework/images/app-glyph-custom.svg') }}");
         }
         .uv-no-threads {
             padding: 80px 20px;
@@ -174,7 +174,7 @@
             height: 18px;
             display: inline-block;
             vertical-align: middle;
-            background-image: url("{{ asset('bundles/uvdeskcore/images/uvdesk-sprite.svg') }}");
+            background-image: url("{{ asset('bundles/uvdeskcoreframework/images/uvdesk-sprite.svg') }}");
             background-position: 0px -396px;
             transition: transform .15s;
             transform: scale(1);
@@ -269,6 +269,19 @@
             .uv-paper,.uv-view ,.uv-ticket-scroll-region, .uv-wrapper  {
                 position: initial !important;
             }
+        }
+
+        .uv-ticket-action-bar-rt .app-glyph {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 10px;
+            cursor: pointer;
+            height: 20px;
+            width: 20px;
+        }
+
+        .uv-ticket-action-bar-rt .app-glyph:last-child {
+            margin-right: 0px;
         }
     </style>
 {% endblock %}
@@ -465,7 +478,7 @@
                         <label class="uv-aside-select-label">Type</label>
                         <div>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_TYPE') %}
-                                <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.type ? ticket.type.id : '-- --' }}">{{ ticket.type ? ticket.type.code : 'Not Assigned' }}</span>
+                                <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.type ? ticket.type.id : '-- --' }}">{{ ticket.type ? ticket.type.description : 'Not Assigned' }}</span>
                                 <div class="uv-dropdown-list uv-bottom-left">
                                     <div class="uv-dropdown-container">
                                         <label>Type</label>
@@ -476,13 +489,13 @@
 
                                     <ul class="uv-search-list type" data-action="type">
                                         {% for type in ticketTypeCollection %}
-                                            <li data-index="{{ type.id }}"><a href="#">{{ type.code }}</a></li>
+                                            <li data-index="{{ type.id }}"><a href="#">{{ type.description }}</a></li>
                                         {% endfor %}
                                     </ul>
                                 </div>
                             {% else %}
                                 <span class="uv-aside-select-value">
-                                    {{ ticket.type ? ticket.type.code : 'Not Assigned' }}
+                                    {{ ticket.type ? ticket.type.description : 'Not Assigned' }}
                                 </span>
                             {% endif %}
                         </div>
@@ -665,6 +678,10 @@
                             </ul>
                         </div>
                     </div>
+
+                    <div class="uv-ticket-action-bar-rt">
+                        {{ uvdesk_extensibles.getRegisteredComponent("Webkul\\UVDesk\\CoreFrameworkBundle\\Tickets\\WidgetCollection").embedSideFilterIcons()|raw }}
+                    </div>
                 </div>
 
                 {# Ticket Active Users #}
@@ -690,7 +707,7 @@
                 <div class="uv-ticket-strip">
                     <span>
                         <span class="uv-ticket-strip-label">Created - </span>
-                        <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(initialThread.createdAt) }}</span>                       
+                        <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(initialThread.createdAt) }}</span>
                     </span>
 
                     <span>
@@ -712,7 +729,7 @@
                         <div class="uv-ticket-main create">
                             <div class="uv-ticket-strip">
                                 <span>
-                                   <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(ticket.createdAt) }}</span>
+                                    <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(ticket.createdAt) }}</span>
                                     - {{ initialThread.user.name }} <span class="uv-ticket-strip-label">created Ticket</span>
                                 </span>
                             </div>
@@ -1060,55 +1077,55 @@
             <!-- Bottom Action Block -->
             <div class="uv-ticket-fixed-region">
                 <div class="uv-ticket-fixed-region-lt">
-                        <!-- Saved Replied-->
-                        <div class="uv-dropdown saved-reply">
-                            <div class="uv-dropdown-btn">{{ 'Saved Replies'|trans }}</div>
-                            <div class="uv-dropdown-list uv-top-left">
-                                <div class="uv-dropdown-container">
-                                    <label>{{ 'Saved Replies'|trans }}</label>
-                                    <ul>
-                                        <li data-id="">
-                                            <a href="{{ path('helpdesk_member_saved_replies') }}" target="_blank" style="color: #2750C4">{{ 'Create New'|trans }}</a>
-                                        </li>
-                                        {% for savedReply in ticket_service.getSavedReplies() %}
-                                            <li data-id="{{ savedReply.id }}">
-                                                {{ savedReply.name }}
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- //Saved Replied-->
+                    {{ uvdesk_extensibles.getRegisteredComponent("Webkul\\UVDesk\\CoreFrameworkBundle\\Tickets\\QuickActionButtonCollection").injectTemplates()|raw }}
 
-                        <!--Code-->
-                        <div class="uv-dropdown">
-                            <div class="uv-dropdown-btn">{{ 'Prepared Responses'|trans }}</div>
-                            <div class="uv-dropdown-list uv-top-left">
-                            <div class="uv-dropdown-container prepared-responses">
-                                <label>{{ 'Prepared Responses'|trans }}</label>
+                    {# <!-- Saved Replied-->
+                    <div class="uv-dropdown saved-reply">
+                        <div class="uv-dropdown-btn">{{ 'Saved Replies'|trans }}</div>
+                        <div class="uv-dropdown-list uv-top-left">
+                            <div class="uv-dropdown-container">
+                                <label>{{ 'Saved Replies'|trans }}</label>
                                 <ul>
-                                    <li>
-                                        <a class="create-new" href="{{path('prepare_response_action')}}" target="_blank" style="color: #2750C4">{{ 'Create New'|trans }}</a>
+                                    <li data-id="">
+                                        <a href="{{ path('helpdesk_member_saved_replies') }}" target="_blank" style="color: #2750C4">{{ 'Create New'|trans }}</a>
                                     </li>
-                                    {% set preparedResponses = ticket_service.getManualWorkflow() %}
-                                    {% for workflow in preparedResponses %}
-                                        <li>
-                                            <a href="{{ path('helpdesk_member_ticket_prepared_response_xhr') }}/{{ ticket.id }}/{{ workflow.id }}">
-                                                {{ workflow.name }}
-                                            </a>
+                                    {% for savedReply in ticket_service.getSavedReplies() %}
+                                        <li data-id="{{ savedReply.id }}">
+                                            {{ savedReply.name }}
                                         </li>
                                     {% endfor %}
                                 </ul>
                             </div>
-                            </div>
                         </div>
-                        <!--//Code-->
+                    </div>
+                    <!-- //Saved Replied--> #}
+
+                    {# <!--Code-->
+                    <div class="uv-dropdown">
+                        <div class="uv-dropdown-btn">{{ 'Prepared Responses'|trans }}</div>
+                        <div class="uv-dropdown-list uv-top-left">
+                        <div class="uv-dropdown-container prepared-responses">
+                            <label>{{ 'Prepared Responses'|trans }}</label>
+                            <ul>
+                                <li>
+                                    <a class="create-new" href="{{path('prepare_response_action')}}" target="_blank" style="color: #2750C4">{{ 'Create New'|trans }}</a>
+                                </li>
+                                {% set preparedResponses = ticket_service.getManualWorkflow() %}
+                                {% for workflow in preparedResponses %}
+                                    <li>
+                                        <a href="{{ path('helpdesk_member_ticket_prepared_response_xhr') }}/{{ ticket.id }}/{{ workflow.id }}">
+                                            {{ workflow.name }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        </div>
+                    </div>
+                    <!--//Code--> #}
                 </div>
 
-                <div class="uv-ticket-fixed-region-rt">
-
-                </div>
+                <div class="uv-ticket-fixed-region-rt"></div>
             </div>
             <!-- //Bottom Action Block -->
         </div>
@@ -1145,13 +1162,15 @@
             </div>
         </div>
     {% endif %}
+
+    {{ uvdesk_extensibles.getRegisteredComponent("Webkul\\UVDesk\\CoreFrameworkBundle\\Tickets\\WidgetCollection").embedSideFilterContent()|raw }}
 {% endblock %}
 
 {% block footer %}
     {{ parent() }}
 
-    {{ include('@UVDeskCore\\Templates\\attachment.html.twig') }}
-    {{ include("@UVDeskCore/Templates/tinyMCE.html.twig") }}
+    {{ include('@UVDeskCoreFramework\\Templates\\attachment.html.twig') }}
+    {{ include("@UVDeskCoreFramework/Templates/tinyMCE.html.twig") }}
 
     <script id="thread_list_empty_tmp" type="text/template">
         <div class="uv-no-threads">Nothing interesting here...</div>
@@ -1245,7 +1264,7 @@
                             <label>{{ 'Language'|trans }}</label>
                             {% for localeCode, localeName in uvdesk_service.getLocales() %}
                                 <li data-value="{{ localeCode }}">
-                                    <img class="locale-image" src='{{ asset("bundles/uvdeskcore/images/country-flags/" ~ localeCode|lower|replace({" ": "-"}) ~ ".png") }}' alt="{{ localeCode }}" width="24px">
+                                    <img class="locale-image" src='{{ asset("bundles/uvdeskcoreframework/images/country-flags/" ~ localeCode|lower|replace({" ": "-"}) ~ ".png") }}' alt="{{ localeCode }}" width="24px">
                                     <span>{{ localeName|trans }}</span>
                                 </li>
                             {% endfor %}
@@ -1353,7 +1372,12 @@
     </script>
 
     <script type="text/javascript">
+        uvdesk = {
+            ticket: {}
+        };
+
         var ticketApp = {};
+
         viewerImages = function() {
             if (typeof($().viewer == 'function')) {
                 $('.uv-ticket-uploads .uv-ticket-uploads-strip').viewer({
@@ -1650,7 +1674,6 @@
                     'click .uv-element-block.cc-bcc .uv-dropdown-list li': 'addCcBcc',
                     'click .cc-bcc-list .uv-btn-tag, .to-list .uv-btn-tag': 'removeEmail',
                     'click .next-view .uv-dropdown-list li': 'setNextView',
-                    'click .uv-dropdown.saved-reply .uv-dropdown-list li': 'getSavedReplyContent',
                     'click .uv-dropdown.reply .uv-dropdown-list li, .uv-btn.forward': 'validateForm',
                     'click #edit-ticket-modal .uv-btn.update': 'updateTicket',
                     'click .message .uv-icon-ellipsis': 'showReplyQuote',
@@ -1900,31 +1923,6 @@
                     $(".next-view input").val(nextView)
                     $(".next-view .uv-dropdown-btn").text(currentElement.text())
                 },
-                getSavedReplyContent : function(e) {
-                    var id = Backbone.$(e.currentTarget).attr('data-id');
-                    if(id) {
-                        app.appView.showLoader();
-                        $.ajax({
-                            url : "{{ path('helpdesk_member_ticket_saved_reply_xhr') }}",
-                            type : 'GET',
-                            data : {id: id, ticketId: this.model.id},
-                            dataType : 'json',
-                            success : function(response) {
-                                app.appView.hideLoader();
-                                activeTab = $('.uv-ticket-reply .uv-tab-view.uv-tab-view-active').attr('id');
-                                tinyMCE.get(activeTab + "-area").execCommand('mceInsertContent', false, response.message);
-
-                                $('.uv-ticket-scroll-region').animate({
-                                    scrollTop: $('#default').outerHeight()
-                                }, 'slow');
-                            },
-                            error: function (xhr) {
-                                if(url = xhr.getResponseHeader('Location'))
-                                    window.location = url;
-                            }
-                        });
-                    }
-                },
                 validateForm : function(e) {
                     e.preventDefault();
                     var element = Backbone.$(e.currentTarget);
@@ -2028,17 +2026,7 @@
                     } else {
                         parent.find('.uv-no-results').hide();
                     }
-                },1000),
-               confirmPreparedResponses: function(e) {
-                    e.preventDefault()
-
-                    currentElement = Backbone.$(e.currentTarget);
-                    this.targetPreparedResponseUrl = currentElement.attr('href');
-                    app.appView.openConfirmModal(this, 'applyPreparedResponses');
-                },
-                applyPreparedResponses: function() {
-                    window.location = this.targetPreparedResponseUrl;
-                }
+                },1000)
             });
 
             // Ticket Thread View
@@ -2795,7 +2783,8 @@
                 model: ticketModel
             });
 
-
+            uvdesk.ticket.model = ticketModel;
+            
             threadCollection = new ThreadCollection();
             var threadList = new ThreadList();
             var pagination = new Pagination();

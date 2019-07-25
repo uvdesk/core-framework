@@ -27,7 +27,7 @@
  * @Author  Jim Jagielski <jim@jaguNET.com / jimjag@gmail.com>
  */
 
-namespace Webkul\UVDesk\CoreBundle\Utils;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Utils;
 
 use Symfony\Component\DomCrawler\Crawler;
 

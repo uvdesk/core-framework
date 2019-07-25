@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Repository;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\Common\Collections;

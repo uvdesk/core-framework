@@ -1,13 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Controller;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
-use Webkul\UVDesk\CoreBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Webkul\UVDesk\CoreBundle\Workflow\Events as CoreWorkflowEvents;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 
 class Customer extends Controller
 {
@@ -17,7 +17,7 @@ class Customer extends Controller
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
-        return $this->render('@UVDeskCore/Customers/listSupportCustomers.html.twig');
+        return $this->render('@UVDeskCoreFramework/Customers/listSupportCustomers.html.twig');
     }
 
     public function createCustomer(Request $request)
@@ -40,13 +40,13 @@ class Customer extends Controller
                 }
             }
 
-            $user = $entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(array('email' => $formDetails['email']));
+            $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(array('email' => $formDetails['email']));
             $customerInstance = !empty($user) ? $user->getCustomerInstance() : null;
 
             if (empty($customerInstance)){
                 if (!empty($formDetails)) {
                     $fullname = trim(implode(' ', [$formDetails['firstName'], $formDetails['lastName']]));
-                    $supportRole = $entityManager->getRepository('UVDeskCoreBundle:SupportRole')->findOneByCode('ROLE_CUSTOMER');
+                    $supportRole = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportRole')->findOneByCode('ROLE_CUSTOMER');
     
                     $user = $this->container->get('user.service')->createUserInstance($formDetails['email'], $fullname, $supportRole, [
                         'contact' => $formDetails['contactNumber'],
@@ -64,7 +64,7 @@ class Customer extends Controller
             }
         }
         
-        return $this->render('@UVDeskCore/Customers/createSupportCustomer.html.twig', [
+        return $this->render('@UVDeskCoreFramework/Customers/createSupportCustomer.html.twig', [
             'user' => new User(),
             'errors' => json_encode([])
         ]);
@@ -77,7 +77,7 @@ class Customer extends Controller
         }
 
         $em = $this->getDoctrine()->getManager();
-        $repository = $em->getRepository('UVDeskCoreBundle:User');
+        $repository = $em->getRepository('UVDeskCoreFrameworkBundle:User');
 
         if($userId = $request->attributes->get('customerId')) {
             $user = $repository->findOneBy(['id' =>  $userId]);
@@ -92,13 +92,13 @@ class Customer extends Controller
             if(isset($contentFile['profileImage'])){
                 if(!in_array($contentFile['profileImage']->getMimeType(), $validMimeType)){
                     $this->addFlash('warning', 'Error ! Profile image is not valid, please upload a valid format');
-                    return $this->render('@UVDeskCore/Customers/updateSupportCustomer.html.twig', ['user' => $user,'errors' => json_encode([])]);
+                    return $this->render('@UVDeskCoreFramework/Customers/updateSupportCustomer.html.twig', ['user' => $user,'errors' => json_encode([])]);
                 }
             }
             if($userId) {
                 $data = $request->request->all();
                 $data = $data['customer_form'];
-                $checkUser = $em->getRepository('UVDeskCoreBundle:User')->findOneBy(array('email' => $data['email']));
+                $checkUser = $em->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(array('email' => $data['email']));
                 $errorFlag = 0;
 
                 if($checkUser) {
@@ -116,7 +116,7 @@ class Customer extends Controller
                     $em->persist($user);
 
                     // User Instance
-                    $userInstance = $em->getRepository('UVDeskCoreBundle:UserInstance')->findOneBy(array('user' => $user->getId()));
+                    $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(array('user' => $user->getId()));
                     $userInstance->setUser($user);
                     $userInstance->setIsActive(isset($data['isActive']) ? 1 : 0);
                     $userInstance->setIsVerified(0);
@@ -160,7 +160,7 @@ class Customer extends Controller
             if (!$user)
                 $this->noResultFound();
 
-            $checkUser = $em->getRepository('UVDeskCoreBundle:User')->findOneBy(array('email' => $content['email']));
+            $checkUser = $em->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(array('email' => $content['email']));
             $errorFlag = 0;
 
             if ($checkUser) {
@@ -177,7 +177,7 @@ class Customer extends Controller
                     $em->persist($user);
 
                     //user Instance
-                    $userInstance = $em->getRepository('UVDeskCoreBundle:UserInstance')->findOneBy(array('user' => $user->getId()));
+                    $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(array('user' => $user->getId()));
                     if(isset($content['contactNumber'])){
                         $userInstance->setContactNumber($content['contactNumber']);
                     }
@@ -194,7 +194,7 @@ class Customer extends Controller
             return new Response(json_encode($json), 200, []);
         }
 
-        return $this->render('@UVDeskCore/Customers/updateSupportCustomer.html.twig', [
+        return $this->render('@UVDeskCoreFramework/Customers/updateSupportCustomer.html.twig', [
             'user' => $user,
             'errors' => json_encode([])
         ]);
@@ -218,12 +218,12 @@ class Customer extends Controller
         $em = $this->getDoctrine()->getManager();
         $data = json_decode($request->getContent(), true);
         $id = $request->attributes->get('id') ? : $data['id'];
-        $user = $em->getRepository('UVDeskCoreBundle:User')->findOneBy(['id' => $id]);
+        $user = $em->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(['id' => $id]);
         if(!$user)  {
             $json['error'] = 'resource not found';
             return new JsonResponse($json, Response::HTTP_NOT_FOUND);
         }
-        $userInstance = $em->getRepository('UVDeskCoreBundle:UserInstance')->findOneBy(array(
+        $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(array(
                 'user' => $id,
                 'supportRole' => 4
             )

@@ -10,7 +10,7 @@ security:
             id: user.provider
     
     encoders:
-        Webkul\UVDesk\CoreBundle\Entity\User: bcrypt
+        Webkul\UVDesk\CoreFrameworkBundle\Entity\User: bcrypt
     
     firewalls:
         back_support:

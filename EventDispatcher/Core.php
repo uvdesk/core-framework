@@ -1,12 +1,12 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\EventDispatcher;
+namespace Webkul\UVDesk\CoreFrameworkBundle\EventDispatcher;
 
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Webkul\UVDesk\CoreBundle\EventListener\EventListenerInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\EventListener\EventListenerInterface;
 
 class Core extends EventDispatcher implements EventDispatcherInterface
 {

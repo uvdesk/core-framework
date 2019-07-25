@@ -1,8 +1,8 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Ticket;
+namespace Webkul\UVDesk\CoreFrameworkBundle\PreparedResponse\Actions\Ticket;
 
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
@@ -33,14 +33,14 @@ class UpdateStatus extends PreparedResponseAction
                 'id' => $ticketStatus->getId(),
                 'name' => $ticketStatus->getDescription(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findAll());
+        }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->findAll());
     }
 
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         if ($entity instanceof Ticket && !empty($value)) {
-            $ticketStatus = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findOneById($value);
+            $ticketStatus = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->findOneById($value);
 
             $entity->setStatus($ticketStatus);
             $entityManager->persist($entity);

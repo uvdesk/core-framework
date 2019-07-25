@@ -1,4 +1,4 @@
-{% extends "@UVDeskCore//Templates//layout.html.twig" %}
+{% extends "@UVDeskCoreFramework//Templates//layout.html.twig" %}
 
 {% block title %}Login{% endblock %}
 
@@ -28,7 +28,7 @@
                     <div class="uv-adjacent-center">
                         <h1>Log in to your <span class="uv-brand">{{ website.name }}</span></h1>
                         <p>Enter your credentials below to gain access to your helpdesk account.</p>
-
+                        
                         <div class="uv-adjacent-form">
                             <div class="uv-adjacent-element-block">
                                 <label>Email</label>
@@ -40,7 +40,7 @@
                             <div class="uv-adjacent-element-block" style="position: relative;">
                                 <label>Password</label>
                                 <div class="uv-max-field">
-                                    <a class="forgot-password-cta" href="{{ path('helpdesk_member_forgot_account_password') }}" tabindex="-1">Forget Password?</a>
+                                    <a class="forgot-password-cta" href="{{ path('helpdesk_member_forgot_account_password') }}" tabindex="-1">Forgot Password?</a>
                                     <input type="password"  name="_password">
                                 </div>
                             </div>
@@ -65,7 +65,7 @@
 		<div class="uv-large-box-lt">
 			<div class="uv-center-box uv-text-center">
 				<a href="https://www.uvdesk.com">
-                    <img alt="UVdesk" title="UVdesk" src="{{ asset('bundles/uvdeskcore/images/uvdesk-logo-symbol.svg') }}">
+                    <img alt="UVdesk" title="UVdesk" src="{{ asset('bundles/uvdeskcoreframework/images/uvdesk-logo-symbol.svg') }}">
 				</a>
             </div>
 		</div>

@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\FileSystem;
+namespace Webkul\UVDesk\CoreFrameworkBundle\FileSystem;
 
 use PhpMimeMailParser\Attachment;
 use Symfony\Component\HttpFoundation\File\UploadedFile;

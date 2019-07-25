@@ -624,7 +624,18 @@ $(function() {
 	    var uvPaper =  document.querySelector(".uv-paper");
 	    var uvSidebar =  document.querySelector(".uv-sidebar");
         var uvWrapper =  document.querySelector(".uv-wrapper");
-        var uvNav =  document.querySelector(".uv-navbar");
+        var uvSlideIn = () => {
+            if (window.innerWidth <= 768) {
+                uvSidebar.classList.add("slide-in");
+            } else {
+                uvSidebar.classList.remove("slide-in");
+            }
+	    }
+
+	    window.onresize = () => {
+            uvSlideIn();
+	    }
+	    uvSlideIn();
         
         var getCookie = name => {
             var value = "; " + document.cookie;
@@ -635,23 +646,17 @@ $(function() {
 
         let sidebarCookieValue = getCookie('uv-sidebar');
         if (sidebarCookieValue) {
-            uvSidebar.classList.add('reloading');
             uvSidebar.classList.remove('uv-sidebar-active');
             uvPaper.classList.add('uv-wrapper-padding');
             uvWrapper.classList.add('uv-wrapper-gap');
-            uvNav.classList.add('uv-navbar-gap');
         } else {
-            uvSidebar.classList.remove('reloading');
             uvSidebar.classList.add('uv-sidebar-active');
             uvWrapper.classList.remove('uv-wrapper-gap');
-            uvNav.classList.remove('uv-navbar-gap');
             uvPaper.classList.remove('uv-wrapper-padding');
         }
 
 	    uvHamburger.addEventListener("click", () => {
-            uvSidebar.classList.remove('reloading');
-            uvWrapper.classList.toggle('uv-wrapper-gap');
-            uvNav.classList.toggle("uv-navbar-gap");
+            uvWrapper.classList.toggle("uv-wrapper-gap");
             uvPaper.classList.toggle('uv-wrapper-padding');
             uvSidebar.classList.toggle("uv-sidebar-active");
             if (uvWrapper.classList.contains("uv-wrapper-gap"))

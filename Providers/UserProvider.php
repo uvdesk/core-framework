@@ -1,12 +1,12 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Providers;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Providers;
 
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-use Webkul\UVDesk\CoreBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bundle\SecurityBundle\Security\FirewallMap;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -20,7 +20,7 @@ class UserProvider implements UserProviderInterface
     private $requestStack;
     private $entityManager;
 
-    public function __construct(FirewallMap $firewall, ContainerInterface $container, RequestStack $requestStack, EntityManager $entityManager)
+    public function __construct(FirewallMap $firewall, ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager)
     {
         $this->firewall = $firewall;
         $this->container = $container;
@@ -32,8 +32,8 @@ class UserProvider implements UserProviderInterface
     {
         $queryBuilder = $this->entityManager->createQueryBuilder()
             ->select('user, userInstance')
-            ->from('UVDeskCoreBundle:User', 'user')
-            ->leftJoin('UVDeskCoreBundle:UserInstance', 'userInstance', 'WITH', 'user.id = userInstance.user')
+            ->from('UVDeskCoreFrameworkBundle:User', 'user')
+            ->leftJoin('UVDeskCoreFrameworkBundle:UserInstance', 'userInstance', 'WITH', 'user.id = userInstance.user')
             ->leftJoin('userInstance.supportRole', 'supportRole')
             ->where('user.email = :email')->setParameter('email', trim($username))
             ->setMaxResults(1);

@@ -1,13 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Entity;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * EmailTemplatesCompany
  * 
- * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreBundle\Repository\SavedRepliesRepository")
+ * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreFrameworkBundle\Repository\SavedRepliesRepository")
  * @ORM\Table(name="uv_saved_replies")
  * @ORM\HasLifecycleCallbacks
  */
@@ -157,7 +157,7 @@ class SavedReplies
      *
      * @return Savedreplies
      */
-    public function setUser(\Webkul\UVDesk\CoreBundle\Entity\UserInstance $user = null)
+    public function setUser(\Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance $user = null)
     {
         $this->user = $user;
 
@@ -286,7 +286,7 @@ class SavedReplies
      *
      * @return Savedreplies
      */
-    public function addSupportGroup(\Webkul\UVDesk\CoreBundle\Entity\SupportGroup $groups)
+    public function addSupportGroup(\Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup $groups)
     {
         $this->groups[] = $groups;
 
@@ -298,7 +298,7 @@ class SavedReplies
      *
      * @param \Webkul\UserBundle\Entity\UserGroup $groups
      */
-    public function removeSupportGroups(\Webkul\UVDesk\CoreBundle\Entity\SupportGroup $groups)
+    public function removeSupportGroups(\Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup $groups)
     {
         $this->groups->removeElement($groups);
     }
@@ -326,10 +326,10 @@ class SavedReplies
     /**
      * Add teams
      *
-     * @param \Webkul\UVDesk\CoreBundle\Entity\SupportTeam $teams
+     * @param \Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam $teams
      * @return EmailTemplatesCompany
      */
-    public function addSupportTeam(\Webkul\UVDesk\CoreBundle\Entity\SupportTeam $teams)
+    public function addSupportTeam(\Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam $teams)
     {
         $this->teams[] = $teams;
 
@@ -339,9 +339,9 @@ class SavedReplies
     /**
      * Remove teams
      *
-     * @param \Webkul\UVDesk\CoreBundle\Entity\SupportTeam $teams
+     * @param \Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam $teams
      */
-    public function removeSupportTeam(\Webkul\UVDesk\CoreBundle\Entity\SupportTeam $teams)
+    public function removeSupportTeam(\Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam $teams)
     {
         $this->teams->removeElement($teams);
     }

@@ -5,8 +5,8 @@
         <link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="{{ asset('favicon.ico') }}" />
 
         <!-- Stylesheets -->
-        <link href="{{ asset('bundles/uvdeskcore/css/_uikit.css') }}" type="text/css" rel="stylesheet" media="all" />
-        <link href="{{ asset('bundles/uvdeskcore/css/_custom.css') }}" type="text/css" rel="stylesheet" media="all" />
+        <link href="{{ asset('bundles/uvdeskcoreframework/css/_uikit.css') }}" type="text/css" rel="stylesheet" media="all" />
+        <link href="{{ asset('bundles/uvdeskcoreframework/css/_custom.css') }}" type="text/css" rel="stylesheet" media="all" />
         <link href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" type="text/css" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" type="text/css" rel="stylesheet">
 
@@ -14,7 +14,12 @@
         {% set websiteConfiguration = user_service.getWebsiteConfiguration('knowledgebase') %}
         {% set website = user_service.getWebsiteDetails('helpdesk') %}
 
-        {{ include('@UVDeskCore/Templates/lightskin.html.twig') }}
+        {{ include('@UVDeskCoreFramework/Templates/lightskin.html.twig') }}
+
+        <!-- Custom Stylesheets -->
+        {% for stylesheet in uvdesk_extensibles.getRegisteredComponent('Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\Dashboard').getDashboardTemplate().getStylesheetResources() %}
+            <link href="{{ asset(stylesheet) }}" type="text/css" rel="stylesheet" media="all" />
+        {% endfor %}
         
         {% block templateCSS %}{% endblock %}
 
@@ -24,15 +29,15 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.3.3/backbone-min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.validation/0.11.5/backbone-validation-min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.paginator/2.0.8/backbone.paginator.min.js"></script>
-        <script src="{{ asset('bundles/uvdeskcore/js/_common.js') }}"></script>
-        <script src="{{ asset('bundles/uvdeskcore/js/_dropdown.js') }}"></script>
+        <script src="{{ asset('bundles/uvdeskcoreframework/js/_common.js') }}"></script>
+        <script src="{{ asset('bundles/uvdeskcoreframework/js/_dropdown.js') }}"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min.js"></script>
-        <script src="{{ asset('bundles/uvdeskcore/js/viewer.js') }}"></script>
+        <script src="{{ asset('bundles/uvdeskcoreframework/js/viewer.js') }}"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>	
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-       
     </head>
+
     <body>
         <div class="uv-notifications-wrapper">
             <noscript>
@@ -41,6 +46,7 @@
                 </div>
                 <style>.uv-loader-view {display: none;}</style>
             </noscript>
+
             {% if uvdesk_service.requestHeadersSent() == false %}
                 {% for flashMessage in app.session.flashbag.get('success') %}
                     <div class="uv-notification page-load uv-success">
@@ -48,6 +54,7 @@
                         <p>{{ flashMessage|raw }}</p>
                     </div>
                 {% endfor %}
+                
                 {% for flashMessage in app.session.flashbag.get('warning') %}
                     <div class="uv-notification page-load uv-error">
                         <span class="uv-notification-close"></span>
@@ -77,14 +84,14 @@
 
         {% block sidebar %}
             {% if currentUser is defined and currentUser is not empty %}
-                {% include "@UVDeskCore/Templates/sidebar.html.twig" %}
+                {% include "@UVDeskCoreFramework/Templates/sidebar.html.twig" %}
             {% endif %}
         {% endblock %}
 
         {% block pageWrapper %}
             <div class="uv-paper">
                 {% block pageHeader %}
-                    {% include "@UVDeskCore/Templates/header.html.twig" %}
+                    {% include "@UVDeskCoreFramework/Templates/header.html.twig" %}
                 {% endblock %}
 
                 <div class="uv-wrapper">
@@ -96,7 +103,7 @@
         {% endblock %}
         
         {% block footer %}
-            {% include "@UVDeskCore/Templates/pagination.html.twig" %}
+            {% include "@UVDeskCoreFramework/Templates/pagination.html.twig" %}
 
             {# Confirm Action Dialog #}
             <div class="uv-pop-up-overlay" id="confirm-modal">
@@ -146,6 +153,12 @@
                     'alertMessage' : '{{ "Error : Something went wrong, please try again later"|trans }}',
                 };
             </script>
+
         {% endblock %}
+
+        {# Custom Javascript #}
+        {% for javascript in uvdesk_extensibles.getRegisteredComponent('Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\Dashboard').getDashboardTemplate().getJavascriptResources() %}
+            <script src="{{ asset(javascript) }}" type="text/javascript"></script>
+        {% endfor %}
     </body>
 </html>

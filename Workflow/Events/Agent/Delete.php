@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Workflow\Events\Agent;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events\Agent;
 
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;

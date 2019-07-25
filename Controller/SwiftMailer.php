@@ -1,18 +1,18 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Controller;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Webkul\UVDesk\CoreBundle\SwiftMailer\Event\ConfigurationUpdatedEvent;
+use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\Event\ConfigurationUpdatedEvent;
 
 class SwiftMailer extends Controller
 {
     public function loadMailers()
     {
-        return $this->render('@UVDeskCore//SwiftMailer//listConfigurations.html.twig');
+        return $this->render('@UVDeskCoreFramework//SwiftMailer//listConfigurations.html.twig');
     }
     
     public function createMailerConfiguration(Request $request)
@@ -40,7 +40,7 @@ class SwiftMailer extends Controller
             }
         }
 
-        return $this->render('@UVDeskCore//SwiftMailer//manageConfigurations.html.twig');
+        return $this->render('@UVDeskCoreFramework//SwiftMailer//manageConfigurations.html.twig');
     }
 
     public function updateMailerConfiguration($id, Request $request)
@@ -77,7 +77,7 @@ class SwiftMailer extends Controller
             return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_settings'));
         }
 
-        return $this->render('@UVDeskCore//SwiftMailer//manageConfigurations.html.twig', [
+        return $this->render('@UVDeskCoreFramework//SwiftMailer//manageConfigurations.html.twig', [
             'configuration' => $swiftmailerConfiguration->castArray(),
         ]);
     }

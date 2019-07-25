@@ -1,22 +1,22 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Controller;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\Form\FormError;
-use Webkul\UVDesk\CoreBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
-use Webkul\UVDesk\CoreBundle\Utils\TokenGenerator;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Webkul\UVDesk\CoreBundle\Workflow\Events as CoreWorkflowEvents;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 
 class Authentication extends Controller
 {
     public function login(Request $request)
     {
         if (null == $this->get('user.service')->getSessionUser()) {
-            return $this->render('@UVDeskCore//login.html.twig', [
+            return $this->render('@UVDeskCoreFramework//login.html.twig', [
                 'last_username' => $this->get('security.authentication_utils')->getLastUsername(),
                 'error' => $this->get('security.authentication_utils')->getLastAuthenticationError(),
             ]);
@@ -45,8 +45,8 @@ class Authentication extends Controller
                 $form->handleRequest($request);
                 
                 if ($form->isValid()) {
-                    $repository = $this->getDoctrine()->getRepository('UVDeskCoreBundle:User');
-                    $user = $entityManager->getRepository('UVDeskCoreBundle:User')->findOneBy(array('email' => $form->getData()->getEmail()));
+                    $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:User');
+                    $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(array('email' => $form->getData()->getEmail()));
                   
                     if($user) {
                         // Trigger agent forgot password event
@@ -64,7 +64,7 @@ class Authentication extends Controller
                 }
             }
 
-            return $this->render("@UVDeskCore//forgotPassword.html.twig");
+            return $this->render("@UVDeskCoreFramework//forgotPassword.html.twig");
         }
         
         return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));       
@@ -80,7 +80,7 @@ class Authentication extends Controller
         $request = $this->container->get('request_stack')->getCurrentRequest();
 
         // Validate request
-        $user = $entityManager->getRepository('UVDeskCoreBundle:User')->findOneByEmail($email);
+        $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($email);
 
         if (empty($user) || null == $user->getAgentInstance() || $user->getVerificationCode() != $verificationCode) {
             return $this->redirect($this->generateUrl('helpdesk_member_handle_login'));
@@ -103,7 +103,7 @@ class Authentication extends Controller
             }
         }
        
-        return $this->render("@UVDeskCore//resetPassword.html.twig");
+        return $this->render("@UVDeskCoreFramework//resetPassword.html.twig");
     }
 
     protected function encodePassword(User $user, $plainPassword)

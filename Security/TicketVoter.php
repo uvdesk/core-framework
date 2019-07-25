@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Security;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Security;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -27,7 +27,7 @@ class TicketVoter extends Voter
             return false;
         }
 
-        return $subject instanceof \Webkul\UVDesk\CoreBundle\Entity\Ticket;
+        return $subject instanceof \Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
     }
 
     protected function voteOnAttribute($attribute, $ticket, TokenInterface $token)

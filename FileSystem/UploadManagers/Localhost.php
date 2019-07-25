@@ -1,13 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\FileSystem\UploadManagers;
+namespace Webkul\UVDesk\CoreFrameworkBundle\FileSystem\UploadManagers;
 
 use PhpMimeMailParser\Attachment;
-use Webkul\UVDesk\CoreBundle\Utils\TokenGenerator;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreBundle\FileSystem\FileUploadServiceInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\FileSystem\FileUploadServiceInterface;
 
 class Localhost implements FileUploadServiceInterface
 {
