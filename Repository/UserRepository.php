@@ -199,7 +199,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
     {
         $query = $this->getEntityManager()
             ->createQuery(
-                'SELECT u, dt FROM CoreFrameworkBundle:User u
+                'SELECT u, dt FROM UVDeskCoreFrameworkBundle:User u
                 JOIN u.userInstance dt
                 WHERE u.email = :email 
                 AND dt.supportRole != :roles' 

@@ -38,7 +38,7 @@ class AccountXHR extends Controller
                 To trigger UserListener to set roles, you need to only select 'u' instead of both 'u, dt' in query select clause.
                 Doing this here instead of directly making changes to userRepository->findUserByCompany().
              */
-            $user = $em->createQuery('SELECT u FROM CoreFrameworkBundle:User u JOIN u.userInstance userInstance WHERE u.id = :userId  AND userInstance.supportRole != :roles')
+            $user = $em->createQuery('SELECT u FROM UVDeskCoreFrameworkBundle:User u JOIN u.userInstance userInstance WHERE u.id = :userId  AND userInstance.supportRole != :roles')
                 ->setParameter('userId', $id)
                 ->setParameter('roles', 4)
                 ->getOneOrNullResult();

@@ -28,7 +28,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
             $subject = str_ireplace("FWD: ","",$subject);
         }
 
-        $ticket = $this->getEntityManager()->createQuery("SELECT t FROM CoreFrameworkBundle:Ticket t WHERE t.subject LIKE :referenceIds" )
+        $ticket = $this->getEntityManager()->createQuery("SELECT t FROM UVDeskCoreFrameworkBundle:Ticket t WHERE t.subject LIKE :referenceIds" )
             ->setParameter('referenceIds', '%' . $subject . '%')
             ->setMaxResults(1)
             ->getOneOrNullResult();
