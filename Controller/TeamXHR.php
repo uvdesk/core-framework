@@ -2,6 +2,7 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
+use Symfony\Component\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,7 +13,7 @@ class TeamXHR extends Controller
 {
     public function listTeamsXHR(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -25,9 +26,9 @@ class TeamXHR extends Controller
         return new Response(json_encode([]), 404, ['Content-Type' => 'application/json']);
     }
 
-    public function deleteTeamXHR($supportTeamId)
+    public function deleteTeamXHR($supportTeamId, TranslatorInterface $translator)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -43,11 +44,11 @@ class TeamXHR extends Controller
 
                 return new Response(json_encode([
                     'alertClass' => 'success',
-                    'alertMessage' => 'Support Team removed successfully.',
+                    'alertMessage' => $translator->trans('Support Team removed successfully.'),
                 ]), 200, ['Content-Type' => 'application/json']);
             }
         }
-        
+
         return new Response(json_encode([]), 404, ['Content-Type' => 'application/json']);
     }
 }

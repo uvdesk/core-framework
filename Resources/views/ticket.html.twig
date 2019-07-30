@@ -239,11 +239,11 @@
                 display: none;
             }
         }
-        
+
         .uv-inner-section .uv-view .uv-ticket-scroll-region {
             margin-bottom: 0px;
         }
-        
+
         .uv-inner-section .uv-view .uv-ticket-action-bar.uv-ticket-action-bar-fixed .uv-ticket-action-bar-rt {
             width: 21%;
             padding-right: 33px;
@@ -296,15 +296,15 @@
                         <h6>Ticket #{{ ticket.id }}</h6>
                     </div>
                     <div class="uv-aside-back">
-                        <span onclick="history.length > 1 ? history.go(-1) : window.location = '{{ path("helpdesk_member_ticket_collection") }}';">Back</span>
+                        <span onclick="history.length > 1 ? history.go(-1) : window.location = '{{ path("helpdesk_member_ticket_collection") }}';">{{ 'Back'|trans }}</span>
                     </div>
                 </div>
-        
+
                 {# Ticket Information #}
                 <div class="uv-aside-brick">
                     {# Customer Details #}
                     <div class="uv-aside-customer-block">
-                        <h3>Customer Information</h3>
+                        <h3>{{ 'Customer Information'|trans }}</h3>
                         <div class="uv-aside-avatar">
                             {% if customer.thumbnail %}
                                 <img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}{{ customer.thumbnail }}">
@@ -329,21 +329,21 @@
                     {# Ticket Details #}
                     <div class="uv-aside-ticket-block">
                         <div class="uv-aside-ticket-brick">
-                            <h3>Total Replies</h3>
+                            <h3>{{ 'Total Replies'|trans }}</h3>
                             <span class="uv-icon-replies"></span> <span>{{ totalReplies }}</span>
                         </div>
 
                         <div class="uv-aside-ticket-brick">
-                            <h3>TimeStamp</h3>
+                            <h3>{{ 'TimeStamp'|trans }}</h3>
                             <span class="uv-icon-timestamp"></span> <span>{{ ticket_service.timeZoneConverter(initialThread.createdAt) }}</span>
                         </div>
 
                         <div class="uv-aside-ticket-brick">
-                            <h3>Channel</h3>
+                            <h3>{{ 'Channel'|trans }}</h3>
                             {% if ticket.source == 'email' %}
-                                <span class="uv-icon-channel uv-channel-email"></span> <span>Email</span>
+                                <span class="uv-icon-channel uv-channel-email"></span> <span>{{ 'Email'|trans }}</span>
                             {% else %}
-                                <span class="uv-icon-channel uv-channel-web"></span> <span>Website</span>
+                                <span class="uv-icon-channel uv-channel-web"></span> <span>{{ 'Website'|trans }}</span>
                             {% endif %}
                         </div>
                     </div>
@@ -354,8 +354,8 @@
             {% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER') %}
                 <div class="uv-main-info-update-block uv-no-error-success-icon" style="display: none">
                     <div class="uv-aside-head">
-                        <div class="uv-aside-title"><h6>Edit Customer</h6></div>
-                        <div class="uv-aside-back"><span>Back</span></div>
+                        <div class="uv-aside-title"><h6>{{ 'Edit Customer'|trans }}</h6></div>
+                        <div class="uv-aside-back"><span>{{ 'Back'|trans }}</span></div>
                     </div>
 
                     <div class="uv-aside-brick">
@@ -363,29 +363,29 @@
                             <input class="uv-field" name="id" type="hidden" value="{{ customer.id }}">
 
                             <div class="uv-element-block">
-                                <label class="uv-field-label">Name</label>
+                                <label class="uv-field-label">{{ 'Name'|trans }}</label>
                                 <div class="uv-field-block">
                                     <input class="uv-field" name="name" type="text" value="{{ customer.name }}">
                                 </div>
                             </div>
 
                             <div class="uv-element-block">
-                                <label class="uv-field-label">Email</label>
+                                <label class="uv-field-label">{{ 'Email'|trans }}</label>
                                 <div class="uv-field-block">
                                     <input class="uv-field" name="email" type="text" value="{{ customer.email }}">
                                 </div>
                             </div>
 
                             <div class="uv-element-block">
-                                <label class="uv-field-label">Contact Number</label>
+                                <label class="uv-field-label">{{ 'Contact Number'|trans }}</label>
                                 <div class="uv-field-block">
                                     <input class="uv-field" name="contactNumber" type="text" value="{{ customer.contactNumber }}">
                                 </div>
                             </div>
 
                             <div class="uv-action-buttons">
-                                <a class="uv-btn update-btn" href="#">Update</a>
-                                <a class="uv-btn cancel-btn" href="#">Cancel</a>
+                                <a class="uv-btn update-btn" href="#">{{ 'Update'|trans }}</a>
+                                <a class="uv-btn cancel-btn" href="#">{{ 'Cancel'|trans }}</a>
                             </div>
 
                             <input type="hidden" name="_token" value="{{ csrf_token_generator.refreshToken('') }}"/>
@@ -399,16 +399,16 @@
                 <div class="uv-aside-ticket-actions">
                     {# Update Ticket Agent #}
                     <div class="uv-aside-select">
-                        <label class="uv-aside-select-label">Agent</label>
+                        <label class="uv-aside-select-label">{{ 'Agent'|trans }}</label>
                         <div>
-                            {% set agentName = ticketAgent ? ticketAgent.name : 'Not Assigned' %}
+                            {% set agentName = ticketAgent ? ticketAgent.name : 'Not Assigned'|trans %}
                             {% if ticket.isTrashed == false and user_service.isAccessAuthorized('ROLE_AGENT_ASSIGN_TICKET') %}
                                 <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticketAgent ? ticketAgent.id : '' }}">{{ agentName }}</span>
                                 <div class="uv-dropdown-list uv-bottom-left">
                                     <div class="uv-dropdown-container">
-                                        <label>Agent</label>
+                                        <label>{{ 'Agent'|trans }}</label>
                                         <div class="uv-search-sm">
-                                            <input type="text" class="uv-search-field" placeholder="Search">
+                                            <input type="text" class="uv-search-field" placeholder="{{ 'Search'|trans }}">
                                         </div>
                                     </div>
 
@@ -428,17 +428,17 @@
 
                     {# Update Ticket Priority #}
                     <div class="uv-aside-select">
-                        <label class="uv-aside-select-label">Priority</label>
+                        <label class="uv-aside-select-label">{{ 'Priority'|trans }}</label>
                         <div>
                             <span class="uv-list-ticket-priority" style="background: {{ ticket.priority.colorCode }}"></span>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_PRIORITY') %}
-                                <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.priority.id }}">{{ ticket.priority.description }}</span>
+                                <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.priority.id }}">{{ ticket.priority.description|trans }}</span>
                                 <div class="uv-dropdown-list uv-bottom-left">
                                     <div class="uv-dropdown-container">
-                                        <label>Priority</label>
+                                        <label>{{ 'Priority'|trans }}</label>
                                         <ul class="priority" data-action="priority">
                                             {% for priority in ticketPriorityCollection %}
-                                                <li data-index="{{ priority.id }}" data-color="{{ priority.colorCode }}"><a href="#">{{ priority.description }}</a></li>
+                                                <li data-index="{{ priority.id }}" data-color="{{ priority.colorCode }}"><a href="#">{{ priority.description|trans }}</a></li>
                                             {% endfor %}
                                         </ul>
                                     </div>
@@ -453,13 +453,13 @@
 
                     {# Update Ticket Status #}
                     <div class="uv-aside-select">
-                        <label class="uv-aside-select-label">Status</label>
+                        <label class="uv-aside-select-label">{{ 'Status'|trans }}</label>
                         <div>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}
-                                <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.status.id }}">{{ ticket.status.description }}</span>
+                                <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.status.id }}">{{ ticket.status.description|trans }}</span>
                                 <div class="uv-dropdown-list uv-bottom-left">
                                     <div class="uv-dropdown-container">
-                                        <label>Status</label>
+                                        <label>{{ 'Status'|trans }}</label>
                                         <ul class="status" data-action="status">
                                             {% for status in ticketStatusCollection %}
                                                 <li data-index="{{ status.id }}"><a href="#">{{ status.description }}</a></li>
@@ -475,15 +475,15 @@
 
                     {# Update Ticket Type #}
                     <div class="uv-aside-select">
-                        <label class="uv-aside-select-label">Type</label>
+                        <label class="uv-aside-select-label">{{ 'Type'|trans }}</label>
                         <div>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_TYPE') %}
-                                <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.type ? ticket.type.id : '-- --' }}">{{ ticket.type ? ticket.type.description : 'Not Assigned' }}</span>
+                                <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.type ? ticket.type.id : '-- --' }}">{{ ticket.type ? ticket.type.description : 'Not Assigned'|trans }}</span>
                                 <div class="uv-dropdown-list uv-bottom-left">
                                     <div class="uv-dropdown-container">
-                                        <label>Type</label>
+                                        <label>{{ 'Type'|trans }}</label>
                                         <div class="uv-search-sm">
-                                            <input type="text" class="uv-search-field" placeholder="Search">
+                                            <input type="text" class="uv-search-field" placeholder="{{ 'Search'|trans }}">
                                         </div>
                                     </div>
 
@@ -495,7 +495,7 @@
                                 </div>
                             {% else %}
                                 <span class="uv-aside-select-value">
-                                    {{ ticket.type ? ticket.type.description : 'Not Assigned' }}
+                                    {{ ticket.type ? ticket.type.description : 'Not Assigned'|trans }}
                                 </span>
                             {% endif %}
                         </div>
@@ -503,21 +503,21 @@
 
                     {# Update Ticket Support Group #}
                     <div class="uv-aside-select">
-                        <label class="uv-aside-select-label">Group</label>
+                        <label class="uv-aside-select-label">{{ 'Group'|trans }}</label>
                         <div>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_ASSIGN_TICKET_GROUP') %}
                                 <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.supportGroup ? ticket.supportGroup.id : '-- --' }}">
-                                    {{ ticket.supportGroup ? ticket.supportGroup.name : 'Not Assigned' }}
+                                    {{ ticket.supportGroup ? ticket.supportGroup.name : 'Not Assigned'|trans }}
                                 </span>
                                 <div class="uv-dropdown-list uv-bottom-left">
                                     <div class="uv-dropdown-container">
-                                        <label>Group</label>
+                                        <label>{{ 'Group'|trans }}</label>
                                         <div class="uv-search-sm">
-                                            <input type="text" class="uv-search-field" placeholder="Search">
+                                            <input type="text" class="uv-search-field" placeholder="{{ 'Search'|trans }}">
                                         </div>
                                     </div>
                                     <ul class="uv-search-list group" data-action="group">
-                                        <li data-index=""><a href="#">Not Assigned</a></li>
+                                        <li data-index=""><a href="#">{{ 'Not Assigned'|trans }}</a></li>
 
                                         {% for group in supportGroupCollection %}
                                             <li data-index="{{ group.id }}"><a href="#">{{ group.name }}</a></li>
@@ -526,7 +526,7 @@
                                 </div>
                             {% else %}
                                 <span class="uv-aside-select-value">
-                                    {{ ticket.supportGroup ? ticket.supportGroup.name : 'Not Assigned' }}
+                                    {{ ticket.supportGroup ? ticket.supportGroup.name : 'Not Assigned'|trans }}
                                 </span>
                             {% endif %}
                         </div>
@@ -534,17 +534,17 @@
 
                     {# Update Ticket Support Team #}
                     <div class="uv-aside-select">
-                        <label class="uv-aside-select-label">Team</label>
+                        <label class="uv-aside-select-label">{{ 'Team'|trans }}</label>
                         <div>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_ASSIGN_TICKET_GROUP') %}
                                 <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.supportTeam ? ticket.supportTeam.id : '-- --' }}">
-                                    {{ ticket.supportTeam ? ticket.supportTeam.name : 'Not Assigned' }}
+                                    {{ ticket.supportTeam ? ticket.supportTeam.name : 'Not Assigned'|trans }}
                                 </span>
                                 <div class="uv-dropdown-list uv-bottom-left">
                                     <div class="uv-dropdown-container">
                                         <label>{{ 'Team'|trans }}</label>
                                         <div class="uv-search-sm">
-                                            <input type="text" class="uv-search-field" placeholder="Search">
+                                            <input type="text" class="uv-search-field" placeholder="{{ 'Search'|trans }}">
                                         </div>
                                     </div>
                                     <ul class="uv-search-list team" data-action="team">
@@ -568,16 +568,16 @@
             <div class="uv-aside-brick">
                 <div class="uv-aside-ticket-labels label-list-block">
                     <div class="uv-element-block">
-                        <label class="uv-field-label">Labels</label>
+                        <label class="uv-field-label">{{ 'Labels'|trans }}</label>
 
                         <div class="uv-field-block">
                             <input class="uv-field uv-dropdown-other" type="text" data-type="label">
                             <div class="uv-dropdown-list uv-top-left">
                                 <div class="uv-dropdown-container">
-                                    <label>Filter With</label>
+                                    <label>{{ 'Filter With'|trans }}</label>
                                     <ul class="">
-                                        <span class="uv-filter-info">Type atleast 2 letters</span>
-                                        <span class="uv-no-results" style="display: none;">No result found</span>
+                                        <span class="uv-filter-info">{{ 'Type atleast 2 letters'|trans }}</span>
+                                        <span class="uv-no-results" style="display: none;">{{ 'No result found'|trans }}</span>
                                     </ul>
                                 </div>
                             </div>
@@ -592,11 +592,11 @@
             <div class="uv-aside-brick collaborator-list-block">
                 <div class="uv-aside-ticket-labels">
                     <div class="uv-element-block">
-                        <label class="uv-field-label">Collaborators</label>
+                        <label class="uv-field-label">{{ 'Collaborators'|trans }}</label>
 
                         {% if user_service.isAccessAuthorized('ROLE_AGENT_ADD_COLLABORATOR_TO_TICKET') %}
                             <div class="uv-field-block">
-                                <input class="uv-field" type="text" name="email" type="text" value="" placeholder="Type email to add">
+                                <input class="uv-field" type="text" name="email" type="text" value="" placeholder="{{ 'Type email to add'|trans }}">
                             </div>
                         {% endif %}
                     </div>
@@ -608,17 +608,17 @@
             <div class="uv-aside-brick tag-list-block">
                 <div class="uv-aside-ticket-labels">
                     <div class="uv-element-block">
-                        <label class="uv-field-label">Tags</label>
+                        <label class="uv-field-label">{{ 'Tags'|trans }}</label>
 
                         {% if user_service.isAccessAuthorized('ROLE_AGENT_ADD_TAG') %}
                             <div class="uv-field-block">
                                 <input class="uv-field uv-dropdown-other" name="tag-name" type="text" data-type="tag" value="">
                                 <div class="uv-dropdown-list uv-bottom-left">
                                     <div class="uv-dropdown-container">
-                                        <label>Filter With</label>
+                                        <label>{{ 'Filter With'|trans }}</label>
                                         <ul class="">
-                                            <span class="uv-filter-info">Type atleast 2 letters</span>
-                                            <span class="uv-no-results" style="display: none;">No result found</span>
+                                            <span class="uv-filter-info">{{ 'Type atleast 2 letters'|trans }}</span>
+                                            <span class="uv-no-results" style="display: none;">{{ 'No result found'|trans }}</span>
                                         </ul>
                                     </div>
                                 </div>
@@ -642,11 +642,11 @@
                         <div class="uv-tabs">
                             <ul>
                                 {# Filter Threads #}
-                                <li for="default" data-type="all" class="uv-tab-active">All Threads</li>
-                                <li for="default" data-type="reply">Replies</li>
-                                <li for="default" data-type="forward">Forwards</li>
-                                <li for="default" data-type="note">Notes</li>
-                                <li for="default" data-type="pinned">Pinned</li>
+                                <li for="default" data-type="all" class="uv-tab-active">{{ 'All Threads'|trans }}</li>
+                                <li for="default" data-type="reply">{{ 'Replies'|trans }}</li>
+                                <li for="default" data-type="forward">{{ 'Forwards'|trans }}</li>
+                                <li for="default" data-type="note">{{ 'Notes'|trans }}</li>
+                                <li for="default" data-type="pinned">{{ 'Pinned'|trans }}</li>
 
                                 {# Update Threads #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_EDIT_TICKET') or user_service.isAccessAuthorized('ROLE_AGENT_DELETE_TICKET') %}
@@ -657,18 +657,18 @@
                                             <div class="uv-dropdown-container">
                                                 <ul class="priority" data-action="priority">
                                                     {% if user_service.isAccessAuthorized('ROLE_AGENT_EDIT_TICKET') %}
-                                                        <li data-action="edit" class="uv-open-popup" data-target="edit-ticket-modal">Edit Ticket</li>
+                                                        <li data-action="edit" class="uv-open-popup" data-target="edit-ticket-modal">{{ 'Edit Ticket'|trans }}</li>
                                                     {% endif %}
 
-                                                    <li data-action="print">Print Ticket</li>
+                                                    <li data-action="print">{{ 'Print Ticket'|trans }}</li>
 
                                                     {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}
-                                                        <li data-action="spam" data-index="6">Mark as Spam</li>
-                                                        <li data-action="closed" data-index="5">Mark as Closed</li>
+                                                        <li data-action="spam" data-index="6">{{ 'Mark as Spam'|trans }}</li>
+                                                        <li data-action="closed" data-index="5">{{ 'Mark as Closed'|trans }}</li>
                                                     {% endif %}
 
                                                     {% if user_service.isAccessAuthorized('ROLE_AGENT_DELETE_TICKET') %}
-                                                        <li data-action="delete" class="uv-text-danger">Delete Ticket</li>
+                                                        <li data-action="delete" class="uv-text-danger">{{ 'Delete Ticket'|trans }}</li>
                                                     {% endif %}
                                                 </ul>
                                             </div>
@@ -706,19 +706,19 @@
 
                 <div class="uv-ticket-strip">
                     <span>
-                        <span class="uv-ticket-strip-label">Created - </span>
+                        <span class="uv-ticket-strip-label">{{ 'Created'|trans }} - </span>
                         <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(initialThread.createdAt) }}</span>
                     </span>
 
                     <span>
-                        <span class="uv-ticket-strip-label">By - </span> {{ initialThread.user.name }}
+                        <span class="uv-ticket-strip-label">{{ 'By'|trans }} - </span> {{ initialThread.user.name }}
                         {% if totalCustomerTickets %}
-                            (<a id="more-tickets-btn" href="{{ path('helpdesk_member_ticket_collection') }}#customer/{{customer.id}}" target="_blank">{{ (totalCustomerTickets - 1) ~ (' more tickets') }}</a>)
+                            (<a id="more-tickets-btn" href="{{ path('helpdesk_member_ticket_collection') }}#customer/{{customer.id}}" target="_blank">{{ '%count% more ticket|%count% more tickets'|transchoice(totalCustomerTickets) }}</a>)
                         {% endif %}
                     </span>
 
                     <span class="agent-info" style="{{ ticketAgent ? '' : 'display: none' }}">
-                        <span class="uv-ticket-strip-label">Agent - </span>
+                        <span class="uv-ticket-strip-label">{{ 'Agent'|trans }} - </span>
                         <span class="name">{{ ticketAgent ? ticketAgent.name : '' }}</span>
                     </span>
                 </div>
@@ -730,7 +730,7 @@
                             <div class="uv-ticket-strip">
                                 <span>
                                     <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(ticket.createdAt) }}</span>
-                                    - {{ initialThread.user.name }} <span class="uv-ticket-strip-label">created Ticket</span>
+                                    - {{ initialThread.user.name }} <span class="uv-ticket-strip-label">{{ 'created Ticket'|trans }}</span>
                                 </span>
                             </div>
 
@@ -763,7 +763,7 @@
                                 {# Ticket Attachments #}
                                 {% if initialThread.attachments|length %}
                                     <div class="uv-ticket-uploads">
-                                        <h4>Uploaded Files</h4>
+                                        <h4>{{ 'Uploaded Files'|trans }}</h4>
                                         <div class="uv-ticket-uploads-strip">
                                             {% for attachment in initialThread.attachments %}
                                                 <a href="{{ attachment.downloadURL }}" target = "_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="{{ attachment.name }}">
@@ -774,7 +774,7 @@
 
                                         {% if initialThread.attachments|length > 1 %}
                                             <div class="uv-upload-actions">
-                                                <a href="#" class="uv-open-in-files" data-thread="{{ initialThread.id }}" style="display: none"><span class="uv-icon-open-in-files"></span>Open in Files</a>
+                                                <a href="#" class="uv-open-in-files" data-thread="{{ initialThread.id }}" style="display: none"><span class="uv-icon-open-in-files"></span>{{ 'Open in Files'|trans }}</a>
                                                 {% if initialThread.attachments|length %}
                                                     <a href="{{ path('helpdesk_member_ticket_download_attachment_zip') }}/{{ initialThread.id }}" target="_blank"><span class="uv-icon-attachment"></span> Download (as .zip)</a>
                                                 {% endif %}
@@ -806,10 +806,10 @@
                         <span class="uv-ticket-member-name">{{ currentUserDetails.name }}</span>
                         <div class="uv-tabs">
                             <ul>
-                                <li for="reply" class="uv-tab-active">Reply</li>
-                                <li for="forward">Forward</li>
+                                <li for="reply" class="uv-tab-active">{{ 'Reply'|trans }}</li>
+                                <li for="forward">{{ 'Forward'|trans }}</li>
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_ADD_NOTE') %}
-                                    <li for='note'>Note</li>
+                                    <li for='note'>{{ 'Note'|trans }}</li>
                                 {% endif %}
                             </ul>
                         </div>
@@ -820,7 +820,7 @@
                                 <input name="threadType" value="reply" type="hidden">
                                 <input name="status" value="" type="hidden" {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}class="reply-status"{% endif %}>
                                 <div class="uv-element-block collaborators" style="display: none">
-                                    <label class="uv-field-label">Collaborators</label>
+                                    <label class="uv-field-label">{{ 'Collaborators'|trans }}</label>
                                     <div class="uv-field-block"></div>
                                 </div>
 
@@ -838,7 +838,7 @@
                                             <input class="uv-group-field uv-dropdown-other preloaded uv-manual-enter" type="text">
                                             <div class="uv-dropdown-list uv-bottom-left">
                                                 <div class="uv-dropdown-container">
-                                                    <label>Agent</label>
+                                                    <label>{{ 'Agent'|trans }}</label>
                                                 </div>
 
                                                 <ul class="uv-agents-list">
@@ -848,12 +848,12 @@
                                                         </li>
                                                     {% endfor %}
 
-                                                    <li class="uv-no-results" style="display: none;">No result found</li>
+                                                    <li class="uv-no-results" style="display: none;">{{ 'No result found'|trans }}</li>
                                                 </ul>
                                             </div>
                                             <select class="uv-group-select cc-bcc-select">
-                                                <option value="bcc">BCC</option>
-                                                <option value="cc">CC</option>
+                                                <option value="bcc">{{ 'BCC'|trans }}</option>
+                                                <option value="cc">{{ 'CC'|trans }}</option>
                                             </select>
                                         </div>
 
@@ -862,7 +862,7 @@
                                 </div>
 
                                 <div class="uv-element-block uv-element-block-textarea">
-                                    <label class="uv-field-label">Write a reply</label>
+                                    <label class="uv-field-label">{{ 'Write a reply'|trans }}</label>
                                     <div class="uv-field-block">
                                         <textarea class="uv-field" name="reply" id="reply-area">{{ ticket_service.getAgentDraftReply() }}</textarea>
                                     </div>
@@ -870,38 +870,38 @@
 
                                 <div class="uv-element-block attachment-block">
                                     <label>
-                                        <span class="uv-file-label">Add Attachment</span>
+                                        <span class="uv-file-label">{{ 'Add Attachment'|trans }}</span>
                                     </label>
                                 </div>
 
                                 <div class="uv-action-buttons">
                                     <div class="uv-dropdown next-view">
                                         <input type="hidden" name="nextView" value="stay"/>
-                                        <div class="uv-dropdown-btn" style="padding: 9px 27px 9px 10px;">Stay on ticket</div>
+                                        <div class="uv-dropdown-btn" style="padding: 9px 27px 9px 10px;">{{ 'Stay on ticket'|trans }}</div>
                                         <div class="uv-dropdown-list uv-top-left" style="opacity: 1;">
                                             <div class="uv-dropdown-container">
-                                                <label>After Reply</label>
+                                                <label>{{ 'After Reply'|trans }}</label>
                                                 <ul>
-                                                    <li data-value="stay">Stay on ticket</li>
-                                                    <li data-value="redirect">Redirect to list</li>
+                                                    <li data-value="stay">{{ 'Stay on ticket'|trans }}</li>
+                                                    <li data-value="redirect">{{ 'Redirect to list'|trans }}</li>
                                                 </ul>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="uv-dropdown reply">
-                                        <div class="uv-btn uv-dropdown-other">Reply <span class="uv-icon-down-light"></span></div>
+                                        <div class="uv-btn uv-dropdown-other">{{ 'Reply'|trans }} <span class="uv-icon-down-light"></span></div>
                                         <div class="uv-dropdown-list uv-top-left">
                                             <div class="uv-dropdown-container">
-                                                <label>Reply</label>
+                                                <label>{{ 'Reply'|trans }}</label>
                                                 <ul>
-                                                    <li data-id="">Submit</li>
+                                                    <li data-id="">{{ 'Submit'|trans }}</li>
                                                     {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}
-                                                        <li data-id="open">Submit And Open</li>
-                                                        <li data-id="pending">Submit And Pending</li>
-                                                        <li data-id="answered">Submit And Answered</li>
-                                                        <li data-id="resolved">Submit And Resolved</li>
-                                                        <li data-id="closed">Submit And Closed</li>
+                                                        <li data-id="open">{{ 'Submit And Open'|trans }}</li>
+                                                        <li data-id="pending">{{ 'Submit And Pending'|trans }}</li>
+                                                        <li data-id="answered">{{ 'Submit And Answered'|trans }}</li>
+                                                        <li data-id="resolved">{{ 'Submit And Resolved'|trans }}</li>
+                                                        <li data-id="closed">{{ 'Submit And Closed'|trans }}</li>
                                                     {% endif %}
                                                 </ul>
                                             </div>
@@ -918,20 +918,20 @@
                                 <input name="status" value="" type="hidden" {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}class="reply-status"{% endif %}>
 
                                 <div class="uv-element-block">
-                                    <label class="uv-field-label">Subject</label>
+                                    <label class="uv-field-label">{{ 'Subject'|trans }}</label>
                                     <div class="uv-field-block">
                                         <input class="uv-field" type="text" name="subject">
                                     </div>
                                 </div>
 
                                 <div class="uv-element-block to">
-                                    <label class="uv-field-label">To</label>
+                                    <label class="uv-field-label">{{ 'To'|trans }}</label>
                                     <div class="uv-field-block">
                                         <input class="uv-field uv-dropdown-other preloaded uv-to-message uv-manual-enter" type="text">
-                                        
+
                                         <div class="uv-dropdown-list uv-bottom-left">
                                             <div class="uv-dropdown-container">
-                                                <label>Agent</label>
+                                                <label>{{ 'Agent'|trans }}</label>
                                             </div>
 
                                             <ul class="uv-agents-list">
@@ -941,7 +941,7 @@
                                                     </li>
                                                 {% endfor %}
 
-                                                <li class="uv-no-results" style="display: none;">No result found</li>
+                                                <li class="uv-no-results" style="display: none;">{{ 'No result found'|trans }}</li>
                                             </ul>
                                         </div>
 
@@ -961,7 +961,7 @@
                                         <div class="uv-group">
                                             <input class="uv-group-field uv-dropdown-other preloaded uv-manual-enter" type="text">
                                             <div class="uv-dropdown-list uv-bottom-left">
-                                                <div class="uv-dropdown-container"><label>Agent</label></div>
+                                                <div class="uv-dropdown-container"><label>{{ 'Agent'|trans }}</label></div>
 
                                                 <ul class="uv-agents-list">
                                                     {% for agent in user_service.getAgentPartialDataCollection %}
@@ -970,12 +970,12 @@
                                                         </li>
                                                     {% endfor %}
 
-                                                    <li class="uv-no-results" style="display: none;">No result found</li>
+                                                    <li class="uv-no-results" style="display: none;">{{ 'No result found'|trans }}</li>
                                                 </ul>
                                             </div>
                                             <select class="uv-group-select cc-bcc-select">
-                                                <option value="bcc">BCC</option>
-                                                <option value="cc">CC</option>
+                                                <option value="bcc">{{ 'BCC'|trans }}</option>
+                                                <option value="cc">{{ 'CC'|trans }}</option>
                                             </select>
                                         </div>
 
@@ -984,32 +984,32 @@
                                 </div>
 
                                 <div class="uv-element-block uv-element-block-textarea">
-                                    <label class="uv-field-label">Write a reply</label>
+                                    <label class="uv-field-label">{{ 'Write a reply'|trans }}</label>
                                     <div class="uv-field-block">
                                         <textarea class="uv-field" name="reply" id="forward-area">{{ ticket_service.getAgentDraftReply() }}</textarea>
                                     </div>
                                 </div>
 
                                 <div class="uv-element-block attachment-block">
-                                    <label><span class="uv-file-label">Add Attachment</span></label>
+                                    <label><span class="uv-file-label">{{ 'Add Attachment'|trans }}</span></label>
                                 </div>
 
                                 <div class="uv-action-buttons">
                                     <div class="uv-dropdown next-view">
                                         <input type="hidden" name="nextView" value="stay"/>
-                                        <div class="uv-dropdown-btn" style="padding: 9px 27px 9px 10px;">Stay on ticket</div>
+                                        <div class="uv-dropdown-btn" style="padding: 9px 27px 9px 10px;">{{ 'Stay on ticket'|trans }}</div>
                                         <div class="uv-dropdown-list uv-top-left" style="opacity: 1;">
                                             <div class="uv-dropdown-container">
-                                                <label>After Reply</label>
+                                                <label>{{ 'After Reply'|trans }}</label>
                                                 <ul>
-                                                    <li data-value="stay">Stay on ticket</li>
-                                                    <li data-value="redirect">Redirect to list</li>
+                                                    <li data-value="stay">{{ 'Stay on ticket'|trans }}</li>
+                                                    <li data-value="redirect">{{ 'Redirect to list'|trans }}</li>
                                                 </ul>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="uv-btn forward">Forward</div>
+                                    <div class="uv-btn forward">{{ 'Forward'|trans }}</div>
                                 </div>
                             </form>
                         </div>
@@ -1022,26 +1022,26 @@
                                     <input name="status" value="" type="hidden" {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}class="reply-status"{% endif %}>
 
                                     <div class="uv-element-block uv-element-block-textarea">
-                                        <label class="uv-field-label">Write a reply</label>
+                                        <label class="uv-field-label">{{ 'Write a reply'|trans }}</label>
                                         <div class="uv-field-block">
                                             <textarea class="uv-field" name="reply" id="note-area">{{ ticket_service.getAgentDraftReply() }}</textarea>
                                         </div>
                                     </div>
 
                                     <div class="uv-element-block attachment-block">
-                                        <label><span class="uv-file-label">Add Attachment</span></label>
+                                        <label><span class="uv-file-label">{{ 'Add Attachment'|trans }}</span></label>
                                     </div>
 
                                     <div class="uv-action-buttons">
                                         <div class="uv-dropdown next-view">
                                             <input type="hidden" name="nextView" value="stay"/>
-                                            <div class="uv-dropdown-btn" style="padding: 9px 27px 9px 10px;">Stay on ticket</div>
+                                            <div class="uv-dropdown-btn" style="padding: 9px 27px 9px 10px;">{{ 'Stay on ticket'|trans }}</div>
                                             <div class="uv-dropdown-list uv-top-left" style="opacity: 1;">
                                                 <div class="uv-dropdown-container">
-                                                    <label>After Reply</label>
+                                                    <label>{{ 'After Reply'|trans }}</label>
                                                     <ul>
-                                                        <li data-value="stay">Stay on ticket</li>
-                                                        <li data-value="redirect">Redirect to list</li>
+                                                        <li data-value="stay">{{ 'Stay on ticket'|trans }}</li>
+                                                        <li data-value="redirect">{{ 'Redirect to list'|trans }}</li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -1052,15 +1052,15 @@
 
                                             <div class="uv-dropdown-list uv-top-left">
                                                 <div class="uv-dropdown-container">
-                                                    <label>Add Note</label>
+                                                    <label>{{ 'Add Note'|trans }}</label>
                                                     <ul>
-                                                        <li data-id="">Submit</li>
+                                                        <li data-id="">{{ 'Submit'|trans }}</li>
                                                         {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}
-                                                            <li data-id="open">Submit And Open</li>
-                                                            <li data-id="pending">Submit And Pending</li>
-                                                            <li data-id="answered">Submit And Answered</li>
-                                                            <li data-id="resolved">Submit And Resolved</li>
-                                                            <li data-id="closed">Submit And Closed</li>
+                                                            <li data-id="open">{{ 'Submit And Open'|trans }}</li>
+                                                            <li data-id="pending">{{ 'Submit And Pending'|trans }}</li>
+                                                            <li data-id="answered">{{ 'Submit And Answered'|trans }}</li>
+                                                            <li data-id="resolved">{{ 'Submit And Resolved'|trans }}</li>
+                                                            <li data-id="closed">{{ 'Submit And Closed'|trans }}</li>
                                                         {% endif %}
                                                     </ul>
                                                 </div>
@@ -1136,19 +1136,19 @@
         <div class="uv-pop-up-overlay uv-no-error-success-icon" id="edit-ticket-modal">
             <div class="uv-pop-up-box uv-pop-up-wide">
                 <span class="uv-pop-up-close"></span>
-                <h2>Edit Ticket</h2>
+                <h2>{{ 'Edit Ticket'|trans }}</h2>
 
                 {# Edit Ticket Form #}
                 <form method="post" action="{{ path('helpdesk_member_update_ticket_details_xhr', {'ticketId': ticket.id}) }}" id="edit-ticket-form">
                     <div class="uv-element-block">
-                        <label class="uv-field-label">Subject</label>
+                        <label class="uv-field-label">{{ 'Subject'|trans }}</label>
                         <div class="uv-field-block">
                             <input type="text" name="subject" class="uv-field" value="{{ ticket.subject }}" />
                         </div>
                     </div>
 
                     <div class="uv-element-block">
-                        <label class="uv-field-label">Reply</label>
+                        <label class="uv-field-label">{{ 'Reply'|trans }}</label>
                         <div class="uv-field-block">
                             <textarea name="reply" id="uv-edit-create-thread" class="uv-field">{{ initialThread.message }}</textarea>
                         </div>
@@ -1173,7 +1173,7 @@
     {{ include("@UVDeskCoreFramework/Templates/tinyMCE.html.twig") }}
 
     <script id="thread_list_empty_tmp" type="text/template">
-        <div class="uv-no-threads">Nothing interesting here...</div>
+        <div class="uv-no-threads">{{ 'Nothing interesting here...'|trans }}</div>
     </script>
 
     <script id="thread_list_item_tmp" type="text/template">
@@ -1182,13 +1182,13 @@
                 <% if(typeof(mailStatus) != 'undefined' && mailStatus) { %>
                     <a href="https://support.uvdesk.com/en/blog/uvdesk-ticket-delivery-status" target="_blank">
                         <span class="uv-mail-status uv-mail-<%- mailStatus.split(',')[0] %>" <% if(mailStatus !== 'pending') { %>data-toggle="tooltip" data-placement="right" title="{{ 'Mail status:'|trans }} <%- mailStatus.split(',')[0] %> <% if(mailStatus.split(',').length > 1) { print('Reason:' + mailStatus.split(',')[1] ); } %> "<% } %> ></span>
-                    </a>
-                <% } %>
-                <span class="timeago uv-margin-0" data-timestamp="<%- timestamp %>" title="<%- formatedCreatedAt %>">
+            </a>
+            <% } %>
+            <span class="timeago uv-margin-0" data-timestamp="<%- timestamp %>" title="<%- formatedCreatedAt %>">
                     <%- formatedCreatedAt %>
                 </span>
-                - <%- fullname %>
-                <span class="uv-ticket-strip-label">
+            - <%- fullname %>
+            <span class="uv-ticket-strip-label">
                 <% if(threadType == 'reply') { %>
                     {{ 'replied'|trans }}
                 <% } else if(threadType == 'note') { %>
@@ -1201,27 +1201,27 @@
             </span>
 
             <% if((replyTo && threadType ==  'forward') || cc || bcc) { %>
-                <div class="uv-ticket-strip">
-                    <% if(replyTo && threadType ==  'forward') { %>
-                    <span><span class="uv-ticket-strip-label">{{ 'TO'|trans }} -</span> <%- replyTo %></span>
-                    <% } if(cc) { %>
-                        <span><span class="uv-ticket-strip-label">{{ 'CC'|trans }} -</span> <%- cc %></span>
-                    <% } if(bcc) { %>
-                        <span><span class="uv-ticket-strip-label">{{ 'BCC'|trans }} -</span> <%- bcc %></span>
-                    <% } %>
-                </div>
+            <div class="uv-ticket-strip">
+                <% if(replyTo && threadType ==  'forward') { %>
+                <span><span class="uv-ticket-strip-label">{{ 'TO'|trans }} -</span> <%- replyTo %></span>
+                <% } if(cc) { %>
+                <span><span class="uv-ticket-strip-label">{{ 'CC'|trans }} -</span> <%- cc %></span>
+                <% } if(bcc) { %>
+                <span><span class="uv-ticket-strip-label">{{ 'BCC'|trans }} -</span> <%- bcc %></span>
+                <% } %>
+            </div>
             <% } %>
         </div>
 
         <div class="uv-ticket-strip uv-margin-top-5" <% if(!bookmark && !isLocked) { %>style="display: none"<% } %> >
-            <span <% if(!bookmark) { %>style="display: none"<% } %> >
-                <span class="uv-icon-pinned"></span>
-                {{ 'Pinned'|trans }}
-            </span>
-            <span <% if(!isLocked) { %>style="display: none"<% } %> >
-                <span class="uv-icon-locked"></span>
-                {{ 'Locked'|trans }}
-            </span>
+        <span <% if(!bookmark) { %>style="display: none"<% } %> >
+        <span class="uv-icon-pinned"></span>
+        {{ 'Pinned'|trans }}
+        </span>
+        <span <% if(!isLocked) { %>style="display: none"<% } %> >
+        <span class="uv-icon-locked"></span>
+        {{ 'Locked'|trans }}
+        </span>
         </div>
         <div class="uv-ticket-main-lt">
             <span class="uv-thread-action">
@@ -1231,7 +1231,7 @@
                         <ul>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_EDIT_THREAD_NOTE') %}
                                 <% if(userType != 'system') { %>
-                                    <li data-action="edit">{{ 'Edit Thread'|trans }}</li>
+                                <li data-action="edit">{{ 'Edit Thread'|trans }}</li>
                                 <% } %>
                             {% endif %}
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_DELETE_THREAD_NOTE') %}
@@ -1246,7 +1246,7 @@
                             <% if(threadType != 'note') { %>
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_LOCK_AND_UNLOCK_THREAD') %}
                                     <% if(isLocked) { %>
-                                        <li data-action="lock" data-id="1">{{ 'Unlock Thread'|trans }}</li>
+                                    <li data-action="lock" data-id="1">{{ 'Unlock Thread'|trans }}</li>
                                     <% } else { %>
                                         <li data-action="lock" data-id="0">{{ 'Lock Thread'|trans }}</li>
                                     <% } %>
@@ -1273,26 +1273,26 @@
                 </div>
             </span>
             <% if(userType != 'system') { %>
-                <% if(user && user.smallThumbnail != null) { %>
-                    <img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%- user.smallThumbnail %>" />
-                <% } else { %>
-                    <img src="<% if(userType == 'agent') { %> {{ asset(default_agent_image_path) }} <% } else { %> {{ asset(default_customer_image_path) }} <% } %>" />
-                <% } %>
+            <% if(user && user.smallThumbnail != null) { %>
+            <img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%- user.smallThumbnail %>" />
             <% } else { %>
-                <img src="{{ asset(default_helpdesk_image_path) }}" />
+            <img src="<% if(userType == 'agent') { %> {{ asset(default_agent_image_path) }} <% } else { %> {{ asset(default_customer_image_path) }} <% } %>" />
+            <% } %>
+            <% } else { %>
+            <img src="{{ asset(default_helpdesk_image_path) }}" />
             <% } %>
         </div>
         <div class="uv-ticket-main-rt">
             <% if(userType == 'customer') { %>
-                <a <% if(user) { %>href="{{ path('helpdesk_member_manage_customer_account') }}/<%- user.id %>"<% } %> class="uv-ticket-member-name">
-                    <%- fullname %>
-                </a>
+            <a <% if(user) { %>href="{{ path('helpdesk_member_manage_customer_account') }}/<%- user.id %>"<% } %> class="uv-ticket-member-name">
+            <%- fullname %>
+            </a>
             <% } else if(userType == 'agent') { %>
-                <a <% if(user) { %>href="{{ path('helpdesk_member_account') }}/<%- user.id %>"<% } %> class="uv-ticket-member-name">
-                    <%- fullname %>
-                </a>
+            <a <% if(user) { %>href="{{ path('helpdesk_member_account') }}/<%- user.id %>"<% } %> class="uv-ticket-member-name">
+            <%- fullname %>
+            </a>
             <% } else { %>
-                <span class="uv-ticket-member-name">
+            <span class="uv-ticket-member-name">
                     {{ 'System'|trans }}
                 </span>
             <% } %>
@@ -1304,28 +1304,28 @@
 
             <!-- Attachment Block -->
             <% if(attachments.length) { %>
-                <div class="uv-ticket-uploads">
-                    <h4>{{ 'Uploaded Files'|trans }}</h4>
-                    <div class="uv-ticket-uploads-strip">
-                        <% _.each(attachments, function(file) { %>
-                            <a href="<%-file.downloadURL %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
-                                <img src="<%-file.iconURL %>" class="uv-auto-pointer-events">
-                            </a>
-                        <% }) %>
-                    </div>
-
-                    <% if (attachments.length > 1) { %>
-                        <div class="thread-attachments-zip pull-left">
-                            <div class="uv-upload-actions">
-                                <a href="#" class="uv-open-in-files" data-thread="<%- id %>" style="display: none"><span class="uv-icon-open-in-files"></span>{{ 'Open in Files'|trans }}</a>
-                                <% if(attachments.length > 0) { %>
-                                    <a href="{{ path('helpdesk_member_ticket_download_attachment_zip') }}/<%- id %>" target="_blank"><span class="uv-icon-attachment"></span> {{ 'Download (as .zip)'|trans }}</a>
-                                <% } %>
-                            </div>
-                        </div>
-                    <% } %>
-
+            <div class="uv-ticket-uploads">
+                <h4>{{ 'Uploaded Files'|trans }}</h4>
+                <div class="uv-ticket-uploads-strip">
+                    <% _.each(attachments, function(file) { %>
+                    <a href="<%-file.downloadURL %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
+                        <img src="<%-file.iconURL %>" class="uv-auto-pointer-events">
+                    </a>
+                    <% }) %>
                 </div>
+
+                <% if (attachments.length > 1) { %>
+                <div class="thread-attachments-zip pull-left">
+                    <div class="uv-upload-actions">
+                        <a href="#" class="uv-open-in-files" data-thread="<%- id %>" style="display: none"><span class="uv-icon-open-in-files"></span>{{ 'Open in Files'|trans }}</a>
+                        <% if(attachments.length > 0) { %>
+                        <a href="{{ path('helpdesk_member_ticket_download_attachment_zip') }}/<%- id %>" target="_blank"><span class="uv-icon-attachment"></span> {{ 'Download (as .zip)'|trans }}</a>
+                        <% } %>
+                    </div>
+                </div>
+                <% } %>
+
+            </div>
             <% } %>
         </div>
     </script>
@@ -1347,27 +1347,27 @@
 
     <script id="ticket_quick_navigation_tmp" type="text/template">
         <% if(prev) { %>
-            <a class="uv-btn-stroke" href="{{ path('helpdesk_member_ticket') }}/<%- prev %>">
-                <span class="uv-icon-previous"></span>
-                {{ 'Previous Ticket'|trans }}
-            </a>
+        <a class="uv-btn-stroke" href="{{ path('helpdesk_member_ticket') }}/<%- prev %>">
+            <span class="uv-icon-previous"></span>
+            {{ 'Previous Ticket'|trans }}
+        </a>
         <% } else { %>
-            <a class="uv-btn-stroke" disabled="disabled">
-                <span class="uv-icon-previous"></span>
-                {{ 'Previous Ticket'|trans }}
-            </a>
+        <a class="uv-btn-stroke" disabled="disabled">
+            <span class="uv-icon-previous"></span>
+            {{ 'Previous Ticket'|trans }}
+        </a>
         <% } %>
 
         <% if(next) { %>
-            <a class="uv-btn-stroke" href="{{ path('helpdesk_member_ticket') }}/<%- next %>">
-                {{ 'Next Ticket'|trans }}
-                <span class="uv-icon-next"></span>
-            </a>
+        <a class="uv-btn-stroke" href="{{ path('helpdesk_member_ticket') }}/<%- next %>">
+            {{ 'Next Ticket'|trans }}
+            <span class="uv-icon-next"></span>
+        </a>
         <% } else { %>
-            <a class="uv-btn-stroke" disabled="disabled">
-                {{ 'Next Ticket'|trans }}
-                <span class="uv-icon-next"></span>
-            </a>
+        <a class="uv-btn-stroke" disabled="disabled">
+            {{ 'Next Ticket'|trans }}
+            <span class="uv-icon-next"></span>
+        </a>
         <% } %>
     </script>
 
@@ -1391,7 +1391,7 @@
         $(function () {
             var threadIds = [];
             viewerImages();
-            
+
             _.extend(Backbone.Model.prototype, Backbone.Validation.mixin);
 
             // Ticket Model
@@ -1522,8 +1522,8 @@
                     type = $(".uv-ticket-action-bar-lt .uv-tabs .uv-tab-active").attr('data-type')
                     var self = this;
                     var data = {
-                            threadType: type
-                        };
+                        threadType: type
+                    };
 
                     if(this.threadRequestedId)
                         data.threadRequestedId = this.threadRequestedId;
@@ -2113,11 +2113,11 @@
                     }
                     app.appView.showLoader();
                     this.model.save({
-                            isLocked: isLocked,
-                            id: this.model.id,
-                            ticketId: ticketModel.attributes.id,
-                            updateType: 'lock'
-                        }, {
+                        isLocked: isLocked,
+                        id: this.model.id,
+                        ticketId: ticketModel.attributes.id,
+                        updateType: 'lock'
+                    }, {
                         patch: true,
                         url : "{{ path('helpdesk_member_thread_xhr') }}/" + this.model.id,
                         success : function (model, response, options) {
@@ -2151,11 +2151,11 @@
                     }
                     app.appView.showLoader();
                     this.model.save({
-                            bookmark: bookmark,
-                            id: this.model.id,
-                            ticketId: ticketModel.attributes.id,
-                            updateType: 'bookmark'
-                        }, {
+                        bookmark: bookmark,
+                        id: this.model.id,
+                        ticketId: ticketModel.attributes.id,
+                        updateType: 'bookmark'
+                    }, {
                         patch: true,
                         url : "{{ path('helpdesk_member_thread_xhr') }}/" + this.model.id,
                         success : function (model, response, options) {
@@ -2353,32 +2353,32 @@
                 },
                 removeItem: function() {
                     {% if user_service.isAccessAuthorized('ROLE_AGENT_ADD_COLLABORATOR_TO_TICKET') %}
-                        self = this;
-                        app.appView.showLoader();
-                        this.model.destroy({
-                            data : { 'ticketId' : this.model.attributes.ticketId },
-                            success : function (model, response, options) {
-                                app.appView.hideLoader();
-                                self.$el.remove();
-                                self.unrender(response);
-                            },
-                            error: function (model, xhr, options) {
-                                if(url = xhr.getResponseHeader('Location'))
-                                    window.location = url;
-                                var response = warningResponse;
-                                if(xhr.responseJSON)
-                                    response = xhr.responseJSON;
+                    self = this;
+                    app.appView.showLoader();
+                    this.model.destroy({
+                        data : { 'ticketId' : this.model.attributes.ticketId },
+                        success : function (model, response, options) {
+                            app.appView.hideLoader();
+                            self.$el.remove();
+                            self.unrender(response);
+                        },
+                        error: function (model, xhr, options) {
+                            if(url = xhr.getResponseHeader('Location'))
+                                window.location = url;
+                            var response = warningResponse;
+                            if(xhr.responseJSON)
+                                response = xhr.responseJSON;
 
-                                app.appView.hideLoader();
-                                app.appView.renderResponseAlert(response);
-                            }
-                        });
+                            app.appView.hideLoader();
+                            app.appView.renderResponseAlert(response);
+                        }
+                    });
                     {% endif %}
                 },
                 confirmRemove: function(e) {
                     e.preventDefault();
                     {% if user_service.isAccessAuthorized('ROLE_AGENT_ADD_COLLABORATOR_TO_TICKET') %}
-                        app.appView.openConfirmModal(this)
+                    app.appView.openConfirmModal(this)
                     {% endif %}
                 }
             });
@@ -2397,7 +2397,7 @@
                     this.$el.find(".collaborator-list").html('');
                     var self = this;
                     collaboratorOptionHtml = '';
-                    
+
                     if(collaboratorCollection.length) {
                         _.each(collaboratorCollection.models, function (item) {
                             this.renderCollaborator(item);
@@ -2418,50 +2418,50 @@
                 },
                 addCollaborator : function(e) {
                     {% if user_service.isAccessAuthorized('ROLE_AGENT_ADD_COLLABORATOR_TO_TICKET') %}
-                        var inputElement = Backbone.$(e.currentTarget);
-                        inputElement.removeClass('uv-field-error');
-                        inputElement.parents('.uv-element-block').find('.uv-field-message').remove()
-                        var text = inputElement.val().trim();
-                       
-                        if (e.which === 13 && text) {
-                            this.model = new CollaboratorModel();
-                            self = this;
-                            this.model.set({email: text})
+                    var inputElement = Backbone.$(e.currentTarget);
+                    inputElement.removeClass('uv-field-error');
+                    inputElement.parents('.uv-element-block').find('.uv-field-message').remove()
+                    var text = inputElement.val().trim();
 
-                            if(this.model.isValid(true)) {
-                                app.appView.showLoader();
-                                this.model.save({},{
-                                    success : function (model, response, options) {
-                                        inputElement.val('');
-                                        if(response.alertClass == "success") {
-                                            collaboratorCollection.add(model);
-                                        }
-                                        self.render();
-                                        app.appView.hideLoader();
-                                        app.appView.renderResponseAlert(response);
-                                    },
-                                    error: function (model, xhr, options) {
-                                        if(url = xhr.getResponseHeader('Location'))
-                                            window.location = url;
-                                        var response = warningResponse;
-                                        if(xhr.responseJSON)
-                                            response = xhr.responseJSON;
+                    if (e.which === 13 && text) {
+                        this.model = new CollaboratorModel();
+                        self = this;
+                        this.model.set({email: text})
 
-                                        app.appView.hideLoader();
-                                        app.appView.renderResponseAlert(response);
+                        if(this.model.isValid(true)) {
+                            app.appView.showLoader();
+                            this.model.save({},{
+                                success : function (model, response, options) {
+                                    inputElement.val('');
+                                    if(response.alertClass == "success") {
+                                        collaboratorCollection.add(model);
                                     }
-                                });
-                            } else {
-                                inputElement.addClass('uv-field-error');
-                                if(text)
-                                    inputElement.parents('.uv-element-block').append("<span class='uv-field-message'>{{ 'Email address is invalid'|trans }}</span>");
-                            }
+                                    self.render();
+                                    app.appView.hideLoader();
+                                    app.appView.renderResponseAlert(response);
+                                },
+                                error: function (model, xhr, options) {
+                                    if(url = xhr.getResponseHeader('Location'))
+                                        window.location = url;
+                                    var response = warningResponse;
+                                    if(xhr.responseJSON)
+                                        response = xhr.responseJSON;
+
+                                    app.appView.hideLoader();
+                                    app.appView.renderResponseAlert(response);
+                                }
+                            });
+                        } else {
+                            inputElement.addClass('uv-field-error');
+                            if(text)
+                                inputElement.parents('.uv-element-block').append("<span class='uv-field-message'>{{ 'Email address is invalid'|trans }}</span>");
                         }
+                    }
                     {% endif %}
                 }
             });
 
-       
+
             // Ticket Tag Item View
             var TagItem = Backbone.View.extend({
                 tagName : "a",
@@ -2482,32 +2482,32 @@
                 },
                 removeItem : function () {
                     {% if user_service.isAccessAuthorized('ROLE_AGENT_DELETE_TAG') %}
-                        self = this;
-                        app.appView.showLoader();
-                        this.model.destroy({
-                            data : { 'ticketId' : ticketModel.id } ,
-                            success : function (model, response, options) {
-                                app.appView.hideLoader();
-                                self.$el.remove();
-                                self.unrender(response);
-                            },
-                            error: function (model, xhr, options) {
-                                if(url = xhr.getResponseHeader('Location'))
-                                    window.location = url;
-                                var response = warningResponse;
-                                if(xhr.responseJSON)
-                                    response = xhr.responseJSON;
+                    self = this;
+                    app.appView.showLoader();
+                    this.model.destroy({
+                        data : { 'ticketId' : ticketModel.id } ,
+                        success : function (model, response, options) {
+                            app.appView.hideLoader();
+                            self.$el.remove();
+                            self.unrender(response);
+                        },
+                        error: function (model, xhr, options) {
+                            if(url = xhr.getResponseHeader('Location'))
+                                window.location = url;
+                            var response = warningResponse;
+                            if(xhr.responseJSON)
+                                response = xhr.responseJSON;
 
-                                app.appView.hideLoader();
-                                app.appView.renderResponseAlert(response);
-                            }
-                        });
+                            app.appView.hideLoader();
+                            app.appView.renderResponseAlert(response);
+                        }
+                    });
                     {% endif %}
                 },
                 confirmRemove: function(e) {
                     e.preventDefault();
                     {% if user_service.isAccessAuthorized('ROLE_AGENT_DELETE_TAG') %}
-                        app.appView.openConfirmModal(this)
+                    app.appView.openConfirmModal(this)
                     {% endif %}
                 }
             });
@@ -2537,62 +2537,62 @@
                 },
                 addTag : function(e) {
                     {% if user_service.isAccessAuthorized('ROLE_AGENT_ADD_TAG') %}
-                        var currentElement = Backbone.$(e.currentTarget);
-                        if(currentElement.is('li')) {
-                            var inputElement = currentElement.parents('.uv-field-block').find('.uv-dropdown-other');
-                            var text = currentElement.text().trim();
-                        } else {
-                            var inputElement = currentElement;
-                            var text = inputElement.val().trim();
-                        }
-                        inputElement.removeClass('uv-field-error');
-                        inputElement.parents('.uv-element-block').find('.uv-field-message').remove()
-                        
-                        if (currentElement.is('li') || (e.which === 13 && text)) {
-                            if(text.length <= 20) {
-                                if(tagCollection.isTagExist(text)) {
-                                    var self = this;
-                                    inputElement.val('');
-                                    this.model = new TagModel();
-                                    this.model.set({name:text});
-                                    self = this;
+                    var currentElement = Backbone.$(e.currentTarget);
+                    if(currentElement.is('li')) {
+                        var inputElement = currentElement.parents('.uv-field-block').find('.uv-dropdown-other');
+                        var text = currentElement.text().trim();
+                    } else {
+                        var inputElement = currentElement;
+                        var text = inputElement.val().trim();
+                    }
+                    inputElement.removeClass('uv-field-error');
+                    inputElement.parents('.uv-element-block').find('.uv-field-message').remove()
 
-                                    app.appView.showLoader();
-                                    this.model.save({}, {
-                                        success: function (model, response, options) {
-                                            inputElement.parent().find("li:not(.uv-no-results)").remove()
-                                            inputElement.parent().find(".uv-no-results").show()
-                                            if(!currentElement.is('li')) {
-                                                inputElement.trigger('click')
-                                            }
-                                            if(response.alertClass == "success") {
-                                                tagCollection.add(model);
-                                                self.render();
-                                            }
+                    if (currentElement.is('li') || (e.which === 13 && text)) {
+                        if(text.length <= 20) {
+                            if(tagCollection.isTagExist(text)) {
+                                var self = this;
+                                inputElement.val('');
+                                this.model = new TagModel();
+                                this.model.set({name:text});
+                                self = this;
 
-                                            app.appView.hideLoader();
-                                            app.appView.renderResponseAlert(response);
-                                        },
-                                        error: function (model, xhr, options) {
-                                            if(url = xhr.getResponseHeader('Location'))
-                                                window.location = url;
-                                            var response = warningResponse;
-                                            if(xhr.responseJSON)
-                                                response = xhr.responseJSON;
-
-                                            app.appView.hideLoader();
-                                            app.appView.renderResponseAlert(response);
+                                app.appView.showLoader();
+                                this.model.save({}, {
+                                    success: function (model, response, options) {
+                                        inputElement.parent().find("li:not(.uv-no-results)").remove()
+                                        inputElement.parent().find(".uv-no-results").show()
+                                        if(!currentElement.is('li')) {
+                                            inputElement.trigger('click')
                                         }
-                                    });
-                                } else {
-                                    inputElement.addClass('uv-field-error');
-                                    inputElement.parents('.uv-element-block').append("<span class='uv-field-message'>{{ 'Tag with same name already exist'|trans }}</span>");
-                                }
+                                        if(response.alertClass == "success") {
+                                            tagCollection.add(model);
+                                            self.render();
+                                        }
+
+                                        app.appView.hideLoader();
+                                        app.appView.renderResponseAlert(response);
+                                    },
+                                    error: function (model, xhr, options) {
+                                        if(url = xhr.getResponseHeader('Location'))
+                                            window.location = url;
+                                        var response = warningResponse;
+                                        if(xhr.responseJSON)
+                                            response = xhr.responseJSON;
+
+                                        app.appView.hideLoader();
+                                        app.appView.renderResponseAlert(response);
+                                    }
+                                });
                             } else {
                                 inputElement.addClass('uv-field-error');
-                                inputElement.parents('.uv-element-block').append("<span class='uv-field-message'>{{ 'Text length should be less than 20 charactors'|trans }}</span>");
+                                inputElement.parents('.uv-element-block').append("<span class='uv-field-message'>{{ 'Tag with same name already exist'|trans }}</span>");
                             }
+                        } else {
+                            inputElement.addClass('uv-field-error');
+                            inputElement.parents('.uv-element-block').append("<span class='uv-field-message'>{{ 'Text length should be less than 20 charactors'|trans }}</span>");
                         }
+                    }
                     {% endif %}
                 },
                 removeErrorClass: function(e) {
@@ -2739,7 +2739,7 @@
                     inputElement.parents('.uv-element-block').find('.uv-field-message').remove()
                 },
             });
-            
+
             // Ticket Router
             var Router = Backbone.Router.extend({
                 routes: {
@@ -2784,7 +2784,7 @@
             });
 
             uvdesk.ticket.model = ticketModel;
-            
+
             threadCollection = new ThreadCollection();
             var threadList = new ThreadList();
             var pagination = new Pagination();
@@ -2812,9 +2812,9 @@
         var sfTinyMceNew = $.extend({}, sfTinyMce);
         var toolbarOptions = sfTinyMce.options.toolbar;
 
-		sfTinyMce.init({
-			selector : '.uv-ticket-reply textarea',
-			toolbar: toolbarOptions + ' | translate',
+        sfTinyMce.init({
+            selector : '.uv-ticket-reply textarea',
+            toolbar: toolbarOptions + ' | translate',
             mentions : getMentions(),
             images_upload_url: "{{ path('helpdesk_member_thread_encoded_image_uploader', {ticketId: app.request.get('ticketId')}) }}",
             setup: function(editor) {
@@ -2825,7 +2825,7 @@
                 });
                 addTranslateButton(editor);
             }
-		});
+        });
 
         function InitTinyMce(selector) {
             let sfTinyMceNew2 = $.extend({}, sfTinyMceNew);
@@ -2839,10 +2839,10 @@
         }
 
         function getMentions(){
-			return {
-				delimiter: ['#'],
+            return {
+                delimiter: ['#'],
                 items: 15,
-				source: function(){
+                source: function(){
                     return [
                         {
                             name : "{{ 'Ticket Id'|trans }}",
@@ -2889,11 +2889,11 @@
                             value : "{{ ticketAgent.email is defined ? ticketAgent.email : 'Not Assigned'|trans }}",
                         }
                     ];
-				},
-				insert: function(item) {
-					return '<span>' + item.value + '</span>';
-				}
-			};
+                },
+                insert: function(item) {
+                    return '<span>' + item.value + '</span>';
+                }
+            };
         }
     </script>
 {% endblock %}
