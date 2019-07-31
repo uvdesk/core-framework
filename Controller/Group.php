@@ -16,7 +16,7 @@ class Group extends Controller
 {
     public function listGroups(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -25,15 +25,15 @@ class Group extends Controller
 
     public function editGroup(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
         if($request->attributes->get('supportGroupId')){
             $group = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')
                 ->findGroupById(['id' => $request->attributes->get('supportGroupId'),
-            ]); 
-                            
+                ]);
+
             if(!$group)
                 $this->noResultFound();
         } else
@@ -52,15 +52,15 @@ class Group extends Controller
 
             $oldUsers = ($usersList = $group->getUsers()) ? $usersList->toArray() : [];
             $oldTeam  = ($teamList = $group->getSupportTeams()) ? $teamList->toArray() : [];
-            
+
 
             $allDetails = $request->request->all();
-            
+
             $em = $this->getDoctrine()->getManager();
             $group->setName($allDetails['name']);
             $group->setDescription($allDetails['description']);
             $group->setIsActive((bool) isset($allDetails['isActive']));
-                    
+
             $usersList = (!empty($allDetails['users']))? $allDetails['users'] : [];
             $userTeam  = (!empty($allDetails['supportTeams']))? $allDetails['supportTeams'] : [];
 
@@ -84,7 +84,7 @@ class Group extends Controller
             if(!empty($userList)){
                 // Add Users to Group
                 foreach ($userList as $user) {
-                    $userInstance = $user->getAgentInstance();               
+                    $userInstance = $user->getAgentInstance();
                     if(!$oldUsers || !in_array($userInstance, $oldUsers)){
                         $userInstance->addSupportGroup($group);
                         $em->persist($userInstance);
@@ -104,11 +104,11 @@ class Group extends Controller
             if(!empty($userTeam)){
                 // Add Teams to Group
                 foreach ($userTeam as $supportTeam) {
-            
+
                     if(!$oldTeam || !in_array($supportTeam, $oldTeam)){
                         $group->addSupportTeam($supportTeam);
                     }elseif($oldTeam && ($key = array_search($supportTeam, $oldTeam)) !== false)
-                    unset($oldTeam[$key]);
+                        unset($oldTeam[$key]);
                 }
                 foreach ($oldTeam as $removeTeam) {
                     $group->removeSupportTeam($removeTeam);
@@ -123,7 +123,7 @@ class Group extends Controller
             $em->persist($group);
             $em->flush();
 
-            $this->addFlash('success', 'Success ! Group information updated successfully.');
+            $this->addFlash('success', $this->get('translator')->trans('Success ! Group information updated successfully.'));
             return $this->redirect($this->generateUrl('helpdesk_member_support_group_collection'));
         }
 
@@ -135,7 +135,7 @@ class Group extends Controller
 
     public function createGroup(Request $request)
     {
-        if(!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')){          
+        if(!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -146,14 +146,14 @@ class Group extends Controller
             $request->request->replace($data); // also for api
             if($request->request->get('tempUsers'))
                 $request->request->set('users', explode(',', $request->request->get('tempUsers')));
-              
+
             if($request->request->get('tempTeams'))
                 $request->request->set('supportTeams', explode(',', $request->request->get('tempTeams')));
             $oldUsers = ($usersList = $group->getUsers()) ? $usersList->toArray() : [];
 
 
             $allDetails = $request->request->all();
-           
+
             $em = $this->getDoctrine()->getManager();
             $group->setName($allDetails['name']);
             $group->setDescription($allDetails['description']);
@@ -186,18 +186,18 @@ class Group extends Controller
                     $userInstance = $user->getAgentInstance();
                     $userInstance->addSupportGroup($group);
                     $em->persist($userInstance);
-                }    
+                }
             }
-           
+
             // Add Teams to Group
             foreach ($userTeam as $supportTeam) {
                 $group->addSupportTeam($supportTeam);
             }
-            
+
             $em->persist($group);
             $em->flush();
 
-            $this->addFlash('success', 'Success ! Group information saved successfully.');
+            $this->addFlash('success', $this->get('translator')->trans('Success ! Group information saved successfully.'));
             return $this->redirect($this->generateUrl('helpdesk_member_support_group_collection'));
         }
 

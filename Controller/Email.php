@@ -12,13 +12,13 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
 
 class Email extends Controller
-{    
+{
     const LIMIT = 10;
-    
+
     protected function getTemplate($request)
     {
         $emailTemplateRepository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates');
-      
+
         $data = $emailTemplateRepository->findOneby([
             'id' => $request->attributes->get('template'),
             'user' => $this->container->get('user.service')->getCurrentUser()->getId()
@@ -26,12 +26,12 @@ class Email extends Controller
 
         $default = $emailTemplateRepository->findOneby([
             'id' => $request->attributes->get('template')
-        ]);  
+        ]);
 
         return $data == null ? $default : $data;
     }
 
-    public function templates(Request $request) 
+    public function templates(Request $request)
     {
         if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
@@ -40,15 +40,15 @@ class Email extends Controller
         return $this->render('@UVDeskCoreFramework//templateList.html.twig');
     }
 
-    public function templateForm(Request $request) 
+    public function templateForm(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
         if ($request->attributes->get('template')) {
             $template = $this->getTemplate($request);
-        } else {  
+        } else {
             $template = new Entity\EmailTemplates();
         }
 
@@ -59,14 +59,14 @@ class Email extends Controller
         if (!$template->getMessage()) {
             $template->setMessage('<p>{%global.companyLogo%}<hr></p><p><br><br><br></p><p><i>' . "Cheers !" . ' </i><br> <i style="color:#397b21">{%global.companyName%}</i><br></p>');
         }
-      
+
         if ($request->getMethod() == 'POST') {
             $entityManager= $this->getDoctrine()->getManager();
             $data = $request->request->all();
 
             $user_instance = $this->container->get('security.token_storage')->getToken()->getUser();
             $user_instance= $entityManager->getRepository(UserInstance::class)->findBy(['id'=>$user_instance->getId()]);
-           
+
             $template->setUser($user_instance[0]);
             $template->setName($data['name']);
             $template->setSubject($data['subject']);
@@ -85,13 +85,13 @@ class Email extends Controller
 
             return $this->redirectToRoute('email_templates_action');
         }
-        
+
         return $this->render('@UVDeskCoreFramework//templateForm.html.twig', array(
             'template' => $template,
         ));
-    } 
+    }
 
-    public function templatesxhr(Request $request) 
+    public function templatesxhr(Request $request)
     {
         if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
@@ -117,8 +117,8 @@ class Email extends Controller
                             $error = true;
                     } else{
                         $json['alertClass'] = 'danger';
-                        $json['alertMessage'] = 'Warning! resource not found.';
-                        $json['statusCode'] = Response::HTTP_NO_FOUND;                        
+                        $json['alertMessage'] = $this->get('translator')->trans('Warning! resource not found.');
+                        $json['statusCode'] = Response::HTTP_NO_FOUND;
                     }
                 }
             }
@@ -126,7 +126,7 @@ class Email extends Controller
 
         if($error) {
             $json['alertClass'] = 'danger';
-            $json['alertMessage'] = 'Warning! You can not remove predefined email template which is being used in workflow(s).';
+            $json['alertMessage'] = $this->get('translator')->trans('Warning! You can not remove predefined email template which is being used in workflow(s).');
         }
 
         $response = new Response(json_encode($json));

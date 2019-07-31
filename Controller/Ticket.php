@@ -18,7 +18,7 @@ class Ticket extends Controller
     public function listTicketCollection(Request $request)
     {
         $entityManager = $this->getDoctrine()->getManager();
-        
+
         return $this->render('@UVDeskCoreFramework//ticketList.html.twig', [
             'ticketStatusCollection' => $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->findAll(),
             'ticketTypeCollection' => $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findByIsActive(true),
@@ -57,7 +57,7 @@ class Ticket extends Controller
         $user = $this->get('user.service')->getSessionUser();
 
         $quickActionButtonCollection->prepareAssets();
-       
+
         return $this->render('@UVDeskCoreFramework//ticket.html.twig', [
             'ticket' => $ticket,
             'totalReplies' => $ticketRepository->countTicketTotalThreads($ticket->getId()),
@@ -75,7 +75,7 @@ class Ticket extends Controller
             'ticketLabelCollection' => $ticketRepository->getTicketLabelCollection($ticket, $user),
         ]);
     }
-    
+
     public function saveTicket(Request $request)
     {
         $requestParams = $request->request->all();
@@ -85,7 +85,7 @@ class Ticket extends Controller
         if ($request->getMethod() != 'POST' || false == $this->get('user.service')->isAccessAuthorized('ROLE_AGENT_CREATE_TICKET')) {
             return $response;
         }
-        
+
         // Get referral ticket if any
         $ticketValidationGroup = 'CreateTicket';
         $referralURL = $request->headers->get('referer');
@@ -97,7 +97,7 @@ class Ticket extends Controller
 
             if ($referralURL === $expectedReferralURL) {
                 $referralTicket = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($referralId);
-                
+
                 if (!empty($referralTicket)) {
                     $ticketValidationGroup = 'CustomerCreateTicket';
                 }
@@ -119,7 +119,7 @@ class Ticket extends Controller
 
             return $this->redirect(!empty($referralURL) ? $referralURL : $this->generateUrl('helpdesk_member_ticket_collection'));
         }
-        
+
         if ('CustomerCreateTicket' === $ticketValidationGroup && !empty($referralTicket)) {
             // Retrieve customer details from referral ticket
             $customer = $referralTicket->getCustomer();
@@ -130,7 +130,7 @@ class Ticket extends Controller
 
             if (empty($customer) || null == $customer->getCustomerInstance()) {
                 $role = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportRole')->findOneByCode('ROLE_CUSTOMER');
-                
+
                 // Create User Instance
                 $customer = $this->get('user.service')->createUserInstance($ticketProxy->getFrom(), $ticketProxy->getName(), $role, [
                     'source' => 'website',
@@ -156,7 +156,7 @@ class Ticket extends Controller
             'user' => $this->getUser(),
             'attachments' => $request->files->get('attachments'),
         ];
-       
+
         $thread = $this->get('ticket.service')->createTicketBase($ticketData);
 
         // Trigger ticket created event
@@ -164,7 +164,7 @@ class Ticket extends Controller
             $event = new GenericEvent(CoreWorkflowEvents\Ticket\Create::getId(), [
                 'entity' =>  $thread->getTicket(),
             ]);
-    
+
             $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
         } catch (\Exception $e) {
             // Skip Automation
@@ -214,14 +214,14 @@ class Ticket extends Controller
         if ($request->getMethod() == "POST") {
             $data = $request->request->all();
             $ticketType = $em->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findOneByCode($data['code']);
-            
+
             if (!empty($ticketType) && $id != $ticketType->getId()) {
                 $this->addFlash('warning', sprintf('Error! Ticket type with same name already exist'));
             } else {
                 $type->setCode($data['code']);
                 $type->setDescription($data['description']);
                 $type->setIsActive(isset($data['isActive']) ? 1 : 0);
-                
+
                 $em->persist($type);
                 $em->flush();
 
@@ -268,7 +268,7 @@ class Ticket extends Controller
                 $em->remove($tag);
                 $em->flush();
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = 'Success ! Tag removed successfully.';
+                $json['alertMessage'] = $this->get('translator')->trans('Success ! Tag removed successfully.');
             }
         }
 
@@ -276,7 +276,7 @@ class Ticket extends Controller
         $response->headers->set('Content-Type', 'application/json');
         return $response;
     }
-    
+
     public function trashTicket(Request $request)
     {
         $ticketId = $request->attributes->get('ticketId');
@@ -286,7 +286,7 @@ class Ticket extends Controller
         if (!$ticket) {
             $this->noResultFound();
         }
-        
+
         if (!$ticket->getIsTrashed()) {
             $ticket->setIsTrashed(1);
 
@@ -298,7 +298,7 @@ class Ticket extends Controller
         $event = new GenericEvent(CoreWorkflowEvents\Ticket\Delete::getId(), [
             'entity' => $ticket,
         ]);
-        
+
         $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
         $this->addFlash('success','Success ! Ticket moved to trash successfully.');
 
@@ -309,7 +309,7 @@ class Ticket extends Controller
     {
         $threadId = $request->attributes->get('threadId');
         $attachmentRepository = $this->getDoctrine()->getManager()->getRepository('UVDeskCoreFrameworkBundle:Attachment');
-        
+
         $attachment = $attachmentRepository->findByThread($threadId);
 
         if (!$attachment) {
@@ -322,7 +322,7 @@ class Ticket extends Controller
         $zip->open($zipname, \ZipArchive::CREATE);
         if (count($attachment)) {
             foreach ($attachment as $attach) {
-                $zip->addFile(substr($attach->getPath(), 1)); 
+                $zip->addFile(substr($attach->getPath(), 1));
             }
         }
 
@@ -353,12 +353,12 @@ class Ticket extends Controller
 
         $response = new Response();
         $response->setStatusCode(200);
-        
+
         $response->headers->set('Content-type', $attachment->getContentType());
         $response->headers->set('Content-Disposition', 'attachment; filename='. $attachment->getName());
         $response->sendHeaders();
         $response->setContent(readfile($path));
-        
+
         return $response;
     }
 }

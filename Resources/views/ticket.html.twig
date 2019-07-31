@@ -1201,27 +1201,27 @@
             </span>
 
             <% if((replyTo && threadType ==  'forward') || cc || bcc) { %>
-            <div class="uv-ticket-strip">
-                <% if(replyTo && threadType ==  'forward') { %>
-                <span><span class="uv-ticket-strip-label">{{ 'TO'|trans }} -</span> <%- replyTo %></span>
-                <% } if(cc) { %>
-                <span><span class="uv-ticket-strip-label">{{ 'CC'|trans }} -</span> <%- cc %></span>
-                <% } if(bcc) { %>
-                <span><span class="uv-ticket-strip-label">{{ 'BCC'|trans }} -</span> <%- bcc %></span>
-                <% } %>
-            </div>
+                <div class="uv-ticket-strip">
+                    <% if(replyTo && threadType ==  'forward') { %>
+                    <span><span class="uv-ticket-strip-label">{{ 'TO'|trans }} -</span> <%- replyTo %></span>
+                    <% } if(cc) { %>
+                    <span><span class="uv-ticket-strip-label">{{ 'CC'|trans }} -</span> <%- cc %></span>
+                    <% } if(bcc) { %>
+                    <span><span class="uv-ticket-strip-label">{{ 'BCC'|trans }} -</span> <%- bcc %></span>
+                    <% } %>
+                </div>
             <% } %>
         </div>
 
         <div class="uv-ticket-strip uv-margin-top-5" <% if(!bookmark && !isLocked) { %>style="display: none"<% } %> >
-        <span <% if(!bookmark) { %>style="display: none"<% } %> >
-        <span class="uv-icon-pinned"></span>
-        {{ 'Pinned'|trans }}
-        </span>
-        <span <% if(!isLocked) { %>style="display: none"<% } %> >
-        <span class="uv-icon-locked"></span>
-        {{ 'Locked'|trans }}
-        </span>
+            <span <% if(!bookmark) { %>style="display: none"<% } %> >
+                    <span class="uv-icon-pinned"></span>
+                    {{ 'Pinned'|trans }}
+                    </span>
+            <span <% if(!isLocked) { %>style="display: none"<% } %> >
+                <span class="uv-icon-locked"></span>
+                {{ 'Locked'|trans }}
+            </span>
         </div>
         <div class="uv-ticket-main-lt">
             <span class="uv-thread-action">
@@ -1231,7 +1231,7 @@
                         <ul>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_EDIT_THREAD_NOTE') %}
                                 <% if(userType != 'system') { %>
-                                <li data-action="edit">{{ 'Edit Thread'|trans }}</li>
+                                    <li data-action="edit">{{ 'Edit Thread'|trans }}</li>
                                 <% } %>
                             {% endif %}
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_DELETE_THREAD_NOTE') %}
@@ -1246,7 +1246,7 @@
                             <% if(threadType != 'note') { %>
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_LOCK_AND_UNLOCK_THREAD') %}
                                     <% if(isLocked) { %>
-                                    <li data-action="lock" data-id="1">{{ 'Unlock Thread'|trans }}</li>
+                                        <li data-action="lock" data-id="1">{{ 'Unlock Thread'|trans }}</li>
                                     <% } else { %>
                                         <li data-action="lock" data-id="0">{{ 'Lock Thread'|trans }}</li>
                                     <% } %>
@@ -1273,26 +1273,26 @@
                 </div>
             </span>
             <% if(userType != 'system') { %>
-            <% if(user && user.smallThumbnail != null) { %>
-            <img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%- user.smallThumbnail %>" />
+                <% if(user && user.smallThumbnail != null) { %>
+                    <img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%- user.smallThumbnail %>" />
+                <% } else { %>
+                    <img src="<% if(userType == 'agent') { %> {{ asset(default_agent_image_path) }} <% } else { %> {{ asset(default_customer_image_path) }} <% } %>" />
+                <% } %>
             <% } else { %>
-            <img src="<% if(userType == 'agent') { %> {{ asset(default_agent_image_path) }} <% } else { %> {{ asset(default_customer_image_path) }} <% } %>" />
-            <% } %>
-            <% } else { %>
-            <img src="{{ asset(default_helpdesk_image_path) }}" />
+                <img src="{{ asset(default_helpdesk_image_path) }}" />
             <% } %>
         </div>
         <div class="uv-ticket-main-rt">
             <% if(userType == 'customer') { %>
-            <a <% if(user) { %>href="{{ path('helpdesk_member_manage_customer_account') }}/<%- user.id %>"<% } %> class="uv-ticket-member-name">
-            <%- fullname %>
-            </a>
+                <a <% if(user) { %>href="{{ path('helpdesk_member_manage_customer_account') }}/<%- user.id %>"<% } %> class="uv-ticket-member-name">
+                <%- fullname %>
+                </a>
             <% } else if(userType == 'agent') { %>
-            <a <% if(user) { %>href="{{ path('helpdesk_member_account') }}/<%- user.id %>"<% } %> class="uv-ticket-member-name">
-            <%- fullname %>
-            </a>
+                <a <% if(user) { %>href="{{ path('helpdesk_member_account') }}/<%- user.id %>"<% } %> class="uv-ticket-member-name">
+                <%- fullname %>
+                </a>
             <% } else { %>
-            <span class="uv-ticket-member-name">
+                <span class="uv-ticket-member-name">
                     {{ 'System'|trans }}
                 </span>
             <% } %>
@@ -1324,7 +1324,6 @@
                     </div>
                 </div>
                 <% } %>
-
             </div>
             <% } %>
         </div>
@@ -1347,27 +1346,27 @@
 
     <script id="ticket_quick_navigation_tmp" type="text/template">
         <% if(prev) { %>
-        <a class="uv-btn-stroke" href="{{ path('helpdesk_member_ticket') }}/<%- prev %>">
-            <span class="uv-icon-previous"></span>
-            {{ 'Previous Ticket'|trans }}
-        </a>
+            <a class="uv-btn-stroke" href="{{ path('helpdesk_member_ticket') }}/<%- prev %>">
+                <span class="uv-icon-previous"></span>
+                {{ 'Previous Ticket'|trans }}
+            </a>
         <% } else { %>
-        <a class="uv-btn-stroke" disabled="disabled">
-            <span class="uv-icon-previous"></span>
-            {{ 'Previous Ticket'|trans }}
-        </a>
+            <a class="uv-btn-stroke" disabled="disabled">
+                <span class="uv-icon-previous"></span>
+                {{ 'Previous Ticket'|trans }}
+            </a>
         <% } %>
 
         <% if(next) { %>
-        <a class="uv-btn-stroke" href="{{ path('helpdesk_member_ticket') }}/<%- next %>">
-            {{ 'Next Ticket'|trans }}
-            <span class="uv-icon-next"></span>
-        </a>
+            <a class="uv-btn-stroke" href="{{ path('helpdesk_member_ticket') }}/<%- next %>">
+                {{ 'Next Ticket'|trans }}
+                <span class="uv-icon-next"></span>
+            </a>
         <% } else { %>
-        <a class="uv-btn-stroke" disabled="disabled">
-            {{ 'Next Ticket'|trans }}
-            <span class="uv-icon-next"></span>
-        </a>
+            <a class="uv-btn-stroke" disabled="disabled">
+                {{ 'Next Ticket'|trans }}
+                <span class="uv-icon-next"></span>
+            </a>
         <% } %>
     </script>
 
@@ -2353,32 +2352,32 @@
                 },
                 removeItem: function() {
                     {% if user_service.isAccessAuthorized('ROLE_AGENT_ADD_COLLABORATOR_TO_TICKET') %}
-                    self = this;
-                    app.appView.showLoader();
-                    this.model.destroy({
-                        data : { 'ticketId' : this.model.attributes.ticketId },
-                        success : function (model, response, options) {
-                            app.appView.hideLoader();
-                            self.$el.remove();
-                            self.unrender(response);
-                        },
-                        error: function (model, xhr, options) {
-                            if(url = xhr.getResponseHeader('Location'))
-                                window.location = url;
-                            var response = warningResponse;
-                            if(xhr.responseJSON)
-                                response = xhr.responseJSON;
+                        self = this;
+                        app.appView.showLoader();
+                        this.model.destroy({
+                            data : { 'ticketId' : this.model.attributes.ticketId },
+                            success : function (model, response, options) {
+                                app.appView.hideLoader();
+                                self.$el.remove();
+                                self.unrender(response);
+                            },
+                            error: function (model, xhr, options) {
+                                if(url = xhr.getResponseHeader('Location'))
+                                    window.location = url;
+                                var response = warningResponse;
+                                if(xhr.responseJSON)
+                                    response = xhr.responseJSON;
 
-                            app.appView.hideLoader();
-                            app.appView.renderResponseAlert(response);
-                        }
-                    });
+                                app.appView.hideLoader();
+                                app.appView.renderResponseAlert(response);
+                            }
+                        });
                     {% endif %}
                 },
                 confirmRemove: function(e) {
                     e.preventDefault();
                     {% if user_service.isAccessAuthorized('ROLE_AGENT_ADD_COLLABORATOR_TO_TICKET') %}
-                    app.appView.openConfirmModal(this)
+                        app.appView.openConfirmModal(this)
                     {% endif %}
                 }
             });
@@ -2418,45 +2417,45 @@
                 },
                 addCollaborator : function(e) {
                     {% if user_service.isAccessAuthorized('ROLE_AGENT_ADD_COLLABORATOR_TO_TICKET') %}
-                    var inputElement = Backbone.$(e.currentTarget);
-                    inputElement.removeClass('uv-field-error');
-                    inputElement.parents('.uv-element-block').find('.uv-field-message').remove()
-                    var text = inputElement.val().trim();
+                        var inputElement = Backbone.$(e.currentTarget);
+                        inputElement.removeClass('uv-field-error');
+                        inputElement.parents('.uv-element-block').find('.uv-field-message').remove()
+                        var text = inputElement.val().trim();
 
-                    if (e.which === 13 && text) {
-                        this.model = new CollaboratorModel();
-                        self = this;
-                        this.model.set({email: text})
+                        if (e.which === 13 && text) {
+                            this.model = new CollaboratorModel();
+                            self = this;
+                            this.model.set({email: text})
 
-                        if(this.model.isValid(true)) {
-                            app.appView.showLoader();
-                            this.model.save({},{
-                                success : function (model, response, options) {
-                                    inputElement.val('');
-                                    if(response.alertClass == "success") {
-                                        collaboratorCollection.add(model);
+                            if(this.model.isValid(true)) {
+                                app.appView.showLoader();
+                                this.model.save({},{
+                                    success : function (model, response, options) {
+                                        inputElement.val('');
+                                        if(response.alertClass == "success") {
+                                            collaboratorCollection.add(model);
+                                        }
+                                        self.render();
+                                        app.appView.hideLoader();
+                                        app.appView.renderResponseAlert(response);
+                                    },
+                                    error: function (model, xhr, options) {
+                                        if(url = xhr.getResponseHeader('Location'))
+                                            window.location = url;
+                                        var response = warningResponse;
+                                        if(xhr.responseJSON)
+                                            response = xhr.responseJSON;
+
+                                        app.appView.hideLoader();
+                                        app.appView.renderResponseAlert(response);
                                     }
-                                    self.render();
-                                    app.appView.hideLoader();
-                                    app.appView.renderResponseAlert(response);
-                                },
-                                error: function (model, xhr, options) {
-                                    if(url = xhr.getResponseHeader('Location'))
-                                        window.location = url;
-                                    var response = warningResponse;
-                                    if(xhr.responseJSON)
-                                        response = xhr.responseJSON;
-
-                                    app.appView.hideLoader();
-                                    app.appView.renderResponseAlert(response);
-                                }
-                            });
-                        } else {
-                            inputElement.addClass('uv-field-error');
-                            if(text)
-                                inputElement.parents('.uv-element-block').append("<span class='uv-field-message'>{{ 'Email address is invalid'|trans }}</span>");
+                                });
+                            } else {
+                                inputElement.addClass('uv-field-error');
+                                if(text)
+                                    inputElement.parents('.uv-element-block').append("<span class='uv-field-message'>{{ 'Email address is invalid'|trans }}</span>");
+                            }
                         }
-                    }
                     {% endif %}
                 }
             });
@@ -2537,62 +2536,62 @@
                 },
                 addTag : function(e) {
                     {% if user_service.isAccessAuthorized('ROLE_AGENT_ADD_TAG') %}
-                    var currentElement = Backbone.$(e.currentTarget);
-                    if(currentElement.is('li')) {
-                        var inputElement = currentElement.parents('.uv-field-block').find('.uv-dropdown-other');
-                        var text = currentElement.text().trim();
-                    } else {
-                        var inputElement = currentElement;
-                        var text = inputElement.val().trim();
-                    }
-                    inputElement.removeClass('uv-field-error');
-                    inputElement.parents('.uv-element-block').find('.uv-field-message').remove()
+                        var currentElement = Backbone.$(e.currentTarget);
+                        if(currentElement.is('li')) {
+                            var inputElement = currentElement.parents('.uv-field-block').find('.uv-dropdown-other');
+                            var text = currentElement.text().trim();
+                        } else {
+                            var inputElement = currentElement;
+                            var text = inputElement.val().trim();
+                        }
+                        inputElement.removeClass('uv-field-error');
+                        inputElement.parents('.uv-element-block').find('.uv-field-message').remove()
 
-                    if (currentElement.is('li') || (e.which === 13 && text)) {
-                        if(text.length <= 20) {
-                            if(tagCollection.isTagExist(text)) {
-                                var self = this;
-                                inputElement.val('');
-                                this.model = new TagModel();
-                                this.model.set({name:text});
-                                self = this;
+                        if (currentElement.is('li') || (e.which === 13 && text)) {
+                            if(text.length <= 20) {
+                                if(tagCollection.isTagExist(text)) {
+                                    var self = this;
+                                    inputElement.val('');
+                                    this.model = new TagModel();
+                                    this.model.set({name:text});
+                                    self = this;
 
-                                app.appView.showLoader();
-                                this.model.save({}, {
-                                    success: function (model, response, options) {
-                                        inputElement.parent().find("li:not(.uv-no-results)").remove()
-                                        inputElement.parent().find(".uv-no-results").show()
-                                        if(!currentElement.is('li')) {
-                                            inputElement.trigger('click')
+                                    app.appView.showLoader();
+                                    this.model.save({}, {
+                                        success: function (model, response, options) {
+                                            inputElement.parent().find("li:not(.uv-no-results)").remove()
+                                            inputElement.parent().find(".uv-no-results").show()
+                                            if(!currentElement.is('li')) {
+                                                inputElement.trigger('click')
+                                            }
+                                            if(response.alertClass == "success") {
+                                                tagCollection.add(model);
+                                                self.render();
+                                            }
+
+                                            app.appView.hideLoader();
+                                            app.appView.renderResponseAlert(response);
+                                        },
+                                        error: function (model, xhr, options) {
+                                            if(url = xhr.getResponseHeader('Location'))
+                                                window.location = url;
+                                            var response = warningResponse;
+                                            if(xhr.responseJSON)
+                                                response = xhr.responseJSON;
+
+                                            app.appView.hideLoader();
+                                            app.appView.renderResponseAlert(response);
                                         }
-                                        if(response.alertClass == "success") {
-                                            tagCollection.add(model);
-                                            self.render();
-                                        }
-
-                                        app.appView.hideLoader();
-                                        app.appView.renderResponseAlert(response);
-                                    },
-                                    error: function (model, xhr, options) {
-                                        if(url = xhr.getResponseHeader('Location'))
-                                            window.location = url;
-                                        var response = warningResponse;
-                                        if(xhr.responseJSON)
-                                            response = xhr.responseJSON;
-
-                                        app.appView.hideLoader();
-                                        app.appView.renderResponseAlert(response);
-                                    }
-                                });
+                                    });
+                                } else {
+                                    inputElement.addClass('uv-field-error');
+                                    inputElement.parents('.uv-element-block').append("<span class='uv-field-message'>{{ 'Tag with same name already exist'|trans }}</span>");
+                                }
                             } else {
                                 inputElement.addClass('uv-field-error');
-                                inputElement.parents('.uv-element-block').append("<span class='uv-field-message'>{{ 'Tag with same name already exist'|trans }}</span>");
+                                inputElement.parents('.uv-element-block').append("<span class='uv-field-message'>{{ 'Text length should be less than 20 charactors'|trans }}</span>");
                             }
-                        } else {
-                            inputElement.addClass('uv-field-error');
-                            inputElement.parents('.uv-element-block').append("<span class='uv-field-message'>{{ 'Text length should be less than 20 charactors'|trans }}</span>");
                         }
-                    }
                     {% endif %}
                 },
                 removeErrorClass: function(e) {

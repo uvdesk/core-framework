@@ -453,7 +453,7 @@ class TicketXHR extends Controller
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => 'Success ! Ticket to label removed successfully.',
+                        'alertMessage' => $this->get('translator')->trans('Success ! Ticket to label removed successfully.'),
                     ]), 200, ['Content-Type' => 'application/json']);
                 }
                 break;
@@ -722,7 +722,7 @@ class TicketXHR extends Controller
         ]);
 
         $this->get('event_dispatcher')->dispatch('uvdesk.automation.prepared_response.execute', $event);
-        $this->addFlash('success', 'Success ! Prepared Response applied successfully.');
+        $this->addFlash('success', $this->get('translator')->trans('Success ! Prepared Response applied successfully.'));
 
         return $this->redirect($this->generateUrl('helpdesk_member_ticket',['ticketId' => $ticketId]));
     }
