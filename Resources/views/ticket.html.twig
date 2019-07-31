@@ -445,7 +445,7 @@
                                 </div>
                             {% else %}
                                 <span class="uv-aside-select-value">
-                                    {{ ticket.priority.description }}
+                                    {{ ticket.priority.description|trans }}
                                 </span>
                             {% endif %}
                         </div>
@@ -1324,6 +1324,7 @@
                     </div>
                 </div>
                 <% } %>
+
             </div>
             <% } %>
         </div>
@@ -2377,7 +2378,7 @@
                 confirmRemove: function(e) {
                     e.preventDefault();
                     {% if user_service.isAccessAuthorized('ROLE_AGENT_ADD_COLLABORATOR_TO_TICKET') %}
-                        app.appView.openConfirmModal(this)
+                        app.appView.openConfirmModal(this);
                     {% endif %}
                 }
             });
@@ -2857,7 +2858,7 @@
                         },
                         {
                             name : "{{ 'Priority'|trans }}",
-                            value : "{{ ticket.priority.description }}",
+                            value : "{{ ticket.priority.description|trans }}",
                         },
                         {
                             name : "{{ 'Type'|trans }}",

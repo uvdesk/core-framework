@@ -49,7 +49,7 @@ class Ticket extends Controller
             }
         }
 
-        // ( in_array($this->getUser()->getRole(), ['ROLE_SUPER_ADMIN', 'ROLE_ADMIN']) 
+        // ( in_array($this->getUser()->getRole(), ['ROLE_SUPER_ADMIN', 'ROLE_ADMIN'])
         // ?: (in_array('ROLE_AGENT_AGENT_KICK', $this->get('user.service')->getAgentPrivilege($this->getUser()->getId()))) )
 
         $agent = $ticket->getAgent();
@@ -300,7 +300,7 @@ class Ticket extends Controller
         ]);
 
         $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
-        $this->addFlash('success','Success ! Ticket moved to trash successfully.');
+        $this->addFlash('success', $this->get('translator')->trans('Success ! Ticket moved to trash successfully.'));
 
         return $this->redirectToRoute('helpdesk_member_ticket_collection');
     }

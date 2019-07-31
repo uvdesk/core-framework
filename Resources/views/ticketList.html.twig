@@ -157,7 +157,7 @@
                     </ul>
                 </div>
 
-                <a class="uv-btn-small add-new-label" href="#"><span class="uv-icon-add"></span> {{ ' Label'|trans }}</a>
+                <a class="uv-btn-small add-new-label" href="#"><span class="uv-icon-add"></span> {{ 'Label'|trans }}</a>
             </div>
 
             <!-- Label add and edit -->
@@ -403,7 +403,7 @@
 
                                                 <ul class="status" data-action="status">
                                                     {% for status in ticketStatusCollection %}
-                                                        <li data-index="{{ status.id }}"><a href="#">{{ status.description }}</a></li>
+                                                        <li data-index="{{ status.id }}"><a href="#">{{ status.description|trans }}</a></li>
                                                     {% endfor %}
                                                 </ul>
                                             </div>
@@ -419,7 +419,7 @@
                                             <div class="uv-dropdown-container">
                                                 <label>{{ 'Type'|trans }}</label>
                                                 <div class="uv-search-sm">
-                                                    <input type="text" class="uv-search-field" placeholder="Search">
+                                                    <input type="text" class="uv-search-field" placeholder="{{ 'Search'|trans }}">
                                                 </div>
                                             </div>
 
@@ -442,7 +442,7 @@
 
                                                 <ul class="priority" data-action="priority">
                                                     {% for priority in ticketPriorityCollection %}
-                                                        <li data-index="{{ priority.id }}"><a href="#">{{ priority.description }}</a></li>
+                                                        <li data-index="{{ priority.id }}"><a href="#">{{ priority.description|trans }}</a></li>
                                                     {% endfor %}
                                                 </ul>
                                             </div>
@@ -718,7 +718,7 @@
                                         {% for priority in ticket_service.getPriorities() %}
                                             {% set options = options|merge([{'id': priority.id, 'name': priority.code, 'color': priority.colorCode}]) %}
                                             <li data-id="{{priority.id}}">
-                                                {{priority.code}}
+                                                {{ priority.code|trans }}
                                             </li>
                                         {% endfor %}
                                         <li class="uv-no-results" style="display: none;">
@@ -881,7 +881,7 @@
             {% for status in ticketStatusCollection %}
                 <li>
                     <a href="#" class="<% if(active == {{ status.id }} {% if status.id == 1 %} || active == 0{% endif %}) { %>uv-aside-nav-active<% } %>" data-id="{{ status.id }}">
-                        <span class="name">{{ status.description }}</span>
+                        <span class="name">{{ status.description|trans }}</span>
                         <span class="uv-flag-gray">
                             <% if(status && status[1] != undefined) { %>
                                 <%= status[{{ status.id }}] %>

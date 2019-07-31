@@ -192,8 +192,8 @@ Customer: Клиент
 Tag: Тег
 Before: До
 After: После
-'Replies less than': 'Ответы меньше чем'
-'Replies more than': 'Ответы более чем'
+'Replies less than': 'Ответов меньше чем'
+'Replies more than': 'Ответов более чем'
 'Last Replied': 'Последний ответ'
 'Assign To': 'Назначить на'
 New: Новый
@@ -305,7 +305,7 @@ Created: Создано
 'Success ! Agent added successfully.': 'Успех! Агент успешно добавлен.'
 'Success ! Agent removed successfully.': 'Успех! Агент успешно удален.'
 'Success ! Filter has been saved successfully.': 'Успех! Фильтр успешно сохранен.'
-'Success ! Filter has been updated successfully.': 'Удачи! Фильтр успешно обновлен.'
+'Success ! Filter has been updated successfully.': 'Удача! Фильтр успешно обновлен.'
 'Success ! Filter has been removed successfully.': 'Успех! Фильтр успешно удален.'
 'Success ! Privilege information saved successfully.': 'Успех! Информация о привилегиях успешно сохранена.'
 'Success ! Thread updated successfully.': 'Успех! Переписка успешно обновлена.'
@@ -320,6 +320,7 @@ Created: Создано
 'Success ! Group information saved successfully.': 'Успех! Информация о группе успешно сохранена.'
 'Success ! Customer updated successfully.': 'Успех! Клиент успешно обновлен.'
 'Success ! Agent updated successfully.': 'Успех! Агент успешно обновлен.'
+'Success ! Ticket moved to trash successfully.': 'Удача! Заявка успешно перемещена в корзину.'
 'Error ! Label name can not be blank.': 'Ошибка! Метка не может быть пустой.'
 'Error ! Invalid Collaborator.': 'Ошибка! Некорретный соисполнитель.'
 'Error ! Collaborator is already added.': 'Ошибка! Соисполнитель уже добавлен.'
@@ -336,6 +337,7 @@ Created: Создано
 'Error ! User with same email is already exist.': 'Ошибка ! Пользователь с таким email уже существует.'
 'Error ! User with same email already exist.': 'Ошибка ! Пользователь с таким же адресом электронной почты уже существует.'
 'Error ! Invalid user id.': 'Ошибка ! Неверный ID пользователя'
+'Error! Saved reply body can not be blank': 'Ошибка! Тело "Ответа" не может быть пустым'
 'Please enter tag name.': 'Пожалуйста введите имя тега.'
 'Ticket status already set to %status%': 'Статус заявки уже "%status%"'
 'Unable to retrieve status details': 'Невозможно получить информацию о статусе'
