@@ -123,9 +123,13 @@
 		</td>
 		{% if articlesEnabled is defined and articlesEnabled == true %}
 			<td data-value="{{ 'Name'|trans }}">
-				<a href="{{ path('helpdesk_member_knowledgebase_article_collection') }}#search/tag:<%= name %>">
-					<%= articleCount %>
-				</a>
+				<% if (typeof articleCount != 'undefined') { %>
+					<a href="{{ path('helpdesk_member_knowledgebase_article_collection') }}#search/tag:<%= name %>">
+						<%= articleCount %>
+					</a>
+				<% } else { %>
+					-
+				<% } %>
 			</td>
 		{% endif %}
 		<td data-value="{{ 'Action'|trans }}" class="uv-last">
