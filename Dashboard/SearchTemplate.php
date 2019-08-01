@@ -2,6 +2,7 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Dashboard;
 
+use Symfony\Component\Routing\RouterInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\SearchItemInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Framework\ExtendableComponentInterface;
 
@@ -23,7 +24,7 @@ class SearchTemplate implements ExtendableComponentInterface
 TEMPLATE;
 
 	CONST ITEM_TEMPLATE = <<<ITEM_TEMPLATE
-<a href="{{ path([[ PATH_NAME ]]) }}">
+<a href="[[ URL ]]">
 	<div class="uv-search-result-row">
 		<div class="uv-brick-icon">"[[ SVG ]]"</div>
 		<p>[[ NAME ]]</p>
@@ -33,6 +34,11 @@ ITEM_TEMPLATE;
 
 	private $segments = [];
 
+	public function __construct(RouterInterface $router)
+	{
+		$this->router = $router;
+	}
+
 	public function appendSearchItem(SearchItemInterface $segment, $tags = [])
 	{
 		$this->segments[] = $segment;
@@ -40,11 +46,13 @@ ITEM_TEMPLATE;
 
 	public function render()
 	{
-		$html = array_reduce($this->segments, function($html, $segment) {
+		$router = $this->router;
+
+		$html = array_reduce($this->segments, function($html, $segment) use ($router) {
 			$html .= strtr(self::ITEM_TEMPLATE, [
 				'[[ SVG ]]' => $segment::getIcon(),
 				'[[ NAME ]]' => $segment::getTitle(),
-				'[[ PATH_NAME ]]' => $segment::getRouteName(),
+				'[[ URL ]]' => $router->generate($segment::getRouteName()),
 			]);
 
 			return $html;
