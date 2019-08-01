@@ -52,8 +52,8 @@ All: Все
 'Add Agent': 'Добавить агента'
 'Add Customer': 'Добавить клиента'
 'Edit Customer': 'Изменить клиента'
-'Email address is invalid': 'Адрес электронной почты недействителен'
-'Contact number is invalid': 'Контактный номер недействителен'
+'Email address is invalid': 'Адрес электронной почты некорректен'
+'Contact number is invalid': 'Контактный номер некорректен'
 Customers: Клиенты
 'Sort By': 'Сортировать по'
 Status: Статус
