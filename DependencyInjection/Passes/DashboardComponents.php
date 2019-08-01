@@ -8,7 +8,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Dashboard;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\AsideTemplate;
-use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\SearchItemTemplate;
+use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\SearchTemplate;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\SearchItemInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\NavigationInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\PanelSidebarInterface;
@@ -53,12 +53,12 @@ class DashboardComponents implements CompilerPassInterface
             }
         }
 
-        if ($container->has(SearchItemTemplate::class)) {
-            $SearchItemTemplateDefinition = $container->findDefinition(SearchItemTemplate::class);
+        if ($container->has(SearchTemplate::class)) {
+            $searchTemplateDefinition = $container->findDefinition(SearchTemplate::class);
 
-            // Dashboard Panel Sidebars
+            // Dashboard Search Items
             foreach ($container->findTaggedServiceIds(SearchItemInterface::class) as $reference => $tags) {
-              $SearchItemTemplateDefinition->addMethodCall('appendSearchItem', array(new Reference($reference)));
+                $searchTemplateDefinition->addMethodCall('appendSearchItem', array(new Reference($reference)));
             }
         }
     }
