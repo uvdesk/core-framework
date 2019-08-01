@@ -12,6 +12,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Framework\ExtendableComponentInterface;
 
 use Webkul\UVDesk\CoreFrameworkBundle\Tickets\WidgetInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Tickets\QuickActionButtonInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\SearchItemInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\NavigationInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\HomepageSectionInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\HomepageSectionItemInterface;
@@ -33,7 +34,7 @@ class CoreFramework extends Extension
     public function load(array $configs, ContainerBuilder $container)
     {
         $services = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config/services'));
-        
+
         $services->load('core.yaml');
         $services->load('public.yaml');
 
@@ -80,12 +81,13 @@ class CoreFramework extends Extension
         $container->registerForAutoconfiguration(RouterInterface::class)->addTag('routing.loader');
         $container->registerForAutoconfiguration(WidgetInterface::class)->addTag(WidgetInterface::class);
         $container->registerForAutoconfiguration(QuickActionButtonInterface::class)->addTag(QuickActionButtonInterface::class);
-        
+
         $container->registerForAutoconfiguration(RoutingResourceInterface::class)->addTag(RoutingResourceInterface::class);
         $container->registerForAutoconfiguration(ExtendableComponentInterface::class)->addTag(ExtendableComponentInterface::class);
-        
+
         // $container->registerForAutoconfiguration(EmbeddableResourceInterface::class)->addTag(EmbeddableResourceInterface::class);
 
+        $container->registerForAutoconfiguration(SearchItemInterface::class)->addTag(SearchItemInterface::class);
         $container->registerForAutoconfiguration(NavigationInterface::class)->addTag(NavigationInterface::class);
         $container->registerForAutoconfiguration(HomepageSectionInterface::class)->addTag(HomepageSectionInterface::class);
         $container->registerForAutoconfiguration(HomepageSectionItemInterface::class)->addTag(HomepageSectionItemInterface::class);
