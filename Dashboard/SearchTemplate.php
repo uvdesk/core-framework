@@ -23,13 +23,7 @@ class SearchTemplate implements ExtendableComponentInterface
     public function render()
     {
         return $this->twig->render('@UVDeskCoreFramework/Templates/search.html.twig', [
-            'collection' => array_map(function ($segment) {
-                return [
-                    'svg' => $segment::getIcon(),
-                    'name' => $segment::getTitle(),
-                    'route' => $segment::getRouteName(),
-                ];
-            }, $this->collection)
+            'collection' => $this->collection
         ]);
     }
 }
