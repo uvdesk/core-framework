@@ -8,36 +8,28 @@ use Webkul\UVDesk\CoreFrameworkBundle\Framework\ExtendableComponentInterface;
 
 class SearchTemplate implements ExtendableComponentInterface
 {
-    CONST ITEM_TEMPLATE_PATH = '@UVDeskCoreFramework/Templates/Search/item-template.html.twig';
-    CONST COLLECTION_TEMPLATE_PATH = '@UVDeskCoreFramework/Templates/Search/collection-template.html.twig';
-
-    private $segments = [];
+    private $collection = [];
 
     public function __construct(TwigEnvironment $twig)
     {
         $this->twig = $twig;
     }
+
     public function appendSearchItem(SearchItemInterface $segment, $tags = [])
     {
-        $this->segments[] = $segment;
+        $this->collection[] = $segment;
     }
 
     public function render()
     {
-        $segments = $this->segments;
-
-        $html = array_reduce($this->segments, function($html, $segment) {
-            $html .= $this->twig->render(self::ITEM_TEMPLATE_PATH, [
-                'svg' => $segment::getIcon(),
-                'name' => $segment::getTitle(),
-                'route' => $segment::getRouteName(),
-            ]);
-
-            return $html;
-        }, '');
-
-        return $this->twig->render(self::COLLECTION_TEMPLATE_PATH, [
-            'searchItems' => $html
+        return $this->twig->render('@UVDeskCoreFramework/Templates/search.html.twig', [
+            'collection' => array_map(function ($segment) {
+                return [
+                    'svg' => $segment::getIcon(),
+                    'name' => $segment::getTitle(),
+                    'route' => $segment::getRouteName(),
+                ];
+            }, $this->collection)
         ]);
     }
 }

@@ -3,7 +3,14 @@
 	<div class="uv-search-result-wrapper" id="beauty-scroll">
 		<h6>Results</h6>
 
-		{{ searchItems | raw }}
+		{% for item in collection %}
+			<a href="{{ path(item.route) }}">
+				<div class="uv-search-result-row">
+					<div class="uv-brick-icon">{{ item.svg | raw }}</div>
+					<p>{{ item.name }}</p>
+				</div>
+			</a>
+		{% endfor %}
 
 		<div class="uv-search-result-row uv-no-results" style="display: none">
 			<p>{{ 'No result found'|trans }}</p>
