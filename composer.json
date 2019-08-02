@@ -1,0 +1,61 @@
+{
+    "name": "uvdesk/core-framework",
+    "description": "UVDesk Community Helpdesk Core Framework Bundle",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Akshay Kumar",
+            "email": "akshay.kumar758@webkul.com"
+        }
+    ],
+    "require": {
+        "php": "^7.0",
+        "uvdesk/composer-plugin": "0.1.*",
+        "doctrine/orm": "^2.5.11",
+        "doctrine/doctrine-bundle": "^1.6.10",
+        "doctrine/doctrine-migrations-bundle": "^1.3",
+        "doctrine/doctrine-fixtures-bundle": "^3.0",
+        "inlinestyle/inlinestyle": "^1.2",
+        "symfony/asset": "^3.4",
+        "symfony/security": "^3.4",
+        "symfony/security-bundle": "^3.4",
+        "symfony/twig-bundle": "^3.4",
+        "symfony/console": "^3.4",
+        "symfony/dom-crawler": "^3.4",
+        "symfony/expression-language": "^3.4",
+        "symfony/flex": "^1.0",
+        "symfony/dotenv": "^3.4",
+        "symfony/framework-bundle": "^3.4,<3.4.19,!=3.4.x-dev",
+        "symfony/monolog-bundle": "^3.1.0",
+        "symfony/swiftmailer-bundle": "^3.2",
+        "symfony/routing": "<4.2",
+        "symfony/twig-bridge": "<3.4.5|<4.0.5,>=4.0",	
+        "symfony/security-csrf": "^3.4",	
+        "symfony/form": "^3.4",
+        "symfony/proxy-manager-bridge": "^3.4",
+        "symfony/translation": "^3.4",
+        "symfony/yaml": "^3.4",
+        "symfony/serializer": "^3.4",
+        "knplabs/knp-paginator-bundle": "^2.6,!=2.8,!=2.8.x-dev",
+        "stof/doctrine-extensions-bundle": "^1.3"
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^3.4",
+        "symfony/web-server-bundle": "^3.4"
+    },
+    "suggest": {
+        "uvdesk/automation-bundle": "Automate operations within your UVDesk Community Helpdesk System based on pre-defined events triggered from your application",
+        "uvdesk/support-center-bundle": "Provide your customers with convenience by introducing the Support Center Portal to your UVDesk Community Helpdesk System"
+    },
+    "autoload": {
+        "psr-4": { "Webkul\\UVDesk\\CoreBundle\\": "" }
+    },
+    "extra": {
+        "uvdesk-package-extension": "Webkul\\UVDesk\\CoreBundle\\Package\\Composer",
+        "branch-alias": {
+            "dev-master": "0.1.x-dev"
+        }
+    },
+    "minimum-stability": "dev"
+}

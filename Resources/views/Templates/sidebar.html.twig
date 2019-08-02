@@ -1,0 +1,92 @@
+<style>
+    .uv-sidebar:not(.uv-sidebar-active) .uv-language .lang-wrapper {
+        width: 300px;
+        text-align: center;
+        transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .uv-sidebar ul.uv-menubar.uv-language{
+        position: fixed;
+        bottom: 0px;
+    }
+    
+    .uv-sidebar.uv-sidebar-active ul.uv-menubar.uv-language li a{
+        width: 58px;
+    }
+    
+    .uv-sidebar ul.uv-menubar.uv-language li a{
+        max-width: 100%;
+    }
+    
+    .uv-sidebar ul.uv-menubar.uv-language li a:hover, .uv-sidebar ul.uv-menubar.uv-language li .uv-item-active{
+        color: #9E9E9E !important;
+        border-left: 3px solid transparent;
+    }
+    
+    .uv-sidebar ul.uv-menubar.uv-language a.uv-cursor{
+        padding: 25px 27px;
+    }
+    
+    .uv-sidebar ul.uv-menubar.uv-language .uv-profile.uv-dropdown-other{
+        margin: -25px -27px;
+        padding: 17px 18px;
+    }
+
+	.uv-logo-image {
+		height: 50px;
+		width: 50px;	
+	}
+
+	.hamburger-click-area{
+		width: 30px;
+		height: 30px;
+	}
+	
+    @media only screen and (max-width: 900px) {
+        .uv-sidebar ul.uv-menubar.uv-language li a {
+            width: 58px;
+        }
+    }
+</style>
+
+{% if null == app.request.cookies.get('uv-sidebar-status') %}
+	<script type="text/javascript">
+		document.addEventListener("DOMContentLoaded", function(e) {
+			window.dispatchEvent(new Event('resize'));
+		    var uvView = document.querySelector(".uv-view");
+			if(uvView && uvView.offsetWidth <= 1340) {
+				document.cookie = "uv-sidebar-status=1; expires=Wed, 01 Jan 2020 00:00:00 GMT;path=/";
+			}
+		});
+	</script>
+{% endif %}
+
+<div class="uv-sidebar {% if app.request.cookies.get('uv-sidebar-status') %}uv-sidebar-active{% endif %}">
+	
+		<div class="uv-soft-top">
+			<span class="uv-hamburger ">
+				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="hamburger-click-area">
+                    <path fill-rule="evenodd"  fill="rgb(158, 158, 158)" d="M19.000,2.000 L6.000,2.000 C5.448,2.000 5.000,1.552 5.000,1.000 C5.000,0.448 5.448,-0.000 6.000,-0.000 L19.000,-0.000 C19.552,-0.000 20.000,0.448 20.000,1.000 C20.000,1.552 19.552,2.000 19.000,2.000 ZM20.000,7.000 C20.000,7.552 19.552,8.000 19.000,8.000 L1.000,8.000 C0.448,8.000 0.000,7.552 0.000,7.000 C0.000,6.448 0.448,6.000 1.000,6.000 L19.000,6.000 C19.552,6.000 20.000,6.448 20.000,7.000 ZM3.000,12.000 L15.000,12.000 C15.552,12.000 16.000,12.448 16.000,13.000 C16.000,13.552 15.552,14.000 15.000,14.000 L3.000,14.000 C2.448,14.000 2.000,13.552 2.000,13.000 C2.000,12.448 2.448,12.000 3.000,12.000 Z"/>
+				</svg>
+			</span>
+		</div>
+		
+	<ul class="uv-menubar">
+		{# Sidebar Navigation #}
+        {% set route = app.request.attributes.get('_route') %}
+
+		{% for navigationItem in uvdesk_service.getHelpdeskNavigationSidebarItems() %}
+			<li data-toggle="tooltip" data-placement="right" title="{{ navigationItem.name }}" class="{{ (route == navigationItem.route) or (navigationItem.route == "helpdesk_member_ticket_collection" and route == "helpdesk_member_ticket") or (navigationItem.route == "helpdesk_member_knowledgebase_folders_collection" and (route == "helpdesk_member_knowledgebase_category_collection" or route == "helpdesk_member_knowledgebase_article_collection")) ? 'uv-active-sidebar' }}">
+				<a href="{{ path(navigationItem.route) }}">
+					<span class="uv-icon">
+						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20px" height="18px">
+							{{ navigationItem.icon_svg | raw }}
+						</svg>
+					</span>
+
+					<span class="uv-menu-item">{{ navigationItem.name }}</span>
+				</a>
+			</li>
+		{% endfor %}
+	</ul>
+</div>

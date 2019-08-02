@@ -1,0 +1,748 @@
+<!-- Navbar -->
+<style>
+    .uv-navbar .uv-notification-list li {
+        cursor: default;
+        font-size: 15px !important;
+    }
+    .uv-navbar .uv-notification-list li * {
+        display: inline-block !important;
+    }
+    .uv-navbar .uv-notification-list li a {
+         color: #2750C4 !important;
+    }
+    .uv-navbar .uv-notification-list ul {
+        max-height: 320px !important;
+    }
+    .uv-navbar .uv-notification-list .timeago {
+        color: #9E9E9E;
+        margin-top: 5px;
+        font-size: 13px;
+    }
+    .uv-navbar .uv-dropdown-container.load-more {
+        border-top: solid 1px #D3D3D3;
+        text-align: center;
+    }
+    .uv-navbar .uv-dropdown-container.load-more a {
+        color: #333;
+        text-transform: capitalize;
+        font-size: 15px;
+        font-weight: 500;
+    }
+    .uv-navbar .uv-icon-load-more {
+        margin-right: 5px;
+    }
+    .uv-plan-list-item .uv-text-light-color {
+        color: #9E9E9E;
+    }
+    .uv-plan-list-item .uv-plan-badge {
+        color: #FFFFFF;
+        font-size: 12px;
+        padding: 1px 5px;
+        border-radius: 3px;
+        margin-left: 5px;
+        display: inline-block;
+        text-transform: uppercase;
+    }
+    .uv-plan-list-item .uv-plan-badge-color-free {
+        background: #4486ee;
+    }
+    .uv-plan-list-item .uv-plan-badge-color-pro {
+        background: #f5d02a;
+    }
+    .uv-plan-list-item .uv-plan-badge-color-enterprise {
+        background: #fd9a9a;
+    }
+    .uv-plan-list-item .uv-plan-badge-color-customized {
+        background: #b77af5;
+    }
+    .uv-onboard-navigator {
+        cursor: pointer;
+    }
+    .uv-margin-icon-srch {
+        margin: 5px 0px 0px 5px;
+    }
+    @media only screen and (max-width: 1350px){
+        .uv-mob-aside{
+            position: fixed;
+            z-index: 999;
+            top: 138px;
+            left: 460px;
+            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    }
+
+    @media only screen and (min-width: 1400px){
+        .uv-mob-aside{
+            position: fixed;
+            z-index: 999;
+            top: 138px;
+            left: 488px;
+            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    }
+    
+    
+    .uv-sidebar.uv-sidebar-active ~ .uv-paper .uv-mob-aside{
+        left: 320px;
+    }
+    .uv-mob-aside.uv-mob-aside-collapsed{
+        left: 218px;
+    }
+    .uv-sidebar.uv-sidebar-active ~ .uv-paper .uv-mob-aside.uv-mob-aside-collapsed{
+        left: 45px;
+    }
+    .uv-view.uv-aside-view{
+        padding: 25px 0px 25px 25px;
+    }
+    .uv-inner-section .uv-view.uv-aside-view .uv-ticket-scroll-region.uv-aside-view-tv{
+        left: 20px;
+    }
+    .uv-mob-aside .uv-icon-aside-menu,.uv-mob-aside .uv-icon-aside-menu:hover {
+        background-position: 1px -497px;
+    }
+    .uv-mob-aside-collapsed .uv-icon-aside-menu, .uv-mob-aside-collapsed .uv-icon-aside-menu:hover {
+        background-position: 5px -497px;
+    }
+    .uv-mob-aside:not(.uv-mob-aside-collapsed) .uv-icon-aside-menu,.uv-mob-aside:not(.uv-mob-aside-collapsed) .uv-icon-aside-menu:hover {
+        -ms-transform: rotate(180deg);
+        -webkit-transform: rotate(180deg);
+        transform: rotate(180deg);
+    }
+    .uv-mob-aside:not(.uv-mob-aside-collapsed) .uv-icon-aside-menu:hover,.uv-rtl .uv-mob-aside.uv-mob-aside-collapsed .uv-icon-aside-menu:hover {
+        box-shadow: 0px -8px 15px 3px rgba(0, 0, 0, 0.15), 0px -2px 3px 0px rgba(0, 0, 0, 0.2);
+    }
+    .uv-rtl .uv-mob-aside:not(.uv-mob-aside-collapsed) .uv-icon-aside-menu,.uv-rtl .uv-mob-aside:not(.uv-mob-aside-collapsed) .uv-icon-aside-menu:hover {
+        -ms-transform: unset;
+        -webkit-transform: unset;
+        transform: unset;
+    }
+    .uv-rtl .uv-mob-aside.uv-mob-aside-collapsed .uv-icon-aside-menu,.uv-rtl .uv-mob-aside.uv-mob-aside-collapsed .uv-icon-aside-menu:hover {
+        -ms-transform: rotate(180deg)!important;
+        -webkit-transform: rotate(180deg)!important;
+        transform: rotate(180deg)!important;
+    }
+    .uv-rtl .uv-sidebar.uv-sidebar-active ~ .uv-paper .uv-mob-aside{
+        right: 320px;
+        left: unset;
+    }
+    .uv-rtl .uv-mob-aside.uv-mob-aside-collapsed{
+        right: 286px;
+    }
+    .uv-rtl .uv-sidebar.uv-sidebar-active ~ .uv-paper .uv-mob-aside.uv-mob-aside-collapsed{
+        right: 45px;
+    }
+    .uv-rtl .uv-inner-section .uv-view.uv-aside-view .uv-ticket-scroll-region.uv-aside-view-tv{
+        right: 20px;
+    }
+    .uv-rtl .uv-sidebar:not(.uv-sidebar-active) ~ .uv-paper .uv-mob-aside:not(.uv-mob-aside-collapsed) {
+        right: 560px
+    }
+    .uv-rtl .uv-mob-aside{
+        left: unset;
+    }
+    .uv-menubar.uv-language .uv-dropdown-list {
+        z-index: 19999;
+    }
+
+    .user-name {
+        font-weight: 800;
+        margin-top: 2px;
+        font-size: medium;
+    }
+    @media screen and (min-width: 901px) and (max-width: 1400px) {
+        .uv-sidebar.uv-sidebar-active ~ .uv-paper .uv-mob-aside{
+            left: 290px;
+        }
+        .uv-mob-aside.uv-mob-aside-collapsed{
+            left: 217px;
+        }
+        .uv-rtl .uv-sidebar.uv-sidebar-active ~ .uv-paper .uv-mob-aside{
+            right: 290px;
+        }
+        .uv-rtl  .uv-mob-aside.uv-mob-aside-collapsed{
+            right: 252px;
+        }
+    }
+    @media screen and (max-width: 1024px) {
+        .uv-mob-aside{
+            top: 48px;
+            left: 80px!important;
+        }
+        .uv-mob-aside-collapsed .uv-icon-aside-menu, .uv-mob-aside-collapsed .uv-icon-aside-menu:hover {
+            background-position: 1px -497px;
+        }
+        .uv-sidebar ul.uv-menubar li a {
+            max-width: 60px !important;
+        }
+        .uv-sidebar .uv-soft-top .uv-company-logo {
+            width: unset;
+        }
+        #google_translate_element .goog-te-gadget-simple {
+            width: 26px;
+            overflow: hidden;
+            font-size: 0px;
+            padding: 3px 2px 2px 2px;
+        }
+    }
+    @media screen and (max-width: 400px) {
+        #google_translate_element {
+            display: none;
+        }
+    }
+    .uv-rtl .uv-mob-aside{
+        right: 320px;
+    }
+    .uv-pop-up-body .uv-mob-aside {
+        display: none;
+        transition: none;
+    }
+    .uv-rtl .uv-view.uv-aside-view{
+        padding: 25px 25px 25px 0px;
+    }
+    .uv-rtl .uv-inner-section .uv-view.uv-aside-view .uv-ticket-scroll-region.uv-aside-view-tv{
+        left: 0px;
+        right: 20px;
+    }
+    .uv-filter-view .uv-filter-head .uv-filter-toggle span{
+        background-position: -21px -244px;
+    }
+    .uv-view.uv-aside-view{
+        padding: 25px 0px 25px 25px;
+    }
+    .uv-inner-section .uv-view.uv-aside-view .uv-ticket-scroll-region.uv-aside-view-tv{
+        left: 20px;
+    }
+    .uv-rtl .uv-view.uv-aside-view{
+        padding: 25px 25px 25px 0px;
+    }
+    .uv-rtl .uv-inner-section .uv-view.uv-aside-view .uv-ticket-scroll-region.uv-aside-view-tv{
+        left: 0px;
+        right: 20px;
+    }
+    .uv-filter-view .uv-filter-head .uv-filter-toggle span{
+        background-position: -21px -244px;
+    }
+
+
+    .uv-inner-section .uv-view.uv-aside-view .uv-ticket-fixed-region{
+        left: 20px;
+    }
+
+    .uv-rtl .uv-inner-section .uv-view.uv-aside-view .uv-ticket-fixed-region {
+        left: 0px;
+        right: 20px;
+    }
+
+    div.mce-edit-area {
+        margin-right: 1px!important;
+    }
+
+    .uv-whats-newlist li img {
+        width: 40px;
+    }
+    .uv-got-whats-new {
+        background-color: #7C70F4;
+        border-radius: 50%;
+        padding: 4px;
+        border: 2px solid white;
+        position: absolute;
+        top: -3px;
+        right: -3px;
+    }
+    .uv-feature-title {
+        vertical-align: top;
+        font-size: 18px;
+        margin: 5px 0 0 5px;
+        word-wrap: break-word;
+        display: inline-block;
+    }
+    .uv-feature-content {
+        margin: 2px 0 0 0;
+    }
+    .uv-dropdown-list ul .uv-feature-link, .uv-dropdown-list ul .uv-feature-link:link, .uv-dropdown-list ul .uv-feature-link:active, .uv-dropdown-list ul .uv-feature-link:visited, .uv-dropdown-list ul .uv-feature-link:focus {
+        color: #2750C4;
+        font-size: 15px;
+        margin-top: 10px;
+    }
+    .uv-dropdown-list ul.uv-search-list li.uv-whats-li {
+        border-top: none;
+        padding-top: 5px;
+    }
+    .uv-whats-newlist + .uv-notification-list {
+        margin-left: 15px;
+    }
+    .uv-search-result-wrapper a:focus > .uv-search-result-row {
+        background-color: #f0f0f0;
+    }
+    .uv-loader-view ~ .uv-notifications-wrapper {
+        z-index: 9999;
+    }
+    .mce-notification-error {
+        display: none;
+    }
+    ul.uv-flag-notice-list {
+        color: #333333;
+        border-top: solid 1px #D3D3D3;
+        border-bottom: solid 1px #D3D3D3;
+        padding: 15px 20px;
+        background: #FAFAFA;
+    }
+    .uv-dropdown-list ul.uv-search-list.flags-active li:first-child {
+        border-top: unset;
+    }
+
+    .uv-main-logo {
+        position: absolute;
+        padding: 10px 0 0px 30px; 
+    }
+    .dropdown-divider {
+        border-top: 1px solid #e1e4e8;
+        display: block;
+        height: 0;
+        margin: 10px 0 10px -19px;
+        width: 195px;
+    }
+</style>
+
+<!-- Navigation -->
+<div class="uv-navbar">
+    <!-- Banner -->
+    <div class="uv-mob-aside {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-mob-aside-collapsed{% endif %}">
+        <span class="uv-icon-aside-menu"></span>
+    </div>
+    <div class = 'uv-main-logo'>
+        <a href="{{ path('helpdesk_member_dashboard') }}">
+        {% if websiteConfiguration is defined and websiteConfiguration.website.logo is not null %}
+			<img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}{{ websiteConfiguration.website.logo }}" alt="{{ websiteConfiguration.website.name}}" class="uv-logo-image" />
+		{% else %}
+			<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="123px" height="48px">
+			<path fill-rule="evenodd"  fill="rgb(124, 112, 244)" d="M122.389,29.602 L120.229,29.602 L116.821,23.985 L114.637,26.529 L114.637,29.602 L112.693,29.602 L112.693,12.512 L114.637,12.512 L114.637,24.081 L114.709,24.081 L119.677,17.937 L121.861,17.937 L117.949,22.617 L122.389,29.602 ZM106.405,22.881 C108.085,23.505 109.957,24.201 109.957,26.409 C109.957,28.305 108.445,29.890 105.685,29.890 C104.029,29.890 102.445,29.194 101.341,28.281 L102.325,26.961 C103.333,27.777 104.365,28.353 105.757,28.353 C107.293,28.353 108.061,27.537 108.061,26.529 C108.061,25.329 106.669,24.801 105.397,24.321 C103.741,23.721 101.917,22.929 101.917,20.961 C101.917,19.089 103.405,17.649 105.925,17.649 C107.389,17.649 108.661,18.249 109.549,18.969 L108.613,20.217 C107.821,19.617 106.981,19.185 105.949,19.185 C104.485,19.185 103.813,19.977 103.813,20.865 C103.813,21.945 105.085,22.377 106.405,22.881 ZM91.813,24.201 C91.957,26.721 93.469,28.305 95.701,28.305 C96.806,28.305 97.742,27.945 98.606,27.393 L99.302,28.689 C98.294,29.338 97.046,29.890 95.461,29.890 C92.341,29.890 89.869,27.609 89.869,23.793 C89.869,19.977 92.437,17.649 95.101,17.649 C98.078,17.649 99.758,19.785 99.758,23.121 C99.758,23.529 99.734,23.913 99.686,24.201 L91.813,24.201 ZM95.149,19.209 C93.517,19.209 92.029,20.553 91.789,22.905 L98.030,22.905 C98.030,20.529 96.974,19.209 95.149,19.209 ZM84.998,28.233 L84.926,28.233 C84.014,29.122 82.766,29.890 81.398,29.890 C78.469,29.890 76.573,27.681 76.573,23.793 C76.573,20.001 78.973,17.649 81.638,17.649 C82.982,17.649 83.870,18.153 84.902,18.993 L84.806,17.000 L84.806,12.512 L86.798,12.512 L86.798,29.602 L85.166,29.602 L84.998,28.233 ZM84.806,20.529 C83.822,19.641 82.934,19.305 81.974,19.305 C80.101,19.305 78.613,21.105 78.613,23.769 C78.613,26.553 79.789,28.233 81.830,28.233 C82.910,28.233 83.846,27.705 84.806,26.625 L84.806,20.529 ZM68.822,29.602 L64.621,17.937 L66.661,17.937 L68.870,24.561 C69.206,25.713 69.590,26.889 69.950,27.993 L70.046,27.993 C70.382,26.889 70.766,25.713 71.102,24.561 L73.310,17.937 L75.254,17.937 L71.126,29.602 L68.822,29.602 ZM60.566,27.777 L60.494,27.777 C59.414,29.050 58.262,29.890 56.654,29.890 C54.182,29.890 53.078,28.305 53.078,25.329 L53.078,17.937 L55.070,17.937 L55.070,25.065 C55.070,27.249 55.718,28.185 57.254,28.185 C58.454,28.185 59.294,27.585 60.398,26.217 L60.398,17.937 L62.366,17.937 L62.366,29.602 L60.734,29.602 L60.566,27.777 ZM27.000,45.000 C26.973,44.292 27.011,42.899 27.000,43.000 C43.768,41.329 42.000,26.000 42.000,26.000 L45.000,26.000 C45.563,40.575 33.324,44.708 27.000,45.000 ZM42.000,24.500 C42.000,23.672 42.672,23.000 43.500,23.000 C44.328,23.000 45.000,23.672 45.000,24.500 L45.000,25.000 L42.000,25.000 L42.000,24.500 ZM39.000,31.000 L38.000,31.000 L38.000,18.000 L39.000,18.000 C39.945,18.000 41.000,19.066 41.000,20.000 L41.000,29.000 C41.000,29.934 39.945,31.000 39.000,31.000 ZM10.492,33.000 C8.555,33.000 6.986,31.433 6.986,29.501 C6.986,27.569 8.555,26.002 10.492,26.002 C12.428,26.002 13.998,27.569 13.998,29.501 C13.998,31.433 12.428,33.000 10.492,33.000 ZM37.000,19.000 L33.000,22.000 C28.171,24.696 23.059,25.515 17.000,23.000 C14.589,21.999 13.107,20.137 12.000,19.000 C10.074,21.163 6.902,23.525 3.000,24.000 L3.386,29.280 C3.386,33.462 5.179,37.850 8.000,41.000 C9.633,42.824 10.936,44.167 13.000,45.000 L12.000,48.000 C9.232,47.008 7.143,45.393 5.000,43.000 C1.629,39.236 -0.000,34.011 -0.000,29.000 L-0.000,18.000 C-0.000,8.047 7.935,-0.000 18.000,-0.000 C27.872,-0.000 36.692,8.308 37.000,18.000 C37.036,19.142 37.000,19.000 37.000,19.000 ZM27.504,26.002 C29.440,26.002 31.010,27.569 31.010,29.501 C31.010,31.433 29.440,33.000 27.504,33.000 C25.567,33.000 23.997,31.433 23.997,29.501 C23.997,27.569 25.567,26.002 27.504,26.002 ZM23.999,41.989 C25.097,41.989 25.987,42.889 25.987,44.000 C25.987,45.111 25.097,46.011 23.999,46.011 C22.902,46.011 22.012,45.111 22.012,44.000 C22.012,42.889 22.902,41.989 23.999,41.989 Z"/>
+			</svg>
+		{% endif %}
+        </a>
+    </div>
+    <div class="uv-search-wrapper uv-no-error-success-icon">
+        <input placeholder="Search" class="uv-search-bar" type="text" name="">
+        <div class="uv-search-result-wrapper" id="beauty-scroll">
+            <h6>Results</h6>
+
+            <a href="{{ path('helpdesk_member_ticket_collection')}}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" class="uv-margin-icon-srch">
+					        <path fill-rule="evenodd" fill="rgb(158, 158, 158)" d="M19.000,4.000 L17.000,4.000 L16.995,12.998 L4.000,13.000 L4.000,15.000 C4.000,15.550 4.450,16.000 5.000,16.000 L16.000,16.000 L20.000,20.000 L20.000,5.000 C20.000,4.450 19.550,4.000 19.000,4.000 ZM15.000,10.000 L15.000,1.000 C15.000,0.450 14.550,0.000 14.000,0.000 L1.000,0.000 C0.450,0.000 -0.000,0.450 -0.000,1.000 L-0.000,15.000 L4.000,11.000 L14.000,11.000 C14.550,11.000 15.000,10.550 15.000,10.000 Z"></path>
+					    </svg>
+                    </div>
+                    <p>Tickets</p>
+                </div>
+            </a>
+
+            <a href="{{ path('helpdesk_member_support_group_collection')}}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
+                            <path fill-rule="evenodd" d="M54,36V52H45V36H42V24a3.807,3.807,0,0,1,4-4h7a3.807,3.807,0,0,1,4,4V36H54ZM49.5,18A4.5,4.5,0,1,1,54,13.5,4.487,4.487,0,0,1,49.5,18ZM33,52H27V39H20l6.37-16.081A4.224,4.224,0,0,1,30.379,20h0.253a4.244,4.244,0,0,1,4.009,2.922L40,39H33V52ZM30.49,18a4.5,4.5,0,1,1,4.5-4.5A4.487,4.487,0,0,1,30.49,18ZM15,52H6V36H3V24a3.807,3.807,0,0,1,4-4h7a3.807,3.807,0,0,1,4,4V36H15V52ZM10.5,18A4.5,4.5,0,1,1,15,13.5,4.487,4.487,0,0,1,10.5,18Z"
+                            />
+                        </svg>
+                    </div>
+                    <p>{{ 'Groups'|trans }}</p>
+                </div>
+            </a>
+
+            <a href="{{ path('helpdesk_member_support_team_collection')}}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
+                            <path fill-rule="evenodd" d="M45,36V52H36V36H33V24a3.807,3.807,0,0,1,4-4h7a3.807,3.807,0,0,1,4,4V36H45ZM40.5,18A4.5,4.5,0,1,1,45,13.5,4.487,4.487,0,0,1,40.5,18ZM24,52H15V36H12V24a3.807,3.807,0,0,1,4-4h7a3.807,3.807,0,0,1,4,4V36H24V52ZM19.5,18A4.5,4.5,0,1,1,24,13.5,4.487,4.487,0,0,1,19.5,18Z"
+                            />
+                        </svg>
+                    </div>
+                    <p>{{ 'Teams'|trans }}</p>
+                </div>
+            </a>
+
+            <a href="{{ path('helpdesk_member_account_collection') }}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
+                            <path fill-rule="evenodd" d="M30.5,2.974A22.308,22.308,0,0,0,8,25.081V42c0,4.078,2.85,8,7,8h8V29.994H13V25.081A17.337,17.337,0,0,1,30.5,7.887,17.337,17.337,0,0,1,48,25.081v4.913H38V50H48v2H31v5H46c4.15,0,7-3.278,7-7.355V25.081A22.308,22.308,0,0,0,30.5,2.974Z"
+                            />
+                        </svg>
+                    </div>
+                    <p>{{ 'Agents'|trans }}</p>
+                </div>
+            </a>
+
+            <a href="{{ path('helpdesk_member_privilege_collection')}}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
+                            <path fill-rule="evenodd" d="M44.985,21H43V16A13.239,13.239,0,0,0,30,3,13.24,13.24,0,0,0,17,16v5H14.989a5.087,5.087,0,0,0-5,5.143V51.857a5.087,5.087,0,0,0,5,5.143h30a5.087,5.087,0,0,0,5-5.143V26.143A5.087,5.087,0,0,0,44.985,21Zm-15,22.987a4.987,4.987,0,1,1,5-4.987A5.008,5.008,0,0,1,29.987,43.987ZM38,21H22V16a8,8,0,1,1,16,0v5Z"
+                            />
+                        </svg>
+                    </div>
+                    <p>{{ 'Privileges'|trans }}</p>
+                </div>
+            </a>
+
+            <a href="{{ path('helpdesk_member_manage_customer_account_collection') }}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
+                            <path fill-rule="evenodd" d="M39.025,28a7,7,0,1,0-7.013-7A6.976,6.976,0,0,0,39.025,28ZM22.013,28A7,7,0,1,0,15,21,6.976,6.976,0,0,0,22.013,28Zm-0.751,4.29c-5.082,0-15.267,2.674-15.267,8V46H37V40C37,34.675,26.344,32.287,21.262,32.287Zm17.449,0c-0.633,0-1.352.046-2.116,0.114,2.53,1.92,4.4,4.216,4.4,7.6v6H53.978V40.287C53.978,34.961,43.793,32.287,38.711,32.287Z"
+                            />
+                        </svg>
+                    </div>
+                    <p>{{ 'Customers'|trans }}</p>
+                </div>
+            </a>
+
+            <a href="{{ path('helpdesk_member_knowledgebase_folders_collection') }}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" class="uv-margin-icon-srch">
+                            <path fill-rule="evenodd" fill="rgb(158, 158, 158)" d="M14.000,0.000 L2.000,0.000 C0.969,0.000 0.000,0.901 0.000,2.000 L0.000,18.000 C0.000,19.099 0.969,20.000 2.000,20.000 L14.000,20.000 C15.031,20.000 16.000,19.099 16.000,18.000 L16.000,2.000 C16.000,0.901 15.031,0.000 14.000,0.000 ZM3.000,3.000 L9.000,3.000 L9.000,11.000 L6.000,9.000 L3.000,11.000 L3.000,3.000 Z"></path>
+                        </svg>
+                    </div>
+                    <p>{{ 'Knowledgebase'|trans }}</p>
+                </div>
+            </a>
+
+            <a href="{{ path('helpdesk_member_knowledgebase_folders_collection') }}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
+                            <path fill-rule="evenodd" d="M25.216,11.023h-14.4a4.708,4.708,0,0,0-4.777,4.624L6.011,43.394a4.729,4.729,0,0,0,4.8,4.625H49.223a4.729,4.729,0,0,0,4.8-4.625L54,21a5.234,5.234,0,0,0-5-5H30Z"
+                            />
+                        </svg>
+                    </div>
+                    <p>{{ 'Folders'|trans }}</p>
+                </div>
+            </a>
+            
+            <a href="{{ path('helpdesk_member_knowledgebase_category_collection') }}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
+                            <path fill-rule="evenodd" d="M6,18h6V12l-6,.014V18Zm10-6v6H54V12H16ZM6,28h6V22l-6,.014V28Zm10-6v6H54V22H16ZM6,38h6V32l-6,.014V38Zm10-6v6H54V32H16ZM6,48h6V42l-6,.014V48Zm10-6v6H54V42H16Z"
+                            />
+                        </svg>
+                    </div>
+                    <p>{{ 'Categories'|trans }}</p>
+                </div>
+            </a>
+
+            <a href="{{ path('helpdesk_member_knowledgebase_article_collection')}}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
+                            <path fill-rule="evenodd" d="M34.743,5.977h-19a4.769,4.769,0,0,0-4.726,4.8L11,49.19a4.77,4.77,0,0,0,4.726,4.8h28.52a4.79,4.79,0,0,0,4.749-4.8V20.381ZM32,23V9L46,23H32Z"
+                            />
+                        </svg>
+                    </div>
+                    <p>{{ 'Articles'|trans }}</p>
+                </div>
+            </a>
+            <a href="{{ path('prepare_response_action')}}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
+                            <path fill-rule="evenodd" d="M25.783,21.527L10.245,6.019,6.016,10.248,21.524,25.756ZM37.512,6.019l6.119,6.119L6.016,49.783l4.229,4.229L47.89,16.4l6.119,6.119V6.019h-16.5ZM38.5,34.245l-4.229,4.229,9.389,9.389-6.149,6.149h16.5v-16.5L47.89,43.634Z"
+                            />
+                        </svg>
+                    </div>
+                    <p>{{ 'Prepared Responses'|trans }}</p>
+                </div>
+            </a>
+
+            <a href="{{ path('helpdesk_member_workflow_collection') }}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
+                            <path fill-rule="evenodd" d="M25.783,21.527L10.245,6.019,6.016,10.248,21.524,25.756ZM37.512,6.019l6.119,6.119L6.016,49.783l4.229,4.229L47.89,16.4l6.119,6.119V6.019h-16.5ZM38.5,34.245l-4.229,4.229,9.389,9.389-6.149,6.149h16.5v-16.5L47.89,43.634Z"
+                            />
+                        </svg>
+                    </div>
+                    <p>{{ 'Workflows'|trans }}</p>
+                </div>
+            </a>
+
+            <a href="{{ path('helpdesk_member_saved_replies') }}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
+                            <path fill-rule="evenodd" d="M49.206,6.014H10.789a4.794,4.794,0,0,0-4.778,4.8L5.987,54,15,45H49c2.641,0,5.008-1.753,5.008-4.393V10.813A4.815,4.815,0,0,0,49.206,6.014ZM45,36H15V31H45v5Zm0-8H15V23H45v5Zm0-8H15V15H45v5Z"
+                            />
+                        </svg>
+                    </div>
+                    <p>{{ 'Saved Replies'|trans }}</p>
+                </div>
+            </a>
+
+            <a href="{{ path('helpdesk_member_ticket_type_collection')}}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
+                            <path fill-rule="evenodd" d="M6,44v5H22V44H6ZM6,11v5H33V11H6ZM33,54V49H54V44H33V39H28V54h5ZM17,23v5H6v5H17v5h5V23H17ZM54,33V28H28v5H54ZM39,21h5V16H54V11H44V6H39V21Z"
+                            />
+                        </svg>
+                    </div>
+                    <p>{{ 'Ticket Types'|trans }}</p>
+                </div>
+            </a>
+
+            <a href="{{ path('helpdesk_member_ticket_tag_collection')}}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
+                            <path fill-rule="evenodd" d="M42.935,14.247A4.683,4.683,0,0,0,39,12H11a5.182,5.182,0,0,0-5.015,5.313V43.74A5.164,5.164,0,0,0,11.036,49l27.782,0.026a4.972,4.972,0,0,0,4.117-2.22L53.972,30.526Z"
+                            />
+                        </svg>
+                    </div>
+                    <p>{{ 'Tags'|trans }}</p>
+                </div>
+            </a>
+
+            <a href="{{ path('helpdesk_member_helpdesk_theme') }}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
+                            <path fill-rule="evenodd" d="M30,6a24,24,0,0,0,0,48,4,4,0,0,0,2.96-6.693,3.985,3.985,0,0,1,2.987-6.64h4.72A13.338,13.338,0,0,0,54,27.333C54,15.547,43.253,6,30,6ZM15.333,30a4,4,0,1,1,4-4A3.995,3.995,0,0,1,15.333,30Zm8-10.667a4,4,0,1,1,4-4A3.995,3.995,0,0,1,23.333,19.333Zm13.333,0a4,4,0,1,1,4-4A3.995,3.995,0,0,1,36.667,19.333Zm8,10.667a4,4,0,1,1,4-4A3.995,3.995,0,0,1,44.667,30Z"
+                            />
+                        </svg>
+                    </div>
+                    <p>{{ 'Branding'|trans }}</p>
+                </div>
+            </a>
+
+            <a href="{{ path('email_templates_action') }}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
+                            <path fill-rule="evenodd" d="M49.224,52.979H10.813a4.783,4.783,0,0,1-4.8-4.736V24.566a4.7,4.7,0,0,1,2.281-4.025l3.082-1.78,3.4,2.779-4.582,2.648,19.83,12.218,19.83-12.218-4.6-2.66,3.4-2.779,3.1,1.793A4.68,4.68,0,0,1,54,24.566l0.024,23.678A4.783,4.783,0,0,1,49.224,52.979ZM30.018,32.4L16,24V7H44V23.748L30.018,32V32.4ZM20,11h4v4H20V11Zm6,0h8v4H26V11Zm-6,7h4v4H20V18Zm6,0H40v4H26V18Z"
+                            />
+                        </svg>
+                    </div>
+                    <p>{{ 'Email Templates'|trans }}</p>
+                </div>
+            </a>
+
+            <a href="{{ path('helpdesk_member_emails_settings') }}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
+                            <path fill-rule="evenodd" d="M49.224,52.979H10.813a4.783,4.783,0,0,1-4.8-4.736V24.566a4.7,4.7,0,0,1,2.281-4.025l3.082-1.78,3.4,2.779-4.582,2.648,19.83,12.218,19.83-12.218-4.6-2.66,3.4-2.779,3.1,1.793A4.68,4.68,0,0,1,54,24.566l0.024,23.678A4.783,4.783,0,0,1,49.224,52.979ZM30.018,32.4L16,24V7H44V23.748L30.018,32V32.4ZM20,11h4v4H20V11Zm6,0h8v4H26V11Zm-6,7h4v4H20V18Zm6,0H40v4H26V18Z"
+                            />
+                        </svg>
+                    </div>
+                    <p>{{ 'Email Settings'|trans }}</p>
+                </div>
+            </a>
+
+            <a href="{{ path('helpdesk_member_swiftmailer_settings') }}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
+							<path fill-rule="evenodd" d="M49.224,54.979H10.813a4.783,4.783,0,0,1-4.8-4.736V26.566a4.7,4.7,0,0,1,2.281-4.025l3.082-1.78,3.4,2.779-4.582,2.648,19.83,12.218,19.83-12.218-4.6-2.66,3.4-2.779,3.1,1.793A4.68,4.68,0,0,1,54,26.566l0.024,23.678A4.783,4.783,0,0,1,49.224,54.979Zm-9.287-35.7a8.723,8.723,0,0,0,0-2.549l2.821-2.145a0.644,0.644,0,0,0,.16-0.832l-2.674-4.5a0.681,0.681,0,0,0-.815-0.286l-3.328,1.3a9.841,9.841,0,0,0-2.259-1.275L33.334,5.549A0.646,0.646,0,0,0,32.679,5H27.332a0.646,0.646,0,0,0-.655.546L26.169,8.994a10.347,10.347,0,0,0-2.259,1.275l-3.328-1.3a0.661,0.661,0,0,0-.816.286l-2.673,4.5a0.63,0.63,0,0,0,.16.832l2.82,2.145a10.052,10.052,0,0,0-.094,1.275,10.049,10.049,0,0,0,.094,1.274l-2.82,2.146a0.644,0.644,0,0,0-.16.832l2.673,4.5a0.681,0.681,0,0,0,.816.286l3.328-1.3a9.835,9.835,0,0,0,2.259,1.274l0.508,3.446a0.647,0.647,0,0,0,.655.546h5.347a0.646,0.646,0,0,0,.655-0.546l0.508-3.446A10.337,10.337,0,0,0,36.1,25.743l3.328,1.3a0.661,0.661,0,0,0,.815-0.286l2.674-4.5a0.644,0.644,0,0,0-.16-0.832Zm-9.932,3.277a4.553,4.553,0,1,1,4.678-4.551A4.621,4.621,0,0,1,30.006,22.558Z"></path>
+						</svg>
+                    </div>
+                    <p>{{ 'Swift Mailer'|trans }}</p>
+                </div>
+            </a>
+            <a href="{{ path('helpdesk_member_knowledgebase_spam') }}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewbox="0 0 60 60">
+                            <path fill-rule="evenodd" d="M29.994,5.98A24.007,24.007,0,1,0,53.974,29.987,24,24,0,0,0,29.994,5.98ZM12,29.365A17.359,17.359,0,0,1,29.36,12a17.148,17.148,0,0,1,10.634,3.668L15.666,40A17.156,17.156,0,0,1,12,29.365ZM30.629,48a14.544,14.544,0,0,1-9.634-3.537L44.455,21a14.549,14.549,0,0,1,3.536,9.636A17.358,17.358,0,0,1,30.629,48Z"
+                            />
+                        </svg>
+                    </div>
+                    <p>{{ 'Block Spam'|trans }}</p>
+                </div>
+            </a>
+            <a href="{{ path('helpdesk_member_mailbox_settings') }}">
+                <div class="uv-search-result-row">
+                    <div class="uv-brick-icon">
+                       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
+							<path fill-rule="evenodd" d="M30,33L6,18V12L30,27,54,12v6ZM5.9,5.992A5.589,5.589,0,0,0,1.745,7.817,5.882,5.882,0,0,0-.016,12.027v35.93a5.875,5.875,0,0,0,1.761,4.211A5.581,5.581,0,0,0,5.9,53.992H54.069a5.588,5.588,0,0,0,4.155-1.825A5.8,5.8,0,0,0,60,48V12a5.847,5.847,0,0,0-1.776-4.183,5.6,5.6,0,0,0-4.155-1.825H5.9Z"></path>
+						</svg>
+                    </div>
+                    <p>{{ 'Mailbox'|trans }}</p>
+                </div>
+            </a>
+            <div class="uv-search-result-row uv-no-results" style="display: none">
+                <p>{{ 'No result found'|trans }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="uv-actions">
+        <!-- Profile Navigations -->
+        <span style="position: relative" class="">
+            <div class="uv-profile uv-dropdown-other">
+                {% if currentUserDetails is defined and currentUserDetails.thumbnail is defined and currentUserDetails.thumbnail is not empty %}
+                    <img class='uv-avatar' src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}{{ currentUserDetails.thumbnail }}"/>
+                {% else %}
+                    <img class='uv-avatar' src="{{ asset('bundles/uvdeskcore/images/uv-avatar-batman.png') }}"/>
+                {% endif %}
+                
+            </div>
+
+            <div class="uv-dropdown-list uv-bottom-right uv-text-left">
+                <div class="uv-dropdown-container">
+                
+                    <label>Signed in as </label>
+                        <p class="user-name">{{ currentUser.firstName }} {{ currentUser.lastName }}</p>
+                    <div role="none" class="dropdown-divider"></div>
+
+                    <ul>
+                        <li><a href="{{ path('edit_profile') }}" class='profiler'>Your Profile</a></li>   
+                    </ul>
+                    
+                    <ul>
+                        <li data-action="create" class="uv-open-popup" data-target="create-ticket-modal">Create Ticket</li>
+						{% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT') %}
+                            <li><a href="{{ path('helpdesk_member_create_account') }}">Create Agent</a></li>
+                        {% endif %}
+						{% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER') %}                        
+                            <li><a href="{{ path('helpdesk_member_create_customer_account') }}">Create Customer</a></li>
+                        {% endif %}
+
+                        <div role="none" class="dropdown-divider"></div>
+                        <li><a class="uv-text-danger" href="{{ path('helpdesk_member_handle_logout') }}">Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </span>
+
+        {# <span class="new">
+            <div class="uv-action-new uv-dropdown-other">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20px" height="20px"><path fill-rule="evenodd"  fill="rgb(255, 255, 255)"
+                d="M20.000,12.000 L12.000,12.000 L12.000,20.000 L8.000,20.000 L8.000,12.000 L0.000,12.000 L0.000,8.000 L8.000,8.000 L8.000,-0.000 L12.000,-0.000 L12.000,8.000 L20.000,8.000 L20.000,12.000 Z"/></svg>
+            </div>
+
+            <div class="uv-dropdown-list uv-bottom-right uv-text-left">
+                <div class="uv-dropdown-container">
+                    <label>Create New</label>
+                    <ul>
+                        <li data-action="create" class="uv-open-popup" data-target="create-ticket-modal">Ticket</li>
+						{% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT') %}
+                            <li><a href="{{ path('helpdesk_member_create_account') }}">Agent</a></li>
+                        {% endif %}
+						{% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER') %}                        
+                            <li><a href="{{ path('helpdesk_member_create_customer_account') }}">Customer</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </span> #}
+    </div>
+</div>
+
+<script type="text/template" id="notification_flags_temp">
+    <% if (typeof undeliveredMessages != 'undefined') { %>
+        <li>
+            <span class="uv-notification-message">
+                <%= undeliveredMessages %>
+            </span>
+        </li>
+        <span class="timeago">{{ 'Learn more about %deliveryStatus%.'|trans({'%deliveryStatus%': '<a href="https://support.uvdesk.com/en/blog/uvdesk-ticket-delivery-status" target="_blank">' ~ 'ticket delivery status'|trans ~ '</a>'})|raw }}</span>
+    <% } %>
+</script>
+
+<script type="text/javascript">
+    $(function () {
+        var FeatureSearch = Backbone.View.extend({
+            el: $('.uv-search-wrapper'),
+            events: {
+                'keyup .uv-search-bar': 'searchFeature',
+                'click .uv-search-bar': 'openFeatureSearch',
+            },
+            searchFeature: function(e) {
+                var currentElement = Backbone.$(e.currentTarget);
+                if(currentElement.val().trim() != '') {
+                    var flag = 0;
+                    $('.uv-search-wrapper').find('.uv-search-result-row').each(function() {
+                        if(!$(this).hasClass('uv-no-results')) {
+                            var text = $(this).text().trim().toLowerCase();
+                            var isTextContained = text.search(currentElement.val().trim().toLowerCase());
+                            if(isTextContained < 0) {
+                                $(this).parent().hide();
+                                $(this).parent().attr('tabIndex', -1);
+                            } else {
+                                $(this).parent().show();
+                                $(this).parent().removeAttr('tabIndex');
+                                flag = 1;
+                            }
+                        }
+                    });
+                    if(flag == 0)
+                        $('.uv-search-wrapper').find(".uv-no-results").show();
+                    else
+                        $('.uv-search-wrapper').find(".uv-no-results").hide();
+
+                    this.$el.find('.uv-search-result-wrapper').addClass('uv-search-result-active').addClass('uv-search-flap-up')
+                } else {
+                    this.$el.find('.uv-search-result-wrapper').removeClass('uv-search-result-active').removeClass('uv-search-flap-up')
+                }
+            },
+            openFeatureSearch: function(e) {
+                var currentElement = Backbone.$(e.currentTarget);
+                if(currentElement.val().trim() != '') {
+                    this.$el.find('.uv-search-result-wrapper').addClass('uv-search-result-active').addClass('uv-search-flap-up')
+                }
+            }
+        });
+
+        var SidePanelUV = Backbone.View.extend({
+            el: $('.uv-paper'),
+            events: {
+                'click .uv-mob-aside span': 'toggleAsideBar'
+            },
+            initialize : function() {
+                var ele = $('.uv-paper');
+                if(ele.css('padding-left') == '60px'){
+                    $('.uv-mob-aside').removeClass('uv-mob-aside-left');
+                }else{
+                    $('.uv-mob-aside').addClass('uv-mob-aside-left');
+                }
+
+                var asideView = '{{ app.request.cookies.get("uv-asideView") }}';
+                if(asideView == 'true')
+                    this.toggleAsideBar();
+            },
+            toggleAsideBar: function(){
+                var asideView = true;
+                var ele = $('.uv-inner-section .uv-aside');
+                var eleSidePanel = $('.uv-inner-section .uv-view');
+                var eleTicketView = $('.uv-inner-section .uv-view .uv-ticket-scroll-region');
+                var mobAside = $('.uv-mob-aside');
+                if(ele.css('display') == 'none'){
+                    asideView = false;
+                    ele.css('display', 'block');
+                    eleSidePanel.removeClass('uv-aside-view');
+                    eleTicketView.removeClass('uv-aside-view-tv');
+                    mobAside.removeClass('uv-mob-aside-collapsed')
+                }else{
+                    ele.css('display', 'none');
+                    eleSidePanel.addClass('uv-aside-view');
+                    eleTicketView.addClass('uv-aside-view-tv');
+                    mobAside.addClass('uv-mob-aside-collapsed')
+                }
+                if(asideView) {
+                    document.cookie = ("uv-asideView=1; expires=Wed, 01 Jan 2020 00:00:00 GMT;path=/");
+                } else {
+                    document.cookie = ("uv-asideView=0; expires=Wed, 01 Jan 2020 00:00:00 GMT;path=/");
+                }
+            }
+        });
+
+        var featureSearch =  new FeatureSearch();
+        var sidePanelUV =  new SidePanelUV();
+    });
+</script>
+{# Ticket Create Popup #}	
+{% if user_service.isAccessAuthorized('ROLE_AGENT_CREATE_TICKET') %}	
+    {{ ticket_service.appendTwigSnippet('createMemberTicket')|raw }}	
+    {# {% include('UVDeskCoreBundle:Snippets:createMemberTicketSnippet.html.twig') only %} #}	
+{% endif %} 
