@@ -2,64 +2,42 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Dashboard;
 
-use Symfony\Component\Routing\RouterInterface;
+use Twig\Environment as TwigEnvironment;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\SearchItemInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Framework\ExtendableComponentInterface;
 
 class SearchTemplate implements ExtendableComponentInterface
 {
-	CONST TEMPLATE = <<<TEMPLATE
-<div class="uv-search-wrapper uv-no-error-success-icon">
-	<input placeholder="Search" class="uv-search-bar" type="text" name="">
-	<div class="uv-search-result-wrapper" id="beauty-scroll">
-		<h6>Results</h6>
-		
-		[[ SEARCH_ITEMS ]]
+    CONST ITEM_TEMPLATE_PATH = '@UVDeskCoreFramework/Templates/Search/item-template.html.twig';
+    CONST COLLECTION_TEMPLATE_PATH = '@UVDeskCoreFramework/Templates/Search/collection-template.html.twig';
 
-		<div class="uv-search-result-row uv-no-results" style="display: none">
-			<p>{{ 'No result found'|trans }}</p>
-		</div>
-	</div>
-</div>
-TEMPLATE;
+    private $segments = [];
 
-	CONST ITEM_TEMPLATE = <<<ITEM_TEMPLATE
-<a href="[[ URL ]]">
-	<div class="uv-search-result-row">
-		<div class="uv-brick-icon">"[[ SVG ]]"</div>
-		<p>[[ NAME ]]</p>
-	</div>
-</a>';
-ITEM_TEMPLATE;
+    public function __construct(TwigEnvironment $twig)
+    {
+        $this->twig = $twig;
+    }
+    public function appendSearchItem(SearchItemInterface $segment, $tags = [])
+    {
+        $this->segments[] = $segment;
+    }
 
-	private $segments = [];
+    public function render()
+    {
+        $segments = $this->segments;
 
-	public function __construct(RouterInterface $router)
-	{
-		$this->router = $router;
-	}
+        $html = array_reduce($this->segments, function($html, $segment) {
+            $html .= $this->twig->render(self::ITEM_TEMPLATE_PATH, [
+                'svg' => $segment::getIcon(),
+                'name' => $segment::getTitle(),
+                'route' => $segment::getRouteName(),
+            ]);
 
-	public function appendSearchItem(SearchItemInterface $segment, $tags = [])
-	{
-		$this->segments[] = $segment;
-	}
+            return $html;
+        }, '');
 
-	public function render()
-	{
-		$router = $this->router;
-
-		$html = array_reduce($this->segments, function($html, $segment) use ($router) {
-			$html .= strtr(self::ITEM_TEMPLATE, [
-				'[[ SVG ]]' => $segment::getIcon(),
-				'[[ NAME ]]' => $segment::getTitle(),
-				'[[ URL ]]' => $router->generate($segment::getRouteName()),
-			]);
-
-			return $html;
-		}, '');
-
-		return strtr(self::TEMPLATE, [
-			'[[ SEARCH_ITEMS ]]' => $html
-		]);
-	}
+        return $this->twig->render(self::COLLECTION_TEMPLATE_PATH, [
+            'searchItems' => $html
+        ]);
+    }
 }
