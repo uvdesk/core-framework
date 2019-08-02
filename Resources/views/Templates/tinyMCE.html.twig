@@ -86,14 +86,11 @@
             this.options = $.extend({}, this.options, options)
             window.tinymce.dom.Event.domLoaded = true;
             tinymce.init(this.options);
-
-            
         },
         html : function(selector, html){
             tinymce.get(selector).setContent(html);
         },
         initImageUpload : function(editor) {
-            
             // create input and insert in the DOM
             var inp = $('<input id="tinymce-uploader" type="file" name="pic" accept="image/*" style="display:none">');
             $(editor.getElement()).parent().append(inp);
@@ -113,9 +110,7 @@
             });
         },
         uploadFile : function(input, editor) {
-   
             sendFile(input.get(0).files).done(function(json){
-                
                     //remove loading image
                     if(json['error'] != ''){
                         var response = {
@@ -144,7 +139,6 @@
     }
 
     function sendFile(files) {
-
         var data = new FormData();
         var nonEmptyFlag;
         $.each(files, function(key, file){
@@ -154,7 +148,7 @@
                 nonEmptyFlag = true;
             }
         });
-        var path = "{{ '/customer/' in app.request.requestUri ? path('ajax_file_upload_customer') : path('ajax_file_upload') }}";
+        {# var path = "{{ '/customer/' in app.request.requestUri ? path('ajax_file_upload_customer') : path('ajax_file_upload') }}";
         if(nonEmptyFlag) {
             return $.ajax({
                     data: data,
@@ -167,31 +161,30 @@
                 });
         } else {
             app.appView.renderResponseAlert({'alertClass': 'danger', 'alertMessage': '{{ "Warning! Select valid image file."|trans }}' });
-        }
+        } #}
     }
 
     function sendUrls(url) {
-        var path = "{{ '/customer/' in app.request.requestUri ? path('ajax_url_file_customer') : path('ajax_url_file') }}";
-
+        {# var path = "{{ '/customer/' in app.request.requestUri ? path('ajax_url_file_customer') : path('ajax_url_file') }}";
         return $.ajax({
                     data: {'url': url},
                     type: "POST",
                     url: path,
                     dataType: 'json'
-                });
+                }); #}
     }
 
     function removeFile(file) {
-        var path = "{{ '/customer/' in app.request.requestUri ? path('ajax_file_remove_customer') : path('ajax_file_remove') }}";
+        {# var path = "{{ '/customer/' in app.request.requestUri ? path('ajax_file_remove_customer') : path('ajax_file_remove') }}";
         return $.ajax({
                     data: {'path': file},
                     type: "POST",
                     url: path,
                     dataType: 'json'
-                });
+                }); #}
     }
     addTranslateButton = function(editor) {
-        editor.addButton('translate', {
+        {# editor.addButton('translate', {
             type: 'listbox',
             title : 'selectContentAndTranslate',
             text: '{{ "Translate"|trans }}',
@@ -219,6 +212,6 @@
                 {% endfor %}
                 { text: '“Powered by Yandex.Translate”', value: '', disabled: true },
             ],
-        });
+        }); #}
     }
 </script>
