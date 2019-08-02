@@ -4,10 +4,10 @@
 		<h6>Results</h6>
 
 		{% for item in collection %}
-			<a href="{{ path(item.route) }}">
+			<a href="{{ path(item.routeName) }}">
 				<div class="uv-search-result-row">
-					<div class="uv-brick-icon">{{ item.svg | raw }}</div>
-					<p>{{ item.name }}</p>
+					<div class="uv-brick-icon">{{ item.icon | raw }}</div>
+					<p>{{ item.title }}</p>
 				</div>
 			</a>
 		{% endfor %}
