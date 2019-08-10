@@ -115,13 +115,6 @@ class UVDeskService
                         ->$callFunction($args);
     }
 
-    public function getPopularArticles()
-    {
-        return $this->container->get('doctrine')
-                ->getRepository('UVDeskSupportCenterBundle:Article')
-                ->getPopularTranslatedArticles($this->requestStack->getCurrentRequest()->getLocale());
-    }
-
     public function getValidBroadcastMessage($msg, $format = 'Y-m-d H:i:s')
     {
         $broadcastMessage = !empty($msg) ? json_decode($msg, true) : false;

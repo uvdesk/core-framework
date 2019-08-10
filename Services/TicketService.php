@@ -838,7 +838,7 @@ class TicketService
         $params = $request->query->all();
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket');
         $baseQuery = $ticketRepository->prepareBasePaginationTagsQuery($params);
-        
+
         // Apply Pagination
         $paginationResultsQuery = clone $baseQuery;
         $paginationResultsQuery->select('COUNT(supportTag.id)');
@@ -857,17 +857,32 @@ class TicketService
         $paginationParams['page'] = 'replacePage';
         $paginationData['url'] = '#' . $this->container->get('uvdesk.service')->buildPaginationQuery($paginationParams);
 
-        return [
-            'tags' => array_map(function ($supportTag) use ($ticketRepository) {
-                return [
-                    'id' => $supportTag['id'],
-                    'name' => $supportTag['name'],
-                    'ticketCount' => $supportTag['totalTickets'],
-                    'articleCount' => $ticketRepository->getTagArticleCount($supportTag['id']),
-                ];
-            }, $pagination->getItems()),
-            'pagination_data' => $paginationData,
-        ];
+        if (in_array('UVDeskSupportCenterBundle', array_keys($this->container->getParameter('kernel.bundles')))) {
+            $articleRepository = $this->entityManager->getRepository('UVDeskSupportCenterBundle:Article');
+
+            return [
+                'tags' => array_map(function ($supportTag) use ($articleRepository) {
+                    return [
+                        'id' => $supportTag['id'],
+                        'name' => $supportTag['name'],
+                        'ticketCount' => $supportTag['totalTickets'],
+                        'articleCount' => $articleRepository->getTotalArticlesBySupportTag($supportTag['id']),
+                    ];
+                }, $pagination->getItems()),
+                'pagination_data' => $paginationData,
+            ];
+        } else {
+            return [
+                'tags' => array_map(function ($supportTag) {
+                    return [
+                        'id' => $supportTag['id'],
+                        'name' => $supportTag['name'],
+                        'ticketCount' => $supportTag['totalTickets'],
+                    ];
+                }, $pagination->getItems()),
+                'pagination_data' => $paginationData,
+            ];
+        }
     }
 
     public function getTicketInitialThreadDetails(Ticket $ticket)
