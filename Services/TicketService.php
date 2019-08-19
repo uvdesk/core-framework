@@ -346,7 +346,7 @@ class TicketService
 
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket');
 
-        $website = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'knowledgebase']);
+        $website = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'helpdesk']);
         $timeZone = $website->getTimezone();
         $timeFormat = $website->getTimeformat();
 
@@ -541,7 +541,7 @@ class TicketService
         $paginationParams = $pagination->getParams();
         $paginationData = $pagination->getPaginationData();
 
-        $website = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'knowledgebase']);
+        $website = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'helpdesk']);
         $timeZone = $website->getTimezone();
         $timeFormat = $website->getTimeformat();
 
@@ -1295,7 +1295,7 @@ class TicketService
 
     public function timeZoneConverter($dateFlag)
     {
-        $website = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'knowledgebase']);
+        $website = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'helpdesk']);
         $timeZone = $website->getTimezone();
         $timeFormat = $website->getTimeformat();
 
