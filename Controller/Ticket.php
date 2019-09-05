@@ -12,9 +12,16 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\DataProxies as CoreFrameworkBundleDataProxies;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Tickets\QuickActionButtonCollection;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use UVDesk\CommunityPackages\UVDesk\FormComponent\Services\CustomFieldsService;
 
 class Ticket extends Controller
-{
+{   
+
+    public function __construct(CustomFieldsService $customFieldsService) {
+        $this->customFieldsService = $customFieldsService;
+    }
+
     public function listTicketCollection(Request $request)
     {
         $entityManager = $this->getDoctrine()->getManager();
@@ -106,6 +113,10 @@ class Ticket extends Controller
 
         $ticketType = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findOneById($requestParams['type']);
 
+        extract($this->customFieldsService->customFieldsValidation($request, 'user'));
+        if(!empty($errorFlashMessage)) {
+            $this->addFlash('warning', $errorFlashMessage);
+        }
         $ticketProxy = new CoreFrameworkBundleDataProxies\CreateTicketDataClass();
         $form = $this->createForm(CoreFrameworkBundleForms\CreateTicket::class, $ticketProxy);
 
@@ -172,6 +183,9 @@ class Ticket extends Controller
 
         if (!empty($thread)) {
             $ticket = $thread->getTicket();
+            if($request->request->get('customFields') || $request->files->get('customFields')) {
+                $this->get('ticket.service')->addTicketCustomFields($ticket, $request->request->get('customFields'), $request->files->get('customFields'));                        
+            }
             $request->getSession()->getFlashBag()->set('success', sprintf('Success! Ticket #%s has been created successfully.', $ticket->getId()));
 
             if ($this->get('user.service')->isAccessAuthorized('ROLE_ADMIN')) {
@@ -339,10 +353,10 @@ class Ticket extends Controller
     }
 
     public function downloadAttachment(Request $request)
-    {
-        $attachmendId = $request->attributes->get('attachmendId');
+    {   
+        $attachmentId = $request->attributes->get('attachmendId');
         $attachmentRepository = $this->getDoctrine()->getManager()->getRepository('UVDeskCoreFrameworkBundle:Attachment');
-        $attachment = $attachmentRepository->findOneById($attachmendId);
+        $attachment = $attachmentRepository->findOneById($attachmentId);
         $baseurl = $request->getScheme() . '://' . $request->getHttpHost() . $request->getBasePath();
 
         if (!$attachment) {
@@ -360,5 +374,14 @@ class Ticket extends Controller
         $response->setContent(readfile($path));
         
         return $response;
+    }
+
+    /**
+     * If customer is playing with url and no result is found then what will happen
+     * @return 
+     */
+    protected function noResultFound()
+    {
+        throw new NotFoundHttpException('Not Found!');
     }
 }
