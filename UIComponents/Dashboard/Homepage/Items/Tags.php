@@ -3,7 +3,7 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\UIComponents\Dashboard\Homepage\Items;
 
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\HomepageSectionItem;
-use Webkul\UVDesk\CoreFrameworkBundle\UIComponents\Dashboard\Homepage\Sections\Settings;
+use Webkul\UVDesk\CoreFrameworkBundle\UIComponents\Dashboard\Homepage\Sections\Productivity;
 
 class Tags extends HomepageSectionItem
 {
@@ -35,6 +35,6 @@ SVG;
 
     public static function getSectionReferenceId() : string
     {
-        return Settings::class;
+        return Productivity::class;
     }
 }
