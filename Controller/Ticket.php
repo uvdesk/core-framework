@@ -14,6 +14,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Tickets\QuickActionButtonCollection;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use UVDesk\CommunityPackages\UVDesk\FormComponent\Services\CustomFieldsService;
+use Webkul\UVDesk\CoreFrameworkBundle\Repository\TicketRepository;
 
 class Ticket extends Controller
 {   
@@ -62,6 +63,56 @@ class Ticket extends Controller
         $agent = $ticket->getAgent();
         $customer = $ticket->getCustomer();
         $user = $this->get('user.service')->getSessionUser();
+
+        // Ticket Authorization
+        $supportRole = $user->getCurrentInstance()->getSupportRole()->getCode(); 
+        switch($supportRole) {
+            case 'ROLE_ADMIN':
+            case 'ROLE_SUPER_ADMIN':
+                break;
+            case 'ROLE_AGENT':
+                $accessLevel = (int) $user->getCurrentInstance()->getTicketAccessLevel();
+                switch($accessLevel) {
+                    case TicketRepository::TICKET_GLOBAL_ACCESS:
+                        break;
+                    case TicketRepository::TICKET_GROUP_ACCESS:
+                        $supportGroups = array_map(function($supportGroup) { return $supportGroup->getId(); }, $user->getCurrentInstance()->getSupportGroups()->getValues());                       
+                        $ticketAccessableGroups = $ticket->getSupportGroup() ? [$ticket->getSupportGroup()->getId()] : [];
+                        
+                        if ($ticket->getSupportTeam()) {
+                            $ticketSupportTeamGroups = array_map(function($supportGroup) { return $supportGroup->getId(); }, $ticket->getSupportTeam()->getSupportGroups()->getValues());
+                            $ticketAccessableGroups = array_merge($ticketAccessableGroups, $ticketSupportTeamGroups);
+                        }
+                        $isAccessableGroupFound = false;
+                        foreach($ticketAccessableGroups as $groupId) {
+                            if (in_array($groupId, $supportGroups)) {
+                                $isAccessableGroupFound = true;
+                                break;
+                            }
+                        }
+                        if (!$isAccessableGroupFound) {
+                            throw new \Exception('Page not found');
+                        }
+                        break;
+                    case TicketRepository::TICKET_TEAM_ACCESS:
+                        $supportTeams = array_map(function($supportTeam) { return $supportTeam->getId(); }, $user->getCurrentInstance()->getSupportTeams()->getValues());                         
+                        $supportTeam = $ticket->getSupportTeam();
+                        if (!($supportTeam && in_array($supportTeam->getId(), $supportTeams))) {
+                            throw new \Exception('Page not found');
+                        }
+                        break;
+                    default:
+                        $collaborators = array_map( function ($collaborator) { return $collaborator->getId(); }, $ticket->getCollaborators()->getValues());
+                        $accessableAgents = array_merge($collaborators, $ticket->getAgent() ? [$ticket->getAgent()->getId()] : []);
+                        if (!in_array($user->getId(), $accessableAgents)) {
+                            throw new \Exception('Page not found');
+                        }
+                        break;
+                }
+                break;
+            default:
+                throw new \Exception('Page not found');
+        }
 
         $quickActionButtonCollection->prepareAssets();
        
