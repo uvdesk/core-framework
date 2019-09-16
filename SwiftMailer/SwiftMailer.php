@@ -115,12 +115,18 @@ class SwiftMailer
             $references[] = $configuration->getId();
             $configurationStream .= $configuration->getWritableConfigurations();
         }
-
+        
+        // Default_mailer configuration
+        $stream = require self::SWIFTMAILER_TEMPLATE;
+        if (!empty($references[0])) {
+            $stream = strtr($stream, [
+                '[[ DEFAULT_MAILER ]]' => $references[0],
+            ]);
+        }
         // Prepare the complete swiftmailer configuration file
-        $stream = strtr(require self::SWIFTMAILER_TEMPLATE, [
+        $stream = strtr($stream, [
             '[[ CONFIGURATIONS ]]' => $configurationStream,
         ]);
-
         file_put_contents($this->getPathToConfigurationFile(), $stream);
     }
 }
