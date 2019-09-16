@@ -8,7 +8,7 @@ class Tags implements SearchItemInterface
 {
     CONST SVG = <<<SVG
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" viewBox="0 0 60 60">
-    <path fill-rule="evenodd" d="M6,44v5H22V44H6ZM6,11v5H33V11H6ZM33,54V49H54V44H33V39H28V54h5ZM17,23v5H6v5H17v5h5V23H17ZM54,33V28H28v5H54ZM39,21h5V16H54V11H44V6H39V21Z"></path>
+    <path fill-rule="evenodd" d="M42.935,14.247A4.683,4.683,0,0,0,39,12H11a5.182,5.182,0,0,0-5.015,5.313V43.74A5.164,5.164,0,0,0,11.036,49l27.782,0.026a4.972,4.972,0,0,0,4.117-2.22L53.972,30.526Z"></path>
 </svg>
 SVG;
 
@@ -24,7 +24,7 @@ SVG;
 
     public static function getRouteName() : string
     {
-        return 'helpdesk_member_ticket_type_collection';
+        return 'helpdesk_member_ticket_tag_collection';
     }
 
     public function getChildrenRoutes() : array
