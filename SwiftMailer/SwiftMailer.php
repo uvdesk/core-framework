@@ -116,8 +116,18 @@ class SwiftMailer
             $configurationStream .= $configuration->getWritableConfigurations();
         }
 
+        // Default_mailer configuration
+        // @TODO: Needs to be improved. We shouldn't just randomly set the first mailer as the default mailer.
+        $stream = require self::SWIFTMAILER_TEMPLATE;
+
+        if (!empty($references[0])) {
+            $stream = strtr($stream, [
+                '[[ DEFAULT_MAILER ]]' => $references[0],
+            ]);
+        }
+
         // Prepare the complete swiftmailer configuration file
-        $stream = strtr(require self::SWIFTMAILER_TEMPLATE, [
+        $stream = strtr($stream, [
             '[[ CONFIGURATIONS ]]' => $configurationStream,
         ]);
 
