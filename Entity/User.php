@@ -81,13 +81,13 @@ class User implements AdvancedUserInterface
 
      /**
      * @var string
-     * @ORM\Column(type="string", length=191, unique=true, nullable=true)
+     * @ORM\Column(type="string", length=191, nullable=true)
      */
     private $timezone;
 
     /**
      * @var string
-     * @ORM\Column(type="string", length=191, unique=true, nullable=true)
+     * @ORM\Column(type="string", length=191, nullable=true)
      */
     private $timeformat;
 
