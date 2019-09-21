@@ -1,4 +1,4 @@
-{% extends "@UVDeskCore//Templates//layout.html.twig" %}
+{% extends "@UVDeskCoreFramework//Templates//layout.html.twig" %}
 
 {% block title %}
 	{{ 'Customers'|trans }}
@@ -6,7 +6,11 @@
 
 {% block pageContent %}
 	<div class="uv-inner-section">
-		{{ include('@UVDeskCore/Templates/panel-sidebar.html.twig') }}
+		{# Append Panel Aside #}
+		{% set asideTemplate = 'Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\AsideTemplate' %}
+		{% set asideSidebarReference = 'Webkul\\UVDesk\\CoreFrameworkBundle\\UIComponents\\Dashboard\\Panel\\Sidebars\\Users' %}
+
+		{{ uvdesk_extensibles.getRegisteredComponent(asideTemplate).renderSidebar(asideSidebarReference) | raw }}
 
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
 			<h1>
@@ -69,7 +73,7 @@
                             <th>{{ "Open Tickets"|trans }}</th>
                             <th>{{ "Source"|trans }}</th>
                             <th>{{ "Status"|trans }}</th>
-                            <th>{{ "Stared"|trans }}</th>
+                            <th>{{ "Starred"|trans }}</th>
                             <th class="uv-last">{{ "Action"|trans }}</th>
                         </tr>
                     </thead>
@@ -164,7 +168,7 @@
             	<span class="uv-text-danger">{{ 'Disabled'|trans }}</span>
         	<% } %>
 		</td>
-        <td data-value="{{ 'Stared'|trans }}">
+        <td data-value="{{ 'Starred'|trans }}">
             <span class="uv-star <% if(isStarred) { %>uv-star-active<% } %>"></span>
         </td>
 		<td data-value="{{ 'Action'|trans }}" class="uv-last">

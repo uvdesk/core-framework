@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Entity;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -33,7 +33,7 @@ class SupportLabel
     private $colorCode;
 
     /**
-     * @var \Webkul\UVDesk\CoreBundle\Entity\User
+     * @var \Webkul\UVDesk\CoreFrameworkBundle\Entity\User
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      *      
@@ -102,11 +102,11 @@ class SupportLabel
     /**
      * Set user
      *
-     * @param \Webkul\UVDesk\CoreBundle\Entity\User $user
+     * @param \Webkul\UVDesk\CoreFrameworkBundle\Entity\User $user
      *
      * @return SupportLabel
      */
-    public function setUser(\Webkul\UVDesk\CoreBundle\Entity\User $user = null)
+    public function setUser(\Webkul\UVDesk\CoreFrameworkBundle\Entity\User $user = null)
     {
         $this->user = $user;
 
@@ -116,7 +116,7 @@ class SupportLabel
     /**
      * Get user
      *
-     * @return \Webkul\UVDesk\CoreBundle\Entity\User
+     * @return \Webkul\UVDesk\CoreFrameworkBundle\Entity\User
      */
     public function getUser()
     {

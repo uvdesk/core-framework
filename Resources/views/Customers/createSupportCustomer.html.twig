@@ -1,10 +1,14 @@
-{% extends "@UVDeskCore//Templates//layout.html.twig" %}
+{% extends "@UVDeskCoreFramework//Templates//layout.html.twig" %}
 
 {% block title %}{{ 'Add Customer'|trans }}{% endblock %}
 
 {% block pageContent %}
 	<div class="uv-inner-section">
-		{{ include('@UVDeskCore/Templates/panel-sidebar.html.twig') }}
+		{# Append Panel Aside #}
+		{% set asideTemplate = 'Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\AsideTemplate' %}
+		{% set asideSidebarReference = 'Webkul\\UVDesk\\CoreFrameworkBundle\\UIComponents\\Dashboard\\Panel\\Sidebars\\Users' %}
+
+		{{ uvdesk_extensibles.getRegisteredComponent(asideTemplate).renderSidebar(asideSidebarReference) | raw }}
 
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
 			<h1>
@@ -127,22 +131,22 @@
 				validation: {
 					'customer_form[firstName]': [{
                         required: true,
-                        msg: 'This field is mandatory'
+                        msg: "{{'This field is mandatory'|trans}}"
                     },{
                         pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
-                        msg: 'This field must have characters only'
+                        msg: "{{'This field must have characters only'|trans}}"
                     },{
                         maxLength:40,
-                        msg:'Maximum character length is 40'
+                        msg:"{{'Maximum character length is 40'|trans}}"
                     }],
 					'customer_form[lastName]': function(value) {
                         if(value != undefined && value !== '') {
                             [{
                                 pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
-                                msg: 'This field must have characters only'
+                                msg: "{{'This field must have characters only'|trans}}"
                             },{
                                 maxLength:40,
-                                msg:'Maximum character length is 40'
+                                msg:"{{'Maximum character length is 40'|trans}}"
                             }]
                         }
                     },

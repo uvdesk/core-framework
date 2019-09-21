@@ -1,10 +1,10 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Ticket;
+namespace Webkul\UVDesk\CoreFrameworkBundle\PreparedResponse\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
 
 class UpdateTeam extends PreparedResponseAction
@@ -33,7 +33,7 @@ class UpdateTeam extends PreparedResponseAction
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         if($entity instanceof Ticket) {
-            $subGroup = $entityManager->getRepository('UVDeskCoreBundle:SupportTeam')->find($value);
+            $subGroup = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')->find($value);
             if($subGroup) {
                 $entity->setSupportTeam($subGroup);
                 $entityManager->persist($entity);

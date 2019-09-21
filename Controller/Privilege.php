@@ -1,10 +1,10 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Controller;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Webkul\UVDesk\CoreBundle\Entity\SupportPrivilege;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportPrivilege;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 class Privilege extends Controller
@@ -15,7 +15,7 @@ class Privilege extends Controller
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
-        return $this->render('@UVDeskCore/Privileges/listSupportPriveleges.html.twig');
+        return $this->render('@UVDeskCoreFramework/Privileges/listSupportPriveleges.html.twig');
     }
 
     public function createPrivilege(Request $request)
@@ -38,12 +38,12 @@ class Privilege extends Controller
             $entityManager->persist($supportPrivilege);
             $entityManager->flush();  
 
-            $this->addFlash('success', 'Success ! Privilege information saved successfully.');
+            $this->addFlash('success', $this->get('translator')->trans('Success ! Privilege information saved successfully.'));
             return $this->redirect($this->generateUrl('helpdesk_member_privilege_collection'));
 
         }
 
-        return $this->render('@UVDeskCore/Privileges/createSupportPrivelege.html.twig', [
+        return $this->render('@UVDeskCoreFramework/Privileges/createSupportPrivelege.html.twig', [
             'errors' => json_encode($formErrors),
             'supportPrivilege' => $supportPrivilege,
             'supportPrivilegeResources' => $supportPrivilegeResources,
@@ -59,7 +59,7 @@ class Privilege extends Controller
         $entityManager = $this->getDoctrine()->getManager();
         $request = $this->get('request_stack')->getCurrentRequest();
         
-        $supportPrivilege = $entityManager->getRepository('UVDeskCoreBundle:SupportPrivilege')->findOneById($supportPrivilegeId);
+        $supportPrivilege = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportPrivilege')->findOneById($supportPrivilegeId);
         
         if (empty($supportPrivilege)) {
             $this->noResultFound();
@@ -78,12 +78,12 @@ class Privilege extends Controller
             $entityManager->persist($supportPrivilege);
             $entityManager->flush();  
 
-            $this->addFlash('success', 'Privilege updated successfully.');
+            $this->addFlash('success',$this->get('translator')->trans( 'Privilege updated successfully.'));
 
             return $this->redirect($this->generateUrl('helpdesk_member_privilege_collection'));
         }
  
-        return $this->render('@UVDeskCore/Privileges/updateSupportPrivelege.html.twig', [
+        return $this->render('@UVDeskCoreFramework/Privileges/updateSupportPrivelege.html.twig', [
             'errors' => json_encode($formErrors),
             'supportPrivilege' => $supportPrivilege,
             'supportPrivilegeResources' => $supportPrivilegeResources,

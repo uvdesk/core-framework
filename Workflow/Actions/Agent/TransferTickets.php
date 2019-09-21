@@ -1,11 +1,11 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Agent;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions\Agent;
 
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
-use Webkul\UVDesk\CoreBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class TransferTickets extends WorkflowAction
@@ -50,11 +50,11 @@ class TransferTickets extends WorkflowAction
             if ($value == 'responsePerforming') {
                 $user = $container->get('security.tokenstorage')->getToken()->getUser();
             } else {
-                $user = $entityManager->getRepository('UVDeskCoreBundle:User')->find($value);
+                $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->find($value);
             }
             
             if (!empty($user) && $user != 'anon.') {
-                $tickets = $entityManager->getRepository('UVDeskCoreBundle:Ticket')->getAgentTickets($entity->getId(), $container);
+                $tickets = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->getAgentTickets($entity->getId(), $container);
 
                 foreach ($tickets as $ticket) {
                     $ticket->setAgent($user);

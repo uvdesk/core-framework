@@ -1,13 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Entity;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * EmailTemplates
  * 
- * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreBundle\Repository\EmailTemplatesRepository")
+ * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreFrameworkBundle\Repository\EmailTemplatesRepository")
  * @ORM\Table(name="uv_email_templates")
  * 
  */
@@ -60,8 +60,8 @@ class EmailTemplates
     private $isPredefined = true;
 
     /**
-     * @var \Webkul\UVDesk\CoreBundle\Entity\UserInstance
-     * @ORM\ManyToOne(targetEntity="Webkul\UVDesk\CoreBundle\Entity\UserInstance", inversedBy="userSavedReplies")
+     * @var \Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance
+     * @ORM\ManyToOne(targetEntity="Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance", inversedBy="userSavedReplies")
      * @ORM\JoinColumn(name="user_id", nullable=true, onDelete="CASCADE", referencedColumnName="id")
      */
     private $user;
@@ -200,11 +200,11 @@ class EmailTemplates
     /**
      * Set user
      *
-     * @param \Webkul\UVDesk\CoreBundle\Entity\UserInstance $user
+     * @param \Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance $user
      *
      * @return EmailTemplates
      */
-    public function setUser(\Webkul\UVDesk\CoreBundle\Entity\UserInstance $user = null)
+    public function setUser(\Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance $user = null)
     {
         $this->user = $user;
 
@@ -214,7 +214,7 @@ class EmailTemplates
     /**
      * Get user
      *
-     * @return \Webkul\UVDesk\CoreBundle\Entity\UserInstance
+     * @return \Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance
      */
     public function getUser()
     {

@@ -1,13 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Controller;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Webkul\UVDesk\CoreBundle\Workflow\Events as CoreWorkflowEvents;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 
 class Thread extends Controller
 {
@@ -16,7 +16,7 @@ class Thread extends Controller
         $entityManager = $this->getDoctrine()->getManager();
         $request = $this->container->get('request_stack')->getCurrentRequest();
         $params = $request->request->all();
-        $ticket = $entityManager->getRepository('UVDeskCoreBundle:Ticket')->findOneById($ticketId);
+        $ticket = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($ticketId);
 
         // Validate Request
         if (empty($ticket)) {
@@ -59,7 +59,7 @@ class Thread extends Controller
         ];
 
         if(!empty($params['status'])){
-            $ticketStatus = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findOneByCode($params['status']);
+            $ticketStatus = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->findOneByCode($params['status']);
             $ticket->setStatus($ticketStatus);
         }
         if (isset($params['to'])) {
@@ -97,7 +97,7 @@ class Thread extends Controller
         $updateTicketToStatus = !empty($params['status']) ? (trim($params['status']) ?: null) : null;
        
         if (!empty($updateTicketToStatus) && $this->get('user.service')->isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS')) {
-            $ticketStatus = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findOneById($updateTicketToStatus);
+            $ticketStatus = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->findOneById($updateTicketToStatus);
 
             if (!empty($ticketStatus) && $ticketStatus->getId() === $ticket->getStatus()->getId()) {
                 $ticket->setStatus($ticketStatus);
@@ -114,7 +114,7 @@ class Thread extends Controller
             return $this->redirect($this->generateUrl('helpdesk_member_ticket_collection'));
         }
         
-        $request->getSession()->getFlashBag()->set('success', ('Success! Reply has been added successfully'));
+        $request->getSession()->getFlashBag()->set('success', ($this->get('translator')->trans('Success! Reply has been added successfully')));
         return $this->redirect($this->generateUrl('helpdesk_member_ticket', ['ticketId' => $ticket->getId()]));
     }
 
@@ -127,7 +127,7 @@ class Thread extends Controller
         if ($request->getMethod() == "PUT") {
             // $this->isAuthorized('ROLE_AGENT_EDIT_THREAD_NOTE');
             if (str_replace(' ','',str_replace('&nbsp;','',trim(strip_tags($content['reply'], '<img>')))) != "") {
-                $thread = $em->getRepository('UVDeskCoreBundle:Thread')->find($request->attributes->get('threadId'));
+                $thread = $em->getRepository('UVDeskCoreFrameworkBundle:Thread')->find($request->attributes->get('threadId'));
                 $thread->setMessage($content['reply']);
                 $em->persist($thread);
                 $em->flush();
@@ -142,10 +142,10 @@ class Thread extends Controller
 
                 $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
-                $json['alertMessage'] = 'Success ! Thread updated successfully.';
+                $json['alertMessage'] = $this->get('translator')->trans('Success ! Thread updated successfully.');
                 $json['alertClass'] = 'success';
             } else {
-                $json['alertMessage'] = 'Error ! Reply field can not be blank.';
+                $json['alertMessage'] = $this->get('translator')->trans('Error ! Reply field can not be blank.');
                 $json['alertClass'] = 'error';
             }
         }  
@@ -160,7 +160,7 @@ class Thread extends Controller
         $em = $this->getDoctrine()->getManager();
         
         if ($request->getMethod() == "DELETE") {
-            $thread = $em->getRepository('UVDeskCoreBundle:Thread')->findOneBy(array('id' => $request->attributes->get('threadId'), 'ticket' => $content['ticketId']));
+            $thread = $em->getRepository('UVDeskCoreFrameworkBundle:Thread')->findOneBy(array('id' => $request->attributes->get('threadId'), 'ticket' => $content['ticketId']));
             
             if ($thread) {
                 // Trigger thread deleted event
@@ -178,7 +178,7 @@ class Thread extends Controller
                 $json['alertMessage'] = 'Error ! Invalid thread.';
             }
         } elseif ($request->getMethod() == "PATCH") {
-            $thread = $em->getRepository('UVDeskCoreBundle:Thread')->findOneBy(array('id' => $request->attributes->get('threadId'), 'ticket' => $content['ticketId']));
+            $thread = $em->getRepository('UVDeskCoreFrameworkBundle:Thread')->findOneBy(array('id' => $request->attributes->get('threadId'), 'ticket' => $content['ticketId']));
 
             if ($thread) {
                 if ($content['updateType'] == 'lock') { 
@@ -198,7 +198,7 @@ class Thread extends Controller
                 }
             } else {
                 $json['alertClass'] = 'danger';
-                $json['alertMessage'] = 'Error ! Invalid thread.';
+                $json['alertMessage'] = $this->get('translator')->trans('Error ! Invalid thread.');
             }
         }
 

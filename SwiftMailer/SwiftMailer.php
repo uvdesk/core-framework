@@ -1,13 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\SwiftMailer;
+namespace Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer;
 
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreBundle\Utils\SwiftMailer\Configuration as MailerConfigurations;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\SwiftMailer\Configuration as MailerConfigurations;
 
 class SwiftMailer
 {
@@ -116,8 +116,18 @@ class SwiftMailer
             $configurationStream .= $configuration->getWritableConfigurations();
         }
 
+        // Default_mailer configuration
+        // @TODO: Needs to be improved. We shouldn't just randomly set the first mailer as the default mailer.
+        $stream = require self::SWIFTMAILER_TEMPLATE;
+
+        if (!empty($references[0])) {
+            $stream = strtr($stream, [
+                '[[ DEFAULT_MAILER ]]' => $references[0],
+            ]);
+        }
+
         // Prepare the complete swiftmailer configuration file
-        $stream = strtr(require self::SWIFTMAILER_TEMPLATE, [
+        $stream = strtr($stream, [
             '[[ CONFIGURATIONS ]]' => $configurationStream,
         ]);
 

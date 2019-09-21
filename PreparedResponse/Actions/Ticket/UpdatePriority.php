@@ -1,10 +1,10 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\PreparedResponse\Actions\Ticket;
+namespace Webkul\UVDesk\CoreFrameworkBundle\PreparedResponse\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
 
 class UpdatePriority extends PreparedResponseAction
@@ -33,14 +33,14 @@ class UpdatePriority extends PreparedResponseAction
                 'id' => $ticketPriority->getId(),
                 'name' => $ticketPriority->getDescription(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreBundle:TicketPriority')->findAll());
+        }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketPriority')->findAll());
     }
 
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         if( ($entity instanceof Ticket) && $value) {
-            $priority = $entityManager->getRepository('UVDeskCoreBundle:TicketPriority')->find($value);
+            $priority = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketPriority')->find($value);
             $entity->setPriority($priority);
             $entityManager->persist($entity);
             $entityManager->flush();

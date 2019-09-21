@@ -1,5 +1,5 @@
 <?php
-namespace Webkul\UVDesk\CoreBundle\Controller;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +14,7 @@ class GroupXHR extends Controller
         }
 
         if (true === $request->isXmlHttpRequest()) {
-            $paginationResponse = $this->getDoctrine()->getRepository('UVDeskCoreBundle:SupportGroup')->getAllGroups($request->query, $this->container);
+            $paginationResponse = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')->getAllGroups($request->query, $this->container);
 
             return new Response(json_encode($paginationResponse), 200, ['Content-Type' => 'application/json']);
         }
@@ -31,7 +31,7 @@ class GroupXHR extends Controller
         $request = $this->get('request_stack')->getCurrentRequest();
         if ($request->getMethod() == "DELETE") {
             $entityManager = $this->getDoctrine()->getManager();
-            $supportGroup = $entityManager->getRepository('UVDeskCoreBundle:SupportGroup')->findOneById($supportGroupId);
+            $supportGroup = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')->findOneById($supportGroupId);
 
             if (!empty($supportGroup)) {
                 $entityManager->remove($supportGroup);
@@ -39,7 +39,7 @@ class GroupXHR extends Controller
                 
                 return new Response(json_encode([
                     'alertClass' => 'success',
-                    'alertMessage' => 'Support Group removed successfully.',
+                    'alertMessage' => $this->get('translator')->trans('Support Group removed successfully.'),
                 ]), 200, ['Content-Type' => 'application/json']);
             }
         }

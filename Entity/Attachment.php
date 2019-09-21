@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Entity;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -107,7 +107,7 @@ class Attachment
      * @return Attachment
      * 
      */
-    public function setThread(\Webkul\UVDesk\CoreBundle\Entity\Thread $thread = null)
+    public function setThread(\Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread $thread = null)
     {
         $this->thread = $thread;
 
@@ -117,7 +117,7 @@ class Attachment
     /**
      * Get thread
      *
-     * @return \Webkul\UVDesk\CoreBundle\Entity\Thread 
+     * @return \Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread 
      */
     public function getThread()
     {

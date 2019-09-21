@@ -1,27 +1,30 @@
-{% extends "@UVDeskCore//Templates//layout.html.twig" %}
+{% extends "@UVDeskCoreFramework//Templates//layout.html.twig" %}
 
-{% block title %}Add Privilege{% endblock %}
+{% block title %}{{'Add Privilege'|trans}}{% endblock %}
 
 {% block pageContent %}
 	<div class="uv-inner-section">
-        {# Panel Sidebar #}
-        {{ include('@UVDeskCore/Templates/panel-sidebar.html.twig') }}
+        {# Append Panel Aside #}
+		{% set asideTemplate = 'Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\AsideTemplate' %}
+		{% set asideSidebarReference = 'Webkul\\UVDesk\\CoreFrameworkBundle\\UIComponents\\Dashboard\\Panel\\Sidebars\\Users' %}
+
+		{{ uvdesk_extensibles.getRegisteredComponent(asideTemplate).renderSidebar(asideSidebarReference) | raw }}
 
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
-			<h1>Add Privilege</h1>
+			<h1>{{'Add Privilege'|trans}}</h1>
 			
             {# Create Support Privilege Form #}
 			<form method="post" action="" id="privilege-form">
                 {# Basic Details #}
 				<div class="uv-element-block">
-					<label class="uv-field-label">Name</label>
+					<label class="uv-field-label">{{'Name'|trans}}</label>
 					<div class="uv-field-block">
 						<input type="text" name="privilege_form[name]" class="uv-field" value="{{ supportPrivilege.name }}" />
 					</div>
 				</div>
 
 				<div class="uv-element-block">
-					<label class="uv-field-label">Description</label>
+					<label class="uv-field-label">{{'Description'|trans}}</label>
 					<div class="uv-field-block">
 						<textarea name="privilege_form[description]" class="uv-field">{{ supportPrivilege.description }}</textarea>
 					</div>
@@ -30,13 +33,13 @@
                 {# Agent Resources #}
 				<div class="uv-scroll-plank">
 					<div class="uv-element-block">
-						<label class="uv-field-label">Agent Privileges</label>
-						<span class="uv-field-info uv-margin-top-5">Choose set of privileges which will be available to the agent.</span>
+						<label class="uv-field-label">{{"Agent Privileges"|trans}}</label>
+						<span class="uv-field-info uv-margin-top-5">{{'Choose set of privileges which will be available to the agent.'|trans}}</span>
 					</div>
 					
 					<div class="uv-element-block">
 						<label>
-							<span class="uv-checkbox-label uv-bold">Tickets</span>
+							<span class="uv-checkbox-label uv-bold">{{'Tickets'|trans}}</span>
 						</label>
 					</div>
 
@@ -58,15 +61,15 @@
 
                     {# Mass Action #}
 					<div class="uv-element-block">
-						<a href="#" class="select">Select All</a>
-						<a href="#" class="deselect">Remove All</a>
+						<a href="#" class="select">{{'Select All'|trans}}</a>
+						<a href="#" class="deselect">{{'Remove All'|trans}}</a>
 					</div>
 				</div>
                 {# Advanced Resources #}
 				<div class="uv-scroll-plank">
 					<div class="uv-element-block">
 						<label>
-							<span class="uv-checkbox-label uv-bold">Advanced</span>
+							<span class="uv-checkbox-label uv-bold">{{"Advanced"|trans}}</span>
 						</label>
 					</div>
 
@@ -88,8 +91,8 @@
 
                     {# Mass Action #}
 					<div class="uv-element-block">
-						<a href="#" class="select">Select All</a>
-						<a href="#" class="deselect">Remove All</a>
+						<a href="#" class="select">{{'Select All'|trans}}</a>
+						<a href="#" class="deselect">{{'Remove All'|trans}}</a>
 					</div>
 				</div>
 
@@ -97,7 +100,7 @@
                 {# <input type="hidden" name="privilege_form[_token]" value="{{ default_service.generateCsrfToken('privilege_form') }}"/> #}
                 <!-- //CSRF token Field -->
 
-				<input class="uv-btn" href="#" value="Save Changes" type="submit">
+				<input class="uv-btn" href="#" value="{{'Save Changes'|trans}}" type="submit">
 			</form>
 		</div>
 	</div>
@@ -112,23 +115,23 @@
 				validation: {
 					'privilege_form[name]': [{
 						required: true,
-						msg: "This field is mandatory"
+						msg: "{{'This field is mandatory'|trans}}"
 					}, {
 						pattern: '^((?![!@#$%^&*()<>]).)*$',
-						msg: 'Privilege Name must have characters only'
+						msg: "{{'Privilege Name must have characters only'|trans}}"
 					},{
 						maxLength:50,
-                        msg:'Maximum character length is 50'
+                        msg:"{{'Maximum character length is 50'|trans}}"
 					}],
 					'privilege_form[description]': {
 						required: true,
-						msg: 'This field is mandatory'
+						msg: "{{'This field is mandatory'|trans}}"
 					},
 					'privilege_form[privileges][]': {
                         fn: function() {
                             return !$("input[name='privilege_form[privileges][]']:checked").length ? true : false;
                         },
-                        msg: 'This field is mandatory'
+                        msg: "{{'This field is mandatory'|trans}}"
                     },
 				}
 			});

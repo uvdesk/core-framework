@@ -1,6 +1,6 @@
-{% extends "@UVDeskCore/Templates/layout.html.twig" %}
+{% extends "@UVDeskCoreFramework/Templates/layout.html.twig" %}
 
-{% block title %}Ticket Types{% endblock %}
+{% block title %}{{'Ticket Types'|trans}}{% endblock %}
 
 {% block templateCSS %}
     <style>
@@ -13,11 +13,14 @@
 
 {% block pageContent %}
 	<div class="uv-inner-section">
-        {# Productivity Panel Sidebar #}
-        {{ include('@UVDeskCore/Templates/panel-sidebar.html.twig') }}
+        {# Append Panel Aside #}
+		{% set asideTemplate = 'Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\AsideTemplate' %}
+		{% set asideSidebarReference = 'Webkul\\UVDesk\\CoreFrameworkBundle\\UIComponents\\Dashboard\\Panel\\Sidebars\\Productivity' %}
+
+		{{ uvdesk_extensibles.getRegisteredComponent(asideTemplate).renderSidebar(asideSidebarReference) | raw }}
 
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
-			<h1>Ticket Types</h1>
+			<h1>{{'Ticket Types'|trans}}</h1>
 
             {# Ticket Types Action Bar #}
 			<div class="uv-action-bar">
@@ -37,14 +40,14 @@
 
                     {# Filter Ticket Types #}
                     <div class="uv-dropdown filter-by-status">
-                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Status: All</div>
+                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{'Status'|trans}}: {{'All'|trans}}</div>
                         <div class="uv-dropdown-list uv-bottom-left">
 							<div class="uv-dropdown-container">
-								<label>Status</label>
+								<label>{{'Status'|trans}}</label>
 								<ul>
-									<li class="uv-drop-list-active"><a href="#">All</a></li>
-									<li><a href="#" data-id="1">Active</a></li>
-									<li><a href="#" data-id="0">Inactive</a></li>
+									<li class="uv-drop-list-active"><a href="#">{{'All'|trans}}</a></li>
+									<li><a href="#" data-id="1">{{'Active'|trans}}</a></li>
+									<li><a href="#" data-id="0">{{'Inactive'|trans}}</a></li>
 								</ul>
 							</div>
                         </div>
@@ -53,7 +56,7 @@
 
 				<div class="uv-action-bar-col-rt">
 					<input type="text" class="uv-search-inline uv-vertical-align uv-margin-right-15" placeholder="{{ 'Search'|trans }}">
-					<a href="{{ path('helpdesk_member_create_ticket_type') }}" type="button" class="uv-btn-action"><span class="uv-icon-add"></span> New Type</a>
+					<a href="{{ path('helpdesk_member_create_ticket_type') }}" type="button" class="uv-btn-action"><span class="uv-icon-add"></span> {{'New Type'|trans}}</a>
 				</div>
             </div>
 
@@ -61,10 +64,10 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Code</th>
-                            <th>Description</th>
-                            <th>Status</th>
-                            <th class="uv-last">Action</th>
+                            <th>{{"Code"|trans}}</th>
+                            <th>{{"Description"|trans}}</th>
+                            <th>{{'Status'|trans}}</th>
+                            <th class="uv-last">{{'Action'|trans}}</th>
                         </tr>
                     </thead>
 

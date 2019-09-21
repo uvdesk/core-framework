@@ -1,9 +1,9 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\EventListener\Console;
+namespace Webkul\UVDesk\CoreFrameworkBundle\EventListener\Console;
 
-use Doctrine\ORM\EntityManager;
-use Webkul\UVDesk\CoreBundle\Entity\Mailbox;
+use Doctrine\ORM\EntityManagerInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Mailbox;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -14,7 +14,7 @@ class Console
     private $container;
     private $entityManager;
 
-    public function __construct(ContainerInterface $container, EntityManager $entityManager)
+    public function __construct(ContainerInterface $container, EntityManagerInterface $entityManager)
     {
         $this->container = $container;
         $this->entityManager = $entityManager;
@@ -65,7 +65,7 @@ class Console
 
         $output = $event->getOutput();
         // $mailboxes = $this->container->getParameter('uvdesk.mailboxes');
-        // $mailboxRepository = $this->entityManager->getRepository('UVDeskCoreBundle:Mailbox');
+        // $mailboxRepository = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Mailbox');
 
         // // Check for any duplicate mailboxes for an email
         // foreach (array_count_values(array_column($mailboxes, 'email')) as $email => $occurrences) {

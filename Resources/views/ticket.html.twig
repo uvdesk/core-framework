@@ -1,4 +1,4 @@
-{% extends "@UVDeskCore//Templates//layout.html.twig" %}
+{% extends "@UVDeskCoreFramework//Templates//layout.html.twig" %}
 
 {% block title %}{{ '#' ~ ticket.id ~ ' ' ~ ticket.subject }}{% endblock %}
 
@@ -127,7 +127,7 @@
             display: inline-block;
             vertical-align: middle;
             margin: 5px 0px 5px 10px;
-            background-image: url("{{ asset('bundles/uvdeskcore/images/app-glyph-custom.svg') }}");
+            background-image: url("{{ asset('bundles/uvdeskcoreframework/images/app-glyph-custom.svg') }}");
         }
         .uv-no-threads {
             padding: 80px 20px;
@@ -174,7 +174,7 @@
             height: 18px;
             display: inline-block;
             vertical-align: middle;
-            background-image: url("{{ asset('bundles/uvdeskcore/images/uvdesk-sprite.svg') }}");
+            background-image: url("{{ asset('bundles/uvdeskcoreframework/images/uvdesk-sprite.svg') }}");
             background-position: 0px -396px;
             transition: transform .15s;
             transform: scale(1);
@@ -270,6 +270,19 @@
                 position: initial !important;
             }
         }
+
+        .uv-ticket-action-bar-rt .app-glyph {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 10px;
+            cursor: pointer;
+            height: 20px;
+            width: 20px;
+        }
+
+        .uv-ticket-action-bar-rt .app-glyph:last-child {
+            margin-right: 0px;
+        }
     </style>
 {% endblock %}
 
@@ -280,10 +293,10 @@
             <div class="uv-main-info-block">
                 <div class="uv-aside-head">
                     <div class="uv-aside-title">
-                        <h6>Ticket #{{ ticket.id }}</h6>
+                        <h6>{{'Ticket'|trans}} #{{ ticket.id }}</h6>
                     </div>
                     <div class="uv-aside-back">
-                        <span onclick="history.length > 1 ? history.go(-1) : window.location = '{{ path("helpdesk_member_ticket_collection") }}';">Back</span>
+                        <span onclick="history.length > 1 ? history.go(-1) : window.location = '{{ path("helpdesk_member_ticket_collection") }}';">{{'Back'|trans}}</span>
                     </div>
                 </div>
         
@@ -291,7 +304,7 @@
                 <div class="uv-aside-brick">
                     {# Customer Details #}
                     <div class="uv-aside-customer-block">
-                        <h3>Customer Information</h3>
+                        <h3>{{'Customer Information'|trans}}</h3>
                         <div class="uv-aside-avatar">
                             {% if customer.thumbnail %}
                                 <img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}{{ customer.thumbnail }}">
@@ -308,7 +321,7 @@
                             {% endif %}
 
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER') %}
-                                <span class="uv-customize" data-toggle="tooltip" title="Edit Customer Information"></span>
+                                <span class="uv-customize" data-toggle="tooltip" title="{{'Edit Customer Information'|trans}}"></span>
                             {% endif %}
                         </div>
                     </div>
@@ -316,21 +329,21 @@
                     {# Ticket Details #}
                     <div class="uv-aside-ticket-block">
                         <div class="uv-aside-ticket-brick">
-                            <h3>Total Replies</h3>
+                            <h3>{{'Total Replies'|trans}}</h3>
                             <span class="uv-icon-replies"></span> <span>{{ totalReplies }}</span>
                         </div>
 
                         <div class="uv-aside-ticket-brick">
-                            <h3>TimeStamp</h3>
+                            <h3>{{'TimeStamp'|trans}}</h3>
                             <span class="uv-icon-timestamp"></span> <span>{{ ticket_service.timeZoneConverter(initialThread.createdAt) }}</span>
                         </div>
 
                         <div class="uv-aside-ticket-brick">
-                            <h3>Channel</h3>
+                            <h3>{{'Channel'|trans}}</h3>
                             {% if ticket.source == 'email' %}
-                                <span class="uv-icon-channel uv-channel-email"></span> <span>Email</span>
+                                <span class="uv-icon-channel uv-channel-email"></span> <span>{{'Email'|trans}}</span>
                             {% else %}
-                                <span class="uv-icon-channel uv-channel-web"></span> <span>Website</span>
+                                <span class="uv-icon-channel uv-channel-web"></span> <span>{{'Website'|trans}}</span>
                             {% endif %}
                         </div>
                     </div>
@@ -341,8 +354,8 @@
             {% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER') %}
                 <div class="uv-main-info-update-block uv-no-error-success-icon" style="display: none">
                     <div class="uv-aside-head">
-                        <div class="uv-aside-title"><h6>Edit Customer</h6></div>
-                        <div class="uv-aside-back"><span>Back</span></div>
+                        <div class="uv-aside-title"><h6>{{'Edit Customer'|trans}}</h6></div>
+                        <div class="uv-aside-back"><span>{{'Back'|trans}}</span></div>
                     </div>
 
                     <div class="uv-aside-brick">
@@ -350,29 +363,29 @@
                             <input class="uv-field" name="id" type="hidden" value="{{ customer.id }}">
 
                             <div class="uv-element-block">
-                                <label class="uv-field-label">Name</label>
+                                <label class="uv-field-label">{{'Name'|trans}}</label>
                                 <div class="uv-field-block">
                                     <input class="uv-field" name="name" type="text" value="{{ customer.name }}">
                                 </div>
                             </div>
 
                             <div class="uv-element-block">
-                                <label class="uv-field-label">Email</label>
+                                <label class="uv-field-label">{{'Email'|trans}}</label>
                                 <div class="uv-field-block">
                                     <input class="uv-field" name="email" type="text" value="{{ customer.email }}">
                                 </div>
                             </div>
 
                             <div class="uv-element-block">
-                                <label class="uv-field-label">Contact Number</label>
+                                <label class="uv-field-label">{{'Contact Number'|trans}}</label>
                                 <div class="uv-field-block">
                                     <input class="uv-field" name="contactNumber" type="text" value="{{ customer.contactNumber }}">
                                 </div>
                             </div>
 
                             <div class="uv-action-buttons">
-                                <a class="uv-btn update-btn" href="#">Update</a>
-                                <a class="uv-btn cancel-btn" href="#">Cancel</a>
+                                <a class="uv-btn update-btn" href="#">{{'Update'|trans}}</a>
+                                <a class="uv-btn cancel-btn" href="#">{{'Cancel'|trans}}</a>
                             </div>
 
                             <input type="hidden" name="_token" value="{{ csrf_token_generator.refreshToken('') }}"/>
@@ -386,16 +399,16 @@
                 <div class="uv-aside-ticket-actions">
                     {# Update Ticket Agent #}
                     <div class="uv-aside-select">
-                        <label class="uv-aside-select-label">Agent</label>
+                        <label class="uv-aside-select-label">{{'Agent'|trans}}</label>
                         <div>
                             {% set agentName = ticketAgent ? ticketAgent.name : 'Not Assigned' %}
                             {% if ticket.isTrashed == false and user_service.isAccessAuthorized('ROLE_AGENT_ASSIGN_TICKET') %}
                                 <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticketAgent ? ticketAgent.id : '' }}">{{ agentName }}</span>
                                 <div class="uv-dropdown-list uv-bottom-left">
                                     <div class="uv-dropdown-container">
-                                        <label>Agent</label>
+                                        <label>{{'Agent'|trans}}</label>
                                         <div class="uv-search-sm">
-                                            <input type="text" class="uv-search-field" placeholder="Search">
+                                            <input type="text" class="uv-search-field" placeholder="{{'Search'|trans}}">
                                         </div>
                                     </div>
 
@@ -415,14 +428,14 @@
 
                     {# Update Ticket Priority #}
                     <div class="uv-aside-select">
-                        <label class="uv-aside-select-label">Priority</label>
+                        <label class="uv-aside-select-label">{{'Priority'|trans}}</label>
                         <div>
                             <span class="uv-list-ticket-priority" style="background: {{ ticket.priority.colorCode }}"></span>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_PRIORITY') %}
                                 <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.priority.id }}">{{ ticket.priority.description }}</span>
                                 <div class="uv-dropdown-list uv-bottom-left">
                                     <div class="uv-dropdown-container">
-                                        <label>Priority</label>
+                                        <label>{{'Priority'|trans}}</label>
                                         <ul class="priority" data-action="priority">
                                             {% for priority in ticketPriorityCollection %}
                                                 <li data-index="{{ priority.id }}" data-color="{{ priority.colorCode }}"><a href="#">{{ priority.description }}</a></li>
@@ -440,13 +453,13 @@
 
                     {# Update Ticket Status #}
                     <div class="uv-aside-select">
-                        <label class="uv-aside-select-label">Status</label>
+                        <label class="uv-aside-select-label">{{'Status'|trans}}</label>
                         <div>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}
                                 <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.status.id }}">{{ ticket.status.description }}</span>
                                 <div class="uv-dropdown-list uv-bottom-left">
                                     <div class="uv-dropdown-container">
-                                        <label>Status</label>
+                                        <label>{{'Status'|trans}}</label>
                                         <ul class="status" data-action="status">
                                             {% for status in ticketStatusCollection %}
                                                 <li data-index="{{ status.id }}"><a href="#">{{ status.description }}</a></li>
@@ -462,27 +475,27 @@
 
                     {# Update Ticket Type #}
                     <div class="uv-aside-select">
-                        <label class="uv-aside-select-label">Type</label>
+                        <label class="uv-aside-select-label">{{'Type'|trans}}</label>
                         <div>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_TYPE') %}
-                                <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.type ? ticket.type.id : '-- --' }}">{{ ticket.type ? ticket.type.code : 'Not Assigned' }}</span>
+                                <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.type ? ticket.type.id : '-- --' }}">{{ ticket.type ? ticket.type.description : "{{'Not Assigned'|trans}}" }}</span>
                                 <div class="uv-dropdown-list uv-bottom-left">
                                     <div class="uv-dropdown-container">
-                                        <label>Type</label>
+                                        <label>{{'Type'|trans}}</label>
                                         <div class="uv-search-sm">
-                                            <input type="text" class="uv-search-field" placeholder="Search">
+                                            <input type="text" class="uv-search-field" placeholder="{{'Search'|trans}}">
                                         </div>
                                     </div>
 
                                     <ul class="uv-search-list type" data-action="type">
                                         {% for type in ticketTypeCollection %}
-                                            <li data-index="{{ type.id }}"><a href="#">{{ type.code }}</a></li>
+                                            <li data-index="{{ type.id }}"><a href="#">{{ type.description }}</a></li>
                                         {% endfor %}
                                     </ul>
                                 </div>
                             {% else %}
                                 <span class="uv-aside-select-value">
-                                    {{ ticket.type ? ticket.type.code : 'Not Assigned' }}
+                                    {{ ticket.type ? ticket.type.description : 'Not Assigned' }}
                                 </span>
                             {% endif %}
                         </div>
@@ -490,7 +503,7 @@
 
                     {# Update Ticket Support Group #}
                     <div class="uv-aside-select">
-                        <label class="uv-aside-select-label">Group</label>
+                        <label class="uv-aside-select-label">{{'Group'|trans}}</label>
                         <div>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_ASSIGN_TICKET_GROUP') %}
                                 <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.supportGroup ? ticket.supportGroup.id : '-- --' }}">
@@ -498,13 +511,13 @@
                                 </span>
                                 <div class="uv-dropdown-list uv-bottom-left">
                                     <div class="uv-dropdown-container">
-                                        <label>Group</label>
+                                        <label>{{'Group'|trans}}</label>
                                         <div class="uv-search-sm">
-                                            <input type="text" class="uv-search-field" placeholder="Search">
+                                            <input type="text" class="uv-search-field" placeholder="{{'Search'|trans}}">
                                         </div>
                                     </div>
                                     <ul class="uv-search-list group" data-action="group">
-                                        <li data-index=""><a href="#">Not Assigned</a></li>
+                                        <li data-index=""><a href="#">{{'Not Assigned'|trans}}</a></li>
 
                                         {% for group in supportGroupCollection %}
                                             <li data-index="{{ group.id }}"><a href="#">{{ group.name }}</a></li>
@@ -521,7 +534,7 @@
 
                     {# Update Ticket Support Team #}
                     <div class="uv-aside-select">
-                        <label class="uv-aside-select-label">Team</label>
+                        <label class="uv-aside-select-label">{{'Team'|trans}}</label>
                         <div>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_ASSIGN_TICKET_GROUP') %}
                                 <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.supportTeam ? ticket.supportTeam.id : '-- --' }}">
@@ -555,16 +568,16 @@
             <div class="uv-aside-brick">
                 <div class="uv-aside-ticket-labels label-list-block">
                     <div class="uv-element-block">
-                        <label class="uv-field-label">Labels</label>
+                        <label class="uv-field-label">{{'Labels'|trans}}</label>
 
                         <div class="uv-field-block">
                             <input class="uv-field uv-dropdown-other" type="text" data-type="label">
                             <div class="uv-dropdown-list uv-top-left">
                                 <div class="uv-dropdown-container">
-                                    <label>Filter With</label>
+                                    <label>{{'Filter With'|trans}}</label>
                                     <ul class="">
-                                        <span class="uv-filter-info">Type atleast 2 letters</span>
-                                        <span class="uv-no-results" style="display: none;">No result found</span>
+                                        <span class="uv-filter-info">{{'Type atleast 2 letters'|trans}}</span>
+                                        <span class="uv-no-results" style="display: none;">{{'No result found'|trans}}</span>
                                     </ul>
                                 </div>
                             </div>
@@ -579,11 +592,11 @@
             <div class="uv-aside-brick collaborator-list-block">
                 <div class="uv-aside-ticket-labels">
                     <div class="uv-element-block">
-                        <label class="uv-field-label">Collaborators</label>
+                        <label class="uv-field-label">{{'Collaborators'|trans}}</label>
 
                         {% if user_service.isAccessAuthorized('ROLE_AGENT_ADD_COLLABORATOR_TO_TICKET') %}
                             <div class="uv-field-block">
-                                <input class="uv-field" type="text" name="email" type="text" value="" placeholder="Type email to add">
+                                <input class="uv-field" type="text" name="email" type="text" value="" placeholder="{{'Type email to add'|trans}}">
                             </div>
                         {% endif %}
                     </div>
@@ -595,17 +608,17 @@
             <div class="uv-aside-brick tag-list-block">
                 <div class="uv-aside-ticket-labels">
                     <div class="uv-element-block">
-                        <label class="uv-field-label">Tags</label>
+                        <label class="uv-field-label">{{'Tags'|trans}}</label>
 
                         {% if user_service.isAccessAuthorized('ROLE_AGENT_ADD_TAG') %}
                             <div class="uv-field-block">
                                 <input class="uv-field uv-dropdown-other" name="tag-name" type="text" data-type="tag" value="">
                                 <div class="uv-dropdown-list uv-bottom-left">
                                     <div class="uv-dropdown-container">
-                                        <label>Filter With</label>
+                                        <label>{{'Filter With'|trans}}</label>
                                         <ul class="">
-                                            <span class="uv-filter-info">Type atleast 2 letters</span>
-                                            <span class="uv-no-results" style="display: none;">No result found</span>
+                                            <span class="uv-filter-info">{{'Type atleast 2 letters'|trans}}</span>
+                                            <span class="uv-no-results" style="display: none;">{{'No result found'|trans}}</span>
                                         </ul>
                                     </div>
                                 </div>
@@ -629,11 +642,11 @@
                         <div class="uv-tabs">
                             <ul>
                                 {# Filter Threads #}
-                                <li for="default" data-type="all" class="uv-tab-active">All Threads</li>
-                                <li for="default" data-type="reply">Replies</li>
-                                <li for="default" data-type="forward">Forwards</li>
-                                <li for="default" data-type="note">Notes</li>
-                                <li for="default" data-type="pinned">Pinned</li>
+                                <li for="default" data-type="all" class="uv-tab-active">{{'All Threads'|trans}}</li>
+                                <li for="default" data-type="reply">{{'Replies'|trans}}</li>
+                                <li for="default" data-type="forward">{{'Forwards'|trans}}</li>
+                                <li for="default" data-type="note">{{'Notes'|trans}}</li>
+                                <li for="default" data-type="pinned">{{'Pinned'|trans}}</li>
 
                                 {# Update Threads #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_EDIT_TICKET') or user_service.isAccessAuthorized('ROLE_AGENT_DELETE_TICKET') %}
@@ -644,18 +657,18 @@
                                             <div class="uv-dropdown-container">
                                                 <ul class="priority" data-action="priority">
                                                     {% if user_service.isAccessAuthorized('ROLE_AGENT_EDIT_TICKET') %}
-                                                        <li data-action="edit" class="uv-open-popup" data-target="edit-ticket-modal">Edit Ticket</li>
+                                                        <li data-action="edit" class="uv-open-popup" data-target="edit-ticket-modal">{{'Edit Ticket'|trans}}</li>
                                                     {% endif %}
 
-                                                    <li data-action="print">Print Ticket</li>
+                                                    <li data-action="print">{{'Print Ticket'|trans}}</li>
 
                                                     {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}
-                                                        <li data-action="spam" data-index="6">Mark as Spam</li>
-                                                        <li data-action="closed" data-index="5">Mark as Closed</li>
+                                                        <li data-action="spam" data-index="6">{{'Mark as Spam'|trans}}</li>
+                                                        <li data-action="closed" data-index="5">{{'Mark as Closed'|trans}}</li>
                                                     {% endif %}
 
                                                     {% if user_service.isAccessAuthorized('ROLE_AGENT_DELETE_TICKET') %}
-                                                        <li data-action="delete" class="uv-text-danger">Delete Ticket</li>
+                                                        <li data-action="delete" class="uv-text-danger">{{'Delete Ticket'|trans}}</li>
                                                     {% endif %}
                                                 </ul>
                                             </div>
@@ -665,12 +678,16 @@
                             </ul>
                         </div>
                     </div>
+
+                    <div class="uv-ticket-action-bar-rt">
+                        {{ uvdesk_extensibles.getRegisteredComponent("Webkul\\UVDesk\\CoreFrameworkBundle\\Tickets\\WidgetCollection").embedSideFilterIcons()|raw }}
+                    </div>
                 </div>
 
                 {# Ticket Active Users #}
                 <div class="uv-ticket-viewer-bar">
                     <div class="uv-ticket-viewer-list">
-                        <div class="uv-ticket-viewer-single uv-first" title="Currently active agents on ticket...">
+                        <div class="uv-ticket-viewer-single uv-first" title="{{'Currently active agents on ticket'|trans}}...">
                             <span class="uv-icon-eye-light"></span>
                         </div>
                     </div>
@@ -689,19 +706,19 @@
 
                 <div class="uv-ticket-strip">
                     <span>
-                        <span class="uv-ticket-strip-label">Created - </span>
-                        <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(initialThread.createdAt) }}</span>                       
+                        <span class="uv-ticket-strip-label">{{'Created'|trans}} - </span>
+                        <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(initialThread.createdAt) }}</span>
                     </span>
 
                     <span>
-                        <span class="uv-ticket-strip-label">By - </span> {{ initialThread.user.name }}
+                        <span class="uv-ticket-strip-label">{{'By'|trans}} - </span> {{ initialThread.user.name }}
                         {% if totalCustomerTickets %}
                             (<a id="more-tickets-btn" href="{{ path('helpdesk_member_ticket_collection') }}#customer/{{customer.id}}" target="_blank">{{ (totalCustomerTickets - 1) ~ (' more tickets') }}</a>)
                         {% endif %}
                     </span>
 
                     <span class="agent-info" style="{{ ticketAgent ? '' : 'display: none' }}">
-                        <span class="uv-ticket-strip-label">Agent - </span>
+                        <span class="uv-ticket-strip-label">{{'Agent'|trans}} - </span>
                         <span class="name">{{ ticketAgent ? ticketAgent.name : '' }}</span>
                     </span>
                 </div>
@@ -712,8 +729,8 @@
                         <div class="uv-ticket-main create">
                             <div class="uv-ticket-strip">
                                 <span>
-                                   <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(ticket.createdAt) }}</span>
-                                    - {{ initialThread.user.name }} <span class="uv-ticket-strip-label">created Ticket</span>
+                                    <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(ticket.createdAt) }}</span>
+                                    - {{ initialThread.user.name }} <span class="uv-ticket-strip-label">{{'created Ticket'|trans}}</span>
                                 </span>
                             </div>
 
@@ -746,7 +763,7 @@
                                 {# Ticket Attachments #}
                                 {% if initialThread.attachments|length %}
                                     <div class="uv-ticket-uploads">
-                                        <h4>Uploaded Files</h4>
+                                        <h4>{{'Uploaded Files'|trans}}</h4>
                                         <div class="uv-ticket-uploads-strip">
                                             {% for attachment in initialThread.attachments %}
                                                 <a href="{{ attachment.downloadURL }}" target = "_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="{{ attachment.name }}">
@@ -757,9 +774,9 @@
 
                                         {% if initialThread.attachments|length > 1 %}
                                             <div class="uv-upload-actions">
-                                                <a href="#" class="uv-open-in-files" data-thread="{{ initialThread.id }}" style="display: none"><span class="uv-icon-open-in-files"></span>Open in Files</a>
+                                                <a href="#" class="uv-open-in-files" data-thread="{{ initialThread.id }}" style="display: none"><span class="uv-icon-open-in-files"></span>{{'Open in Files'|trans}}</a>
                                                 {% if initialThread.attachments|length %}
-                                                    <a href="{{ path('helpdesk_member_ticket_download_attachment_zip') }}/{{ initialThread.id }}" target="_blank"><span class="uv-icon-attachment"></span> Download (as .zip)</a>
+                                                    <a href="{{ path('helpdesk_member_ticket_download_attachment_zip') }}/{{ initialThread.id }}" target="_blank"><span class="uv-icon-attachment"></span>{{' Download (as .zip)'|trans}}</a>
                                                 {% endif %}
                                             </div>
                                         {% endif %}
@@ -789,10 +806,10 @@
                         <span class="uv-ticket-member-name">{{ currentUserDetails.name }}</span>
                         <div class="uv-tabs">
                             <ul>
-                                <li for="reply" class="uv-tab-active">Reply</li>
-                                <li for="forward">Forward</li>
+                                <li for="reply" class="uv-tab-active">{{'Reply'|trans}}</li>
+                                <li for="forward">{{'Forward'|trans}}</li>
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_ADD_NOTE') %}
-                                    <li for='note'>Note</li>
+                                    <li for='note'>{{'Note'|trans}}</li>
                                 {% endif %}
                             </ul>
                         </div>
@@ -803,7 +820,7 @@
                                 <input name="threadType" value="reply" type="hidden">
                                 <input name="status" value="" type="hidden" {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}class="reply-status"{% endif %}>
                                 <div class="uv-element-block collaborators" style="display: none">
-                                    <label class="uv-field-label">Collaborators</label>
+                                    <label class="uv-field-label">{{'Collaborators'|trans}}</label>
                                     <div class="uv-field-block"></div>
                                 </div>
 
@@ -821,7 +838,7 @@
                                             <input class="uv-group-field uv-dropdown-other preloaded uv-manual-enter" type="text">
                                             <div class="uv-dropdown-list uv-bottom-left">
                                                 <div class="uv-dropdown-container">
-                                                    <label>Agent</label>
+                                                    <label>{{'Agent'|trans}}</label>
                                                 </div>
 
                                                 <ul class="uv-agents-list">
@@ -831,7 +848,7 @@
                                                         </li>
                                                     {% endfor %}
 
-                                                    <li class="uv-no-results" style="display: none;">No result found</li>
+                                                    <li class="uv-no-results" style="display: none;">{{'No result found'|trans}}</li>
                                                 </ul>
                                             </div>
                                             <select class="uv-group-select cc-bcc-select">
@@ -845,7 +862,7 @@
                                 </div>
 
                                 <div class="uv-element-block uv-element-block-textarea">
-                                    <label class="uv-field-label">Write a reply</label>
+                                    <label class="uv-field-label">{{'Write a reply'|trans}}</label>
                                     <div class="uv-field-block">
                                         <textarea class="uv-field" name="reply" id="reply-area">{{ ticket_service.getAgentDraftReply() }}</textarea>
                                     </div>
@@ -853,38 +870,38 @@
 
                                 <div class="uv-element-block attachment-block">
                                     <label>
-                                        <span class="uv-file-label">Add Attachment</span>
+                                        <span class="uv-file-label">{{'Add Attachment'|trans}}</span>
                                     </label>
                                 </div>
 
                                 <div class="uv-action-buttons">
                                     <div class="uv-dropdown next-view">
                                         <input type="hidden" name="nextView" value="stay"/>
-                                        <div class="uv-dropdown-btn" style="padding: 9px 27px 9px 10px;">Stay on ticket</div>
+                                        <div class="uv-dropdown-btn" style="padding: 9px 27px 9px 10px;">{{'Stay on ticket'|trans}}</div>
                                         <div class="uv-dropdown-list uv-top-left" style="opacity: 1;">
                                             <div class="uv-dropdown-container">
                                                 <label>After Reply</label>
                                                 <ul>
-                                                    <li data-value="stay">Stay on ticket</li>
-                                                    <li data-value="redirect">Redirect to list</li>
+                                                    <li data-value="stay">{{'Stay on ticket'|trans}}</li>
+                                                    <li data-value="redirect">{{'Redirect to list'|trans}}</li>
                                                 </ul>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="uv-dropdown reply">
-                                        <div class="uv-btn uv-dropdown-other">Reply <span class="uv-icon-down-light"></span></div>
+                                        <div class="uv-btn uv-dropdown-other">{{'Reply'|trans}} <span class="uv-icon-down-light"></span></div>
                                         <div class="uv-dropdown-list uv-top-left">
                                             <div class="uv-dropdown-container">
-                                                <label>Reply</label>
+                                                <label>{{'Reply'|trans}}</label>
                                                 <ul>
-                                                    <li data-id="">Submit</li>
+                                                    <li data-id="">{{'Submit'|trans}}</li>
                                                     {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}
-                                                        <li data-id="open">Submit And Open</li>
-                                                        <li data-id="pending">Submit And Pending</li>
-                                                        <li data-id="answered">Submit And Answered</li>
-                                                        <li data-id="resolved">Submit And Resolved</li>
-                                                        <li data-id="closed">Submit And Closed</li>
+                                                        <li data-id="open">{{'Submit And Open'|trans}}</li>
+                                                        <li data-id="pending">{{'Submit And Pending'|trans}}</li>
+                                                        <li data-id="answered">{{'Submit And Answered'|trans}}</li>
+                                                        <li data-id="resolved">{{'Submit And Resolved'|trans}}</li>
+                                                        <li data-id="closed">{{'Submit And Closed'|trans}}</li>
                                                     {% endif %}
                                                 </ul>
                                             </div>
@@ -992,7 +1009,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="uv-btn forward">Forward</div>
+                                    <div class="uv-btn forward">{{'Forward'|trans}}</div>
                                 </div>
                             </form>
                         </div>
@@ -1060,55 +1077,55 @@
             <!-- Bottom Action Block -->
             <div class="uv-ticket-fixed-region">
                 <div class="uv-ticket-fixed-region-lt">
-                        <!-- Saved Replied-->
-                        <div class="uv-dropdown saved-reply">
-                            <div class="uv-dropdown-btn">{{ 'Saved Replies'|trans }}</div>
-                            <div class="uv-dropdown-list uv-top-left">
-                                <div class="uv-dropdown-container">
-                                    <label>{{ 'Saved Replies'|trans }}</label>
-                                    <ul>
-                                        <li data-id="">
-                                            <a href="{{ path('helpdesk_member_saved_replies') }}" target="_blank" style="color: #2750C4">{{ 'Create New'|trans }}</a>
-                                        </li>
-                                        {% for savedReply in ticket_service.getSavedReplies() %}
-                                            <li data-id="{{ savedReply.id }}">
-                                                {{ savedReply.name }}
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- //Saved Replied-->
+                    {{ uvdesk_extensibles.getRegisteredComponent("Webkul\\UVDesk\\CoreFrameworkBundle\\Tickets\\QuickActionButtonCollection").injectTemplates()|raw }}
 
-                        <!--Code-->
-                        <div class="uv-dropdown">
-                            <div class="uv-dropdown-btn">{{ 'Prepared Responses'|trans }}</div>
-                            <div class="uv-dropdown-list uv-top-left">
-                            <div class="uv-dropdown-container prepared-responses">
-                                <label>{{ 'Prepared Responses'|trans }}</label>
+                    {# <!-- Saved Replied-->
+                    <div class="uv-dropdown saved-reply">
+                        <div class="uv-dropdown-btn">{{ 'Saved Replies'|trans }}</div>
+                        <div class="uv-dropdown-list uv-top-left">
+                            <div class="uv-dropdown-container">
+                                <label>{{ 'Saved Replies'|trans }}</label>
                                 <ul>
-                                    <li>
-                                        <a class="create-new" href="{{path('prepare_response_action')}}" target="_blank" style="color: #2750C4">{{ 'Create New'|trans }}</a>
+                                    <li data-id="">
+                                        <a href="{{ path('helpdesk_member_saved_replies') }}" target="_blank" style="color: #2750C4">{{ 'Create New'|trans }}</a>
                                     </li>
-                                    {% set preparedResponses = ticket_service.getManualWorkflow() %}
-                                    {% for workflow in preparedResponses %}
-                                        <li>
-                                            <a href="{{ path('helpdesk_member_ticket_prepared_response_xhr') }}/{{ ticket.id }}/{{ workflow.id }}">
-                                                {{ workflow.name }}
-                                            </a>
+                                    {% for savedReply in ticket_service.getSavedReplies() %}
+                                        <li data-id="{{ savedReply.id }}">
+                                            {{ savedReply.name }}
                                         </li>
                                     {% endfor %}
                                 </ul>
                             </div>
-                            </div>
                         </div>
-                        <!--//Code-->
+                    </div>
+                    <!-- //Saved Replied--> #}
+
+                    {# <!--Code-->
+                    <div class="uv-dropdown">
+                        <div class="uv-dropdown-btn">{{ 'Prepared Responses'|trans }}</div>
+                        <div class="uv-dropdown-list uv-top-left">
+                        <div class="uv-dropdown-container prepared-responses">
+                            <label>{{ 'Prepared Responses'|trans }}</label>
+                            <ul>
+                                <li>
+                                    <a class="create-new" href="{{path('prepare_response_action')}}" target="_blank" style="color: #2750C4">{{ 'Create New'|trans }}</a>
+                                </li>
+                                {% set preparedResponses = ticket_service.getManualWorkflow() %}
+                                {% for workflow in preparedResponses %}
+                                    <li>
+                                        <a href="{{ path('helpdesk_member_ticket_prepared_response_xhr') }}/{{ ticket.id }}/{{ workflow.id }}">
+                                            {{ workflow.name }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        </div>
+                    </div>
+                    <!--//Code--> #}
                 </div>
 
-                <div class="uv-ticket-fixed-region-rt">
-
-                </div>
+                <div class="uv-ticket-fixed-region-rt"></div>
             </div>
             <!-- //Bottom Action Block -->
         </div>
@@ -1145,16 +1162,18 @@
             </div>
         </div>
     {% endif %}
+
+    {{ uvdesk_extensibles.getRegisteredComponent("Webkul\\UVDesk\\CoreFrameworkBundle\\Tickets\\WidgetCollection").embedSideFilterContent()|raw }}
 {% endblock %}
 
 {% block footer %}
     {{ parent() }}
 
-    {{ include('@UVDeskCore\\Templates\\attachment.html.twig') }}
-    {{ include("@UVDeskCore/Templates/tinyMCE.html.twig") }}
+    {{ include('@UVDeskCoreFramework\\Templates\\attachment.html.twig') }}
+    {{ include("@UVDeskCoreFramework/Templates/tinyMCE.html.twig") }}
 
     <script id="thread_list_empty_tmp" type="text/template">
-        <div class="uv-no-threads">Nothing interesting here...</div>
+        <div class="uv-no-threads">{{'Nothing interesting here'|trans}}...</div>
     </script>
 
     <script id="thread_list_item_tmp" type="text/template">
@@ -1245,7 +1264,7 @@
                             <label>{{ 'Language'|trans }}</label>
                             {% for localeCode, localeName in uvdesk_service.getLocales() %}
                                 <li data-value="{{ localeCode }}">
-                                    <img class="locale-image" src='{{ asset("bundles/uvdeskcore/images/country-flags/" ~ localeCode|lower|replace({" ": "-"}) ~ ".png") }}' alt="{{ localeCode }}" width="24px">
+                                    <img class="locale-image" src='{{ asset("bundles/uvdeskcoreframework/images/country-flags/" ~ localeCode|lower|replace({" ": "-"}) ~ ".png") }}' alt="{{ localeCode }}" width="24px">
                                     <span>{{ localeName|trans }}</span>
                                 </li>
                             {% endfor %}
@@ -1353,7 +1372,12 @@
     </script>
 
     <script type="text/javascript">
+        uvdesk = {
+            ticket: {}
+        };
+
         var ticketApp = {};
+
         viewerImages = function() {
             if (typeof($().viewer == 'function')) {
                 $('.uv-ticket-uploads .uv-ticket-uploads-strip').viewer({
@@ -1377,14 +1401,14 @@
                 validation: {
                     'email': [{
                         required: true,
-                        msg: 'This field is mandatory'
+                        msg: '{{ "This field is mandatory" }}'
                     },{
                         pattern: /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/,
-                        msg: 'Please enter a valid email'
+                        msg: '{{ "Please enter a valid email" }}'
                     }],
                     'subject' : {
                         required : true,
-                        msg : 'This field is mandatory'
+                        msg : '{{ "This field is mandatory" }}'
                     },
                     'reply' : {
                         fn: function(value) {
@@ -1396,7 +1420,7 @@
                             }
                             return true;
                         },
-                        msg : 'This field is mandatory'
+                        msg : '{{ "This field is mandatory" }}'
                     }
                 },
             });
@@ -1422,7 +1446,7 @@
                     }],
                     'email': [{
                         required: true,
-                        msg: 'This field is mandatory'
+                        msg: '{{ "This field is mandatory" }}'
                     },{
                         pattern: /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/,
                         msg: 'Email address is invalid'
@@ -1443,7 +1467,7 @@
                 validation: {
                     'email': [{
                         required: true,
-                        msg: 'This field is mandatory'
+                        msg: "{{'This field is mandatory'|trans}}"
                     },{
                         pattern: /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/,
                         msg: 'Please enter a valid email'
@@ -1650,7 +1674,6 @@
                     'click .uv-element-block.cc-bcc .uv-dropdown-list li': 'addCcBcc',
                     'click .cc-bcc-list .uv-btn-tag, .to-list .uv-btn-tag': 'removeEmail',
                     'click .next-view .uv-dropdown-list li': 'setNextView',
-                    'click .uv-dropdown.saved-reply .uv-dropdown-list li': 'getSavedReplyContent',
                     'click .uv-dropdown.reply .uv-dropdown-list li, .uv-btn.forward': 'validateForm',
                     'click #edit-ticket-modal .uv-btn.update': 'updateTicket',
                     'click .message .uv-icon-ellipsis': 'showReplyQuote',
@@ -1900,31 +1923,6 @@
                     $(".next-view input").val(nextView)
                     $(".next-view .uv-dropdown-btn").text(currentElement.text())
                 },
-                getSavedReplyContent : function(e) {
-                    var id = Backbone.$(e.currentTarget).attr('data-id');
-                    if(id) {
-                        app.appView.showLoader();
-                        $.ajax({
-                            url : "{{ path('helpdesk_member_ticket_saved_reply_xhr') }}",
-                            type : 'GET',
-                            data : {id: id, ticketId: this.model.id},
-                            dataType : 'json',
-                            success : function(response) {
-                                app.appView.hideLoader();
-                                activeTab = $('.uv-ticket-reply .uv-tab-view.uv-tab-view-active').attr('id');
-                                tinyMCE.get(activeTab + "-area").execCommand('mceInsertContent', false, response.message);
-
-                                $('.uv-ticket-scroll-region').animate({
-                                    scrollTop: $('#default').outerHeight()
-                                }, 'slow');
-                            },
-                            error: function (xhr) {
-                                if(url = xhr.getResponseHeader('Location'))
-                                    window.location = url;
-                            }
-                        });
-                    }
-                },
                 validateForm : function(e) {
                     e.preventDefault();
                     var element = Backbone.$(e.currentTarget);
@@ -2028,17 +2026,7 @@
                     } else {
                         parent.find('.uv-no-results').hide();
                     }
-                },1000),
-               confirmPreparedResponses: function(e) {
-                    e.preventDefault()
-
-                    currentElement = Backbone.$(e.currentTarget);
-                    this.targetPreparedResponseUrl = currentElement.attr('href');
-                    app.appView.openConfirmModal(this, 'applyPreparedResponses');
-                },
-                applyPreparedResponses: function() {
-                    window.location = this.targetPreparedResponseUrl;
-                }
+                },1000)
             });
 
             // Ticket Thread View
@@ -2795,7 +2783,8 @@
                 model: ticketModel
             });
 
-
+            uvdesk.ticket.model = ticketModel;
+            
             threadCollection = new ThreadCollection();
             var threadList = new ThreadList();
             var pagination = new Pagination();

@@ -2139,10 +2139,10 @@ kbd {
 }
 .uv-sidebar {
   background-color: #FFFFFF;
-  width: 235px;
+  width: 300px;
   position: absolute;
   height: auto;
-  top: 70px;
+  top: 0px;
   bottom: 0;
   left: 0;
   box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.18);
@@ -2165,7 +2165,7 @@ kbd {
   height: 48px;
   display: inline-block;
   vertical-align: middle;
-  margin: 10px 25px;
+  margin: 10px 7px;
   position: relative;
 }
 .uv-sidebar .uv-soft-top .uv-company-logo {
@@ -2188,8 +2188,7 @@ kbd {
   display: inline-block;
   vertical-align: middle;
   cursor: pointer;
-  margin: 24px -12px;
-  padding-left: 32px;
+  margin: 24px 0px;
 }
 .uv-sidebar .uv-soft-top .uv-hamburger:hover svg path {
   fill: #7C70F4;
@@ -2230,12 +2229,12 @@ kbd {
 .uv-sidebar-active {
   width: 60px;
 }
-.uv-sidebar-active .uv-soft-top a.uv-logo {
+/* .uv-sidebar-active .uv-soft-top a.uv-logo {
   display: none;
-}
+} */
 .uv-sidebar-active .uv-soft-top .uv-hamburger {
+  display: none;
   margin: 24px 20px;
-  padding-left: unset;
 }
 .uv-sidebar-active ul.uv-menubar {
   list-style-type: none;
@@ -2255,7 +2254,7 @@ kbd {
   top: 0;
   bottom: 0;
   z-index: 1;
-  
+  padding-left: 60px;
   background-color: #FFFFFF;
   transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -2269,7 +2268,6 @@ kbd {
   display: inline-block;
   width: 50%;
   vertical-align: middle;
-  padding: 0 0 0 230px;
 }
 .uv-paper .uv-navbar .uv-search-bar {
   width: 100%;
@@ -3321,9 +3319,9 @@ kbd {
   font-size: 15px;
   color: #333333;
 }
-.uv-inner-section .uv-view p:first-of-type {
+/* .uv-inner-section .uv-view p:first-of-type {
   margin-top: 5px;
-}
+} */
 .uv-inner-section .uv-view .uv-image-upload-wrapper {
   padding: 5px 0px 10px 0px;
 }
@@ -3439,7 +3437,7 @@ kbd {
   display: inline-block;
 }
 .uv-inner-section .uv-action-bar label.uv-margin-left-27 {
-  margin-left: 10px;
+  margin-left: 27px;
 }
 .uv-inner-section .uv-icon-filter {
   background-image: url("./../images/uvdesk-sprite.svg");
@@ -4137,6 +4135,7 @@ kbd {
   transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .uv-filter-view .uv-filter-head {
+  position: relative;
   margin-left: 20px;
   width: 280px;
   display: inline-block;
@@ -4145,21 +4144,29 @@ kbd {
   border-bottom: solid 1px #D3D3D3;
 }
 .uv-filter-view .uv-filter-head .uv-filter-title {
-  width: 200px;
+  /* width: 200px; */
   float: left;
 }
 .uv-filter-view .uv-filter-head .uv-filter-title h6 {
-  font-size: 15px;
   display: inline-block;
   vertical-align: top;
+  line-height: 1.4em;
+  font-size: 16px;
+  margin-bottom: 10px;
 }
 .uv-filter-view .uv-filter-head .uv-filter-title span {
-  display: inline-block;
-  font-style: italic;
+  display: block;
+  font-style: normal;
+  line-height: 1.4em;
   color: #6F6F6F;
+  font-size: 14px;
 }
 .uv-filter-view .uv-filter-head .uv-filter-toggle {
   float: right;
+  position: absolute;
+  position: absolute;
+  right: 18px;
+  top: 20px;
 }
 .uv-filter-view .uv-filter-head .uv-filter-toggle span {
   display: inline-block;
@@ -4173,7 +4180,7 @@ kbd {
   padding-left: 20px;
   padding-bottom: 20px;
   position: absolute;
-  top: 105px;
+  top: 113px;
   right: 0px;
   left: 0px;
   bottom: 0px;
@@ -4446,11 +4453,11 @@ span.uv-app-price {
   box-shadow: 0px 19px 35px 0px rgba(0, 0, 0, 0.1), 0px 10px 32px 0px rgba(0, 0, 0, 0.12);
 }
 .uv-app-screen {
-  padding-right: 25px;
+  position: relative;
+  margin-right: 25px;
 }
 .uv-app-screen .uv-app-splash {
   text-align: center;
-  width: 540px;
   margin: 60px auto;
 }
 .uv-app-screen .uv-app-splash .uv-app-splash-image {
@@ -5070,7 +5077,7 @@ br[data-mce-bogus="1"] {
     margin: 10px 7px;
   }
   .uv-sidebar .uv-soft-top .uv-hamburger {
-    /* display: none; */
+    display: none;
   }
   .uv-sidebar .uv-soft-top .uv-company-logo img {
     height: 48px;
@@ -5165,13 +5172,14 @@ br[data-mce-bogus="1"] {
 }
 @media screen and (min-width: 901px) and (max-width: 1400px) {
   .uv-sidebar {
+    width: 60px;
   }
   .uv-sidebar .uv-soft-top a.uv-logo {
     display: block;
     margin: 10px 7px;
   }
   .uv-sidebar .uv-soft-top .uv-hamburger {
-    /* display: none; */
+    display: none;
   }
   .uv-sidebar .uv-soft-top .uv-company-logo img {
     height: 48px;
@@ -5186,14 +5194,14 @@ br[data-mce-bogus="1"] {
     transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .uv-sidebar ul.uv-menubar li a .uv-menu-item {
-    /* display: none; */
+    display: none;
   }
   .uv-paper {
-    /* padding-left: 60px; */
+    padding-left: 60px;
   }
   .uv-paper .uv-wrapper {
     left: 60px;
-    transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: none;
   }
   .uv-inner-section .uv-aside {
     width: 250px;

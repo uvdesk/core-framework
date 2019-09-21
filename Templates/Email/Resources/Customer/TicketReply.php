@@ -1,8 +1,8 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Templates\Email\Resources\Customer;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Templates\Email\Resources\Customer;
 
-use Webkul\UVDesk\CoreBundle\Templates\Email\UVDeskEmailTemplateInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Templates\Email\UVDeskEmailTemplateInterface;
 
 abstract class TicketReply implements UVDeskEmailTemplateInterface
 {

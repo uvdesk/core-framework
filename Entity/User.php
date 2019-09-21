@@ -1,13 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Entity;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Entity;
 
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * User
- * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreBundle\Repository\UserRepository")
+ * @ORM\Entity(repositoryClass="Webkul\UVDesk\CoreFrameworkBundle\Repository\UserRepository")
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(name="uv_user")
  */
@@ -75,7 +75,7 @@ class User implements AdvancedUserInterface
     private $grantedRoles = [];
 
     /**
-     * @var \Webkul\UVDesk\CoreBundle\Entity\UserInstance
+     * @var \Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance
      */
     private $activeInstance;
 
@@ -384,11 +384,11 @@ class User implements AdvancedUserInterface
     /**
      * Add userInstance
      *
-     * @param \Webkul\UVDesk\CoreBundle\Entity\UserInstance $userInstance
+     * @param \Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance $userInstance
      *
      * @return User
      */
-    public function addUserInstance(\Webkul\UVDesk\CoreBundle\Entity\UserInstance $userInstance)
+    public function addUserInstance(\Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance $userInstance)
     {
         $this->userInstance[] = $userInstance;
 
@@ -398,9 +398,9 @@ class User implements AdvancedUserInterface
     /**
      * Remove userInstance
      *
-     * @param \Webkul\UVDesk\CoreBundle\Entity\UserInstance $userInstance
+     * @param \Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance $userInstance
      */
-    public function removeUserInstance(\Webkul\UVDesk\CoreBundle\Entity\UserInstance $userInstance)
+    public function removeUserInstance(\Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance $userInstance)
     {
         $this->userInstance->removeElement($userInstance);
     }
@@ -440,11 +440,11 @@ class User implements AdvancedUserInterface
     /**
      * Set currently active user instance
      *
-     * @param \Webkul\UVDesk\CoreBundle\Entity\UserInstance $userInstance
+     * @param \Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance $userInstance
      *
      * @return User
      */
-    public function setCurrentInstance(\Webkul\UVDesk\CoreBundle\Entity\UserInstance $userInstance = null)
+    public function setCurrentInstance(\Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance $userInstance = null)
     {
         $this->activeInstance = $userInstance;
 
@@ -454,7 +454,7 @@ class User implements AdvancedUserInterface
     /**
      * Get currently active user instance
      *
-     * @return \Webkul\UVDesk\CoreBundle\Entity\UserInstance
+     * @return \Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance
      */
     public function getCurrentInstance()
     {

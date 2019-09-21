@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Form;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,7 +42,7 @@ class Mailbox extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {   
         $resolver->setDefaults([
-            'data_class' => 'Webkul\UVDesk\CoreBundle\Entity\Mailbox',
+            'data_class' => 'Webkul\UVDesk\CoreFrameworkBundle\Entity\Mailbox',
             'cascade_validation' => true,
             'csrf_protection' => false,
             'validation_groups' => ['Mailbox'],

@@ -1,10 +1,14 @@
-{% extends "@UVDeskCore//Templates//layout.html.twig" %}
+{% extends "@UVDeskCoreFramework//Templates//layout.html.twig" %}
 
 {% block title %}{{ 'Edit Agent'|trans }}{% endblock %}
 
 {% block pageContent %}
 	<div class="uv-inner-section">
-		{{ include('@UVDeskCore/Templates/panel-sidebar.html.twig') }}
+		{# Append Panel Aside #}
+		{% set asideTemplate = 'Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\AsideTemplate' %}
+		{% set asideSidebarReference = 'Webkul\\UVDesk\\CoreFrameworkBundle\\UIComponents\\Dashboard\\Panel\\Sidebars\\Users' %}
+
+		{{ uvdesk_extensibles.getRegisteredComponent(asideTemplate).renderSidebar(asideSidebarReference) | raw }}
         
         <style>
             .uv-element-block .uv-element-block {
@@ -23,7 +27,7 @@
                 width: 8px;
                 height: 20px;
                 display: inline-block;
-                background-image: url(../../../../bundles/uvdeskcore/images/uvdesk-sprite.svg);
+                background-image: url(../../../../bundles/uvdeskcoreframework/images/uvdesk-sprite.svg);
                 background-position: 44px -158px;
                 margin: 5px 0 0 10px;
                 float: right;
@@ -196,7 +200,7 @@
                                                     <input name="user_form[groups][]" type="checkbox" value="{{ group.id }}" {% if userDetails and group.id in userGroups %}checked{% endif %}>
                                                     <span class="uv-checkbox-view"></span>
                                                 </div>
-                                                <span class="uv-checkbox-label">{{ group.name }}</span>
+                                                <span class="uv-checkbox-label">{{ group.name|trans }}</span>
                                             </label>
                                         </div>
                                         <!-- /// -->
@@ -393,22 +397,22 @@
 				validation: {
 					'user_form[firstName]': [{
                         required: true,
-                        msg: 'This field is mandatory'
+                        msg: "{{'This field is mandatory'|trans}}"
                     },{
                         pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
-                        msg: 'This field must have characters only'
+                        msg: "{{'This field must have characters only'|trans}}"
                     },{
                         maxLength:40,
-                        msg:'Maximum character length is 40'
+                        msg:"{{'Maximum character length is 40'|trans}}"
                     }],
                     'user_form[lastName]': function(value) {
                         if(value != undefined && value !== '') {
                             [{
                                 pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
-                                msg: 'This field must have characters only'
+                                msg: "{{'This field must have characters only'|trans}}"
                             },{
                                 maxLength:40,
-                                msg:'Maximum character length is 40'
+                                msg:"{{'Maximum character length is 40'|trans}}"
                             }]
                         }
                     },

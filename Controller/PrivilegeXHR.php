@@ -1,9 +1,9 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Controller;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
-use Webkul\UVDesk\CoreBundle\Entity;
-use Webkul\UVDesk\CoreBundle\Entity\SupportPrivilege;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportPrivilege;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -18,7 +18,7 @@ class PrivilegeXHR extends Controller
         }
 
         if (true === $request->isXmlHttpRequest()) {
-            $paginationResponse = $this->getDoctrine()->getRepository('UVDeskCoreBundle:SupportPrivilege')->getAllPrivileges($request->query, $this->container);
+            $paginationResponse = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:SupportPrivilege')->getAllPrivileges($request->query, $this->container);
 
             return new Response(json_encode($paginationResponse), 200, ['Content-Type' => 'application/json']);
         }
@@ -36,7 +36,7 @@ class PrivilegeXHR extends Controller
 
         if ("DELETE" == $request->getMethod()) {
             $entityManager = $this->getDoctrine()->getManager();
-            $supportPrivilege = $entityManager->getRepository('UVDeskCoreBundle:SupportPrivilege')->findOneById($supportPrivilegeId);
+            $supportPrivilege = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportPrivilege')->findOneById($supportPrivilegeId);
 
             if (!empty($supportPrivilege)) {
                 $entityManager->remove($supportPrivilege);
@@ -44,7 +44,7 @@ class PrivilegeXHR extends Controller
 
                 return new Response(json_encode([
                     'alertClass' => 'success',
-                    'alertMessage' => 'Support Privilege removed successfully.',
+                    'alertMessage' => $this->get('translator')->trans('Support Privilege removed successfully.'),
                 ]), 200, ['Content-Type' => 'application/json']);
             }
         }

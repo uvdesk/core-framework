@@ -1,10 +1,15 @@
-{% extends "@UVDeskCore//Templates//layout.html.twig" %}
+{% extends "@UVDeskCoreFramework//Templates//layout.html.twig" %}
 
 {% block title %}Email Settings{% endblock %}
 
 {% block pageContent %}
     <div class="uv-inner-section">
-        {{ include('@UVDeskCore/Templates/panel-sidebar.html.twig') }}
+        {# Append Panel Aside #}
+		{% set asideTemplate = 'Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\AsideTemplate' %}
+		{% set asideSidebarReference = 'Webkul\\UVDesk\\CoreFrameworkBundle\\UIComponents\\Dashboard\\Panel\\Sidebars\\Settings' %}
+
+		{{ uvdesk_extensibles.getRegisteredComponent(asideTemplate).renderSidebar(asideSidebarReference) | raw }}
+
         <div class="uv-view">
             <div class="uv-action-bar">
                 <div class="uv-action-bar-col-lt">
@@ -43,9 +48,8 @@
                     <label class="uv-field-label">{{ 'Swiftmailer id (Select from drop down)'|trans }}</label>
                     <div class="uv-field-block">
                         <select name="mailer_id" class="uv-select" type="text" value='<%= (typeof(mailer_id) !== "undefined") ? mailer_id : "" %>'>
-                            
-                            <% if (!mailer_id) { %>
-                            <option>None Selected</option>
+                            <% if (typeof(mailer_id) == "undefined") { %>
+                                <option>Select swiftmailer</option>
                             <% } %>
 
                             {% for swiftmailer in swiftmailers %}
@@ -64,9 +68,9 @@
     <script type="text/javascript">
         var emailSettingsModel = Backbone.Model.extend({
             defaults: {
-                'id': "{{ email_settings ? email_settings.id : '' }}",
-                'name': "{{ email_settings ? email_settings.name : '' }}",
-                'mailer_id': "{{ email_settings ? email_settings.mailer_id : '' }}",
+                'id': "{{ email_settings.id }}",
+                'name': "{{ email_settings.name }}",
+                'mailer_id': "{{ email_settings.mailer_id }}",
             },
             validation: {
                 'id': [

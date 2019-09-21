@@ -1,10 +1,10 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Workflow\Actions\Ticket;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class MailAgent extends WorkflowAction
@@ -33,7 +33,7 @@ class MailAgent extends WorkflowAction
                 'id' => $emailTemplate->getId(),
                 'name' => $emailTemplate->getName(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findAll());
+        }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findAll());
 
         $agentCollection = array_map(function ($agent) {
             return [
@@ -60,7 +60,7 @@ class MailAgent extends WorkflowAction
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         if($entity instanceof Ticket) {
-            $emailTemplate = $entityManager->getRepository('UVDeskCoreBundle:EmailTemplates')->findOneById($value['value']);
+            $emailTemplate = $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findOneById($value['value']);
             $emails = self::getAgentMails($value['for'], (($ticketAgent = $entity->getAgent()) ? $ticketAgent->getEmail() : ''), $container);
            
             if($emails && $emailTemplate) {
@@ -105,7 +105,7 @@ class MailAgent extends WorkflowAction
                     $agentMails[] = $currentEmails;
             }elseif((int)$agent){
                 $qb = $entityManager->createQueryBuilder();
-                $email = $qb->select('u.email')->from('UVDeskCoreBundle:User', 'u')
+                $email = $qb->select('u.email')->from('UVDeskCoreFrameworkBundle:User', 'u')
                             ->andwhere("u.id = :userId")
                             ->setParameter('userId', $agent)
                             ->getQuery()->getResult()

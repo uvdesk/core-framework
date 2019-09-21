@@ -1,14 +1,14 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Controller;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Webkul\UVDesk\CoreBundle\Form as CoreBundleForms;
-use Webkul\UVDesk\CoreBundle\Utils\HTMLFilter;
+use Webkul\UVDesk\CoreFrameworkBundle\Form as CoreFrameworkBundleForms;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\HTMLFilter;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Webkul\UVDesk\CoreBundle\Entity as CoreBundleEntities;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
 
 class SavedReplies extends Controller
 {
@@ -17,16 +17,16 @@ class SavedReplies extends Controller
 
     public function loadSavedReplies(Request $request) 
     {        
-        return $this->render('@UVDeskCore//savedRepliesList.html.twig');
+        return $this->render('@UVDeskCoreFramework//savedRepliesList.html.twig');
     }
 
     public function updateSavedReplies(Request $request) 
     {
-        $repository = $this->getDoctrine()->getRepository('UVDeskCoreBundle:SavedReplies');
+        $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:SavedReplies');
         if($request->attributes->get('template'))
             $template = $repository->getSavedReply($request->attributes->get('template'), $this->container);
         else
-            $template = new CoreBundleEntities\SavedReplies();
+            $template = new CoreFrameworkBundleEntities\SavedReplies();
 
         if(!$template)
             $this->noResultFound();
@@ -34,8 +34,8 @@ class SavedReplies extends Controller
         $errors = [];
         if ($request->getMethod() == 'POST') {
             if(empty($request->request->get('message'))){
-                $this->addFlash('warning', 'Error! Saved reply body can not be blank');
-                return $this->render('@UVDeskCore//savedReplyForm.html.twig', array(
+                $this->addFlash('warning', $this->get('translator')->trans('Error! Saved reply body can not be blank'));
+                return $this->render('@UVDeskCoreFramework//savedReplyForm.html.twig', array(
                     'template' => $template,
                     'errors' => json_encode($errors)
                 ));
@@ -58,7 +58,7 @@ class SavedReplies extends Controller
             }
             foreach($groups as $key => $groupId) {
                 if($groupId) {
-                    $group = $em->getRepository('UVDeskCoreBundle:SupportGroup')->findOneBy([ 'id' => $groupId ]);
+                    $group = $em->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')->findOneBy([ 'id' => $groupId ]);
                     if($group && (empty($previousGroupIds) || !in_array($groupId, $previousGroupIds)) ) {
                         $template->addSupportGroup($group);
                         $em->persist($template);
@@ -80,7 +80,7 @@ class SavedReplies extends Controller
             }
             foreach($teams as $key => $teamId) {
                 if($teamId) {
-                    $team = $em->getRepository('UVDeskCoreBundle:SupportTeam')->findOneBy([ 'id' => $teamId ]);
+                    $team = $em->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')->findOneBy([ 'id' => $teamId ]);
                     if($team && (empty($previousTeamIds) || !in_array($teamId, $previousTeamIds)) ) {
                         $template->addSupportTeam($team);
                         $em->persist($template);
@@ -98,11 +98,11 @@ class SavedReplies extends Controller
             $em->persist($template);
             $em->flush();
 
-            $this->addFlash('success', $request->attributes->get('template') ? 'Success! Reply has been updated successfully.': 'Success! Reply has been added successfully.');
+            $this->addFlash('success', $request->attributes->get('template') ? $this->get('translator')->trans('Success! Reply has been updated successfully.'): $this->get('translator')->trans('Success! Reply has been added successfully.'));
             return $this->redirectToRoute('helpdesk_member_saved_replies');
         }
 
-        return $this->render('@UVDeskCore//savedReplyForm.html.twig', array(
+        return $this->render('@UVDeskCoreFramework//savedReplyForm.html.twig', array(
             'template' => $template,
             'errors' => json_encode($errors)
         ));
@@ -115,7 +115,7 @@ class SavedReplies extends Controller
         }
 
         $entityManager = $this->getDoctrine()->getManager();
-        $savedReplyRepository = $entityManager->getRepository('UVDeskCoreBundle:SavedReplies');
+        $savedReplyRepository = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SavedReplies');
         
         if ($request->getMethod() == 'GET') {
             $responseContent = $savedReplyRepository->getSavedReplies($request->query, $this->container);
@@ -137,7 +137,7 @@ class SavedReplies extends Controller
 
             $responseContent = [
                 'alertClass' => 'success',
-                'alertMessage' => 'Success! Saved Reply has been deleted successfully.'
+                'alertMessage' => $this->get('translator')->trans('Success! Saved Reply has been deleted successfully.')
             ];
         }
 

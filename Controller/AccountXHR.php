@@ -1,14 +1,14 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Controller;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
-use Webkul\UVDesk\CoreBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Webkul\UVDesk\CoreBundle\Entity\SavedFilters;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedFilters;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Webkul\UVDesk\CoreBundle\Workflow\Events as CoreWorkflowEvents;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class AccountXHR extends Controller
@@ -20,7 +20,7 @@ class AccountXHR extends Controller
         }
 
         if (true === $request->isXmlHttpRequest()) {
-            $userRepository = $this->getDoctrine()->getRepository('UVDeskCoreBundle:User');
+            $userRepository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:User');
             $agentCollection = $userRepository->getAllAgents($request->query, $this->container);
             return new Response(json_encode($agentCollection), 200, ['Content-Type' => 'application/json']);
         } 
@@ -38,7 +38,7 @@ class AccountXHR extends Controller
                 To trigger UserListener to set roles, you need to only select 'u' instead of both 'u, dt' in query select clause.
                 Doing this here instead of directly making changes to userRepository->findUserByCompany().
              */
-            $user = $em->createQuery('SELECT u FROM UVDeskCoreBundle:User u JOIN u.userInstance userInstance WHERE u.id = :userId  AND userInstance.supportRole != :roles')
+            $user = $em->createQuery('SELECT u FROM UVDeskCoreFrameworkBundle:User u JOIN u.userInstance userInstance WHERE u.id = :userId  AND userInstance.supportRole != :roles')
                 ->setParameter('userId', $id)
                 ->setParameter('roles', 4)
                 ->getOneOrNullResult();
@@ -55,7 +55,7 @@ class AccountXHR extends Controller
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     $json['alertClass'] = 'success';
-                    $json['alertMessage'] = ('Success ! Agent removed successfully.');
+                    $json['alertMessage'] = ($this->get('translator')->trans('Success ! Agent removed successfully.'));
                 } else {
                     $json['alertClass'] = 'warning';
                     $json['alertMessage'] = $this->translate("Warning ! You are allowed to remove account owner's account.");
@@ -95,10 +95,10 @@ class AccountXHR extends Controller
 
                 $json['filter'] = ['id' => $filter->getId(), 'name' => $filter->getName(), 'route' => $filter->getRoute(), 'is_default' => isset($content['is_default'])];
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = 'Success ! Filter has been saved successfully.';
+                $json['alertMessage'] = $this->get('translator')->trans('Success ! Filter has been saved successfully.');
             } elseif($request->getMethod() == 'PUT' || $request->getMethod() == 'PATCH') {
                 $content = $request->request->all();
-                $filter = $em->getRepository('UVDeskCoreBundle:SavedFilters')->find($content['id']);
+                $filter = $em->getRepository('UVDeskCoreFrameworkBundle:SavedFilters')->find($content['id']);
                 $filter->setName($content['name']);
                 $filter->setRoute($content['route']);
                 $em->flush();
@@ -113,11 +113,11 @@ class AccountXHR extends Controller
 
                 $json['filter'] = ['id' => $filter->getId(), 'name' => $filter->getName(), 'route' => $filter->getRoute(), 'is_default' => isset($content['is_default']) ? 1 : 0 ];
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = 'Success ! Filter has been updated successfully.';
+                $json['alertMessage'] = $this->get('translator')->trans('Success ! Filter has been updated successfully.');
             } elseif($request->getMethod() == 'DELETE') {
 
                 $id = $request->attributes->get('filterId');
-                $filter = $em->getRepository('UVDeskCoreBundle:SavedFilters')->find($id);
+                $filter = $em->getRepository('UVDeskCoreFrameworkBundle:SavedFilters')->find($id);
                 $em->remove($filter);
                 $em->flush();
 
@@ -128,7 +128,7 @@ class AccountXHR extends Controller
                 // $em->flush();
 
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = 'Success ! Filter has been removed successfully.';
+                $json['alertMessage'] = $this->get('translator')->trans('Success ! Filter has been removed successfully.');
             }
         
         $response = new Response(json_encode($json));

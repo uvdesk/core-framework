@@ -1,16 +1,16 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Fixtures;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Fixtures;
 
 use Doctrine\Common\Persistence\ObjectManager;
-use Webkul\UVDesk\CoreBundle\Entity as CoreEntities;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Doctrine\Bundle\FixturesBundle\Fixture as DoctrineFixture;
 
 class HelpdeskBranding extends DoctrineFixture
 {
     public function load(ObjectManager $entityManager)
     {
-        $website = $entityManager->getRepository('UVDeskCoreBundle:Website')->findOneByCode('helpdesk');
+        $website = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneByCode('helpdesk');
         
         if (empty($website)) {
             ($website = new CoreEntities\Website())

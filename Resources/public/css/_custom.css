@@ -1128,10 +1128,10 @@ body {
     box-shadow:0 6px 12px rgba(0,0,0,.176);
 }
 
-.uv-wrapper-gap {
+/* .uv-wrapper-gap {
     left: 300px !important;
     margin: 70px 0 0 -70px;
-}
+} */
 
 .uv-aside-nav-active{
     font-weight: 700;

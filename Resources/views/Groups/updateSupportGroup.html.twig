@@ -1,10 +1,15 @@
-{% extends "@UVDeskCore//Templates//layout.html.twig" %}
+{% extends "@UVDeskCoreFramework//Templates//layout.html.twig" %}
 
 {% block title %}{{ 'Edit Group'|trans }}{% endblock %}
 
 {% block pageContent %}
 	<div class="uv-inner-section">
-		{{ include('@UVDeskCore/Templates/panel-sidebar.html.twig') }}
+		{# Append Panel Aside #}
+		{% set asideTemplate = 'Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\AsideTemplate' %}
+		{% set asideSidebarReference = 'Webkul\\UVDesk\\CoreFrameworkBundle\\UIComponents\\Dashboard\\Panel\\Sidebars\\Users' %}
+
+		{{ uvdesk_extensibles.getRegisteredComponent(asideTemplate).renderSidebar(asideSidebarReference) | raw }}
+		
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
 			<h1>{{ 'Edit Group'|trans }}</h1>
 			
@@ -136,13 +141,13 @@
 				validation: {
 					'name': [{
                         required: true,
-                        msg: 'This field is mandatory'
+                        msg: "{{'This field is mandatory'|trans}}"
                     },{
                         pattern: /^((?![!@#$%^&*()<_+]).)*$/,
-                        msg: 'This field must have characters only'
+                        msg: "{{'This field must have characters only'|trans}}"
                     },{
 						maxLength:50,
-                        msg:'Maximum character length is 50'
+                        msg:"{{'Maximum character length is 50'|trans}}"
 					}],
 					'description': {
 						required: true,
@@ -197,8 +202,8 @@
                             parent.find('.uv-filtered-tags').append("<a class='uv-btn-small default' href='#' data-id='" + id + "'>"+currentElement.text()+"<span class='uv-icon-remove'></span></a>")
                             this.setAddedIds("#" + parent.attr('id'))
                         } else {
-			    this.setAddedIds("#" + parent.attr('id'))
-			}
+							this.setAddedIds("#" + parent.attr('id'))
+						}
                     }
                 },
                 removeEntity: function(e) {

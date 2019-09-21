@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Controller;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,7 +33,7 @@ class EmailSettingsXHR extends Controller
                 'name' => $supportEmailConfiguration['name'],
                 'mailer_id' => $supportEmailConfiguration['mailer_id'],
             ],
-            'alertMessage' => "Success ! Email settings are updated successfully.",
+            'alertMessage' => $this->get('translator')->trans("Success ! Email settings are updated successfully."),
         ];
 
         return new Response(json_encode($result), 200, ['Content-Type' => 'application/json']);

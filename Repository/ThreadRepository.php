@@ -1,12 +1,12 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Repository;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Repository;
 
 use Doctrine\ORM\Query;
 use Doctrine\Common\Collections\Criteria;
-use Webkul\UVDesk\CoreBundle\Entity\User;
-use Webkul\UVDesk\CoreBundle\Entity\Ticket;
-use Webkul\UVDesk\CoreBundle\Entity\Attachment;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
 
 /**
  * ThreadRepository
@@ -28,7 +28,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
             $subject = str_ireplace("FWD: ","",$subject);
         }
 
-        $ticket = $this->getEntityManager()->createQuery("SELECT t FROM UVDeskCoreBundle:Ticket t WHERE t.subject LIKE :referenceIds" )
+        $ticket = $this->getEntityManager()->createQuery("SELECT t FROM UVDeskCoreFrameworkBundle:Ticket t WHERE t.subject LIKE :referenceIds" )
             ->setParameter('referenceIds', '%' . $subject . '%')
             ->setMaxResults(1)
             ->getOneOrNullResult();
@@ -40,7 +40,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
     {
         return $this->getEntityManager()->createQueryBuilder()
             ->select("thread")
-            ->from('UVDeskCoreBundle:Thread', 'thread')
+            ->from('UVDeskCoreFrameworkBundle:Thread', 'thread')
             ->where('thread.ticket = :ticket')->setParameter('ticket', $ticket)
             ->orderBy('thread.id', Criteria::DESC)
             ->setMaxResults(1)
@@ -52,7 +52,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select("thread, attachments, user, userInstance")
-            ->from('UVDeskCoreBundle:Thread', 'thread')
+            ->from('UVDeskCoreFrameworkBundle:Thread', 'thread')
             ->leftJoin('thread.user', 'user')
             ->leftJoin('user.userInstance', 'userInstance')
             ->leftJoin('thread.attachments', 'attachments')

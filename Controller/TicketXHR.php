@@ -1,17 +1,17 @@
 <?php
 
-namespace Webkul\UVDesk\CoreBundle\Controller;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Webkul\UVDesk\CoreBundle\Entity as CoreBundleEntities;
-use Webkul\UVDesk\CoreBundle\Entity\SupportLabel;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportLabel;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Webkul\UVDesk\CoreBundle\Workflow\Events as CoreWorkflowEvents;
-use Webkul\UVDesk\CoreBundle\Form as CoreBundleForms;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
+use Webkul\UVDesk\CoreFrameworkBundle\Form as CoreFrameworkBundleForms;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Webkul\UVDesk\CoreBundle\DataProxies as CoreBundleDataProxies;
+use Webkul\UVDesk\CoreFrameworkBundle\DataProxies as CoreFrameworkBundleDataProxies;
 
 class TicketXHR extends Controller
 {
@@ -27,7 +27,7 @@ class TicketXHR extends Controller
         $request = $this->container->get('request_stack')->getCurrentRequest();
 
         $requestContent = json_decode($request->getContent(), true);
-        $ticket = $entityManager->getRepository('UVDeskCoreBundle:Ticket')->findOneById($requestContent['id']);
+        $ticket = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($requestContent['id']);
 
         if (!empty($ticket)) {
             $ticket->setIsStarred(!$ticket->getIsStarred());
@@ -59,7 +59,7 @@ class TicketXHR extends Controller
                 $em->flush();
 
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = 'Success ! Label created successfully.';
+                $json['alertMessage'] = $this->get('translator')->trans('Success ! Label created successfully.');
                 $json['label'] = json_encode([
                     'id' => $label->getId(),
                     'name' => $label->getName(),
@@ -68,11 +68,11 @@ class TicketXHR extends Controller
                 ]);
             } else {
                 $json['alertClass'] = 'danger';
-                $json['alertMessage'] = 'Error ! Label name can not be blank.';
+                $json['alertMessage'] = $this->get('translator')->trans('Error ! Label name can not be blank.');
             }
         } elseif($method == "PUT") {
             $data = json_decode($content, true);
-            $label = $em->getRepository('UVDeskCoreBundle:SupportLabel')->findOneBy(array('id' => $request->attributes->get('ticketLabelId')));
+            $label = $em->getRepository('UVDeskCoreFrameworkBundle:SupportLabel')->findOneBy(array('id' => $request->attributes->get('ticketLabelId')));
             if($label) {
                 $label->setName($data['name']);
                 if(!empty($data['colorCode'])) {
@@ -88,21 +88,21 @@ class TicketXHR extends Controller
                     'labelUser' => $label->getUser()->getId(),
                 ]);
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = 'Success ! Label updated successfully.';
+                $json['alertMessage'] = $this->get('translator')->trans('Success ! Label updated successfully.');
             } else {
                 $json['alertClass'] = 'danger';
-                $json['alertMessage'] = 'Error ! Invalid label id.';
+                $json['alertMessage'] = $this->get('translator')->trans('Error ! Invalid label id.');
             }
         } elseif($method == "DELETE") {
-            $label = $em->getRepository('UVDeskCoreBundle:SupportLabel')->findOneBy(array('id' => $request->attributes->get('ticketLabelId')));
+            $label = $em->getRepository('UVDeskCoreFrameworkBundle:SupportLabel')->findOneBy(array('id' => $request->attributes->get('ticketLabelId')));
             if($label) {
                 $em->remove($label);
                 $em->flush();
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = 'Success ! Label removed successfully.';
+                $json['alertMessage'] = $this->get('translator')->trans('Success ! Label removed successfully.');
             } else {
                 $json['alertClass'] = 'danger';
-                $json['alertMessage'] = 'Error ! Invalid label id.';
+                $json['alertMessage'] = $this->get('translator')->trans('Error ! Invalid label id.');
             }
         }
 
@@ -113,7 +113,7 @@ class TicketXHR extends Controller
     {
         $ticketId = $request->attributes->get('ticketId');
         $entityManager = $this->getDoctrine()->getManager();
-        $ticket = $entityManager->getRepository('UVDeskCoreBundle:Ticket')->find($ticketId);
+        $ticket = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->find($ticketId);
        
         if (!$ticket)
             $this->noResultFound();
@@ -122,23 +122,23 @@ class TicketXHR extends Controller
         $message = '';
         if ($request->request->get('subject') == '') {
             $error = true;
-            $message = "Error! Subject field is mandatory";
+            $message = $this->get('translator')->trans("Error! Subject field is mandatory");
         } elseif ($request->request->get('reply') == '') {
             $error = true;
-            $message = "Error! Reply field is mandatory";
+            $message = $this->get('translator')->trans("Error! Reply field is mandatory");
         }
 
         if (!$error) {
             $ticket->setSubject($request->request->get('subject'));
             $createThread = $this->get('ticket.service')->getCreateReply($ticket->getId(), false);
-            $createThread = $entityManager->getRepository('UVDeskCoreBundle:Thread')->find($createThread['id']);
+            $createThread = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Thread')->find($createThread['id']);
             $createThread->setMessage($request->request->get('reply'));
 
             $entityManager->persist($createThread);
             $entityManager->persist($ticket);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Success ! Ticket has been updated successfully.');
+            $this->addFlash('success', $this->get('translator')->trans('Success ! Ticket has been updated successfully.'));
         } else {
             $this->addFlash('warning', $message);
         }
@@ -154,7 +154,7 @@ class TicketXHR extends Controller
         $request = $this->container->get('request_stack')->getCurrentRequest();
         $requestContent = $request->request->all() ?: json_decode($request->getContent(), true);
         $ticketId =  $ticketId != 0 ? $ticketId : $requestContent['ticketId'];
-        $ticket = $entityManager->getRepository('UVDeskCoreBundle:Ticket')->findOneById($ticketId);
+        $ticket = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($ticketId);
         
         // Validate request integrity
         if (empty($ticket)) {
@@ -167,7 +167,7 @@ class TicketXHR extends Controller
         } else if (!isset($requestContent['attribute'])) {
             $responseContent = [
                 'alertClass' => 'danger',
-                'alertMessage' => "Insufficient details provided.",
+                'alertMessage' => $this->get('translator')->trans("Insufficient details provided."),
             ];
             return new Response(json_encode($responseContent), 400, ['Content-Type' => 'application/json']);
         }
@@ -175,7 +175,7 @@ class TicketXHR extends Controller
         // Update attribute
         switch ($requestContent['attribute']) {
             case 'agent':
-                $agent = $entityManager->getRepository('UVDeskCoreBundle:User')->findOneById($requestContent['value']);
+                $agent = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneById($requestContent['value']);
                 
                 if (empty($agent)) {
                     // User does not exist
@@ -224,13 +224,13 @@ class TicketXHR extends Controller
                 }
                 break;
             case 'status':
-                $ticketStatus = $entityManager->getRepository('UVDeskCoreBundle:TicketStatus')->findOneById((int) $requestContent['value']);
+                $ticketStatus = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->findOneById((int) $requestContent['value']);
                 
                 if (empty($ticketStatus)) {
                     // Selected ticket status does not exist
                     return new Response(json_encode([
                         'alertClass' => 'danger',
-                        'alertMessage' => 'Unable to retrieve status details',
+                        'alertMessage' => $this->get('translator')->trans('Unable to retrieve status details'),
                     ]), 404, ['Content-Type' => 'application/json']);
                 }
 
@@ -260,7 +260,7 @@ class TicketXHR extends Controller
                 break;
             case 'priority':
                 // $this->isAuthorized('ROLE_AGENT_UPDATE_TICKET_PRIORITY');
-                $ticketPriority = $entityManager->getRepository('UVDeskCoreBundle:TicketPriority')->findOneById($requestContent['value']);
+                $ticketPriority = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketPriority')->findOneById($requestContent['value']);
 
                 if (empty($ticketPriority)) {
                     // Selected ticket priority does not exist
@@ -295,7 +295,7 @@ class TicketXHR extends Controller
                 }
                 break;
             case 'group':
-                $supportGroup = $entityManager->getRepository('UVDeskCoreBundle:SupportGroup')->findOneById($requestContent['value']);
+                $supportGroup = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')->findOneById($requestContent['value']);
                 
                 if (empty($supportGroup)) {
                     if ($requestContent['value'] == "") {
@@ -308,13 +308,13 @@ class TicketXHR extends Controller
                         $responseCode = 200;
                         $response = [
                             'alertClass' => 'success',
-                            'alertMessage' => 'Ticket support group updated successfully',
+                            'alertMessage' => $this->get('translator')->trans('Ticket support group updated successfully'),
                         ];
                     } else {
                         $responseCode = 404;
                         $response = [
                             'alertClass' => 'danger',
-                            'alertMessage' => 'Unable to retrieve support team details',
+                            'alertMessage' => $this->get('translator')->trans('Unable to retrieve support team details'),
                         ];
                     }
 
@@ -345,7 +345,7 @@ class TicketXHR extends Controller
                 }
                 break;
             case 'team':
-                $supportTeam = $entityManager->getRepository('UVDeskCoreBundle:SupportTeam')->findOneById($requestContent['value']);
+                $supportTeam = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')->findOneById($requestContent['value']);
 
                 if (empty($supportTeam)) {
                     if ($requestContent['value'] == "") {
@@ -358,13 +358,13 @@ class TicketXHR extends Controller
                         $responseCode = 200;
                         $response = [
                             'alertClass' => 'success',
-                            'alertMessage' => 'Ticket support group updated successfully',
+                            'alertMessage' => $this->get('translator')->trans('Ticket support group updated successfully'),
                         ];
                     } else {
                         $responseCode = 404;
                         $response = [
                             'alertClass' => 'danger',
-                            'alertMessage' => 'Unable to retrieve support team details',
+                            'alertMessage' => $this->get('translator')->trans('Unable to retrieve support team details'),
                         ];
                     }
 
@@ -396,7 +396,7 @@ class TicketXHR extends Controller
                 break;
             case 'type':
                 // $this->isAuthorized('ROLE_AGENT_UPDATE_TICKET_TYPE');
-                $ticketType = $entityManager->getRepository('UVDeskCoreBundle:TicketType')->findOneById($requestContent['value']);
+                $ticketType = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findOneById($requestContent['value']);
                 
                 if (empty($ticketType)) {
                     // Selected ticket priority does not exist
@@ -431,7 +431,7 @@ class TicketXHR extends Controller
                 }
                 break;
             case 'label':
-                $label = $entityManager->getRepository('UVDeskCoreBundle:SupportLabel')->find($requestContent['labelId']);
+                $label = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportLabel')->find($requestContent['labelId']);
                 if($label) {
                     $ticket->removeSupportLabel($label);
                     $entityManager->persist($ticket);
@@ -439,7 +439,7 @@ class TicketXHR extends Controller
                     
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => 'Success ! Ticket to label removed successfully.',
+                        'alertMessage' => $this->get('translator')->trans('Success ! Ticket to label removed successfully.'),
                     ]), 200, ['Content-Type' => 'application/json']);
                 }
                 break;
@@ -454,6 +454,7 @@ class TicketXHR extends Controller
     {
         if ($request->isXmlHttpRequest()) {
             $paginationResponse = $this->get('ticket.service')->paginateMembersTicketCollection($request);
+           
             return new Response(json_encode($paginationResponse), 200, ['Content-Type' => 'application/json']);
         }
 
@@ -481,12 +482,12 @@ class TicketXHR extends Controller
         $request = $this->container->get('request_stack')->getCurrentRequest();
 
         $requestContent = json_decode($request->getContent(), true);
-        $ticket = $entityManager->getRepository('UVDeskCoreBundle:Ticket')->findOneById($requestContent['ticketId']);
+        $ticket = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($requestContent['ticketId']);
 
         if ('POST' == $request->getMethod()) {
             $responseContent = [];
             $user = $this->get('user.service')->getSessionUser();
-            $supportLabel = $entityManager->getRepository('UVDeskCoreBundle:SupportLabel')->findOneBy([
+            $supportLabel = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportLabel')->findOneBy([
                 'user' => $user->getId(),
                 'name' => $requestContent['name'],
             ]);
@@ -550,7 +551,7 @@ class TicketXHR extends Controller
             return $labels;
 
         $qb = $this->em->createQueryBuilder();
-        $qb->select('tl')->from('UVDeskCoreBundle:TicketLabel', 'tl')
+        $qb->select('tl')->from('UVDeskCoreFrameworkBundle:TicketLabel', 'tl')
                 ->andwhere('tl.labelUser = :labelUserId')
                 ->andwhere('tl.company = :companyId')
                 ->setParameter('labelUserId', $this->getUser()->getId())
@@ -588,7 +589,7 @@ class TicketXHR extends Controller
                     $entityManager = $this->getDoctrine()->getManager();
 
                     $supportLabelQuery = $entityManager->createQueryBuilder()->select('supportLabel')
-                        ->from('UVDeskCoreBundle:SupportLabel', 'supportLabel')
+                        ->from('UVDeskCoreFrameworkBundle:SupportLabel', 'supportLabel')
                         ->where('supportLabel.user = :user')->setParameter('user', $this->get('user.service')->getSessionUser());
                     
                     if (!empty($searchTerm)) {
@@ -653,7 +654,7 @@ class TicketXHR extends Controller
         if($request->getMethod() == "DELETE") {
             $em = $this->getDoctrine()->getManager();
             $id = $request->attributes->get('typeId');
-            $type = $em->getRepository('UVDeskCoreBundle:TicketType')->find($id);
+            $type = $em->getRepository('UVDeskCoreFrameworkBundle:TicketType')->find($id);
 
             // $this->get('event.manager')->trigger([
             //             'event' => 'type.deleted',
@@ -691,7 +692,7 @@ class TicketXHR extends Controller
     {
         $id = $request->attributes->get('id');
         $ticketId = $request->attributes->get('ticketId');
-        $ticket = $this->getDoctrine()->getManager()->getRepository('UVDeskCoreBundle:Ticket')->findOneById($ticketId);
+        $ticket = $this->getDoctrine()->getManager()->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($ticketId);
 
         $event = new GenericEvent($id, [
             'entity' =>  $ticket
@@ -722,11 +723,11 @@ class TicketXHR extends Controller
         $content = json_decode($request->getContent(), true);
 
         $em = $this->getDoctrine()->getManager();
-        $ticket = $em->getRepository('UVDeskCoreBundle:Ticket')->find($content['ticketId']);
+        $ticket = $em->getRepository('UVDeskCoreFrameworkBundle:Ticket')->find($content['ticketId']);
         if($request->getMethod() == "POST") {
-            $tag = new CoreBundleEntities\Tag();
+            $tag = new CoreFrameworkBundleEntities\Tag();
             if ($content['name'] != "") {
-                $checkTag = $em->getRepository('UVDeskCoreBundle:Tag')->findOneBy(array('name' => $content['name']));
+                $checkTag = $em->getRepository('UVDeskCoreFrameworkBundle:Tag')->findOneBy(array('name' => $content['name']));
                 if(!$checkTag) {
                     $tag->setName($content['name']);
                     $em->persist($tag);
@@ -740,13 +741,13 @@ class TicketXHR extends Controller
                 $em->persist($ticket);
                 $em->flush();
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = 'Success ! Tag added successfully.';
+                $json['alertMessage'] = $this->get('translator')->trans('Success ! Tag added successfully.');
             } else {
                 $json['alertClass'] = 'danger';
-                $json['alertMessage'] = 'Please enter tag name.';
+                $json['alertMessage'] = $this->get('translator')->trans('Please enter tag name.');
             }
         } elseif($request->getMethod() == "DELETE") {
-            $tag = $em->getRepository('UVDeskCoreBundle:Tag')->findOneBy(array('id' => $request->attributes->get('id')));
+            $tag = $em->getRepository('UVDeskCoreFrameworkBundle:Tag')->findOneBy(array('id' => $request->attributes->get('id')));
             if($tag) {
                 $articles = $em->getRepository('UVDeskSupportCenterBundle:ArticleTags')->findOneBy(array('tagId' => $tag->getId()));
                 if($articles)
@@ -758,11 +759,11 @@ class TicketXHR extends Controller
                 $em->persist($ticket);
                 $em->flush();
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = 'Success ! Tag unassigned successfully.';
+                $json['alertMessage'] = $this->get('translator')->trans('Success ! Tag unassigned successfully.');
 
             } else {
                 $json['alertClass'] = 'danger';
-                $json['alertMessage'] = 'Error ! Invalid tag.';
+                $json['alertMessage'] = $this->get('translator')->trans('Error ! Invalid tag.');
             }
         }
 
@@ -800,7 +801,7 @@ class TicketXHR extends Controller
         $json = [];
         $content = json_decode($request->getContent(), true);
         $em = $this->getDoctrine()->getManager();
-        $ticket = $em->getRepository('UVDeskCoreBundle:Ticket')->find($content['ticketId']);
+        $ticket = $em->getRepository('UVDeskCoreFrameworkBundle:Ticket')->find($content['ticketId']);
         if($request->getMethod() == "POST") {
             if($content['email'] == $ticket->getCustomer()->getEmail()) {
                 $json['alertClass'] = 'danger';
@@ -813,10 +814,10 @@ class TicketXHR extends Controller
                     'role' => 4,
                 );
                 
-                $supportRole = $em->getRepository('UVDeskCoreBundle:SupportRole')->findOneByCode('ROLE_CUSTOMER');
+                $supportRole = $em->getRepository('UVDeskCoreFrameworkBundle:SupportRole')->findOneByCode('ROLE_CUSTOMER');
 
                 $collaborator = $this->get('user.service')->createUserInstance($data['from'], $data['firstName'], $supportRole, $extras = ["active" => true]);
-                $checkTicket = $em->getRepository('UVDeskCoreBundle:Ticket')->isTicketCollaborator($ticket, $content['email']);
+                $checkTicket = $em->getRepository('UVDeskCoreFrameworkBundle:Ticket')->isTicketCollaborator($ticket, $content['email']);
                 
                 if (!$checkTicket) {
                     $ticket->addCollaborator($collaborator);
@@ -845,7 +846,7 @@ class TicketXHR extends Controller
                 }
             }
         } elseif($request->getMethod() == "DELETE") {
-            $collaborator = $em->getRepository('UVDeskCoreBundle:User')->findOneBy(array('id' => $request->attributes->get('id')));
+            $collaborator = $em->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(array('id' => $request->attributes->get('id')));
             if($collaborator) {
                 $ticket->removeCollaborator($collaborator);
                 $em->persist($ticket);
@@ -871,7 +872,7 @@ class TicketXHR extends Controller
 
         if ($request->isXmlHttpRequest()) {
             $ticketId = $request->query->get('ticketId');
-            $json = $this->getDoctrine()->getRepository('UVDeskCoreBundle:Ticket')->getTicketDetails($request->query,$this->container);
+            $json = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:Ticket')->getTicketDetails($request->query,$this->container);
         }
 
         $response = new Response(json_encode($json));
@@ -885,7 +886,7 @@ class TicketXHR extends Controller
         $entityManager = $this->getDoctrine()->getManager();
 
         if (isset($content['name']) && $content['name'] != "") {
-            $checkTag = $entityManager->getRepository('UVDeskCoreBundle:Tag')->findOneBy(array('id' => $tagId));
+            $checkTag = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Tag')->findOneBy(array('id' => $tagId));
             if($checkTag) {
                 $checkTag->setName($content['name']);
                 $entityManager->persist($checkTag);
@@ -893,7 +894,7 @@ class TicketXHR extends Controller
             }
 
             $json['alertClass'] = 'success';
-            $json['alertMessage'] = 'Success ! Tag updated successfully.';
+            $json['alertMessage'] = $this->get('translator')->trans('Success ! Tag updated successfully.');
         }
 
         $response = new Response(json_encode($json));
@@ -904,14 +905,14 @@ class TicketXHR extends Controller
     public function removeTicketTagXHR($tagId)
     {
         $entityManager = $this->getDoctrine()->getManager();
-        $checkTag = $entityManager->getRepository('UVDeskCoreBundle:Tag')->findOneBy(array('id' => $tagId));
+        $checkTag = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Tag')->findOneBy(array('id' => $tagId));
         
         if($checkTag) {
             $entityManager->remove($checkTag);
             $entityManager->flush();
 
             $json['alertClass'] = 'success';
-            $json['alertMessage'] = 'Success ! Tag removed successfully.';
+            $json['alertMessage'] = $this->get('translator')->trans('Success ! Tag removed successfully.');
         }
 
         $response = new Response(json_encode($json));

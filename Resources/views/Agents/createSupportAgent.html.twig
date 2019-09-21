@@ -1,6 +1,6 @@
-{% extends "@UVDeskCore//Templates//layout.html.twig" %}
+{% extends "@UVDeskCoreFramework//Templates//layout.html.twig" %}
 
-{% block title %}Create Agent{% endblock %}
+{% block title %}{{'Create Agent'|trans}}{% endblock %}
 
 {% block templateCSS %}
     <style>
@@ -20,7 +20,7 @@
             width: 8px;
             height: 20px;
             display: inline-block;
-            background-image: url(../../../bundles/uvdeskcore/images/uvdesk-sprite.svg);
+            background-image: url(../../../bundles/uvdeskcoreframework/images/uvdesk-sprite.svg);
             background-position: 44px -158px;
             margin: 5px 0 0 10px;
             float: right;
@@ -38,21 +38,24 @@
 
 {% block pageContent %}
 	<div class="uv-inner-section">
-        {# Agent Panel Sidebar #}
-        {{ include('@UVDeskCore/Templates/panel-sidebar.html.twig') }}
+        {# Append Panel Aside #}
+		{% set asideTemplate = 'Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\AsideTemplate' %}
+		{% set asideSidebarReference = 'Webkul\\UVDesk\\CoreFrameworkBundle\\UIComponents\\Dashboard\\Panel\\Sidebars\\Users' %}
+
+		{{ uvdesk_extensibles.getRegisteredComponent(asideTemplate).renderSidebar(asideSidebarReference) | raw }}
         
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
-            <h1>Create Agent</h1>
+            <h1>{{"Create Agent"|trans}}</h1>
 
             {# Registeration Form #}
 			<form method="post" action="" id="user-form" enctype="multipart/form-data">
                 {# Registeration Form Tabs #}
                 <div class="uv-tabs">
                     <ul>
-                        <li for="profile" class="uv-tab-active">General</li>
-                        <li for="groups">Groups</li>
+                        <li for="profile" class="uv-tab-active">{{"General"|trans}}</li>
+                        <li for="groups">{{"Groups"|trans}}</li>
                         {% if "ROLE_SUPER_ADMIN" not in user.roles %}
-                            <li for="permission">Permission</li>
+                            <li for="permission">{{"Permission"|trans}}</li>
                         {% endif %}
                     </ul>
                 </div>
@@ -76,14 +79,14 @@
                     </div>
 
                     <div class="uv-element-block">
-                        <label class="uv-field-label">First Name</label>
+                        <label class="uv-field-label">{{"First Name"|trans}}</label>
                         <div class="uv-field-block">
                             <input name="user_form[firstName]" class="uv-field" type="text" value="">
                         </div>
                     </div>
 
                     <div class="uv-element-block">
-                        <label class="uv-field-label">Last Name</label>
+                        <label class="uv-field-label">{{"Last Name"|trans}}</label>
                         <div class="uv-field-block">
                             <input name="user_form[lastName]" class="uv-field" type="text" value="">
                         </div>
@@ -136,8 +139,8 @@
                     <div class="uv-scroll-plank">
                         <!-- Checkbox Block -->
                         <div class="uv-element-block">
-                            <label class="uv-field-label">Groups</label>
-                            <span class="uv-field-info uv-margin-top-5">Assigning group(s) to user to view tickets regardless assignment.</span>
+                            <label class="uv-field-label">{{'Groups'|trans}}</label>
+                            <span class="uv-field-info uv-margin-top-5">{{'Assigning group(s) to user to view tickets regardless assignment.'|trans}}</span>
                         </div>
 
                         <div>
@@ -343,46 +346,46 @@
 				validation: {
 					'user_form[firstName]': [{
                         required: true,
-                        msg: 'This field is mandatory'
+                        msg: "{{'This field is mandatory'|trans}}"
                     }, {
                         pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
-                        msg: 'This field must have characters only'
+                        msg: "{{'This field must have characters only'|trans}}"
                     },{
                         maxLength:40,
-                        msg:'Maximum character length is 40'
+                        msg:"{{'Maximum character length is 40'|trans}}"
                     }],
                     'user_form[lastName]': [{
                         required: true,
-                        msg: 'This field is mandatory'
+                        msg: "{{'This field is mandatory'|trans}}"
                     }, {
                         pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
-                        msg: 'This field must have characters only'
+                        msg: "{{'This field must have characters only'|trans}}"
                     },{
                         maxLength:40,
-                        msg:'Maximum character length is 40'
+                        msg:"{{'Maximum character length is 40'|trans}}"
                     }],
                     'user_form[email]': [{
                         required: true,
-                        msg: 'This field is mandatory'
+                        msg: "{{'This field is mandatory'|trans}}"
                     },{
                         pattern:  /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/,
-                        msg: 'This is not a valid email address'
+                        msg: "{{'This is not a valid email address'|trans}}"
                     }],
                     'user_form[contactNumber]': function(value) {
                         if(value != undefined && value !== '') {
                             if(!value.match('^[0-9]*$'))
-                                return 'This field must be a number';
+                                return "{{'This field is mandatory'|trans}}";
                         }
                     },
                     'user_form[password][first]' : function(value) {
                         if(value != undefined && value !== '') {
                             if(value.length < 8)
-                                return 'Password must contains 8 Characters';
+                                return "{{'Password must contains 8 Characters'|trans}}";
                         }
                     },
                     'user_form[password][second]': {
                         equalTo: 'user_form[password][first]',
-                        msg: 'The passwords does not match'
+                        msg: "{{'The passwords does not match'|trans}}"
                     },
                     'user_form[isActive][]': {
                         fn: function(value) {
@@ -391,7 +394,7 @@
                     },
                     'user_form[groups][]': {
                         required: true,
-                        msg: 'This field is mandatory'
+                        msg: "{{'This field is mandatory'|trans}}"
                     },
                     'user_form[agentPrivilege][]' : {
                         fn: function(value) {
@@ -402,7 +405,7 @@
 
                             return false;
                         },
-                        msg: 'This field is mandatory'
+                        msg: "{{'This field is mandatory'|trans}}"
                     },
                     'user_form[ticketView]': {
                         fn: function(value) {
@@ -413,7 +416,7 @@
 
                             return false;
                         },
-                        msg: 'This field is mandatory'
+                        msg: "{{'This field is mandatory'|trans}}"
                     },
 				}
 			});

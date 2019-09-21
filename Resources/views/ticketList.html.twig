@@ -1,6 +1,6 @@
-{% extends "@UVDeskCore//Templates//layout.html.twig" %}
+{% extends "@UVDeskCoreFramework//Templates//layout.html.twig" %}
 
-{% block title %}Tickets{% endblock %}
+{% block title %}{{'Tickets'|trans}}{% endblock %}
 
 {% block templateCSS %}
     <style>
@@ -95,11 +95,11 @@
             <div class="uv-aside-default">
                 <div class="uv-aside-head">
                     <div class="uv-aside-title">
-                        <h6>Tickets</h6>
+                        <h6>{{'Tickets'|trans}}</h6>
                     </div>
 
                     <div class="uv-aside-back">
-                        <span onclick="history.length > 1 ? history.go(-1) : window.location = '{{ path("helpdesk_member_dashboard") }}';">Back</span>
+                        <span onclick="history.length > 1 ? history.go(-1) : window.location = '{{ path("helpdesk_member_dashboard") }}';">{{'Back'|trans}}</span>
                     </div>
                 </div>
 
@@ -108,47 +108,47 @@
                         {# Predefined Label List #}
                         <ul class="predefined-label-list uv-aside-list">
                             <li>
-                                <a href="#" class="uv-aside-active">All <span class="uv-flag-gray uv-flag-dark">0</span></a>
+                                <a href="#" class="uv-aside-active">{{'All'|trans}} <span class="uv-flag-gray uv-flag-dark">0</span></a>
 
                                 {# Status ticket count list #}
                                 <ul class="status-list">
                                     <li>
-                                        <a href="#" data-id="1" class="uv-aside-nav-active"><span class="name">Open</span><span class="uv-flag-gray">0</span></a>
+                                        <a href="#" data-id="1" class="uv-aside-nav-active"><span class="name">{{'Open'|trans}}</span><span class="uv-flag-gray">0</span></a>
                                     </li>
                                     <li>
-                                        <a href="#" data-id="2"><span class="name">Pending</span><span class="uv-flag-gray">0</span></a>
+                                        <a href="#" data-id="2"><span class="name">{{'Pending'|trans}}</span><span class="uv-flag-gray">0</span></a>
                                     </li>
                                     <li>
-                                        <a href="#" data-id="6"><span class="name">Answered</span><span class="uv-flag-gray">0</span></a>
+                                        <a href="#" data-id="6"><span class="name">{{'Answered'|trans}}</span><span class="uv-flag-gray">0</span></a>
                                     </li>
                                     <li>
-                                        <a href="#" data-id="3"><span class="name">Resolved</span><span class="uv-flag-gray">0</span></a>
+                                        <a href="#" data-id="3"><span class="name">{{'Resolved'|trans}}</span><span class="uv-flag-gray">0</span></a>
                                     </li>
                                     <li>
-                                        <a href="#" data-id="4"><span class="name">Closed</span><span class="uv-flag-gray">0</span></a>
+                                        <a href="#" data-id="4"><span class="name">{{'Closed'|trans}}</span><span class="uv-flag-gray">0</span></a>
                                     </li>
                                     <li>
-                                        <a href="#" data-id="5"><span class="name">Spam</span><span class="uv-flag-gray">0</span></a>
+                                        <a href="#" data-id="5"><span class="name">{{"Spam"|trans}}</span><span class="uv-flag-gray">0</span></a>
                                     </li>
                                 </ul>
                             </li>
                             <li>
-                                <a href="#new">New <span class="uv-flag-gray uv-flag-dark">0</span></a>
+                                <a href="#new">{{'New'|trans}} <span class="uv-flag-gray uv-flag-dark">0</span></a>
                             </li>
                             <li>
-                                <a href="#unassigned">UnAssigned <span class="uv-flag-gray uv-flag-dark">0</span></a>
+                                <a href="#unassigned">{{'UnAssigned'|trans}} <span class="uv-flag-gray uv-flag-dark">0</span></a>
                             </li>
                             <li>
-                                <a href="#notreplied">UnAnswered <span class="uv-flag-gray uv-flag-dark">0</span></a>
+                                <a href="#notreplied">{{'UnAnswered'|trans}} <span class="uv-flag-gray uv-flag-dark">0</span></a>
                             </li>
                             <li>
-                                <a href="#mine">My Tickets <span class="uv-flag-gray uv-flag-dark">0</span></a>
+                                <a href="#mine">{{"My Tickets"|trans}} <span class="uv-flag-gray uv-flag-dark">0</span></a>
                             </li>
                             <li>
-                                <a href="#starred">Starred <span class="uv-flag-gray uv-flag-dark">0</span></a>
+                                <a href="#starred">{{'Starred'|trans}} <span class="uv-flag-gray uv-flag-dark">0</span></a>
                             </li>
                             <li>
-                                <a href="#trashed" style="border-bottom: none">Trashed <span class="uv-flag-gray uv-flag-dark">0</span></a>
+                                <a href="#trashed" style="border-bottom: none">{{'Trashed'|trans}} <span class="uv-flag-gray uv-flag-dark">0</span></a>
                             </li>
                         </ul>
 
@@ -157,7 +157,7 @@
                     </ul>
                 </div>
 
-                <a class="uv-btn-small add-new-label" href="#"><span class="uv-icon-add"></span> New Label</a>
+                <a class="uv-btn-small add-new-label" href="#"><span class="uv-icon-add"></span> {{"New Label"|trans}}</a>
             </div>
 
             <!-- Label add and edit -->
@@ -166,7 +166,7 @@
 
         {# Ticket List #}
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %} uv-aside-view {% endif %}">
-            <h1>Tickets</h1>
+            <h1>{{"Tickets"|trans}}</h1>
 
             {# Action Bar #}
             <div class="uv-action-bar">
@@ -185,11 +185,11 @@
                         <div class="filter">
                             {# Sort By #}
                             <div class="uv-dropdown sort">
-                                <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Sort By: Last Replied</div>
+                                <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{'Sort By'|trans}}: {{'Last Replied'|trans}}</div>
 
                                 <div class="uv-dropdown-list uv-bottom-left">
                                     <div class="uv-dropdown-container">
-                                        <label>Sort By</label>
+                                        <label>{{'Sort By'|trans}}</label>
                                         <ul></ul>
                                     </div>
                                 </div>
@@ -197,11 +197,11 @@
 
                             {# Assets Visibilities #}
                             <div class="uv-dropdown asset-visibility">
-                                <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Assets Visibility</div>
+                                <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{'Assets Visibility'|trans}}</div>
 
                                 <div class="uv-dropdown-list uv-bottom-left" style="width: 215px;">
                                     <div class="uv-dropdown-container">
-                                        <label>Assets Visibility</label>
+                                        <label>{{'Assets Visibility'|trans}}</label>
 
                                         <ul>
                                             {# Ticket Source #}
@@ -213,7 +213,7 @@
                                                     </div>
                                                 </label>
 
-                                                <label for="source">Channel/Source</label>
+                                                <label for="source">{{'Channel/Source'|trans}}</label>
                                             </li>
 
                                             {# Ticket Customer Name #}
@@ -225,7 +225,7 @@
                                                     </div>
                                                 </label>
 
-                                                <label for="customer-name">Customer Name</label>
+                                                <label for="customer-name">{{'Customer Name'|trans}}</label>
                                             </li>
 
                                             {# Ticket Customer Email #}
@@ -237,7 +237,7 @@
                                                     </div>
                                                 </label>
 
-                                                <label for="customer-email">Customer Email</label>
+                                                <label for="customer-email">{{'Customer Email'|trans}}</label>
                                             </li>
 
                                             {# Ticket Timestamp #}
@@ -249,7 +249,7 @@
                                                     </div>
                                                 </label>
 
-                                                <label for="timestamp">Timestamp</label>
+                                                <label for="timestamp">{{'Timestamp'|trans}}</label>
                                             </li>
 
                                             {# Ticket Group #}
@@ -261,7 +261,7 @@
                                                     </div>
                                                 </label>
 
-                                                <label for="group">Group</label>
+                                                <label for="group">{{'Group'|trans}}</label>
                                             </li>
 
                                             {# Ticket Team #}
@@ -273,7 +273,7 @@
                                                     </div>
                                                 </label>
 
-                                                <label for="team">Team</label>
+                                                <label for="team">{{'Team'|trans}}</label>
                                             </li>
 
                                             {# Ticket Type #}
@@ -285,7 +285,7 @@
                                                     </div>
                                                 </label>
 
-                                                <label for="type1">Type</label>
+                                                <label for="type1">{{'Type'|trans}}</label>
                                             </li>
 
                                             {# Ticket Replies #}
@@ -297,7 +297,7 @@
                                                     </div>
                                                 </label>
 
-                                                <label for="replies">Replies</label>
+                                                <label for="replies">{{'Replies'|trans}}</label>
                                             </li>
 
                                             {# Ticket Agent #}
@@ -309,7 +309,7 @@
                                                     </div>
                                                 </label>
 
-                                                <label for="agent">Agent</label>
+                                                <label for="agent">{{'Agent'|trans}}</label>
                                             </li>
                                         </ul>
                                     </div>
@@ -326,12 +326,12 @@
                                 {# Update Assigned Support Agent #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_ASSIGN_TICKET') %}
                                     <div class="uv-dropdown">
-                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Agent</div>
+                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{'Agent'|trans}}</div>
                                         <div class="uv-dropdown-list uv-bottom-left">
                                             <div class="uv-dropdown-container">
                                                 <label>Agent</label>
                                                 <div class="uv-search-sm">
-                                                    <input type="text" class="uv-search-field" placeholder="Search">
+                                                    <input type="text" class="uv-search-field" placeholder="{{'Search'|trans}}">
                                                 </div>
                                             </div>
 
@@ -354,12 +354,12 @@
                                 {# Update Assigned Support Group #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_ASSIGN_TICKET_GROUP') %}
                                     <div class="uv-dropdown">
-                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Group</div>
+                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{'Group'|trans}}</div>
                                         <div class="uv-dropdown-list uv-bottom-left">
                                             <div class="uv-dropdown-container">
                                                 <label>Group</label>
                                                 <div class="uv-search-sm">
-                                                    <input type="text" class="uv-search-field" placeholder="Search">
+                                                    <input type="text" class="uv-search-field" placeholder="{{'Search'|trans}}">
                                                 </div>
                                             </div>
 
@@ -375,12 +375,12 @@
                                 {# Update Assigned Support Team #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_ASSIGN_TICKET_GROUP') %}
                                     <div class="uv-dropdown">
-                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Team</div>
+                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{'Team'|trans}}</div>
                                         <div class="uv-dropdown-list uv-bottom-left">
                                             <div class="uv-dropdown-container">
                                                 <label>Team</label>
                                                 <div class="uv-search-sm">
-                                                    <input type="text" class="uv-search-field" placeholder="Search">
+                                                    <input type="text" class="uv-search-field" placeholder="{{'Search'|trans}}">
                                                 </div>
                                             </div>
                                             
@@ -396,10 +396,10 @@
                                 {# Update Ticket Status #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}
                                     <div class="uv-dropdown">
-                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Status</div>
+                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{'Status'|trans}}</div>
                                         <div class="uv-dropdown-list uv-bottom-left">
                                             <div class="uv-dropdown-container">
-                                                <label>Status</label>
+                                                <label>{{'Status'|trans}}</label>
 
                                                 <ul class="status" data-action="status">
                                                     {% for status in ticketStatusCollection %}
@@ -414,18 +414,18 @@
                                 {# Update Ticket Type #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_TYPE') %}
                                     <div class="uv-dropdown">
-                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Type</div>
+                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{'Type'|trans}}</div>
                                         <div class="uv-dropdown-list uv-bottom-left">
                                             <div class="uv-dropdown-container">
-                                                <label>Type</label>
+                                                <label>{{'Type'|trans}}</label>
                                                 <div class="uv-search-sm">
-                                                    <input type="text" class="uv-search-field" placeholder="Search">
+                                                    <input type="text" class="uv-search-field" placeholder="{{'Search'|trans}}">
                                                 </div>
                                             </div>
                                             
                                             <ul class="uv-search-list type" data-action="type">
                                                 {% for type in ticketTypeCollection %}
-                                                    <li data-index="{{ type.id }}"><a href="#">{{ type.code }}</a></li>
+                                                    <li data-index="{{ type.id }}"><a href="#">{{ type.description }}</a></li>
                                                 {% endfor %}
                                             </ul>
                                         </div>
@@ -435,10 +435,10 @@
                                 {# Update Priority #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_PRIORITY') %}
                                     <div class="uv-dropdown">
-                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Priority</div>
+                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{'Priority'|trans}}</div>
                                         <div class="uv-dropdown-list uv-bottom-left">
                                             <div class="uv-dropdown-container">
-                                                <label>Priority</label>
+                                                <label>{{'Priority'|trans}}</label>
                                                 
                                                 <ul class="priority" data-action="priority">
                                                     {% for priority in ticketPriorityCollection %}
@@ -452,13 +452,13 @@
 
                                 {# Update Label #}
                                 <div class="uv-dropdown">
-                                    <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Label</div>
+                                    <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{'Label'|trans}}</div>
                                     <div class="uv-dropdown-list uv-bottom-left">
                                         <div class="uv-dropdown-container">
-                                            <label>Label</label>
+                                            <label>{{'Label'|trans}}</label>
 
                                             <div class="uv-search-sm">
-                                                <input type="text" class="uv-search-field" placeholder="Search">
+                                                <input type="text" class="uv-search-field" placeholder="{{'Search'|trans}}">
                                             </div>
                                         </div>
 
@@ -468,7 +468,7 @@
 
                                 {# Trashe Tickets #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_DELETE_TICKET') %}
-                                    <a class="uv-btn-stroke uv-margin-right-5" id="mass-delete" data-action="trashed" style="margin-left: 5px;">Delete</a>
+                                    <a class="uv-btn-stroke uv-margin-right-5" id="mass-delete" data-action="trashed" style="margin-left: 5px;">{{'Delete'|trans}}</a>
                                 {% endif %}
                             </div>
 
@@ -476,12 +476,12 @@
                             <div class="trashed-block" style="display: none">
                                 {# Restore Tickets #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_RESTORE_TICKET') %}
-                                    <a class="uv-btn-stroke uv-margin-right-5" id="mass-restore" data-action="restore" style="margin-left: 5px;">Restore</a>
+                                    <a class="uv-btn-stroke uv-margin-right-5" id="mass-restore" data-action="restore" style="margin-left: 5px;">{{'Restore'|trans}}</a>
                                 {% endif %}
 
                                 {# Delete Tickets Forever #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_DELETE_TICKET') %}
-                                    <a class="uv-btn-stroke uv-margin-right-5" id="mass-delete-forever" data-action="delete" style="margin-left: 5px;">Delete Forever</a>
+                                    <a class="uv-btn-stroke uv-margin-right-5" id="mass-delete-forever" data-action="delete" style="margin-left: 5px;">{{'Delete Forever'|trans}}</a>
                                 {% endif %}
                             </div>
                         </div>
@@ -490,10 +490,10 @@
                     {# Ticket Search | Filter Extras #}
                     <div class="uv-action-bar-col-rt">
                         <!-- Search Tickets -->
-                        <input type="text" class="uv-search-inline" placeholder="Search">
+                        <input type="text" class="uv-search-inline" placeholder="{{'Search'|trans}}">
 
                         <!-- Extra Filters -->
-                        <div class="uv-btn-stroke uv-margin-left-15 filter-view-trigger" data-target="uv-filter-view"><span class="uv-icon-filter"></span>Filter View</div>
+                        <div class="uv-btn-stroke uv-margin-left-15 filter-view-trigger" data-target="uv-filter-view"><span class="uv-icon-filter"></span>{{'Filter View'|trans}}</div>
                     </div>
                 </div>
             </div>
@@ -504,16 +504,16 @@
                     <thead>
                         <tr>
                             <th class="uv-width-140"></th>
-                            <th>ID</th>
-                            <th class="uv-min-width-300">Subject</th>
-                            <th data-index="customer-name">Customer Name</th>
-                            <th data-index="customer-email">Customer Email</th>
-                            <th data-index="timestamp">Timestamp</th>
-                            <th data-index="group">Group</th>
-                            <th data-index="team">Team</th>
-                            <th data-index="type1">Type</th>
-                            <th data-index="replies">Replies</th>
-                            <th data-index="agent">Agent</th>
+                            <th>{{'ID'|trans}}</th>
+                            <th class="uv-min-width-300">{{'Subject'|trans}}</th>
+                            <th data-index="customer-name">{{'Customer Name'|trans}}</th>
+                            <th data-index="customer-email">{{'Customer Email'|trans}}</th>
+                            <th data-index="timestamp">{{'Timestamp'|trans}}</th>
+                            <th data-index="group">{{'Group'|trans}}</th>
+                            <th data-index="team">{{'Team'|trans}}</th>
+                            <th data-index="type1">{{'Type'|trans}}</th>
+                            <th data-index="replies">{{'Replies'|trans}}</th>
+                            <th data-index="agent">{{'Agent'|trans}}</th>
                         </tr>
                     </thead>
 
@@ -529,8 +529,8 @@
             {# Filter Head #}
             <div class="uv-filter-head">
                 <div class="uv-filter-title">
-                    <h6>Tickets</h6>
-                    <span>Save set of filters as a preset to stay more productive</span>
+                    <h6>{{'Tickets'|trans}}</h6>
+                    <span>{{'Save set of filters as a preset to stay more productive'|trans}}</span>
                 </div>
                 
                 <div class="uv-filter-toggle" id="filter-close-trigger"><span></span></div>
@@ -546,18 +546,18 @@
 
                     {# Saved Filters #}
                     <div class="uv-element-block" style="border-bottom: 1px solid #D3D3D3; padding-bottom: 5px;">
-                        <label class="uv-field-label">Saved Filters</label>
+                        <label class="uv-field-label">{{'Saved Filters'|trans}}</label>
                         <div class="uv-field-block">
                             <div class="uv-customize-wrapper">
                                 <select class="uv-select uv-select-70" id="saved-filter">                            
                                     {% set filters = app.user.agentInstance.userSavedFilters %}
                                     {% if filters|length %}
-                                        <option value="">-- Saved Filter --</option>
+                                        <option value="">-- {{'Saved Filter'|trans}} --</option>
                                         {% for userFilter in filters %}
                                             <option value="{{userFilter.id}}">{{userFilter.name}}</option>
                                         {% endfor %}
                                     {% else %}
-                                        <option value="">No saved filter created</option>
+                                        <option value="">{{'No saved filter created'|trans}}</option>
                                     {% endif %}
                                 </select>
                                 {% for userFilter in app.user.agentInstance.userSavedFilters %}
@@ -810,7 +810,7 @@
                     </div>
 
                     {# Clear Filters #}
-                    <a class="uv-btn-remove" href="#"><span class="uv-icon-discard"></span> Clear All</a>
+                    <a class="uv-btn-remove" href="#"><span class="uv-icon-discard"></span>{{'Clear All'|trans}}</a>
                 </div>
 
                 {# Add|Edit Filter #}
