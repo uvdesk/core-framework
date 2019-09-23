@@ -37,10 +37,24 @@ class HomepageTemplate implements ExtendableComponentInterface
 	{
 		$references = [];
 
+		$find_section_by_name = function(&$array, $name) {
+			$l = count($array);
+			for($i = 0; $i < $l; $i++) {
+				if (strtolower($array[$i]::getTitle()) === $name) {
+					return array($i, $array[$i]);
+				}
+			}
+		};
+
 		// Sort segments alphabetically
 		usort($this->sections, function($section_1, $section_2) {
 			return strcasecmp($section_1::getTitle(), $section_2::getTitle());
 		});
+		
+		//re-inserting users section
+		$users_sec = $find_section_by_name($this->sections, "users"); 
+		array_splice($this->sections, $users_sec[0], 1);
+		array_splice($this->sections, $find_section_by_name($this->sections, "productivity")[0] + 1, 0, [$users_sec[1]]);
 
 		usort($this->sectionItems, function($item_1, $item_2) {
 			return strcasecmp($item_1::getTitle(), $item_2::getTitle());
