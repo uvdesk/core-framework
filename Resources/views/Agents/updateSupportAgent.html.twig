@@ -472,6 +472,7 @@
 				events : {
 					'click .uv-btn' : "saveUser",
 					'blur input, textarea': 'formChanegd',
+                    'change input[name="user_form[isActive]"]': 'formChanegd',
                     'change #user_form_role': 'roleChanged',
                     'click a.select': 'selectAll',
 		            'click a.deselect': 'deselectAll',
@@ -513,6 +514,10 @@
                             }
                         }
                     } else {
+                        if (fieldName === 'user_form[isActive]') {
+                            const val = Backbone.$(e.currentTarget).prop('checked') ? "1" : "0";
+                            Backbone.$(e.currentTarget).val(val);
+                        }
                         this.model.set(fieldName, Backbone.$(e.currentTarget).val())
                         this.model.isValid([fieldName])
                         if(fieldName == 'user_form[password][first]' && !$("input[name='user_form[password][second]']").val().length) {
