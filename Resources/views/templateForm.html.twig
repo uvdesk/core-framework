@@ -43,7 +43,7 @@
 					<div class="uv-field-block">
 						<div class="uv-group uv-no-error-success-icon">
 							<input type="text" id="subject-field" name="subject" class="uv-field uv-group-field" value="{{ template.subject }}" />
-							<select id="subject-placeholders" class="uv-group-select" title="placeholders" data-toggle="tooltip" data-placement="top">
+							<select id="subject-placeholders" class="uv-group-select" title={{"placeholders|trans}}" data-toggle="tooltip" data-placement="top">
 								<option value="" selected>{{'Placeholders'|trans}}</option>
 								{% for basekey, placeholders in email_service.getEmailPlaceHolders('template') %}
 									{% if placeholders is iterable %}
