@@ -1,6 +1,6 @@
 {% extends "@UVDeskCoreFramework//Templates//layout.html.twig" %}
 
-{% block title %}Tickets{% endblock %}
+{% block title %}{{ 'Tickets'|trans }}{% endblock %}
 
 {% block templateCSS %}
     <style>
@@ -91,15 +91,15 @@
 
     <div class="uv-inner-section">
         {# Ticket Sidebar #}
-		<div class="uv-aside" {% if app.request.cookies and app.request.cookies.get('uv-asideView') %} style="display: none;" {% endif %} >
+        <div class="uv-aside" {% if app.request.cookies and app.request.cookies.get('uv-asideView') %} style="display: none;" {% endif %} >
             <div class="uv-aside-default">
                 <div class="uv-aside-head">
                     <div class="uv-aside-title">
-                        <h6>Tickets</h6>
+                        <h6>{{ 'Tickets'|trans }}</h6>
                     </div>
 
                     <div class="uv-aside-back">
-                        <span onclick="history.length > 1 ? history.go(-1) : window.location = '{{ path("helpdesk_member_dashboard") }}';">Back</span>
+                        <span onclick="history.length > 1 ? history.go(-1) : window.location = '{{ path("helpdesk_member_dashboard") }}';">{{ 'Back'|trans }}</span>
                     </div>
                 </div>
 
@@ -108,47 +108,47 @@
                         {# Predefined Label List #}
                         <ul class="predefined-label-list uv-aside-list">
                             <li>
-                                <a href="#" class="uv-aside-active">All <span class="uv-flag-gray uv-flag-dark">0</span></a>
+                                <a href="#" class="uv-aside-active">{{ 'All'|trans }} <span class="uv-flag-gray uv-flag-dark">0</span></a>
 
                                 {# Status ticket count list #}
                                 <ul class="status-list">
                                     <li>
-                                        <a href="#" data-id="1" class="uv-aside-nav-active"><span class="name">Open</span><span class="uv-flag-gray">0</span></a>
+                                        <a href="#" data-id="1" class="uv-aside-nav-active"><span class="name">{{ 'Open'|trans }}</span><span class="uv-flag-gray">0</span></a>
                                     </li>
                                     <li>
-                                        <a href="#" data-id="2"><span class="name">Pending</span><span class="uv-flag-gray">0</span></a>
+                                        <a href="#" data-id="2"><span class="name">{{ 'Pending'|trans }}</span><span class="uv-flag-gray">0</span></a>
                                     </li>
                                     <li>
-                                        <a href="#" data-id="6"><span class="name">Answered</span><span class="uv-flag-gray">0</span></a>
+                                        <a href="#" data-id="6"><span class="name">{{ 'Answered'|trans }}</span><span class="uv-flag-gray">0</span></a>
                                     </li>
                                     <li>
-                                        <a href="#" data-id="3"><span class="name">Resolved</span><span class="uv-flag-gray">0</span></a>
+                                        <a href="#" data-id="3"><span class="name">{{ 'Resolved'|trans }}</span><span class="uv-flag-gray">0</span></a>
                                     </li>
                                     <li>
-                                        <a href="#" data-id="4"><span class="name">Closed</span><span class="uv-flag-gray">0</span></a>
+                                        <a href="#" data-id="4"><span class="name">{{ 'Closed'|trans }}</span><span class="uv-flag-gray">0</span></a>
                                     </li>
                                     <li>
-                                        <a href="#" data-id="5"><span class="name">Spam</span><span class="uv-flag-gray">0</span></a>
+                                        <a href="#" data-id="5"><span class="name">{{ 'Spam'|trans }}</span><span class="uv-flag-gray">0</span></a>
                                     </li>
                                 </ul>
                             </li>
                             <li>
-                                <a href="#new">New <span class="uv-flag-gray uv-flag-dark">0</span></a>
+                                <a href="#new">{{ 'New'|trans }} <span class="uv-flag-gray uv-flag-dark">0</span></a>
                             </li>
                             <li>
-                                <a href="#unassigned">UnAssigned <span class="uv-flag-gray uv-flag-dark">0</span></a>
+                                <a href="#unassigned">{{ 'UnAssigned'|trans }} <span class="uv-flag-gray uv-flag-dark">0</span></a>
                             </li>
                             <li>
-                                <a href="#notreplied">UnAnswered <span class="uv-flag-gray uv-flag-dark">0</span></a>
+                                <a href="#notreplied">{{ 'UnAnswered'|trans }} <span class="uv-flag-gray uv-flag-dark">0</span></a>
                             </li>
                             <li>
-                                <a href="#mine">My Tickets <span class="uv-flag-gray uv-flag-dark">0</span></a>
+                                <a href="#mine">{{ 'My Tickets'|trans }} <span class="uv-flag-gray uv-flag-dark">0</span></a>
                             </li>
                             <li>
-                                <a href="#starred">Starred <span class="uv-flag-gray uv-flag-dark">0</span></a>
+                                <a href="#starred">{{ 'Starred'|trans }} <span class="uv-flag-gray uv-flag-dark">0</span></a>
                             </li>
                             <li>
-                                <a href="#trashed" style="border-bottom: none">Trashed <span class="uv-flag-gray uv-flag-dark">0</span></a>
+                                <a href="#trashed" style="border-bottom: none">{{ 'Trashed'|trans }} <span class="uv-flag-gray uv-flag-dark">0</span></a>
                             </li>
                         </ul>
 
@@ -157,7 +157,7 @@
                     </ul>
                 </div>
 
-                <a class="uv-btn-small add-new-label" href="#"><span class="uv-icon-add"></span> New Label</a>
+                <a class="uv-btn-small add-new-label" href="#"><span class="uv-icon-add"></span> {{ 'Label'|trans }}</a>
             </div>
 
             <!-- Label add and edit -->
@@ -165,19 +165,19 @@
         </div>
 
         {# Ticket List #}
-		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %} uv-aside-view {% endif %}">
-            <h1>Tickets</h1>
+        <div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %} uv-aside-view {% endif %}">
+            <h1>{{ 'Tickets'|trans }}</h1>
 
             {# Action Bar #}
             <div class="uv-action-bar">
                 {# Select all checkbox #}
-                    <div class="uv-action-select-wrapper">
-                        <label class="uv-vertical-align uv-margin-left-27">
-                            <div class="uv-checkbox">
-                                <input type="checkbox" class="select-all-checkbox"><span class="uv-checkbox-view"></span>
-                            </div>
-                        </label>
-                    </div>
+                <div class="uv-action-select-wrapper">
+                    <label class="uv-vertical-align uv-margin-left-27">
+                        <div class="uv-checkbox">
+                            <input type="checkbox" class="select-all-checkbox"><span class="uv-checkbox-view"></span>
+                        </div>
+                    </label>
+                </div>
                 {# Filter Options #}
                 <div class="uv-action-col-wrapper">
                     {# Ticket Sort | Asset Visibility #}
@@ -185,11 +185,11 @@
                         <div class="filter">
                             {# Sort By #}
                             <div class="uv-dropdown sort">
-                                <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Sort By: Last Replied</div>
+                                <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{ 'Sort By:'|trans }} {{ 'Last Replied'|trans }}</div>
 
                                 <div class="uv-dropdown-list uv-bottom-left">
                                     <div class="uv-dropdown-container">
-                                        <label>Sort By</label>
+                                        <label>{{ 'Sort By'|trans }}</label>
                                         <ul></ul>
                                     </div>
                                 </div>
@@ -197,11 +197,11 @@
 
                             {# Assets Visibilities #}
                             <div class="uv-dropdown asset-visibility">
-                                <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Assets Visibility</div>
+                                <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{ 'Assets Visibility'|trans }}</div>
 
                                 <div class="uv-dropdown-list uv-bottom-left" style="width: 215px;">
                                     <div class="uv-dropdown-container">
-                                        <label>Assets Visibility</label>
+                                        <label>{{ 'Assets Visibility'|trans }}</label>
 
                                         <ul>
                                             {# Ticket Source #}
@@ -213,7 +213,7 @@
                                                     </div>
                                                 </label>
 
-                                                <label for="source">Channel/Source</label>
+                                                <label for="source">{{ 'Channel/Source'|trans }}</label>
                                             </li>
 
                                             {# Ticket Customer Name #}
@@ -225,7 +225,7 @@
                                                     </div>
                                                 </label>
 
-                                                <label for="customer-name">Customer Name</label>
+                                                <label for="customer-name">{{ 'Customer Name'|trans }}</label>
                                             </li>
 
                                             {# Ticket Customer Email #}
@@ -237,7 +237,7 @@
                                                     </div>
                                                 </label>
 
-                                                <label for="customer-email">Customer Email</label>
+                                                <label for="customer-email">{{ 'Customer Email'|trans }}</label>
                                             </li>
 
                                             {# Ticket Timestamp #}
@@ -249,7 +249,7 @@
                                                     </div>
                                                 </label>
 
-                                                <label for="timestamp">Timestamp</label>
+                                                <label for="timestamp">{{ 'Timestamp'|trans }}</label>
                                             </li>
 
                                             {# Ticket Group #}
@@ -261,7 +261,7 @@
                                                     </div>
                                                 </label>
 
-                                                <label for="group">Group</label>
+                                                <label for="group">{{ 'Group'|trans }}</label>
                                             </li>
 
                                             {# Ticket Team #}
@@ -273,7 +273,7 @@
                                                     </div>
                                                 </label>
 
-                                                <label for="team">Team</label>
+                                                <label for="team">{{ 'Team'|trans }}</label>
                                             </li>
 
                                             {# Ticket Type #}
@@ -285,7 +285,7 @@
                                                     </div>
                                                 </label>
 
-                                                <label for="type1">Type</label>
+                                                <label for="type1">{{ 'Type'|trans }}</label>
                                             </li>
 
                                             {# Ticket Replies #}
@@ -297,7 +297,7 @@
                                                     </div>
                                                 </label>
 
-                                                <label for="replies">Replies</label>
+                                                <label for="replies">{{ 'Replies'|trans }}</label>
                                             </li>
 
                                             {# Ticket Agent #}
@@ -309,7 +309,7 @@
                                                     </div>
                                                 </label>
 
-                                                <label for="agent">Agent</label>
+                                                <label for="agent">{{ 'Agent'|trans }}</label>
                                             </li>
                                         </ul>
                                     </div>
@@ -326,10 +326,10 @@
                                 {# Update Assigned Support Agent #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_ASSIGN_TICKET') %}
                                     <div class="uv-dropdown">
-                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Agent</div>
+                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{ 'Agent'|trans }}</div>
                                         <div class="uv-dropdown-list uv-bottom-left">
                                             <div class="uv-dropdown-container">
-                                                <label>Agent</label>
+                                                <label>{{ 'Agent'|trans }}</label>
                                                 <div class="uv-search-sm">
                                                     <input type="text" class="uv-search-field" placeholder="Search">
                                                 </div>
@@ -354,10 +354,10 @@
                                 {# Update Assigned Support Group #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_ASSIGN_TICKET_GROUP') %}
                                     <div class="uv-dropdown">
-                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Group</div>
+                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{ 'Group'|trans }}</div>
                                         <div class="uv-dropdown-list uv-bottom-left">
                                             <div class="uv-dropdown-container">
-                                                <label>Group</label>
+                                                <label>{{ 'Group'|trans }}</label>
                                                 <div class="uv-search-sm">
                                                     <input type="text" class="uv-search-field" placeholder="Search">
                                                 </div>
@@ -375,15 +375,15 @@
                                 {# Update Assigned Support Team #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_ASSIGN_TICKET_GROUP') %}
                                     <div class="uv-dropdown">
-                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Team</div>
+                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{ 'Team'|trans }}</div>
                                         <div class="uv-dropdown-list uv-bottom-left">
                                             <div class="uv-dropdown-container">
-                                                <label>Team</label>
+                                                <label>{{ 'Team'|trans }}</label>
                                                 <div class="uv-search-sm">
                                                     <input type="text" class="uv-search-field" placeholder="Search">
                                                 </div>
                                             </div>
-                                            
+
                                             <ul class="uv-search-list team" data-action="team">
                                                 {% for team in user_service.getSupportTeams() %}
                                                     <li data-index="{{ team.id }}"><a href="#">{{ team.name }}</a></li>
@@ -396,14 +396,14 @@
                                 {# Update Ticket Status #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}
                                     <div class="uv-dropdown">
-                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Status</div>
+                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{ 'Status'|trans }}</div>
                                         <div class="uv-dropdown-list uv-bottom-left">
                                             <div class="uv-dropdown-container">
-                                                <label>Status</label>
+                                                <label>{{ 'Status'|trans }}</label>
 
                                                 <ul class="status" data-action="status">
                                                     {% for status in ticketStatusCollection %}
-                                                        <li data-index="{{ status.id }}"><a href="#">{{ status.description }}</a></li>
+                                                        <li data-index="{{ status.id }}"><a href="#">{{ status.description|trans }}</a></li>
                                                     {% endfor %}
                                                 </ul>
                                             </div>
@@ -414,15 +414,15 @@
                                 {# Update Ticket Type #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_TYPE') %}
                                     <div class="uv-dropdown">
-                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Type</div>
+                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{ 'Type'|trans }}</div>
                                         <div class="uv-dropdown-list uv-bottom-left">
                                             <div class="uv-dropdown-container">
-                                                <label>Type</label>
+                                                <label>{{ 'Type'|trans }}</label>
                                                 <div class="uv-search-sm">
-                                                    <input type="text" class="uv-search-field" placeholder="Search">
+                                                    <input type="text" class="uv-search-field" placeholder="{{ 'Search'|trans }}">
                                                 </div>
                                             </div>
-                                            
+
                                             <ul class="uv-search-list type" data-action="type">
                                                 {% for type in ticketTypeCollection %}
                                                     <li data-index="{{ type.id }}"><a href="#">{{ type.description }}</a></li>
@@ -435,14 +435,14 @@
                                 {# Update Priority #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_PRIORITY') %}
                                     <div class="uv-dropdown">
-                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Priority</div>
+                                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{ 'Priority'|trans }}</div>
                                         <div class="uv-dropdown-list uv-bottom-left">
                                             <div class="uv-dropdown-container">
-                                                <label>Priority</label>
-                                                
+                                                <label>{{ 'Priority'|trans }}</label>
+
                                                 <ul class="priority" data-action="priority">
                                                     {% for priority in ticketPriorityCollection %}
-                                                        <li data-index="{{ priority.id }}"><a href="#">{{ priority.description }}</a></li>
+                                                        <li data-index="{{ priority.id }}"><a href="#">{{ priority.description|trans }}</a></li>
                                                     {% endfor %}
                                                 </ul>
                                             </div>
@@ -452,10 +452,10 @@
 
                                 {# Update Label #}
                                 <div class="uv-dropdown">
-                                    <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Label</div>
+                                    <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{ 'Label'|trans }}</div>
                                     <div class="uv-dropdown-list uv-bottom-left">
                                         <div class="uv-dropdown-container">
-                                            <label>Label</label>
+                                            <label>{{ 'Label'|trans }}</label>
 
                                             <div class="uv-search-sm">
                                                 <input type="text" class="uv-search-field" placeholder="Search">
@@ -468,7 +468,7 @@
 
                                 {# Trashe Tickets #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_DELETE_TICKET') %}
-                                    <a class="uv-btn-stroke uv-margin-right-5" id="mass-delete" data-action="trashed" style="margin-left: 5px;">Delete</a>
+                                    <a class="uv-btn-stroke uv-margin-right-5" id="mass-delete" data-action="trashed" style="margin-left: 5px;">{{ 'Delete'|trans }}</a>
                                 {% endif %}
                             </div>
 
@@ -476,12 +476,12 @@
                             <div class="trashed-block" style="display: none">
                                 {# Restore Tickets #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_RESTORE_TICKET') %}
-                                    <a class="uv-btn-stroke uv-margin-right-5" id="mass-restore" data-action="restore" style="margin-left: 5px;">Restore</a>
+                                    <a class="uv-btn-stroke uv-margin-right-5" id="mass-restore" data-action="restore" style="margin-left: 5px;">{{ 'Restore'|trans }}</a>
                                 {% endif %}
 
                                 {# Delete Tickets Forever #}
                                 {% if user_service.isAccessAuthorized('ROLE_AGENT_DELETE_TICKET') %}
-                                    <a class="uv-btn-stroke uv-margin-right-5" id="mass-delete-forever" data-action="delete" style="margin-left: 5px;">Delete Forever</a>
+                                    <a class="uv-btn-stroke uv-margin-right-5" id="mass-delete-forever" data-action="delete" style="margin-left: 5px;">{{ 'Delete Forever'|trans }}</a>
                                 {% endif %}
                             </div>
                         </div>
@@ -490,10 +490,10 @@
                     {# Ticket Search | Filter Extras #}
                     <div class="uv-action-bar-col-rt">
                         <!-- Search Tickets -->
-                        <input type="text" class="uv-search-inline" placeholder="Search">
+                        <input type="text" class="uv-search-inline" placeholder="{{ 'Search'|trans }}">
 
                         <!-- Extra Filters -->
-                        <div class="uv-btn-stroke uv-margin-left-15 filter-view-trigger" data-target="uv-filter-view"><span class="uv-icon-filter"></span>Filter View</div>
+                        <div class="uv-btn-stroke uv-margin-left-15 filter-view-trigger" data-target="uv-filter-view"><span class="uv-icon-filter"></span>{{ 'Filter View'|trans }}</div>
                     </div>
                 </div>
             </div>
@@ -502,25 +502,25 @@
             <div class="uv-table uv-list-view">
                 <table>
                     <thead>
-                        <tr>
-                            <th class="uv-width-140"></th>
-                            <th>ID</th>
-                            <th class="uv-min-width-300">Subject</th>
-                            <th data-index="customer-name">Customer Name</th>
-                            <th data-index="customer-email">Customer Email</th>
-                            <th data-index="timestamp">Timestamp</th>
-                            <th data-index="group">Group</th>
-                            <th data-index="team">Team</th>
-                            <th data-index="type1">Type</th>
-                            <th data-index="replies">Replies</th>
-                            <th data-index="agent">Agent</th>
-                        </tr>
+                    <tr>
+                        <th class="uv-width-140"></th>
+                        <th>{{ 'ID'|trans }}</th>
+                        <th class="uv-min-width-300">{{ 'Subject'|trans }}</th>
+                        <th data-index="customer-name">{{ 'Customer Name'|trans }}</th>
+                        <th data-index="customer-email">{{ 'Customer Email'|trans }}</th>
+                        <th data-index="timestamp">{{ 'Timestamp'|trans }}</th>
+                        <th data-index="group">{{ 'Group'|trans }}</th>
+                        <th data-index="team">{{ 'Team'|trans }}</th>
+                        <th data-index="type1">{{ 'Type'|trans }}</th>
+                        <th data-index="replies">{{ 'Replies'|trans }}</th>
+                        <th data-index="agent">{{ 'Agent'|trans }}</th>
+                    </tr>
                     </thead>
 
                     <tbody></tbody>
                 </table>
 
-				<div class="navigation"></div>
+                <div class="navigation"></div>
             </div>
         </div>
 
@@ -529,10 +529,10 @@
             {# Filter Head #}
             <div class="uv-filter-head">
                 <div class="uv-filter-title">
-                    <h6>Tickets</h6>
-                    <span>Save set of filters as a preset to stay more productive</span>
+                    <h6>{{ 'Tickets'|trans }}</h6>
+                    <span>{{ 'Save set of filters as a preset to stay more productive'|trans }}</span>
                 </div>
-                
+
                 <div class="uv-filter-toggle" id="filter-close-trigger"><span></span></div>
             </div>
 
@@ -546,10 +546,10 @@
 
                     {# Saved Filters #}
                     <div class="uv-element-block" style="border-bottom: 1px solid #D3D3D3; padding-bottom: 5px;">
-                        <label class="uv-field-label">Saved Filters</label>
+                        <label class="uv-field-label">{{ 'Saved Filters'|trans }}</label>
                         <div class="uv-field-block">
                             <div class="uv-customize-wrapper">
-                                <select class="uv-select uv-select-70" id="saved-filter">                            
+                                <select class="uv-select uv-select-70" id="saved-filter">
                                     {% set filters = app.user.agentInstance.userSavedFilters %}
                                     {% if filters|length %}
                                         <option value="">-- Saved Filter --</option>
@@ -557,14 +557,14 @@
                                             <option value="{{userFilter.id}}">{{userFilter.name}}</option>
                                         {% endfor %}
                                     {% else %}
-                                        <option value="">No saved filter created</option>
+                                        <option value="">{{ 'No saved filter created'|trans }}</option>
                                     {% endif %}
                                 </select>
                                 {% for userFilter in app.user.agentInstance.userSavedFilters %}
                                     <script>
                                         {% set isDefault = 0 %}
                                         {% if app.user.agentInstance.defaultFiltering == userFilter.id %}
-                                            {% set isDefault = 1 %}
+                                        {% set isDefault = 1 %}
                                         {% endif %}
                                         userFilters[{{userFilter.id}}] = {{ {'id': userFilter.id, 'name': userFilter.name, 'route': userFilter.route, 'is_default': isDefault}|json_encode|raw }};
                                     </script>
@@ -718,7 +718,7 @@
                                         {% for priority in ticket_service.getPriorities() %}
                                             {% set options = options|merge([{'id': priority.id, 'name': priority.code, 'color': priority.colorCode}]) %}
                                             <li data-id="{{priority.id}}">
-                                                {{priority.code}}
+                                                {{ priority.code|trans }}
                                             </li>
                                         {% endfor %}
                                         <li class="uv-no-results" style="display: none;">
@@ -792,7 +792,7 @@
                         </div>
                     </div>
 
-					<div class="uv-element-block">
+                    <div class="uv-element-block">
                         <label class="uv-field-label">{{ 'Replies less than'|trans }}</label>
                         <div class="uv-field-block" id="reply-filter">
                             <input class="uv-field" type="number" min="1" data-filter-type="replies-less" id="repliesLess-filter-input">
@@ -810,7 +810,7 @@
                     </div>
 
                     {# Clear Filters #}
-                    <a class="uv-btn-remove" href="#"><span class="uv-icon-discard"></span> Clear All</a>
+                    <a class="uv-btn-remove" href="#"><span class="uv-icon-discard"></span> {{ 'Clear All'|trans }}</a>
                 </div>
 
                 {# Add|Edit Filter #}
@@ -821,59 +821,59 @@
                 var filterContext = {{ filterContext|json_encode|raw }}
             </script>
         </div>
-	</div>
+    </div>
 {% endblock %}
 
 {% block footer %}
     {{ parent() }}
 
     {# Sort Ticket View Template #}
-	<script id="ticket_list_sorting_tmp" type="text/template">
+    <script id="ticket_list_sorting_tmp" type="text/template">
         <li class="<% if(sort == 'ticket.id') { %>uv-drop-list-active<% } %>">
             <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/ticket.id/<% if(sort == 'ticket.id') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="ticket.id">
                 {% trans %}Ticket Id{% endtrans %}
                 <% if(sort == 'ticket.id') { %>
-					<span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
-				<% } %>
+                <span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
+                <% } %>
             </a>
         </li>
 
-		<li class="<% if(sort == 'ticket.updatedAt') { %>uv-drop-list-active<% } %>">
+        <li class="<% if(sort == 'ticket.updatedAt') { %>uv-drop-list-active<% } %>">
             <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/ticket.updatedAt/<% if(sort == 'ticket.updatedAt') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="ticket.updatedAt">
                 {% trans %}Last Replied{% endtrans %}
                 <% if(sort == 'ticket.updatedAt') { %>
-					<span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
-				<% } %>
+                <span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
+                <% } %>
             </a>
         </li>
 
-		<li class="<% if(sort == 'agentName') { %>uv-drop-list-active<% } %>">
+        <li class="<% if(sort == 'agentName') { %>uv-drop-list-active<% } %>">
             <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/agentName/<% if(sort == 'agentName') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="agentName">
                 {% trans %}Assign To{% endtrans %}
                 <% if(sort == 'agentName') { %>
-					<span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
-				<% } %>
+                <span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
+                <% } %>
             </a>
         </li>
 
-	    <li class="<% if(sort == 'customerEmail') { %>uv-drop-list-active<% } %>">
+        <li class="<% if(sort == 'customerEmail') { %>uv-drop-list-active<% } %>">
             <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/customerEmail/<% if(sort == 'customerEmail') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="customerEmail">
                 {% trans %}Customer Email{% endtrans %}
                 <% if(sort == 'customerEmail') { %>
-					<span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
-				<% } %>
+                <span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
+                <% } %>
             </a>
         </li>
 
-	    <li class="<% if(sort == 'customerName') { %>uv-drop-list-active<% } %>">
+        <li class="<% if(sort == 'customerName') { %>uv-drop-list-active<% } %>">
             <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/customerName/<% if(sort == 'customerName') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="customerName">
                 {% trans %}Customer Name{% endtrans %}
                 <% if(sort == 'customerName') { %>
-					<span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
-				<% } %>
+                <span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
+                <% } %>
             </a>
         </li>
-	</script>
+    </script>
 
     {# Ticket Status List Template #}
     <script id="ticket_status_list_tmp" type="text/template">
@@ -881,7 +881,7 @@
             {% for status in ticketStatusCollection %}
                 <li>
                     <a href="#" class="<% if(active == {{ status.id }} {% if status.id == 1 %} || active == 0{% endif %}) { %>uv-aside-nav-active<% } %>" data-id="{{ status.id }}">
-                        <span class="name">{{ status.description }}</span>
+                        <span class="name">{{ status.description|trans }}</span>
                         <span class="uv-flag-gray">
                             <% if(status && status[1] != undefined) { %>
                                 <%= status[{{ status.id }}] %>
@@ -893,65 +893,65 @@
                 </li>
             {% endfor %}
         </ul>
-	</script>
+    </script>
 
     {# Default Ticket Label View Template #}
     <script id="predefined_label_tmp" type="text/template">
         <li>
             <a href="#" <% if (active == '') { %> class="uv-aside-active" <% } %>>
-                {{ 'All'|trans }}
-                <span class="uv-flag-gray uv-flag-dark"><%= labelDetails.predefind.all %></span>
+            {{ 'All'|trans }}
+            <span class="uv-flag-gray uv-flag-dark"><%= labelDetails.predefind.all %></span>
             </a>
         </li>
         <li>
             <a href="#new" <% if(active == 'new') { %> class="uv-aside-active" <% } %> >
-                {{ 'New'|trans }}
-                <span class="uv-flag-gray uv-flag-dark">
+            {{ 'New'|trans }}
+            <span class="uv-flag-gray uv-flag-dark">
                     <%= labelDetails.predefind.new %>
                 </span>
             </a>
         </li>
         <li>
             <a href="#unassigned" <% if(active == 'unassigned') { %> class="uv-aside-active" <% } %> >
-                {{ 'UnAssigned'|trans }}
-                <span class="uv-flag-gray uv-flag-dark">
+            {{ 'UnAssigned'|trans }}
+            <span class="uv-flag-gray uv-flag-dark">
                     <%= labelDetails.predefind.unassigned %>
                 </span>
             </a>
         </li>
         <li>
             <a href="#notreplied" <% if(active == 'notreplied') { %> class="uv-aside-active" <% } %> >
-                {{ 'UnAnswered'|trans }}
-                <span class="uv-flag-gray uv-flag-dark">
+            {{ 'UnAnswered'|trans }}
+            <span class="uv-flag-gray uv-flag-dark">
                     <%= labelDetails.predefind.notreplied %>
                 </span>
             </a>
         </li>
         <li>
             <a href="#mine" <% if(active == 'mine') { %> class="uv-aside-active" <% } %> >
-                {{ 'My Tickets'|trans }}
-                <span class="uv-flag-gray uv-flag-dark">
+            {{ 'My Tickets'|trans }}
+            <span class="uv-flag-gray uv-flag-dark">
                     <%= labelDetails.predefind.mine %>
                 </span>
             </a>
         </li>
         <li>
             <a href="#starred" <% if(active == 'starred') { %> class="uv-aside-active" <% } %> >
-                {{ 'Starred'|trans }}
-                <span class="uv-flag-gray uv-flag-dark">
+            {{ 'Starred'|trans }}
+            <span class="uv-flag-gray uv-flag-dark">
                     <%= labelDetails.predefind.starred %>
                 </span>
             </a>
         </li>
         <li>
             <a href="#trashed" <% if(active == 'trashed') { %> class="uv-aside-active" <% } %>>
-                {{ 'Trashed'|trans }}
-                <span class="uv-flag-gray uv-flag-dark">
+            {{ 'Trashed'|trans }}
+            <span class="uv-flag-gray uv-flag-dark">
                     <%= labelDetails.predefind.trashed %>
                 </span>
             </a>
         </li>
-	</script>
+    </script>
 
     {# Custom Ticket Label View Template #}
     <script id="custom_label_tmp" type="text/template">
@@ -969,9 +969,9 @@
         <div class="uv-aside-head">
             <div class="uv-aside-title">
                 <% if(id) { %>
-                    <h6>{{ 'Edit Label'|trans }}</h6>
+                <h6>{{ 'Edit Label'|trans }}</h6>
                 <% } else { %>
-                    <h6>{{ 'Add Label'|trans }}</h6>
+                <h6>{{ 'Add Label'|trans }}</h6>
                 <% } %>
             </div>
             <div class="uv-aside-back" id="back-to-labels">
@@ -991,22 +991,22 @@
                 <label class="uv-field-label">{{ 'Choose a Color'|trans }}</label>
                 <div class="uv-field-block">
                     <% colors = ['#337CFF','#FEBF00','#E5549F','#27B6BB','#FB8A3F','#43AF52'] %>
-					<% for(var colorTemp in colors) { %>
-						<span class="uv-color-block <% if(colorCode == colors[colorTemp]) { %>uv-color-active<% } %>" data-color="<%- colors[colorTemp] %>" style="background:<%- colors[colorTemp] %>"></span>
-					<% } %>
+                    <% for(var colorTemp in colors) { %>
+                    <span class="uv-color-block <% if(colorCode == colors[colorTemp]) { %>uv-color-active<% } %>" data-color="<%- colors[colorTemp] %>" style="background:<%- colors[colorTemp] %>"></span>
+                    <% } %>
                 </div>
             </div>
             <div>
                 <a class="uv-btn add-update-btn" href="#">
                     <% if(id) { %>
-                        {{ 'Update'|trans }}
+                    {{ 'Update'|trans }}
                     <% } else { %>
-                        {{ 'Create'|trans }}
+                    {{ 'Create'|trans }}
                     <% } %>
                 </a>
             </div>
             <% if(id) { %>
-                <a class="uv-btn-remove"><span class="uv-icon-discard"></span>{{ 'Remove Label'|trans }}</a>
+            <a class="uv-btn-remove"><span class="uv-icon-discard"></span>{{ 'Remove Label'|trans }}</a>
             <% } %>
         </div>
     </script>
@@ -1017,16 +1017,16 @@
             <div class="uv-filter-edit-head">
                 <div class="uv-filter-edit-title">
                     <h6>
-                    <% if(id) { %>
+                        <% if(id) { %>
                         <input type="hidden" name="id" id="filter-id" value="<%= id %>"/>
                         {{ 'Edit Saved Filter'|trans }}
-                    <% } else { %>
+                        <% } else { %>
                         {{ 'New Saved Filter'|trans }}
-                    <% } %>
+                        <% } %>
                     </h6>
                 </div>
                 <div class="uv-filter-edit-back back-to-filter">
-                    <span>Back</span>
+                    <span>{{ 'Back'|trans }}</span>
                 </div>
             </div>
             <div class="uv-element-block">
@@ -1048,31 +1048,31 @@
 
             <div class="uv-filters-group">
                 <% _.each(filters, function(filter, key){ %>
-                    <div class="uv-element-block" data-filter="<%= key %>">
-                        <label class="uv-field-label"><%- filter.name %></label>
-                        <div class="uv-field-block">
-                            <% _.each(filter.options, function(option){ %>
-                                    <a class="uv-btn-tag" href="#" data-id="<%= option.id %>">
-                                        <%- option.name %>
-                                        <span class="uv-icon-remove-dark"></span>
-                                    </a>
-                            <% }); %>
-                        </div>
+                <div class="uv-element-block" data-filter="<%= key %>">
+                    <label class="uv-field-label"><%- filter.name %></label>
+                    <div class="uv-field-block">
+                        <% _.each(filter.options, function(option){ %>
+                        <a class="uv-btn-tag" href="#" data-id="<%= option.id %>">
+                            <%- option.name %>
+                            <span class="uv-icon-remove-dark"></span>
+                        </a>
+                        <% }); %>
                     </div>
+                </div>
                 <% }); %>
 
                 <div class="uv-action-buttons">
                     <% if(id) { %>
-                        <a class="uv-btn-remove"><span class="uv-icon-discard"></span>{{ 'Remove Saved Filter'|trans }}</a>
+                    <a class="uv-btn-remove"><span class="uv-icon-discard"></span>{{ 'Remove Saved Filter'|trans }}</a>
                     <% } %>
                 </div>
             </div>
             <div class="uv-action-buttons">
                 <a class="uv-btn <% if(id) { %>update-filter<% } else { %>save-filter<% } %>" href="#">
                     <% if(id) { %>
-                        {{ 'Update'|trans }}
+                    {{ 'Update'|trans }}
                     <% } else { %>
-                        {{ 'Create'|trans }}
+                    {{ 'Create'|trans }}
                     <% } %>
                 </a>
                 <a class="uv-btn back-to-filter" href="#">{{ 'Cancel'|trans }}</a>
@@ -1089,17 +1089,17 @@
                 <span></span>
             </div>
             <% if(previous) { %>
-                <span class="uv-btn-tag uv-icon-nav-pre" data-id="<%= previous %>">
+            <span class="uv-btn-tag uv-icon-nav-pre" data-id="<%= previous %>">
                 </span>
             <% } else { %>
-                <span class="uv-btn-tag uv-icon-nav-pre" disabled="disabled">
+            <span class="uv-btn-tag uv-icon-nav-pre" disabled="disabled">
                 </span>
             <% } %>
             <% if(next) { %>
-                <span class="uv-btn-tag uv-icon-nav-nxt"  data-id="<%= next %>">
+            <span class="uv-btn-tag uv-icon-nav-nxt"  data-id="<%= next %>">
                 </span>
             <% } else { %>
-                <span class="uv-btn-tag uv-icon-nav-nxt" disabled="disabled">
+            <span class="uv-btn-tag uv-icon-nav-nxt" disabled="disabled">
                 </span>
             <% } %>
         </div>
@@ -1124,7 +1124,7 @@
                             <%- createThread.user.name %>
                         </span>
                         <% if(agent) { %>
-                            <span class="agent-info" style="">
+                        <span class="agent-info" style="">
                                 <span class="uv-ticket-strip-label">
                                     {{ 'Agent'|trans }} -
                                 </span>
@@ -1142,7 +1142,7 @@
                             - <%- status.description %>
                         </span>
                         <% if(lastReplyAgentName) { %>
-                            <span class="uv-btn-tag">
+                        <span class="uv-btn-tag">
                                 {{ 'Last Replied Agent'|trans }}
                                 - <%- lastReplyAgentName.name.split(" ")[0] %>
                             </span>
@@ -1166,56 +1166,56 @@
                         </div>
                         <div class="uv-ticket-main-lt">
                             <% if(customer.smallThumbnail != null) { %>
-                                <img class='border' src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%= customer.smallThumbnail %>"/>
+                            <img class='border' src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%= customer.smallThumbnail %>"/>
                             <% } else { %>
-                                <img class='border' src="{{ asset(default_customer_image_path) }}"/>
+                            <img class='border' src="{{ asset(default_customer_image_path) }}"/>
                             <% } %>
                         </div>
                         <div class="uv-ticket-main-rt">
                             <% if(createThread.createdBy == 'customer') { %>
-                                <a href="{{ path('helpdesk_member_manage_customer_account') }}/<%= createThread.user.id %>" class="uv-ticket-member-name">
-                            <% } else { %>
-                                <% if(createThread.user) { %>
-                                    <a href="{{ path('helpdesk_member_account') }}/<%= createThread.user.id %>" class="uv-ticket-member-name">
+                            <a href="{{ path('helpdesk_member_manage_customer_account') }}/<%= createThread.user.id %>" class="uv-ticket-member-name">
                                 <% } else { %>
+                                <% if(createThread.user) { %>
+                                <a href="{{ path('helpdesk_member_account') }}/<%= createThread.user.id %>" class="uv-ticket-member-name">
+                                    <% } else { %>
                                     <a class="uv-ticket-member-name">
-                                <% } %>
-                            <% } %>
-                                <%- createThread.user.name %>
-                            </a>
+                                        <% } %>
+                                        <% } %>
+                                        <%- createThread.user.name %>
+                                    </a>
 
-                            <div class="message">
-                                <p>
-                                    <%= createThread.reply %>
-                                </p>
-                            </div>
-                            <!-- Attachment Block -->
-                            <% if(createThread.attachments.length) { %>
-                                <div class="uv-ticket-uploads">
-                                    <h4>{{ 'Uploaded Files'|trans }}</h4>
-                                    <div class="uv-ticket-uploads-strip">
-                                        <% _.each(createThread.attachments, function(file) { %>
+                                    <div class="message">
+                                        <p>
+                                            <%= createThread.reply %>
+                                        </p>
+                                    </div>
+                                    <!-- Attachment Block -->
+                                    <% if(createThread.attachments.length) { %>
+                                    <div class="uv-ticket-uploads">
+                                        <h4>{{ 'Uploaded Files'|trans }}</h4>
+                                        <div class="uv-ticket-uploads-strip">
+                                            <% _.each(createThread.attachments, function(file) { %>
                                             <a href="<%-file.downloadURL %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
                                                 <img src="<%-file.iconURL %>" class="uv-auto-pointer-events">
                                             </a>
-                                        <% }) %>
-                                    </div>
-                                    <% if(createThread.attachments.length >1) { %>
+                                            <% }) %>
+                                        </div>
+                                        <% if(createThread.attachments.length >1) { %>
                                         <div class="thread-attachments-zip pull-left">
                                             <div class="uv-upload-actions">
                                                 <a href="{{ path('helpdesk_member_ticket_download_attachment_zip') }}/<%= createThread.id %>" target="_blank"><span class="uv-icon-attachment"></span> {{ 'Download (as .zip)'|trans }}</a>
                                             </div>
                                         </div>
-                                    <% } %>
+                                        <% } %>
 
-                                </div>
-                            <% } %>
-                            <!-- //Attachment Block -->
+                                    </div>
+                                    <% } %>
+                                    <!-- //Attachment Block -->
                         </div>
                     </div>
                     <% if(lastReply) { %>
-                        <div class="uv-ticket-main">
-                            <div class="uv-ticket-strip">
+                    <div class="uv-ticket-main">
+                        <div class="uv-ticket-strip">
                                 <span>
                                     <span class="uv-margin-0 timeago" data-timestamp="<%= lastReply.timestamp %>" title="<%= lastReply.formatedCreatedAt %>"><%= lastReply.formatedCreatedAt %></span>
                                     - <%- lastReply.user.name %>
@@ -1223,58 +1223,58 @@
                                         {{ 'made last reply'|trans }}
                                     </span>
                                 </span>
-                            </div>
-                            <div class="uv-ticket-main-lt">
-                                <% if(typeof(lastReply.smallThumbnail) != 'undefined' && lastReply.smallThumbnail != null) { %>
-                                    <img class='border' src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%= lastReply.smallThumbnail %>"/>
-                                <% } else if(lastReply.createdBy == 'agent') { %>
-                                    <img class='border' src="{{ asset(default_agent_image_path) }}"/>
+                        </div>
+                        <div class="uv-ticket-main-lt">
+                            <% if(typeof(lastReply.smallThumbnail) != 'undefined' && lastReply.smallThumbnail != null) { %>
+                            <img class='border' src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%= lastReply.smallThumbnail %>"/>
+                            <% } else if(lastReply.createdBy == 'agent') { %>
+                            <img class='border' src="{{ asset(default_agent_image_path) }}"/>
+                            <% } else { %>
+                            <img class='border' src="{{ asset(default_customer_image_path) }}"/>
+                            <% } %>
+                        </div>
+                        <div class="uv-ticket-main-rt">
+                            <% if(lastReply.createdBy == 'customer') { %>
+                            <a href="{{ path('helpdesk_member_manage_customer_account') }}/<%= lastReply.user.id %>" class="uv-ticket-member-name">
                                 <% } else { %>
-                                    <img class='border' src="{{ asset(default_customer_image_path) }}"/>
-                                <% } %>
-                            </div>
-                            <div class="uv-ticket-main-rt">
-                                <% if(lastReply.createdBy == 'customer') { %>
-                                    <a href="{{ path('helpdesk_member_manage_customer_account') }}/<%= lastReply.user.id %>" class="uv-ticket-member-name">
-                                <% } else { %>
-                                    <% if(lastReply.user) { %>
-                                        <a href="{{ path('helpdesk_member_account') }}/<%= lastReply.user.id %>" class="uv-ticket-member-name">
+                                <% if(lastReply.user) { %>
+                                <a href="{{ path('helpdesk_member_account') }}/<%= lastReply.user.id %>" class="uv-ticket-member-name">
                                     <% } else { %>
-                                        <a class="uv-ticket-member-name">
-                                    <% } %>
-                                <% } %>
-                                    <%- lastReply.user.name %>
-                                </a>
+                                    <a class="uv-ticket-member-name">
+                                        <% } %>
+                                        <% } %>
+                                        <%- lastReply.user.name %>
+                                    </a>
 
-                                <div class="message">
-                                    <p>
-                                        <%= lastReply.reply %>
-                                    </p>
-                                </div>
-                                <!-- Attachment Block -->
-                                <% if(lastReply.attachments.length) { %>
+                                    <div class="message">
+                                        <p>
+                                            <%= lastReply.reply %>
+                                        </p>
+                                    </div>
+                                    <!-- Attachment Block -->
+                                    <% if(lastReply.attachments.length) { %>
                                     <div class="uv-ticket-uploads">
                                         <h4>{{ 'Uploaded Files'|trans }}</h4>
                                         <div class="uv-ticket-uploads-strip">
                                             <% _.each(lastReply.attachments, function(file) { %>
-                                                <a href="<%-file.downloadURL %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
-                                                    <img src="<%-file.iconURL %>" class="uv-auto-pointer-events">
-                                                </a>
+                                            <a href="<%-file.downloadURL %>" target ="_blank" class="uv-ticket-uploads-brick uv-no-pointer-events" data-toggle="tooltip" title="<%- file.name %>">
+                                                <img src="<%-file.iconURL %>" class="uv-auto-pointer-events">
+                                            </a>
                                             <% }) %>
                                         </div>
                                         <% if(lastReply.attachments.length> 1) { %>
-                                            <div class="thread-attachments-zip pull-left">
-                                                <div class="uv-upload-actions">
-                                                    <a href="{{ path('helpdesk_member_ticket_download_attachment_zip') }}/<%= lastReply.id %>" target="_blank"><span class="uv-icon-attachment"></span> {{ 'Download (as .zip)'|trans }}</a>
-                                                </div>
+                                        <div class="thread-attachments-zip pull-left">
+                                            <div class="uv-upload-actions">
+                                                <a href="{{ path('helpdesk_member_ticket_download_attachment_zip') }}/<%= lastReply.id %>" target="_blank"><span class="uv-icon-attachment"></span> {{ 'Download (as .zip)'|trans }}</a>
                                             </div>
+                                        </div>
                                         <% } %>
 
                                     </div>
-                                <% } %>
-                                <!-- //Attachment Block -->
-                            </div>
+                                    <% } %>
+                                    <!-- //Attachment Block -->
                         </div>
+                    </div>
                     <% } %>
                 </div>
             </div>
@@ -1346,27 +1346,27 @@
         <td data-value="{{ 'Group'|trans }}" data-index="group">
             <a href="<%= path %>">
                 <% if(group) { %>
-                    <%- group %>
+                <%- group %>
                 <% } else { %>
-                    {{ 'N/A'|trans }}
+                {{ 'N/A'|trans }}
                 <% } %>
             </a>
         </td>
         <td data-value="{{ 'Team'|trans }}" data-index="team">
             <a href="<%= path %>">
                 <% if(team) { %>
-                    <%- team %>
+                <%- team %>
                 <% } else { %>
-                    {{ 'N/A'|trans }}
+                {{ 'N/A'|trans }}
                 <% } %>
             </a>
         </td>
         <td data-value="{{ 'Type'|trans }}" data-index="type1">
             <a href="<%= path %>">
                 <% if(type) { %>
-                    <%- type %>
+                <%- type %>
                 <% } else { %>
-                    {{ 'N/A'|trans }}
+                {{ 'N/A'|trans }}
                 <% } %>
             </a>
         </td>
@@ -1378,14 +1378,14 @@
         <td data-value="{{ 'Agent'|trans }}" data-index="agent">
             <a href="<%= path %>">
                 <% if(agent) { %>
-                    <% if(agent.smallThumbnail != null) { %>
-                        <img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%= agent.smallThumbnail %>" alt=""/>
-                    <% } else { %>
-                        <img src="{{ asset(default_agent_image_path) }}" alt=""/>
-                    <% } %>
-                    <%- agent.name %>
+                <% if(agent.smallThumbnail != null) { %>
+                <img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%= agent.smallThumbnail %>" alt=""/>
                 <% } else { %>
-                    {{ 'Unassigned'|trans }}
+                <img src="{{ asset(default_agent_image_path) }}" alt=""/>
+                <% } %>
+                <%- agent.name %>
+                <% } else { %>
+                {{ 'Unassigned'|trans }}
                 <% } %>
             </a>
         </td>
@@ -1396,17 +1396,17 @@
         var globalMessageResponse = "";
         var currentUserId = "{{ user_service.getCurrentUser().id }}";
         var pathToTicket = "{{ path('helpdesk_member_ticket', {'ticketId': 'replaceId' }) }}";
-        
+
         $(() => {
             $('#before-filter-input').datetimepicker({
-            	format: 'DD-MM-YYYY',
-            	maxDate: 'now',
+                format: 'DD-MM-YYYY',
+                maxDate: 'now',
                 useCurrent: false,
             });
 
             $('#after-filter-input').datetimepicker({
-            	format: 'DD-MM-YYYY',
-            	maxDate: 'now',
+                format: 'DD-MM-YYYY',
+                maxDate: 'now',
                 useCurrent: false,
             });
 
@@ -1521,7 +1521,7 @@
                     source : "",
                     after: "",
                     before: "",
-					repliesLess: "",
+                    repliesLess: "",
                     repliesMore: "",
                 },
                 parseRecords: function (response, options) {
@@ -1540,20 +1540,20 @@
                             var ticketListView = new TicketList();
 
                             app.pager.paginationData = response.pagination;
-							var url = app.pager.paginationData.url;
-							if(ticketCollection.length == 0 && app.pager.paginationData.current != "0")
+                            var url = app.pager.paginationData.url;
+                            if(ticketCollection.length == 0 && app.pager.paginationData.current != "0")
                                 router.navigate(url.replace('replacePage', app.pager.paginationData.last),{trigger: true});
-							else {
-								app.pager.render();
+                            else {
+                                app.pager.render();
                                 statusListDetails = response.tabs;
                                 labelDetails = response.labels;
                                 labelListView.render();
-							}
+                            }
 
                             if (globalMessageResponse) {
                                 app.appView.renderResponseAlert(globalMessageResponse);
                             }
-                            
+
                             globalMessageResponse = null;
                             sideFilter.backToFilter()
                         },
@@ -1633,10 +1633,10 @@
 
             // Filter
             var Filter = app.Filter.extend({
-				defaultSortIndex: 'ticket.updatedAt',
-				sortText: "{% trans %}Sort By:{% endtrans %} ",
-				defaultSortText: "{% trans %}Sort By:{% endtrans %} {% trans %}Last Replied{% endtrans %}",
-				template : _.template($("#ticket_list_sorting_tmp").html()),
+                defaultSortIndex: 'ticket.updatedAt',
+                sortText: "{% trans %}Sort By:{% endtrans %} ",
+                defaultSortText: "{% trans %}Sort By:{% endtrans %} {% trans %}Last Replied{% endtrans %}",
+                template : _.template($("#ticket_list_sorting_tmp").html()),
                 events : {
                     'keyup .uv-search-inline' : 'search',
                     'change .asset-visibility input[type="checkbox"]': 'filterAssetsVisibility'
@@ -1677,7 +1677,7 @@
                     var queryString = app.appView.buildQuery($.param(this.collection.getValidParameters()));
                     router.navigate(queryString,{trigger: true});
                 }, 1000)
-			});
+            });
 
             // Side Filter View
             var SideFilter = Backbone.View.extend({
@@ -1693,9 +1693,9 @@
                     'dp.change .range input': 'applyFilter',
                     'click .uv-filtered-tags .uv-btn-tag' : 'removeFilter',
                     'change .custom-filter' : 'filterByCustom',
-					'change #repliesLess-filter-input' : 'filterByRepliesLessThan',
+                    'change #repliesLess-filter-input' : 'filterByRepliesLessThan',
                     'change #repliesMore-filter-input' : 'filterByRepliesMoreThan',
-		    	    'keyup .search-custom, change .search-custom' : 'filterByCustom',
+                    'keyup .search-custom, change .search-custom' : 'filterByCustom',
                     'click .new-saved-reply, .edit-saved-reply, .uv-filter-paper .uv-customize': 'addEditSavedReply',
                     'click .back-to-filter': 'backToFilter',
                     'click .uv-filter-edit .uv-btn-tag': 'removeSavedFilterOption',
@@ -2036,9 +2036,9 @@
                         }
                         if(flag) {
                             parent.find('.uv-filtered-tags').append("<a class='uv-btn-tag' href='#' data-id='" + currentElement.attr('data-id') + "'>"+currentElement.text()+"<span class='uv-icon-remove-dark'></span></a>")
-							ticketCollection.state.order = null;
-							ticketCollection.state.sortKey = null;
-							ticketCollection.state.currentPage = null;
+                            ticketCollection.state.order = null;
+                            ticketCollection.state.sortKey = null;
+                            ticketCollection.state.currentPage = null;
                             ticketCollection.filterParameters[filterType] = this.joinTagValues(parent.find(".uv-filtered-tags"));
                             var queryString = app.appView.buildQuery($.param(ticketCollection.getValidParameters()));
                             router.navigate(queryString, {trigger: true});
@@ -2046,8 +2046,8 @@
                     } else {
                         filterType = currentElement.attr('data-filter-type');
                         if(filterType == 'before' || filterType == "after") {
-							ticketCollection.state.order = null;
-							ticketCollection.state.sortKey = null;
+                            ticketCollection.state.order = null;
+                            ticketCollection.state.sortKey = null;
                             ticketCollection.state.currentPage = null;
                             ticketCollection.filterParameters[filterType] = currentElement.val();
                             var queryString = app.appView.buildQuery($.param(ticketCollection.getValidParameters()));
@@ -2064,8 +2064,8 @@
                     options = options.split(',');
                     var index = options.indexOf(currentElement.attr('data-id'));
                     options.splice(index, 1);
-					ticketCollection.state.order = null;
-					ticketCollection.state.sortKey = null;
+                    ticketCollection.state.order = null;
+                    ticketCollection.state.sortKey = null;
                     ticketCollection.state.currentPage = null;
                     ticketCollection.filterParameters[filterType] = options.join(',');
                     currentElement.remove()
@@ -2081,16 +2081,16 @@
                     return ids.join();
                 },
                 filterByRepliesMoreThan: _.debounce(function(e) {
-					ticketCollection.state.order = null;
-					ticketCollection.state.sortKey = null;
+                    ticketCollection.state.order = null;
+                    ticketCollection.state.sortKey = null;
                     ticketCollection.state.currentPage = null;
                     ticketCollection.filterParameters.repliesMore = $(e.target).val();
                     var queryString = app.appView.buildQuery($.param(ticketCollection.getValidParameters()));
                     router.navigate(queryString, { trigger: true });
                 }, 1000),
-				filterByRepliesLessThan: _.debounce(function(e) {
-					ticketCollection.state.order = null;
-					ticketCollection.state.sortKey = null;
+                filterByRepliesLessThan: _.debounce(function(e) {
+                    ticketCollection.state.order = null;
+                    ticketCollection.state.sortKey = null;
                     ticketCollection.state.currentPage = null;
                     ticketCollection.filterParameters.repliesLess = $(e.target).val();
                     var queryString = app.appView.buildQuery($.param(ticketCollection.getValidParameters()));
@@ -2128,8 +2128,8 @@
 
                     custom = custom.replace(/\|$/, '');
 
-					ticketCollection.state.order = null;
-					ticketCollection.state.sortKey = null;
+                    ticketCollection.state.order = null;
+                    ticketCollection.state.sortKey = null;
                     ticketCollection.state.currentPage = null;
                     ticketCollection.filterParameters.custom = custom;
                     var queryString = app.appView.buildQuery($.param(ticketCollection.getValidParameters()));
@@ -2194,7 +2194,7 @@
                         inputElement.parent().after("<span class='uv-field-message'>{{ 'This field is mandatory'|trans }}</span>");
                     } else {
                         var data = $('.uv-filter-edit form').serializeObject();
-						data['route'] = this.getSavedFilterRoute();
+                        data['route'] = this.getSavedFilterRoute();
                         app.appView.showLoader();
                         self = this;
                         $.ajax({
@@ -2235,16 +2235,16 @@
                     _.each(this.tempAppliedFilterOptions, function (filter, key) {
                         if(jQuery.inArray(key, ['customer', 'agent', 'priority', 'type', 'group', 'team', 'tag', 'mailbox', 'source', 'after', 'before', 'repliesLess', 'repliesMore']) !== -1) {
                             var ids = [];
-                             _.each(filter['options'], function (item) {
+                            _.each(filter['options'], function (item) {
                                 ids.push(item.id)
-                             });
-                             filterParameters[key] = ids.join(',')
+                            });
+                            filterParameters[key] = ids.join(',')
                         } else if(jQuery.inArray(key, ['new','unassigned','notreplied','mine','starred','trashed']) !== -1) {
                             filterParameters[key] = 1;
                         } else if(jQuery.inArray(key, ['label', 'status', 'search']) !== -1) {
-                             _.each(filter['options'], function (item) {
+                            _.each(filter['options'], function (item) {
                                 filterParameters[key] = item.id;
-                             });
+                            });
                         } else {
                             custom = key.split("z-")
                             tempKey = custom[1];
@@ -2416,7 +2416,7 @@
                         $('.select-all-checkbox').prop( "disabled", true );
                         this.$el.find('tbody').append("<tr style='text-align: center;'><td colspan='11'>{% trans %}No Record Found{% endtrans %}</td></tr>")
                     }
-                    
+
                     filter.filterAssetsVisibilityOnLoad()
                     app.appView.relativeTime()
                 },
@@ -2506,8 +2506,8 @@
                     e.preventDefault()
 
                     ticketCollection.reset();
-					ticketCollection.state.order = null;
-					ticketCollection.state.sortKey = null;
+                    ticketCollection.state.order = null;
+                    ticketCollection.state.sortKey = null;
                     ticketCollection.state.currentPage = null;
                     ticketCollection.filterParameters.status = Backbone.$(e.currentTarget).attr('data-id');
                     var queryString = app.appView.buildQuery($.param(ticketCollection.getValidParameters()));
@@ -2520,7 +2520,7 @@
                         $('.uv-add-edit-label').html(this.addEditLabelTemplate({id : 0, name : '', colorCode: ''}))
                     else
                         $('.uv-add-edit-label').html(this.addEditLabelTemplate(labelCollection.get(currentElement.siblings('a').attr('data-id')).toJSON()))
-                        
+
                     $('.uv-aside-default').hide()
                     $('.uv-add-edit-label').show()
                 },
@@ -2630,7 +2630,7 @@
                     if(Backbone.$(this.currentEvent.currentTarget).is("#mass-delete"))
                         data['actionType'] = "trashed";
                     else if(Backbone.$(this.currentEvent.currentTarget).is("#mass-delete-forever"))
-		    		    data['actionType'] = "delete";
+                        data['actionType'] = "delete";
 
                     data['ids'] = this.getCheckedTicketIds();
                     ticketCollection.batchOperation(data);
@@ -2638,7 +2638,7 @@
                 },
                 restoreItem: function(e) {
                     var data = {};
-		    		data['actionType'] = "restored";
+                    data['actionType'] = "restored";
 
                     data['ids'] = this.getCheckedTicketIds();
                     ticketCollection.batchOperation(data);
@@ -2749,7 +2749,7 @@
                     if(Backbone.$(e.currentTarget).is(':checked')) {
                         $('.mass-action-checkbox').prop('checked', true);
                         $('.uv-action-bar .filter').parent().hide();
-		    		    $('.uv-action-bar .mass-action').parent().addClass("uv-width-100").show();
+                        $('.uv-action-bar .mass-action').parent().addClass("uv-width-100").show();
                         $('.uv-action-bar-col-rt').hide()
                     } else {
                         var count = 0;
@@ -2760,7 +2760,7 @@
                         if(count == $('.mass-action-checkbox').length) {
                             $('.mass-action-checkbox').prop('checked', false);
                             $('.uv-action-bar .filter').parent().show();
-		    		        $('.uv-action-bar .mass-action').parent().removeClass("uv-width-100").hide();
+                            $('.uv-action-bar .mass-action').parent().removeClass("uv-width-100").hide();
                             $('.uv-action-bar-col-rt').show()
                         }
                     }
@@ -2784,8 +2784,8 @@
                     'source/:source(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterBySource',
                     'after/:after(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByAfter',
                     'before/:before(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByBefore',
-					'repliesLess/:repliesLess(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByRepliesLesserCount',
-					'repliesMore/:repliesMore(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByRepliesGreaterCount',
+                    'repliesLess/:repliesLess(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByRepliesLesserCount',
+                    'repliesMore/:repliesMore(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByRepliesGreaterCount',
                     'custom/:custom(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByCustom',
                     'label/:labelId(/status/:status)(/search/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByLabel',
                     'new(/status/:status)(/search/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterNew',
@@ -2887,10 +2887,10 @@
                     this.fetch(number,sortField,order);
                 },
                 filterByRepliesLesserCount: function(repliesLess, repliesMore, custom, number, sortField, order) {
-					this.resetParams('','','','','','','','','','','','','','','','','','','','',repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','','','','','','','','','',repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
-				filterByRepliesGreaterCount: function(repliesMore, custom, number, sortField, order) {
+                filterByRepliesGreaterCount: function(repliesMore, custom, number, sortField, order) {
                     this.resetParams('','','','','','','','','','','','','','','','','','','','','',repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
@@ -2936,7 +2936,7 @@
                     ticketCollection.filterParameters.after = after;
                     ticketCollection.filterParameters.before = before;
                     ticketCollection.filterParameters.repliesLess = repliesLess;
-					ticketCollection.filterParameters.repliesMore = repliesMore;
+                    ticketCollection.filterParameters.repliesMore = repliesMore;
 
                     ticketCollection.filterParameters.custom = custom;
                     $('.custom-fields').find('input[type="text"]').val('');

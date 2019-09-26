@@ -2,6 +2,7 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
+use Symfony\Component\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Form;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
@@ -12,9 +13,19 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class Team extends Controller
 {
+    /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    public function __construct(TranslatorInterface $translator)
+    {
+        $this->translator = $translator;
+    }
+
     public function listTeams(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -23,22 +34,22 @@ class Team extends Controller
 
     public function createTeam(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
-    
+
         $supportTeam = new SupportTeam();
 
         $errors = [];
 
         if($request->getMethod() == "POST") {
-           
+
             $request->request->set('users', explode(',', $request->request->get('tempUsers')));
             $request->request->set('groups', explode(',', $request->request->get('tempGroups')));
             $oldUsers = ($usersList = $supportTeam->getUsers()) ? $usersList->toArray() : $usersList;
             $oldGroups = ($grpList =  $supportTeam->getSupportGroups()) ? $grpList->toArray() : $grpList;
 
-            $allDetails = $request->request->all(); 
+            $allDetails = $request->request->all();
 
             $em = $this->getDoctrine()->getManager();
             $supportTeam->setName($allDetails['name']);
@@ -60,7 +71,7 @@ class Team extends Controller
 
             if (!empty($usersGroup)) {
                 $usersGroup = array_map(function ($group) { return 'p.id = ' . $group; }, $usersGroup);
-            
+
                 $userGroup = $em->createQueryBuilder('p')->select('p')
                     ->from('UVDeskCoreFrameworkBundle:SupportGroup', 'p')
                     ->where(implode(' OR ', $usersGroup))
@@ -82,7 +93,7 @@ class Team extends Controller
             $em->persist($supportTeam);
             $em->flush();
 
-            $this->addFlash('success', 'Success ! Team information saved successfully.');
+            $this->addFlash('success', $this->translator->trans('Success ! Team information saved successfully.'));
             return $this->redirect($this->generateUrl('helpdesk_member_support_team_collection'));
         }
 
@@ -94,13 +105,13 @@ class Team extends Controller
 
     public function editTeam(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
         if($request->attributes->get('supportTeamId')){
             $supportTeam = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')
-                        ->findSubGroupById(['id' => $request->attributes->get('supportTeamId')]);
+                ->findSubGroupById(['id' => $request->attributes->get('supportTeamId')]);
 
             if(!$supportTeam)
                 $this->noResultFound();
@@ -112,9 +123,9 @@ class Team extends Controller
             $request->request->set('groups', explode(',', $request->request->get('tempGroups')));
             $oldUsers = ($usersList = $supportTeam->getUsers()) ? $usersList->toArray() : $usersList;
             $oldGroups = ($grpList = $supportTeam->getSupportGroups()) ? $grpList->toArray() : $grpList;
-           
-            $allDetails = $request->request->all(); 
-            
+
+            $allDetails = $request->request->all();
+
             $em = $this->getDoctrine()->getManager();
             $supportTeam->setName($allDetails['name']);
             $supportTeam->setDescription($allDetails['description']);
@@ -133,20 +144,20 @@ class Team extends Controller
 
             if (!empty($usersGroup)) {
                 $usersGroup = array_map(function ($group) { return 'p.id = ' . $group; }, $usersGroup);
-            
+
                 $userGroup = $em->createQueryBuilder('p')->select('p')
                     ->from('UVDeskCoreFrameworkBundle:SupportGroup', 'p')
                     ->where(implode(' OR ', $usersGroup))
                     ->getQuery()->getResult();
             }
- 
+
             foreach ($userList as $user) {
                 $userInstance = $user->getAgentInstance();
                 if(!$oldUsers || !in_array($userInstance, $oldUsers)){
                     $userInstance->addSupportTeam($supportTeam);
                     $em->persist($userInstance);
                 }elseif($oldUsers && ($key = array_search($userInstance, $oldUsers)) !== false)
-                     unset($oldUsers[$key]); 
+                    unset($oldUsers[$key]);
             }
             foreach ($oldUsers as $removeUser) {
                 $removeUser->removeSupportTeam($supportTeam);
@@ -162,21 +173,21 @@ class Team extends Controller
                 }elseif($oldGroups && ($key = array_search($supportGroup, $oldGroups)) !== false)
                     unset($oldGroups[$key]);
             }
-            
+
             foreach ($oldGroups as $removeGroup) {
                 $removeGroup->removeSupportTeam($supportTeam);
                 $em->persist($removeGroup);
             }
-            
+
             $em->persist($supportTeam);
             $em->flush();
 
-            $this->addFlash('success', 'Success ! Team information updated successfully.');
+            $this->addFlash('success', $this->translator->trans('Success ! Team information updated successfully.'));
             return $this->redirect($this->generateUrl('helpdesk_member_support_team_collection'));
-        } 
+        }
         return $this->render('@UVDeskCoreFramework/Teams/updateSupportTeam.html.twig', [
-                'team' => $supportTeam,
-                'errors' => json_encode($errors)
+            'team' => $supportTeam,
+            'errors' => json_encode($errors)
         ]);
     }
 }

@@ -15,12 +15,12 @@ class SavedReplies extends Controller
     const LIMIT = 10;
     const ROLE_REQUIRED = 'saved_replies';
 
-    public function loadSavedReplies(Request $request) 
-    {        
+    public function loadSavedReplies(Request $request)
+    {
         return $this->render('@UVDeskCoreFramework//savedRepliesList.html.twig');
     }
 
-    public function updateSavedReplies(Request $request) 
+    public function updateSavedReplies(Request $request)
     {
         $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:SavedReplies');
         if($request->attributes->get('template'))
@@ -34,7 +34,7 @@ class SavedReplies extends Controller
         $errors = [];
         if ($request->getMethod() == 'POST') {
             if(empty($request->request->get('message'))){
-                $this->addFlash('warning', 'Error! Saved reply body can not be blank');
+                $this->addFlash('warning',  $this->get('translator')->trans('Error! Saved reply body can not be blank'));
                 return $this->render('@UVDeskCoreFramework//savedReplyForm.html.twig', array(
                     'template' => $template,
                     'errors' => json_encode($errors)
@@ -44,7 +44,7 @@ class SavedReplies extends Controller
             $em = $this->getDoctrine()->getManager();
             $template->setName($request->request->get('name'));
             //if($this->get('user.service')->checkPermission('ROLE_ADMIN')) {
-            /* groups */ 
+            /* groups */
             $groups = explode(',', $request->request->get('tempGroups'));
             $previousGroupIds = [];
             if($template->getSupportGroups()) {
@@ -87,8 +87,8 @@ class SavedReplies extends Controller
                     }
                 }
             }
-            
-            $htmlFilter = new HTMLFilter();      
+
+            $htmlFilter = new HTMLFilter();
 
             //htmlfilter these values
             $template->setMessage($request->request->get('message'));
@@ -106,9 +106,9 @@ class SavedReplies extends Controller
             'template' => $template,
             'errors' => json_encode($errors)
         ));
-    } 
+    }
 
-    public function savedRepliesXHR(Request $request) 
+    public function savedRepliesXHR(Request $request)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new \Exception(404);
@@ -116,7 +116,7 @@ class SavedReplies extends Controller
 
         $entityManager = $this->getDoctrine()->getManager();
         $savedReplyRepository = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SavedReplies');
-        
+
         if ($request->getMethod() == 'GET') {
             $responseContent = $savedReplyRepository->getSavedReplies($request->query, $this->container);
         } else {
@@ -125,7 +125,7 @@ class SavedReplies extends Controller
             if (null == $savedReplyId || $request->getMethod() != 'DELETE') {
                 throw new \Exception(404);
             } else {
-                $savedReply = $savedReplyRepository->findOneBy(['id' => $savedReplyId, 'user' => $this->getUser()->getAgentInstance()]); 
+                $savedReply = $savedReplyRepository->findOneBy(['id' => $savedReplyId, 'user' => $this->getUser()->getAgentInstance()]);
 
                 if (empty($savedReply)) {
                     throw new \Exception(404);

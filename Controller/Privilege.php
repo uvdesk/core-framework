@@ -9,9 +9,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 class Privilege extends Controller
 {
-    public function listPrivilege(Request $request) 
+    public function listPrivilege(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -20,7 +20,7 @@ class Privilege extends Controller
 
     public function createPrivilege(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -28,7 +28,7 @@ class Privilege extends Controller
         $supportPrivilege = new SupportPrivilege();
         $supportPrivilegeResources = $this->get('uvdesk.service')->getSupportPrivelegesResources();
         if ('POST' == $request->getMethod()) {
-         
+
             $entityManager = $this->getDoctrine()->getManager();
             $supportPrivelegeFormDetails = $request->request->get('privilege_form');
             $supportPrivilege->setName($supportPrivelegeFormDetails['name']);
@@ -36,9 +36,9 @@ class Privilege extends Controller
             $supportPrivilege->setPrivileges($supportPrivelegeFormDetails['privileges']);
 
             $entityManager->persist($supportPrivilege);
-            $entityManager->flush();  
+            $entityManager->flush();
 
-            $this->addFlash('success', 'Success ! Privilege information saved successfully.');
+            $this->addFlash('success', $this->get('translator')->trans('Success ! Privilege information saved successfully.'));
             return $this->redirect($this->generateUrl('helpdesk_member_privilege_collection'));
 
         }
@@ -52,19 +52,19 @@ class Privilege extends Controller
 
     public function editPrivilege($supportPrivilegeId)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
         $entityManager = $this->getDoctrine()->getManager();
         $request = $this->get('request_stack')->getCurrentRequest();
-        
+
         $supportPrivilege = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportPrivilege')->findOneById($supportPrivilegeId);
-        
+
         if (empty($supportPrivilege)) {
             $this->noResultFound();
         }
-        
+
         $formErrors = [];
         $supportPrivilegeResources = $this->get('uvdesk.service')->getSupportPrivelegesResources();
 
@@ -76,13 +76,13 @@ class Privilege extends Controller
             $supportPrivilege->setPrivileges($supportPrivilegeDetails['privileges']);
 
             $entityManager->persist($supportPrivilege);
-            $entityManager->flush();  
+            $entityManager->flush();
 
             $this->addFlash('success', 'Privilege updated successfully.');
 
             return $this->redirect($this->generateUrl('helpdesk_member_privilege_collection'));
         }
- 
+
         return $this->render('@UVDeskCoreFramework/Privileges/updateSupportPrivelege.html.twig', [
             'errors' => json_encode($formErrors),
             'supportPrivilege' => $supportPrivilege,

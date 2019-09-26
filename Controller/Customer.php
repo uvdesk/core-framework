@@ -11,9 +11,9 @@ use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 
 class Customer extends Controller
 {
-    public function listCustomers(Request $request) 
+    public function listCustomers(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -22,7 +22,7 @@ class Customer extends Controller
 
     public function createCustomer(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -35,7 +35,7 @@ class Customer extends Controller
             $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
             if(isset($uploadedFiles['profileImage'])){
                 if(!in_array($uploadedFiles['profileImage']->getMimeType(), $validMimeType)){
-                    $this->addFlash('warning', 'Error ! Profile image is not valid, please upload a valid format');
+                    $this->addFlash('warning', $this->get('translator')->trans('Error ! Profile image is not valid, please upload a valid format'));
                     return $this->redirect($this->generateUrl('helpdesk_member_create_customer_account'));
                 }
             }
@@ -47,23 +47,23 @@ class Customer extends Controller
                 if (!empty($formDetails)) {
                     $fullname = trim(implode(' ', [$formDetails['firstName'], $formDetails['lastName']]));
                     $supportRole = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportRole')->findOneByCode('ROLE_CUSTOMER');
-    
+
                     $user = $this->container->get('user.service')->createUserInstance($formDetails['email'], $fullname, $supportRole, [
                         'contact' => $formDetails['contactNumber'],
                         'source' => 'website',
                         'active' => !empty($formDetails['isActive']) ? true : false,
                         'image' => $uploadedFiles['profileImage'],
                     ]);
-    
-                    $this->addFlash('success', 'Success ! Customer saved successfully.');
-    
+
+                    $this->addFlash('success', $this->get('translator')->trans('Success ! Customer saved successfully.'));
+
                     return $this->redirect($this->generateUrl('helpdesk_member_manage_customer_account_collection'));
                 }
             } else {
-                $this->addFlash('warning', 'Error ! User with same email already exist.');
+                $this->addFlash('warning', $this->get('translator')->trans('Error ! User with same email already exist.'));
             }
         }
-        
+
         return $this->render('@UVDeskCoreFramework/Customers/createSupportCustomer.html.twig', [
             'user' => new User(),
             'errors' => json_encode([])
@@ -72,7 +72,7 @@ class Customer extends Controller
 
     public function editCustomer(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -86,12 +86,12 @@ class Customer extends Controller
         }
         if ($request->getMethod() == "POST") {
             $contentFile = $request->files->get('customer_form');
-           
+
             // Customer Profile upload validation
             $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
             if(isset($contentFile['profileImage'])){
                 if(!in_array($contentFile['profileImage']->getMimeType(), $validMimeType)){
-                    $this->addFlash('warning', 'Error ! Profile image is not valid, please upload a valid format');
+                    $this->addFlash('warning', $this->get('translator')->trans('Error ! Profile image is not valid, please upload a valid format'));
                     return $this->render('@UVDeskCoreFramework/Customers/updateSupportCustomer.html.twig', ['user' => $user,'errors' => json_encode([])]);
                 }
             }
@@ -105,7 +105,7 @@ class Customer extends Controller
                     if($checkUser->getId() != $userId)
                         $errorFlag = 1;
                 }
-                
+
                 if(!$errorFlag && 'hello@uvdesk.com' !== $user->getEmail()) {
                     $password = $user->getPassword();
                     $email = $user->getEmail();
@@ -143,20 +143,20 @@ class Customer extends Controller
                     $event = new GenericEvent(CoreWorkflowEvents\Customer\Update::getId(), [
                         'entity' => $user,
                     ]);
-    
+
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
-                    $this->addFlash('success', 'Success ! Customer information updated successfully.'); 
+                    $this->addFlash('success', $this->get('translator')->trans('Success ! Customer information updated successfully.'));
                     return $this->redirect($this->generateUrl('helpdesk_member_manage_customer_account_collection'));
                 } else {
-                    $this->addFlash('warning', 'Error ! User with same email is already exist.');
+                    $this->addFlash('warning', $this->get('translator')->trans('Error ! User with same email is already exist.'));
                 }
-            } 
+            }
         } elseif($request->getMethod() == "PUT") {
             $content = json_decode($request->getContent(), true);
             $userId  = $content['id'];
             $user = $repository->findOneBy(['id' =>  $userId]);
-            
+
             if (!$user)
                 $this->noResultFound();
 
@@ -169,26 +169,26 @@ class Customer extends Controller
             }
 
             if (!$errorFlag && 'hello@uvdesk.com' !== $user->getEmail()) {
-                    $name = explode(' ', $content['name']);
-                    $lastName = isset($name[1]) ? $name[1] : ' ';
-                    $user->setFirstName($name[0]);
-                    $user->setLastName($lastName);
-                    $user->setEmail($content['email']);
-                    $em->persist($user);
+                $name = explode(' ', $content['name']);
+                $lastName = isset($name[1]) ? $name[1] : ' ';
+                $user->setFirstName($name[0]);
+                $user->setLastName($lastName);
+                $user->setEmail($content['email']);
+                $em->persist($user);
 
-                    //user Instance
-                    $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(array('user' => $user->getId()));
-                    if(isset($content['contactNumber'])){
-                        $userInstance->setContactNumber($content['contactNumber']);
-                    }
-                    $em->persist($userInstance);
-                    $em->flush();
+                //user Instance
+                $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(array('user' => $user->getId()));
+                if(isset($content['contactNumber'])){
+                    $userInstance->setContactNumber($content['contactNumber']);
+                }
+                $em->persist($userInstance);
+                $em->flush();
 
-                    $json['alertClass']      = 'success';
-                    $json['alertMessage']    = 'Success ! Customer updated successfully.';
+                $json['alertClass']      = 'success';
+                $json['alertMessage']    = $this->get('translator')->trans('Success ! Customer updated successfully.');
             } else {
-                    $json['alertClass']      = 'error';
-                    $json['alertMessage']    = 'Error ! Customer with same email already exist.';      
+                $json['alertClass']      = 'error';
+                $json['alertMessage']    = $this->get('translator')->trans('Error ! Customer with same email already exist.');
             }
 
             return new Response(json_encode($json), 200, []);
@@ -203,14 +203,14 @@ class Customer extends Controller
     protected function encodePassword(User $user, $plainPassword)
     {
         $encoder = $this->container->get('security.encoder_factory')
-                   ->getEncoder($user);
+            ->getEncoder($user);
 
         return $encoder->encodePassword($plainPassword, $user->getSalt());
     }
-    
+
     public function bookmarkCustomer(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -234,13 +234,13 @@ class Customer extends Controller
             $em->persist($userInstance);
             $em->flush();
             $json['alertClass'] = 'success';
-            $json['message'] = 'unstarred Action Completed successfully';             
+            $json['message'] = 'unstarred Action Completed successfully';
         } else {
             $userInstance->setIsStarred(1);
             $em->persist($userInstance);
             $em->flush();
             $json['alertClass'] = 'success';
-            $json['message'] = 'starred Action Completed successfully';             
+            $json['message'] = 'starred Action Completed successfully';
         }
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');
