@@ -55,7 +55,7 @@ class Account extends Controller
               
                 $form = $this->createForm(UserProfile::class, $user);
                 $form->handleRequest($request);
-                $form->submit(true);
+                $form->submit($data);
                 
                 if ($form->isValid()) {
                     if ($data != null) {
@@ -167,6 +167,7 @@ class Account extends Controller
                 }
                
                 if (!$errorFlag) {
+                    $isActive = isset($data['isActive']) ? 1 : 0;
                     if (isset($data['password']) && $data['password']) {
                         $encodedPassword = $this->container->get('security.password_encoder')->encodePassword($user, $data['password']['first']);
                         $user->setPassword($encodedPassword);
@@ -175,8 +176,10 @@ class Account extends Controller
                     $user->setFirstName($data['firstName']);
                     $user->setLastName($data['lastName']);
                     $user->setEmail($data['email']);
-                    $user->setIsEnabled(isset($data['isActive'])? 1 : 0);
-
+                    $oldIsEnabled = $user->getIsEnabled() ? 1 : 0;
+                    if ($isActive != $oldIsEnabled) {
+                        $user->setIsEnabled($isActive);
+                    }
                     $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(['user' => $agentId]);
 
                     $oldSupportTeam = ($supportTeamList = $userInstance->getSupportTeams()) ? $supportTeamList->toArray() : [];
@@ -202,7 +205,6 @@ class Account extends Controller
                     }
 
                     $userInstance->setSignature($data['signature']);
-                    $isActive = isset($data['isActive']) ? 1 : 0;
                     $userInstance->setIsActive($isActive);
                     $userInstance->setIsVerified(0);
 
