@@ -327,7 +327,7 @@
                     </ul>
 
                     <ul>
-                        {% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT') %}
+                        {% if user_service.isAccessAuthorized('ROLE_AGENT_CREATE_TICKET') %}
                             <li data-action="create" class="uv-open-popup" data-target="create-ticket-modal">Create Ticket</li>
                         {% endif %}
 						{% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT') %}
