@@ -36,40 +36,49 @@ class UserProvider implements UserProviderInterface
             ->leftJoin('UVDeskCoreFrameworkBundle:UserInstance', 'userInstance', 'WITH', 'user.id = userInstance.user')
             ->leftJoin('userInstance.supportRole', 'supportRole')
             ->where('user.email = :email')->setParameter('email', trim($username))
+            ->andWhere('userInstance.isActive = :isActive')->setParameter('isActive', true)
             ->setMaxResults(1);
 
         // Retrieve user instances based on active firewall
         $activeFirewall = $this->firewall->getFirewallConfig($this->requestStack->getCurrentRequest())->getName();
+
         switch (strtolower($activeFirewall)) {
             case 'member':
             case 'back_support':
-                $queryBuilder->andWhere('supportRole.id = :roleOwner OR supportRole.id = :roleAdmin OR supportRole.id = :roleAgent')
+                $queryBuilder
+                    ->andWhere('supportRole.id = :roleOwner OR supportRole.id = :roleAdmin OR supportRole.id = :roleAgent')
                     ->setParameter('roleOwner', 1)
                     ->setParameter('roleAdmin', 2)
                     ->setParameter('roleAgent', 3);
                 break;
             case 'customer':
             case 'front_support':
-                $queryBuilder->andWhere('supportRole.id = :roleCustomer')->setParameter('roleCustomer', 4);
+                $queryBuilder
+                    ->andWhere('supportRole.id = :roleCustomer')
+                    ->setParameter('roleCustomer', 4);
                 break;
             default:
                 throw new UsernameNotFoundException('Firewall not supported.');
                 break;
         }
         
-        $queryResponse = $queryBuilder->getQuery()->getResult();
-        if (empty($queryResponse) || false == is_array($queryResponse)) {
-            throw new UsernameNotFoundException(sprintf('Username "%s" does not exist.', $username));
+        $response = $queryBuilder->getQuery()->getResult();
+
+        try {
+            if (!empty($response) && is_array($response)) {
+                list($user, $userInstance) = $response;
+
+                // Set currently active instance
+                $user->setCurrentInstance($userInstance);
+                $user->setRoles((array) $userInstance->getSupportRole()->getCode());
+
+                return $user;
+            }
+        } catch (\Exception $e) {
+            // Do nothing...
         }
-        
-        list($user, $userInstance) = $queryBuilder->getQuery()->getResult();
 
-        // Set currently active instance
-        $user->setCurrentInstance($userInstance);
-        $user->setRoles((array) $userInstance->getSupportRole()->getCode());
-
-
-        return $user;
+        throw new UsernameNotFoundException(sprintf('Username "%s" does not exist.', $username));
     }
 
     public function refreshUser(UserInterface $user)

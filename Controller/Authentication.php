@@ -48,7 +48,7 @@ class Authentication extends Controller
                     $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:User');
                     $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(array('email' => $form->getData()->getEmail()));
                   
-                    if($user && $user->getAgentInstance()) {
+                    if ($user && $user->getAgentInstance()) {
                         // Trigger agent forgot password event
                         $event = new GenericEvent(CoreWorkflowEvents\Agent\ForgotPassword::getId(), [
                             'entity' => $user,
