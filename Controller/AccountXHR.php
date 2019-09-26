@@ -2,6 +2,7 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedFilters;
