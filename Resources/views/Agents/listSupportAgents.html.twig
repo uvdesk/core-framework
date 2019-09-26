@@ -11,66 +11,66 @@
 		{% set asideSidebarReference = 'Webkul\\UVDesk\\CoreFrameworkBundle\\UIComponents\\Dashboard\\Panel\\Sidebars\\Users' %}
 
 		{{ uvdesk_extensibles.getRegisteredComponent(asideTemplate).renderSidebar(asideSidebarReference) | raw }}
-		
+
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
 			<h1>Agents</h1>
 
 			<div class="uv-action-bar">
-                <div class="uv-action-bar-col-lt">
-                    {# Sort Agents #}
-                    <div class="uv-dropdown sort">
-                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Sort By: Created At</div>
-                        <div class="uv-dropdown-list uv-bottom-left">
+				<div class="uv-action-bar-col-lt">
+					{# Sort Agents #}
+					<div class="uv-dropdown sort">
+						<div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Sort By: Created At</div>
+						<div class="uv-dropdown-list uv-bottom-left">
 							<div class="uv-dropdown-container">
-								<label>Sort By</label>
+								<label>{{ 'Sort By'|trans }}</label>
 								<ul></ul>
 							</div>
-                        </div>
-                    </div>
+						</div>
+					</div>
 
-                    {# Filter Agents by Status #}
-                    <div class="uv-dropdown filter-by-status">
-                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Status: All</div>
-                        <div class="uv-dropdown-list uv-bottom-left">
+					{# Filter Agents by Status #}
+					<div class="uv-dropdown filter-by-status">
+						<div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Status: All</div>
+						<div class="uv-dropdown-list uv-bottom-left">
 							<div class="uv-dropdown-container">
-								<label>Status</label>
+								<label>{{ 'Status'|trans }}</label>
 								<ul>
 									<li class="uv-drop-list-active"><a href="#">All</a></li>
 									<li><a href="#" data-id="1">Active</a></li>
 									<li><a href="#" data-id="0">Disabled</a></li>
 								</ul>
 							</div>
-                        </div>
-                    </div>
-                </div>
+						</div>
+					</div>
+				</div>
 
 				<div class="uv-action-bar-col-rt">
-                    {# Search Agent #}
+					{# Search Agent #}
 					<input type="text" class="uv-search-inline uv-vertical-align uv-margin-right-15" placeholder="Search">
 
 					{# Create New Agent #}
-					<a href="{{ path('helpdesk_member_create_account') }}" type="button" class="uv-btn-action"><span class="uv-icon-add"></span> New Agent</a>
+					<a href="{{ path('helpdesk_member_create_account') }}" type="button" class="uv-btn-action"><span class="uv-icon-add"></span> {{ 'New Agent'|trans }}</a>
 				</div>
-            </div>
+			</div>
 
-            {# Agent Listicle #}
-            <div class="uv-table uv-list-view">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th class="uv-last">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+			{# Agent Listicle #}
+			<div class="uv-table uv-list-view">
+				<table>
+					<thead>
+					<tr>
+						<th>{{ 'Name'|trans }}</th>
+						<th>{{ 'Email'|trans }}</th>
+						<th>{{ 'Role'|trans }}</th>
+						<th>{{ 'Status'|trans }}</th>
+						<th class="uv-last">{{ 'Action'|trans }}</th>
+					</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
 
-                {# Pagintation #}
+				{# Pagintation #}
 				<div class="navigation"></div>
-            </div>
+			</div>
 		</div>
 	</div>
 {% endblock %}
@@ -80,59 +80,59 @@
 
 	{# Sorting Template #}
 	<script id="agent_list_sorting_tmp" type="text/template">
-        <li class="<% if(sort == 'userInstance.createdAt') { %>uv-drop-list-active<% } %>">
-            <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/userInstance.createdAt/<% if(sort == 'userInstance.createdAt') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="userInstance.createdAt">
+		<li class="<% if(sort == 'userInstance.createdAt') { %>uv-drop-list-active<% } %>">
+			<a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/userInstance.createdAt/<% if(sort == 'userInstance.createdAt') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="userInstance.createdAt">
 				Created At
 				<% if(sort == 'userInstance.createdAt') { %>
-					<span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
+				<span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
 				<% } %>
 			</a>
-        </li>
-	    <li class="<% if(sort == 'user.firstName') { %>uv-drop-list-active<% } %>">
-            <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/user.firstName/<% if(sort == 'user.firstName') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="user.firstName">
+		</li>
+		<li class="<% if(sort == 'user.firstName') { %>uv-drop-list-active<% } %>">
+			<a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/user.firstName/<% if(sort == 'user.firstName') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="user.firstName">
 				Name
 				<% if(sort == 'user.firstName') { %>
-					<span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
+				<span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
 				<% } %>
 			</a>
-        </li>
-	    <li class="<% if(sort == 'user.email') { %>uv-drop-list-active<% } %>">
-            <a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/user.email/<% if(sort == 'user.email') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="user.email">
+		</li>
+		<li class="<% if(sort == 'user.email') { %>uv-drop-list-active<% } %>">
+			<a href="#<% if(queryString != '') { %><%= queryString %>/<% } %><% if(page) { %>page/<%= page %><% } else { %>page/1<% } %>/sort/user.email/<% if(sort == 'user.email') { %><% if(direction) { %>direction/<%= direction %><% } else { %>direction/desc<% } %><% } else { %>direction/asc<% } %>" data-field="user.email">
 				Email
 				<% if(sort == 'user.email') { %>
-					<span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
+				<span class="uv-sorting <% if(direction == 'asc') { %> descend <% } else { %> ascend <% } %>"></span>
 				<% } %>
 			</a>
-        </li>
+		</li>
 	</script>
 	{# Type list item template #}
 	<script id="agent_list_item_tmp" type="text/template">
 		<td data-value="Name">
 			<% if (smallThumbnail != null) { %>
-				<img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%= smallThumbnail %>" alt=""/>
+			<img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%= smallThumbnail %>" alt=""/>
 			<% } else { %>
-				<img src="{{ asset(default_agent_image_path) }}" alt=""/>
+			<img src="{{ asset(default_agent_image_path) }}" alt=""/>
 			<% } %>
 			<%- name %>
 		</td>
 		<td data-value="Email"><%- email %></td>
-        <td data-value="Role"><%= role %></td>
+		<td data-value="Role"><%= role %></td>
 		<td data-value="Status">
 			<% if (isActive) { %>
-            	<span class="uv-text-success">Active</span>
-            <% } else { %>
-            	<span class="uv-text-danger">Disabled</span>
-        	<% } %>
-		</td>
-		<td data-value="Action" class="uv-last">
-			<a href="<%- path.replace('replaceId', id) %>" class="uv-btn-stroke edit-agent">Edit</a>
-			<% if (roleCode == "ROLE_SUPER_ADMIN") { %>
-				<div class="uv-btn-stroke" disabled="disabled">Delete</div>
+			<span class="uv-text-success">{{ 'Active'|trans }}</span>
 			<% } else { %>
-				<div class="uv-btn-stroke delete-agent">Delete</div>
+			<span class="uv-text-danger">{{ 'Disabled'|trans }}</span>
 			<% } %>
 		</td>
-    </script>
+		<td data-value="Action" class="uv-last">
+			<a href="<%- path.replace('replaceId', id) %>" class="uv-btn-stroke edit-agent">{{ 'Edit'|trans }}</a>
+			<% if (roleCode == "ROLE_SUPER_ADMIN") { %>
+			<div class="uv-btn-stroke" disabled="disabled">{{ 'Delete'|trans }}</div>
+			<% } else { %>
+			<div class="uv-btn-stroke delete-agent">{{ 'Delete'|trans }}</div>
+			<% } %>
+		</td>
+	</script>
 
 	<script type="text/javascript">
 		var path = "{{ path('helpdesk_member_account', { 'agentId': 'replaceId' }) }}";
