@@ -2,26 +2,41 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
+use Symfony\Component\EventDispatcher\GenericEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Form\UserAccount;
 use Webkul\UVDesk\CoreFrameworkBundle\Form\UserProfile;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
-use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 
 class Account extends Controller
 {
+    private function encodePassword(User $user, $plainPassword)
+    {
+        $encodedPassword = $this->container->get('security.password_encoder')->encodePassword($user, $plainPassword);
+    }
+
     public function loadDashboard(Request $request)
     {
         return $this->render('@UVDeskCoreFramework//dashboard.html.twig', []);
     }
+
+    public function listAgents(Request $request)
+    {
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')){          
+            return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
+        }
+
+        return $this->render('@UVDeskCoreFramework/Agents/listSupportAgents.html.twig');
+    }
     
     public function loadProfile(Request $request)
     {
+        // @TODO: Refactor
         $em = $this->getDoctrine()->getManager();
         $user = $this->getUser();
         $originalUser = clone $user;
@@ -55,7 +70,7 @@ class Account extends Controller
               
                 $form = $this->createForm(UserProfile::class, $user);
                 $form->handleRequest($request);
-                $form->submit(true);
+                $form->submit($data);
                 
                 if ($form->isValid()) {
                     if ($data != null) {
@@ -117,17 +132,9 @@ class Account extends Controller
         ));
     }
 
-    public function listAgents(Request $request)
-    {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')){          
-            return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
-        }
-
-        return $this->render('@UVDeskCoreFramework/Agents/listSupportAgents.html.twig');
-    }
-
     public function editAgent($agentId)
     {
+        // @TODO: Refactor
         $em = $this->getDoctrine()->getManager();
         $request = $this->container->get('request_stack')->getCurrentRequest();
        
@@ -165,9 +172,12 @@ class Account extends Controller
                 if ($checkUser && $checkUser->getId() != $agentId) {
                     $errorFlag = 1;
                 }
-               
+
                 if (!$errorFlag) {
-                    if (isset($data['password']) && $data['password']) {
+                    if (
+                        isset($data['password']['first']) && !empty(trim($data['password']['first'])) 
+                        && isset($data['password']['second'])  && !empty(trim($data['password']['second'])) 
+                        && trim($data['password']['first']) == trim($data['password']['second'])) {
                         $encodedPassword = $this->container->get('security.password_encoder')->encodePassword($user, $data['password']['first']);
                         $user->setPassword($encodedPassword);
                     }
@@ -175,8 +185,8 @@ class Account extends Controller
                     $user->setFirstName($data['firstName']);
                     $user->setLastName($data['lastName']);
                     $user->setEmail($data['email']);
-                    $user->setIsEnabled(isset($data['isActive'])? 1 : 0);
-
+                    $user->setIsEnabled(true);
+                    
                     $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(['user' => $agentId]);
 
                     $oldSupportTeam = ($supportTeamList = $userInstance->getSupportTeams()) ? $supportTeamList->toArray() : [];
@@ -202,9 +212,7 @@ class Account extends Controller
                     }
 
                     $userInstance->setSignature($data['signature']);
-                    $isActive = isset($data['isActive']) ? 1 : 0;
-                    $userInstance->setIsActive($isActive);
-                    $userInstance->setIsVerified(0);
+                    $userInstance->setIsActive((bool) isset($data['isActive']));
 
                     if(isset($data['userSubGroup'])){
                         foreach ($data['userSubGroup'] as $userSubGroup) {
@@ -311,6 +319,7 @@ class Account extends Controller
     
     public function createAgent(Request $request)
     {
+        // @TODO: Refactor
         if(!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')){          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
@@ -407,10 +416,5 @@ class Account extends Controller
             'user' => $user,
             'errors' => json_encode([])
         ]);
-    }
-    
-    protected function encodePassword(User $user, $plainPassword)
-    {
-        $encodedPassword = $this->container->get('security.password_encoder')->encodePassword($user, $plainPassword);
     }
 }

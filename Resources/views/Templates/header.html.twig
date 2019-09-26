@@ -327,7 +327,9 @@
                     </ul>
 
                     <ul>
-                        <li data-action="create" class="uv-open-popup" data-target="create-ticket-modal">Create Ticket</li>
+                        {% if user_service.isAccessAuthorized('ROLE_AGENT_CREATE_TICKET') %}
+                            <li data-action="create" class="uv-open-popup" data-target="create-ticket-modal">Create Ticket</li>
+                        {% endif %}
 						{% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT') %}
                             <li><a href="{{ path('helpdesk_member_create_account') }}">Create Agent</a></li>
                         {% endif %}
