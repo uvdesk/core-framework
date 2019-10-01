@@ -86,10 +86,13 @@ class Thread extends Controller
         // @TODO: Trigger Thread Created Event
 
         // Trigger agent reply event
-        $event = new GenericEvent(CoreWorkflowEvents\Ticket\AgentReply::getId(), [
-            'entity' =>  $ticket,
-            'thread' =>  $thread
-        ]);
+        //check for thread types
+        if($thread->getThreadType()=='reply'){
+            $event = new GenericEvent(CoreWorkflowEvents\Ticket\AgentReply::getId(), [
+                'entity' =>  $ticket,
+                'thread' =>  $thread
+            ]);
+        }
 
         $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
