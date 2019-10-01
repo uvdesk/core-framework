@@ -691,4 +691,10 @@ class UserService
         
         return $list;
     }
+
+    // issue 177 - core-framework (timezone dropdown)
+    public function getTimezones()
+    {
+        return \DateTimeZone::listIdentifiers();
+    }
 }
