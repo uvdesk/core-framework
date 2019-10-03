@@ -692,7 +692,7 @@ class UserService
         return $list;
     }
 
-    // issue 177 - core-framework (timezone dropdown)
+    // @TODO: Refactor this - We can instead just use \DateTimeZone::listIdentifiers() wherever need be.
     public function getTimezones()
     {
         return \DateTimeZone::listIdentifiers();
