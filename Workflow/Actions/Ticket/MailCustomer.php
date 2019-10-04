@@ -80,7 +80,7 @@ class MailCustomer extends WorkflowAction
                     $bcc = $thread->getBcc();
                 }
 
-                switch($thread->getThreadType()) {
+                switch(empty($thread) ? null : $thread->getThreadType()) {
                     case 'forward':
                         $messageId = $container->get('email.service')->sendMail($subject, $message, $thread->getReplyTo(), $emailHeaders, $entity->getMailboxEmail(), $attachments, $cc, $bcc);
                         break;
