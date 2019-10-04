@@ -48,13 +48,14 @@ class Thread extends Controller
             //     $this->addFlash('warning', "Invalid attachments.");
             // }
         }
-
+        //#212 removing script tag in message body for security purpose
+        $badChar = array('&lt;script&gt;','&lt;/script&gt;');
         $threadDetails = [
             'user' => $this->getUser(),
             'createdBy' => 'agent',
             'source' => 'website',
             'threadType' => strtolower($params['threadType']),
-            'message' => $params['reply'],
+            'message' => str_replace($badChar, '', $params['reply']),
             'attachments' => $request->files->get('attachments')
         ];
 
