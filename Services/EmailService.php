@@ -505,8 +505,12 @@ class EmailService
             ->setCc($cc)
             ->setBody($content, 'text/html');
 
-        foreach ($attachments as $attachmentPath) {
-            $message->attach(\Swift_Attachment::fromPath($attachmentPath));
+        foreach ($attachments as $attachment) {
+            if (!empty($attachment['path'])) {
+                $message->attach(\Swift_Attachment::fromPath($attachment['path'])->setFilename($attachment['name']));
+                continue;
+            } 
+            $message->attach(\Swift_Attachment::fromPath($attachment));
         }
 
         $messageHeaders = $message->getHeaders();
