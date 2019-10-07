@@ -34,7 +34,11 @@ class Ticket extends Controller
         $ticketRepository = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket');
 
         $ticket = $ticketRepository->findOneById($ticketId);
-
+        // #41 check agent have access for view this ticket
+        if($ticket->getAgent()->getId() != $this->getUser()->getId())
+        {
+         return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
+        }
         if (empty($ticket)) {
             throw new \Exception('Page not found');
         } else {
@@ -144,7 +148,7 @@ class Ticket extends Controller
             'name' => $customer->getFirstName() . ' ' . $customer->getLastName(),
             'type' => $ticketProxy->getType(),
             'subject' => $ticketProxy->getSubject(),
-            'message' => htmlentities($ticketProxy->getReply()),
+            'message' => strip_tags($ticketProxy->getReply()), //#212 removing html tags for security
             'firstName' => $customer->getFirstName(),
             'lastName' => $customer->getLastName(),
             'type' => $ticketProxy->getType(),

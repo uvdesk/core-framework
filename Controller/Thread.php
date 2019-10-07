@@ -48,13 +48,14 @@ class Thread extends Controller
             //     $this->addFlash('warning', "Invalid attachments.");
             // }
         }
-
+        //#212 removing script tag in message body for security purpose
+        $badChar = array('&lt;script&gt;','&lt;/script&gt;');
         $threadDetails = [
             'user' => $this->getUser(),
             'createdBy' => 'agent',
             'source' => 'website',
             'threadType' => strtolower($params['threadType']),
-            'message' => $params['reply'],
+            'message' => str_replace($badChar, '', $params['reply']),
             'attachments' => $request->files->get('attachments')
         ];
 
@@ -86,10 +87,13 @@ class Thread extends Controller
         // @TODO: Trigger Thread Created Event
 
         // Trigger agent reply event
-        $event = new GenericEvent(CoreWorkflowEvents\Ticket\AgentReply::getId(), [
-            'entity' =>  $ticket,
-            'thread' =>  $thread
-        ]);
+        //check for thread types
+        if($thread->getThreadType()=='reply'){
+            $event = new GenericEvent(CoreWorkflowEvents\Ticket\AgentReply::getId(), [
+                'entity' =>  $ticket,
+                'thread' =>  $thread
+            ]);
+        }
 
         $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
