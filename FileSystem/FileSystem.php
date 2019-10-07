@@ -116,12 +116,13 @@ class FileSystem
     public function getFileTypeAssociations(Attachment $attachment, $firewall = 'member')
     {
         $router = $this->container->get('router');
-        $baseURL = 'http:////' . $this->container->getParameter('uvdesk.site_url') . '/';
+        $baseURL = $this->getBasePath();
 
         $assetDetails = [
             'id' => $attachment->getId(),
             'name' => $attachment->getName(),
             'path' => $baseURL . $attachment->getPath(),
+            'relativePath' => $attachment->getPath(),
             'iconURL' => $baseURL . $this->getAssetIconURL($attachment),
             'downloadURL' => null,
         ];
@@ -140,5 +141,11 @@ class FileSystem
         $assetDetails['iconURL'] = str_replace('//', '/', $assetDetails['iconURL']);
 
         return $assetDetails;
+    }
+
+    public function getBasePath() {
+        $i = function($v) { return $v;};
+        $currentRequest = $this->requestStack->getCurrentRequest();
+        return "http{$i($currentRequest->isSecure() ? 's' : '')}:////" . $currentRequest->getHttpHost() . '/';
     }
 }
