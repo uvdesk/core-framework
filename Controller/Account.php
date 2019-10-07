@@ -134,6 +134,10 @@ class Account extends Controller
 
     public function editAgent($agentId)
     {
+        // #39 check agent have privilege for this role
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')){          
+            return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
+        }
         if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
