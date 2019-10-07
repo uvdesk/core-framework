@@ -54,7 +54,7 @@ class Thread extends Controller
             'createdBy' => 'agent',
             'source' => 'website',
             'threadType' => strtolower($params['threadType']),
-            'message' => $params['reply'],
+            'message' => str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', $params['reply']),
             'attachments' => $request->files->get('attachments')
         ];
 
@@ -85,11 +85,15 @@ class Thread extends Controller
         // @TODO: Remove Agent Draft Thread
         // @TODO: Trigger Thread Created Event
 
-        // Trigger agent reply event
-        $event = new GenericEvent(CoreWorkflowEvents\Ticket\AgentReply::getId(), [
-            'entity' =>  $ticket,
-            'thread' =>  $thread
-        ]);
+        // @TODO: Cross Review
+        // check for thread types
+        if ($thread->getThreadType()=='reply') {
+            // Trigger agent reply event
+            $event = new GenericEvent(CoreWorkflowEvents\Ticket\AgentReply::getId(), [
+                'entity' =>  $ticket,
+                'thread' =>  $thread
+            ]);
+        }
 
         $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 

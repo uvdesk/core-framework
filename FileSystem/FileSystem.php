@@ -116,12 +116,19 @@ class FileSystem
     public function getFileTypeAssociations(Attachment $attachment, $firewall = 'member')
     {
         $router = $this->container->get('router');
-        $baseURL = 'http:////' . $this->container->getParameter('uvdesk.site_url') . '/';
+        $request = $this->requestStack->getCurrentRequest();
+
+        if ($request->isSecure()) {
+            $baseURL = "https:////" . $request->getHttpHost() . '/';
+        } else {
+            $baseURL = "https:////" . $request->getHttpHost() . '/';
+        }
 
         $assetDetails = [
             'id' => $attachment->getId(),
             'name' => $attachment->getName(),
             'path' => $baseURL . $attachment->getPath(),
+            'relativePath' => $attachment->getPath(),
             'iconURL' => $baseURL . $this->getAssetIconURL($attachment),
             'downloadURL' => null,
         ];

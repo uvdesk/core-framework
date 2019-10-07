@@ -62,21 +62,39 @@ class MailAgent extends WorkflowAction
         if($entity instanceof Ticket) {
             $emailTemplate = $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findOneById($value['value']);
             $emails = self::getAgentMails($value['for'], (($ticketAgent = $entity->getAgent()) ? $ticketAgent->getEmail() : ''), $container);
-           
-            if($emails && $emailTemplate) {
-                $mailData = array();
-                if ($entity instanceof Ticket) {
-                    $createThread = $container->get('ticket.service')->getCreateReply($entity->getId(), false);
-                    $mailData['references'] = $createThread['messageId'];
+            
+            if ($emails && $emailTemplate) {
+                $queryBuilder = $entityManager->createQueryBuilder()
+                    ->select('th.messageId as messageId')
+                    ->from('UVDeskCoreFrameworkBundle:Thread', 'th')
+                    ->where('th.createdBy = :userType')->setParameter('userType', 'agent')
+                    ->orderBy('th.id', 'DESC')
+                    ->setMaxResults(1);
+                
+                $inReplyTo = $queryBuilder->getQuery()->getSingleResult();
+                $createdThread = $container->get('ticket.service')->getLastReply($entity->getId(), 'customer');
+                
+                if (!empty($inReplyTo)) {
+                    $emailHeaders['In-Reply-To'] = $inReplyTo;
                 }
 
-                $mailData['email'] = $emails;
+                if (!empty($entity->getReferenceIds())) {
+                    $emailHeaders['References'] = $entity->getReferenceIds();
+                }
+
+                $attachments = array_map(function($attachment) use ($container) { 
+                    return [
+                        'name' => $attachment['name'],
+                        'path' => $container->get('kernel')->getProjectDir() . "/public" . $attachment['relativePath'],
+                    ];
+                }, $createdThread['attachments']);
+                
                 $placeHolderValues   = $container->get('email.service')->getTicketPlaceholderValues($entity, 'agent');
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(),$placeHolderValues);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(),$placeHolderValues);
-
-                foreach($mailData['email'] as $email){
-                    $messageId = $container->get('email.service')->sendMail($subject, $message, $email);
+                
+                foreach($emails as $email){
+                    $messageId = $container->get('email.service')->sendMail($subject, $message, $email, $emailHeaders, null, $attachments);
                 }
             } else {
                 // Email Template/Emails Not Found. Disable Workflow/Prepared Response

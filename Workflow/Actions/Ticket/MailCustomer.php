@@ -75,12 +75,20 @@ class MailCustomer extends WorkflowAction
                 }
 
                 $cc = $bcc = [];
-                if ($thread !== null){
+
+                if (!empty($thread)) {
                     $cc = $thread->getCc();
                     $bcc = $thread->getBcc();
-                }
 
-                $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $emailHeaders, $entity->getMailboxEmail(), $attachments, $cc, $bcc);
+                    switch($thread->getThreadType()) {
+                        case 'forward':
+                            $messageId = $container->get('email.service')->sendMail($subject, $message, $thread->getReplyTo(), $emailHeaders, $entity->getMailboxEmail(), $attachments, $cc, $bcc);
+                            break;
+                        default:
+                            $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $emailHeaders, $entity->getMailboxEmail(), $attachments, $cc, $bcc);
+                            break;
+                    }
+                }
                 
                 if (!empty($messageId)) {
                     $createdThread->setMessageId($messageId);

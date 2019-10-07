@@ -73,6 +73,11 @@ class AsideTemplate implements ExtendableComponentInterface
             }
         }
 
+        // Sort sidebar items alphabatically
+        usort($sidebar['collection'], function ($item_1, $item_2) {
+            return strcasecmp($item_1['title'], $item_2['title']);
+        });
+
         return $this->twig->render('@UVDeskCoreFramework/Templates/aside.html.twig', [ 'sidebar' => $sidebar ]);
 	}
 }
