@@ -121,7 +121,7 @@ class FileSystem
         if ($request->isSecure()) {
             $baseURL = "https:////" . $request->getHttpHost() . '/';
         } else {
-            $baseURL = "https:////" . $request->getHttpHost() . '/';
+            $baseURL = "http:////" . $request->getHttpHost() . '/';
         }
 
         $assetDetails = [
