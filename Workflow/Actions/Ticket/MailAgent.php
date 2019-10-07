@@ -81,8 +81,10 @@ class MailAgent extends WorkflowAction
                 }
                 $attachments = array_map(
                     function($attachment) use ($container) { 
+                        $projectDir     = $container->get('kernel')->getProjectDir();
                         $result['name'] = $attachment['name'];
-                        $result['path'] = $container->get('kernel')->getProjectDir() . "/public" . $attachment['relativePath'];
+                        $result['path'] = ($projectDir . ($projectDir[strlen($projectDir) - 1] === '/' ? '' : '/') . 
+                            "public" . ($attachment['relativePath'][0] === '/' ? '' : '/') . $attachment['relativePath']);
                         return $result; 
                     }, $createdThread['attachments']);
                 
