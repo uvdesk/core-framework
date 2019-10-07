@@ -48,14 +48,13 @@ class Thread extends Controller
             //     $this->addFlash('warning', "Invalid attachments.");
             // }
         }
-        //#212 removing script tag in message body for security purpose
-        $badChar = array('&lt;script&gt;','&lt;/script&gt;');
+
         $threadDetails = [
             'user' => $this->getUser(),
             'createdBy' => 'agent',
             'source' => 'website',
             'threadType' => strtolower($params['threadType']),
-            'message' => str_replace($badChar, '', $params['reply']),
+            'message' => str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', $params['reply']),
             'attachments' => $request->files->get('attachments')
         ];
 
@@ -86,9 +85,10 @@ class Thread extends Controller
         // @TODO: Remove Agent Draft Thread
         // @TODO: Trigger Thread Created Event
 
-        // Trigger agent reply event
-        //check for thread types
-        if($thread->getThreadType()=='reply'){
+        // @TODO: Cross Review
+        // check for thread types
+        if ($thread->getThreadType()=='reply') {
+            // Trigger agent reply event
             $event = new GenericEvent(CoreWorkflowEvents\Ticket\AgentReply::getId(), [
                 'entity' =>  $ticket,
                 'thread' =>  $thread

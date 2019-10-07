@@ -134,10 +134,10 @@ class Account extends Controller
 
     public function editAgent($agentId)
     {
-        // #39 for authorized agent can  update agent info
-         if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')){          
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
+
         // @TODO: Refactor
         $em = $this->getDoctrine()->getManager();
         $request = $this->container->get('request_stack')->getCurrentRequest();

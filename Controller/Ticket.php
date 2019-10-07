@@ -34,11 +34,11 @@ class Ticket extends Controller
         $ticketRepository = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket');
 
         $ticket = $ticketRepository->findOneById($ticketId);
-        // #41 check agent have access for view this ticket
-        if($ticket->getAgent()->getId() != $this->getUser()->getId())
-        {
-         return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
+
+        if ($ticket->getAgent()->getId() != $this->getUser()->getId()) {
+            return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
+
         if (empty($ticket)) {
             throw new \Exception('Page not found');
         } else {
@@ -148,7 +148,9 @@ class Ticket extends Controller
             'name' => $customer->getFirstName() . ' ' . $customer->getLastName(),
             'type' => $ticketProxy->getType(),
             'subject' => $ticketProxy->getSubject(),
-            'message' => strip_tags($ticketProxy->getReply()), //#212 removing html tags for security
+            // @TODO: We need to enable support for html messages. 
+            // Our focus here instead should be to prevent XSS (filter js)
+            'message' => strip_tags($ticketProxy->getReply()),
             'firstName' => $customer->getFirstName(),
             'lastName' => $customer->getLastName(),
             'type' => $ticketProxy->getType(),
