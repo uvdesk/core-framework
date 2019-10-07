@@ -63,19 +63,21 @@ class MailAgent extends WorkflowAction
             $emailTemplate = $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findOneById($value['value']);
             $emails = self::getAgentMails($value['for'], (($ticketAgent = $entity->getAgent()) ? $ticketAgent->getEmail() : ''), $container);
             
-            if($emails && $emailTemplate) {
-                $qb = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Thread')->createQueryBuilder('th');
-                $qb->select('th.messageId as messageId')
-                    ->where('th.createdBy = \'agent\'')
+            if ($emails && $emailTemplate) {
+                $queryBuilder = $entityManager->createQueryBuilder()
+                    ->select('th.messageId as messageId')
+                    ->from('UVDeskCoreFrameworkBundle:Thread', 'th')
+                    ->where('th.createdBy = :userType')->setParameter('userType', 'agent')
                     ->orderBy('th.id', 'DESC')
-                    ->setMaxResults(1)
-                    ;
-                $inReplyTo = $qb->getQuery()->getSingleResult();
+                    ->setMaxResults(1);
+                
+                $inReplyTo = $queryBuilder->getQuery()->getSingleResult();
                 $createdThread = $container->get('ticket.service')->getLastReply($entity->getId(), 'customer');
                 
                 if (!empty($inReplyTo)) {
                     $emailHeaders['In-Reply-To'] = $inReplyTo;
                 }
+
                 if (!empty($entity->getReferenceIds())) {
                     $emailHeaders['References'] = $entity->getReferenceIds();
                 }

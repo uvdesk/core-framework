@@ -116,7 +116,13 @@ class FileSystem
     public function getFileTypeAssociations(Attachment $attachment, $firewall = 'member')
     {
         $router = $this->container->get('router');
-        $baseURL = $this->getBasePath();
+        $request = $this->requestStack->getCurrentRequest();
+
+        if ($request->isSecure()) {
+            $baseURL = "https:////" . $request->getHttpHost() . '/';
+        } else {
+            $baseURL = "http:////" . $request->getHttpHost() . '/';
+        }
 
         $assetDetails = [
             'id' => $attachment->getId(),
@@ -141,11 +147,5 @@ class FileSystem
         $assetDetails['iconURL'] = str_replace('//', '/', $assetDetails['iconURL']);
 
         return $assetDetails;
-    }
-
-    public function getBasePath() {
-        $i = function($v) { return $v;};
-        $currentRequest = $this->requestStack->getCurrentRequest();
-        return "http{$i($currentRequest->isSecure() ? 's' : '')}:////" . $currentRequest->getHttpHost() . '/';
     }
 }
