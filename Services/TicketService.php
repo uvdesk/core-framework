@@ -1352,5 +1352,46 @@ class TicketService
         $time['timeFormatString'] = $timeFormatString;
         return $time;
     }
+    public function getTicketAccess($ticket){
+        $ticketAgent = $ticket->getAgent() != null ? $ticket->getAgent()->getId() : null;
+        $agentId = $this->getUser()->getAgentInstance()->getId();
+        $ticketGroup = $ticket->getSupportGroup() != null ? $ticket->getSupportGroup()->getId() : null;
+        $ticketTeam =  $ticket->getSupportTeam() != null ? $ticket->getSupportTeam()->getId() : null;
+        $agentTeams = $this->getUser()->getAgentInstance()->getSupportTeams()->toArray();
+        $agentGroups = $this->getUser()->getAgentInstance()->getSupportGroups()->toArray();
+        if($agentGroups){
+            foreach($agentGroups as $agentGroup){
+                $agentGroupIdArray[]= $agentGroup->getId();
+            }
+        }
+        if($agentTeams){
+            foreach($agentTeams as $agentTeam){
+                $agentTeamIdArray[]= $agentTeam->getId();
+            }
+        }
+        $supportRole = $this->getUser()->getAgentInstance()->getSupportRole()->getId();
+        $ticketAccessLevel = $this->getUser()->getAgentInstance()->getTicketAccessLevel();
+        if($supportRole === 3){
+            
+            if($ticketAccessLevel == 2 && in_array($ticketGroup, $agentGroupIdArray?$agentGroupIdArray:[], true) || $ticketAgent == $this->getUser()->getId())
+            {
+               return  true;
+            }
+            elseif($ticketAccessLevel == 3 && in_array($ticketTeam, $agentTeamIdArray?$agentTeamIdArray:[], true) || $ticketAgent == $this->getUser()->getId())
+            {
+                return true;
+            }
+            elseif($ticketAccessLevel == 4 && $ticketAgent == $this->getUser()->getId()) {
+                return true;
+               
+            }
+            else{
+                return false;
+            }
+        }
+        else{
+            return true;
+        }
+    }
 }
 

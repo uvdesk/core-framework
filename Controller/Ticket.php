@@ -34,9 +34,10 @@ class Ticket extends Controller
         $ticketRepository = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket');
 
         $ticket = $ticketRepository->findOneById($ticketId);
-
-        if ($ticket->getAgent()->getId() != $this->getUser()->getId()) {
-            return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
+        $ticketAcess = $this->get('ticket.service')->getTicketAccess($ticket);
+       
+        if ($ticketAcess === false){
+          return  $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
         if (empty($ticket)) {
