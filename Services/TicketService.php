@@ -1372,21 +1372,18 @@ class TicketService
         $supportRole = $this->getUser()->getAgentInstance()->getSupportRole()->getId();
         $ticketAccessLevel = $this->getUser()->getAgentInstance()->getTicketAccessLevel();
         if($supportRole === 3){
-            
-            if($ticketAccessLevel == 2 && in_array($ticketGroup, $agentGroupIdArray?$agentGroupIdArray:[], true) || $ticketAgent == $this->getUser()->getId())
-            {
-               return  true;
-            }
-            elseif($ticketAccessLevel == 3 && in_array($ticketTeam, $agentTeamIdArray?$agentTeamIdArray:[], true) || $ticketAgent == $this->getUser()->getId())
-            {
-                return true;
-            }
-            elseif($ticketAccessLevel == 4 && $ticketAgent == $this->getUser()->getId()) {
-                return true;
-               
-            }
-            else{
-                return false;
+            switch ($ticketAccessLevel){
+                case 2:
+                    if(in_array($ticketGroup, $agentGroupIdArray, true) || in_array($ticketTeam, $agentTeamIdArray, true) || $ticketAgent == $this->getUser()->getId())
+                        return true;
+                case 3:
+                    if(in_array($ticketTeam, $agentTeamIdArray, true) || $ticketAgent == $this->getUser()->getId())
+                        return true;
+                case 4:
+                    if($ticketAccessLevel == 4 && $ticketAgent == $this->getUser()->getId())
+                        return true;
+                default:
+                    return false;
             }
         }
         else{

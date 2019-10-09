@@ -27,6 +27,7 @@ class Account extends Controller
 
     public function listAgents(Request $request)
     {
+        
         if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')){          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
