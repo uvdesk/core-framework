@@ -59,9 +59,6 @@ class MailCustomer extends WorkflowAction
                     $threadAttachments = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Attachment')->findByThread($createdThread);
 
                     foreach ($threadAttachments as $attachment) {
-                        if (empty($attachment)) {
-                            continue;
-                        }
                         $projectDir = $container->getParameter('kernel.project_dir');
                         $basePath   = $attachment->getPath();
                         $attachments[] = $projectDir . ($projectDir[strlen($projectDir) - 1] === '/' ? '' : '/') . 
@@ -71,9 +68,7 @@ class MailCustomer extends WorkflowAction
 
                 $ticketPlaceholders = $container->get('email.service')->getTicketPlaceholderValues($entity);
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $ticketPlaceholders);
-                
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $ticketPlaceholders);
-
                 $emailHeaders = ['References' => $entity->getReferenceIds()];
                 
                 if (!empty($currentThread) && null != $currentThread->getMessageId()) {
