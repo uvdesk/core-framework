@@ -138,7 +138,7 @@ class Account extends Controller
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
-        // @TODO: Refactor
+            // @TODO: Refactor
         $em = $this->getDoctrine()->getManager();
         $request = $this->container->get('request_stack')->getCurrentRequest();
 
