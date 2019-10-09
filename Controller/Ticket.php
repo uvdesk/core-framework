@@ -89,6 +89,15 @@ class Ticket extends Controller
         if ($request->getMethod() != 'POST' || false == $this->get('user.service')->isAccessAuthorized('ROLE_AGENT_CREATE_TICKET')) {
             return $response;
         }
+        if (empty($requestParams)) {
+            $request->getSession()->getFlashBag()->set('warning', 'Empty Ticket Data');
+            $referer = $request->headers->get('referer');
+            if (empty($referer)) {
+                return $response;
+            } else {
+                return $this->redirect($referer);
+            }
+        }
 
         // Get referral ticket if any
         $ticketValidationGroup = 'CreateTicket';
