@@ -81,15 +81,17 @@ class MailAgent extends WorkflowAction
                 if (!empty($entity->getReferenceIds())) {
                     $emailHeaders['References'] = $entity->getReferenceIds();
                 }
-                $attachments = array_map(
-                    function($attachment) use ($container) { 
-                        $projectDir     = $container->get('kernel')->getProjectDir();
+                $attachments = [];
+                if (1 === preg_match( '/{%\s*ticket.attachments\s*%}/', $emailTemplate->getMessage())) {
+                    $attachments = array_map(function($attachment) use ($container) { 
+                        $projectDir = $container->get('kernel')->getProjectDir();
                         $result['name'] = $attachment['name'];
                         $result['path'] = ($projectDir . ($projectDir[strlen($projectDir) - 1] === '/' ? '' : '/') . 
                             "public" . ($attachment['relativePath'][0] === '/' ? '' : '/') . $attachment['relativePath']);
                         return $result; 
                     }, $createdThread['attachments']);
-                
+                }
+
                 $placeHolderValues   = $container->get('email.service')->getTicketPlaceholderValues($entity, 'agent');
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(),$placeHolderValues);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(),$placeHolderValues);

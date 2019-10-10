@@ -55,7 +55,7 @@ class MailCustomer extends WorkflowAction
                 }
 
                 $attachments = [];
-                if (!empty($createdThread)) {
+                if (!empty($createdThread) && 1 === preg_match( '/{%\s*ticket.attachments\s*%}/', $emailTemplate->getMessage())) {
                     $threadAttachments = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Attachment')->findByThread($createdThread);
 
                     foreach ($threadAttachments as $attachment) {
