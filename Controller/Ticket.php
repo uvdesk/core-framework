@@ -90,8 +90,10 @@ class Ticket extends Controller
             return $response;
         }
         if (empty($requestParams)) {
-            $request->getSession()->getFlashBag()->set('warning', 'Empty Ticket Data');
+            $post_max_size = \Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService::getPostMaxSize();
+            $request->getSession()->getFlashBag()->set('warning', "Post size can not exceed $post_max_size");
             $referer = $request->headers->get('referer');
+            
             if (empty($referer)) {
                 return $response;
             } else {
