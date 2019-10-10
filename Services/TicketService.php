@@ -1373,6 +1373,8 @@ class TicketService
         $ticketAccessLevel = $this->getUser()->getAgentInstance()->getTicketAccessLevel();
         if($supportRole === 3){
             switch ($ticketAccessLevel){
+                case 1:
+                    return true;
                 case 2:
                     if(in_array($ticketGroup, $agentGroupIdArray, true) || in_array($ticketTeam, $agentTeamIdArray, true) || $ticketAgent == $this->getUser()->getId())
                         return true;
