@@ -17,7 +17,10 @@ class SavedReplies extends Controller
 
     public function loadSavedReplies(Request $request)
     {
-        return $this->render('@UVDeskCoreFramework//savedRepliesList.html.twig');
+        return $this->render('@UVDeskCoreFramework//savedRepliesList.html.twig',[
+            
+            'savedRepliesIds' => array_unique($this->container->get('user.service')->getUserSavedRepliesIds()),
+        ]);
     }
 
     public function updateSavedReplies(Request $request)
@@ -27,10 +30,8 @@ class SavedReplies extends Controller
             $template = $repository->getSavedReply($request->attributes->get('template'), $this->container);
         else
             $template = new CoreFrameworkBundleEntities\SavedReplies();
-
         if(!$template)
             $this->noResultFound();
-
         $errors = [];
         if ($request->getMethod() == 'POST') {
             if(empty($request->request->get('message'))){
@@ -40,7 +41,6 @@ class SavedReplies extends Controller
                     'errors' => json_encode($errors)
                 ));
             }
-
             $em = $this->getDoctrine()->getManager();
             $template->setName($request->request->get('name'));
             //if($this->get('user.service')->checkPermission('ROLE_ADMIN')) {
@@ -50,7 +50,9 @@ class SavedReplies extends Controller
             if($template->getSupportGroups()) {
                 foreach($template->getSupportGroups() as $key => $group) {
                     $previousGroupIds[] = $group->getId();
-                    if(!in_array($group->getId(), $groups ) ) {
+                   
+                    if(!in_array($group->getId(), $groups ) && !empty($groups[0]) ) {
+
                         $template->removeSupportGroups($group);
                         $em->persist($template);
                     }
@@ -65,14 +67,15 @@ class SavedReplies extends Controller
                     }
                 }
             }
-
             /* teams */
             $teams = explode(',', $request->request->get('tempTeams'));
             $previousTeamIds = [];
             if($template->getSupportTeams()) {
                 foreach($template->getSupportTeams() as $key => $team) {
                     $previousTeamIds[] = $team->getId();
-                    if(!in_array($team->getId(), $teams ) ) {
+                   
+                    if(!in_array($team->getId(), $teams ) && !empty($teams[0]) ) {
+
                         $template->removeSupportTeam($team);
                         $em->persist($template);
                     }
@@ -87,9 +90,7 @@ class SavedReplies extends Controller
                     }
                 }
             }
-
             $htmlFilter = new HTMLFilter();
-
             //htmlfilter these values
             $template->setMessage($request->request->get('message'));
             if(empty($template->getUser()))  {
@@ -97,11 +98,9 @@ class SavedReplies extends Controller
             }
             $em->persist($template);
             $em->flush();
-
             $this->addFlash('success', $request->attributes->get('template') ? 'Success! Reply has been updated successfully.': 'Success! Reply has been added successfully.');
             return $this->redirectToRoute('helpdesk_member_saved_replies');
         }
-
         return $this->render('@UVDeskCoreFramework//savedReplyForm.html.twig', array(
             'template' => $template,
             'errors' => json_encode($errors)
@@ -149,3 +148,5 @@ class SavedReplies extends Controller
         return $item->getId();
     }
 }
+
+
