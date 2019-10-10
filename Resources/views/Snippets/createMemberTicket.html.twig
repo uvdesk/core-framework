@@ -140,34 +140,17 @@
         var CreateTicketForm = Backbone.View.extend({
             el : $("#create-ticket-modal #create-ticket-form"),
             model: new CreateTicketModel(),
-            maxPostDataSize: 8388608,
             initialize : function() {
                 Backbone.Validation.bind(this);
                 var jsonContext = JSON.parse('{{ errors is defined ? errors|raw : "{}"  }}');
                 for (var field in jsonContext) {
                     Backbone.Validation.callbacks.invalid(this, field, jsonContext[field], 'input');
                 }
-                $.get("{{path("uvdesk_get_ini_parameter", {'parameter': 'post_max_size'})}}")
-                    .then(response => {
-                        switch(response['post_max_size'][(response['post_max_size'].length-1)].toLowerCase()) {
-                            case 'm':
-                                this.maxPostDataSize = (Number)(response['post_max_size'].substring(0, response['post_max_size'].length-1)) * 1024 * 1024;
-                                break;
-                            case 'k':
-                                this.maxPostDataSize = (Number)(response['post_max_size'].substring(0, response['post_max_size'].length-1)) * 1024;
-                                break;
-                            default:
-                                this.maxPostDataSize = (Number)(response['post_max_size'].substring(0, response['post_max_size'].length-1));
-                                break;
-                        }
-                    });
             },
             events : {
                 'click #create-ticket-btn': "saveTicket",
                 'blur input.create-ticket:not(input[type=file]), textarea.create-ticket, select.create-ticket, checkbox.create-ticket': 'formChanegd',
                 'change input[type=file].create-ticket': 'formChanegd',
-                'input input.create-ticket:not(input[type=file]), textarea.create-ticket': 'removeAttachmentError',
-                'change  select.create-ticket, checkbox.create-ticket': 'removeAttachmentError',
             },
             formChanegd: function(e) {
                 this.removeAttachmentError(); 
@@ -181,40 +164,13 @@
                 this.model = new CreateTicketModel();
                 this.model.set(data);
                 Backbone.Validation.bind(this);
-
+                
+                if(!window.fileView.validateFormDataSize(e)) {
+					return;
+				}
                 if(this.model.isValid(true) && this.validateFormDataSize()) {
                     $('#create-ticket-form').submit();
                     $('form').find('#create-ticket-btn').attr('disabled', 'disabled');
-                }
-            },
-            removeAttachmentError() {
-                Backbone.$('#uv-attachment-option .uv-attachment-error').remove();
-            },
-            validateFormDataSize() {
-                var formData = new FormData($('#create-ticket-form')[0]);
-                var filesSize = 0;
-                var totalSize = 0;
-                for (var pair of formData.entries()) {
-                    if (pair[1] instanceof Blob) {
-                        totalSize += pair[1].size;
-                        filesSize += pair[1].size;
-                    } else {
-                        totalSize += pair[1].length;
-                    }
-                }
-                var fileAttachmentError = Backbone.$('.uv-attachment-error');
-                if (!(fileAttachmentError.length)) {
-                    fileAttachmentError = $('<div class="uv-attachment-error"></div>');
-                    Backbone.$('#uv-attachment-option').append(fileAttachmentError);
-                }
-                fileAttachmentError.html('');
-                if (totalSize > this.maxPostDataSize) {
-                    var requiredSize = ((this.maxPostDataSize - totalSize + filesSize)/(1024*1024)).toString();
-                    fileAttachmentError.append('<span class="uv-field-message">Total files size must not be more than ' + requiredSize.substring(0, requiredSize.indexOf('.') + 3) + 'MB</span>');
-                    return false;
-                } else {
-                    this.removeAttachmentError();
-                    return true;
                 }
             }
         });
