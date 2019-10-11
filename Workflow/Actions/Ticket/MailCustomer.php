@@ -55,19 +55,20 @@ class MailCustomer extends WorkflowAction
                 }
 
                 $attachments = [];
-                if (!empty($createdThread)) {
+                if (!empty($createdThread) && 1 === preg_match( '/{%\s*ticket.attachments\s*%}/', $emailTemplate->getMessage())) {
                     $threadAttachments = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Attachment')->findByThread($createdThread);
 
                     foreach ($threadAttachments as $attachment) {
-                        $attachments[] = $_SERVER['DOCUMENT_ROOT'] . $attachment->getPath();
+                        $projectDir = $container->getParameter('kernel.project_dir');
+                        $basePath   = $attachment->getPath();
+                        $attachments[] = $projectDir . ($projectDir[strlen($projectDir) - 1] === '/' ? '' : '/') . 
+                            'public' . ($basePath[0] === '/' ? '' : '/') . $attachment->getPath();
                     }
                 }
 
                 $ticketPlaceholders = $container->get('email.service')->getTicketPlaceholderValues($entity);
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $ticketPlaceholders);
-  
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $ticketPlaceholders);
-   
                 $emailHeaders = ['References' => $entity->getReferenceIds()];
                 
                 if (!empty($currentThread) && null != $currentThread->getMessageId()) {
