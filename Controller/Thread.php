@@ -87,15 +87,14 @@ class Thread extends Controller
 
         // @TODO: Cross Review
         // check for thread types
-        if ($thread->getThreadType()=='reply') {
+        if ($thread->getThreadType() != 'note') {
             // Trigger agent reply event
             $event = new GenericEvent(CoreWorkflowEvents\Ticket\AgentReply::getId(), [
                 'entity' =>  $ticket,
                 'thread' =>  $thread
             ]);
+            $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
         }
-
-        $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
         // Check if ticket status needs to be updated
         $updateTicketToStatus = !empty($params['status']) ? (trim($params['status']) ?: null) : null;
