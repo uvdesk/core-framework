@@ -1352,5 +1352,50 @@ class TicketService
         $time['timeFormatString'] = $timeFormatString;
         return $time;
     }
+    public function getTicketAccess($ticket){
+        $ticketAgent = '';
+        $ticketAgent = $ticket->getAgent() != null ? $ticket->getAgent()->getId() : null;
+        
+        $agentId = $this->getUser()->getAgentInstance()->getId();
+        $ticketGroup = $ticket->getSupportGroup() != null ? $ticket->getSupportGroup()->getId() : null;
+        $ticketTeam =  $ticket->getSupportTeam() != null ? $ticket->getSupportTeam()->getId() : null;
+        $agentTeams = $this->getUser()->getAgentInstance()->getSupportTeams()->toArray();
+        $agentGroups = $this->getUser()->getAgentInstance()->getSupportGroups()->toArray();
+        $agentGroupIdArray = array();
+        if($agentGroups){
+            foreach($agentGroups as $agentGroup){
+                $agentGroupIdArray[]= $agentGroup->getId();
+            }
+        }
+        $agentTeamIdArray = array();
+        if($agentTeams){
+            foreach($agentTeams as $agentTeam){
+                $agentTeamIdArray[]= $agentTeam->getId();
+            }
+        }
+        $supportRole = $this->getUser()->getAgentInstance()->getSupportRole()->getId();
+        $ticketAccessLevel = $this->getUser()->getAgentInstance()->getTicketAccessLevel();
+        if($supportRole == 3){
+            switch ($ticketAccessLevel){
+                case 1: 
+                return true;
+                case 2:
+                if(in_array($ticketGroup, $agentGroupIdArray, true) || in_array($ticketTeam, $agentTeamIdArray, true) || $ticketAgent == $this->getUser()->getId())
+                return true;
+                case 3:
+                if(in_array($ticketTeam, $agentTeamIdArray, true) || $ticketAgent == $this->getUser()->getId())
+                return true;
+                case 4:
+                if($ticketAccessLevel == 4 && $ticketAgent == $this->getUser()->getId())
+                return true;
+                default:
+                return false;
+            }
+        }
+        else{
+            return true;
+        }
+    
+}
 }
 
