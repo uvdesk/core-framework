@@ -153,6 +153,7 @@
                 'change input[type=file].create-ticket': 'formChanegd',
             },
             formChanegd: function(e) {
+                this.removeAttachmentError(); 
                 this.model.set(Backbone.$(e.currentTarget).attr('name'), Backbone.$(e.currentTarget).val())
                 this.model.isValid([Backbone.$(e.currentTarget).attr('name')])
             },
@@ -163,8 +164,11 @@
                 this.model = new CreateTicketModel();
                 this.model.set(data);
                 Backbone.Validation.bind(this);
-
-                if(this.model.isValid(true)) {
+                
+                if(!window.fileView.validateFormDataSize(e)) {
+					return;
+				}
+                if(this.model.isValid(true) && this.validateFormDataSize()) {
                     $('#create-ticket-form').submit();
                     $('form').find('#create-ticket-btn').attr('disabled', 'disabled');
                 }

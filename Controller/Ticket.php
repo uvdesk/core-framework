@@ -89,6 +89,17 @@ class Ticket extends Controller
         if ($request->getMethod() != 'POST' || false == $this->get('user.service')->isAccessAuthorized('ROLE_AGENT_CREATE_TICKET')) {
             return $response;
         }
+        if (empty($requestParams)) {
+            $post_max_size = \Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService::getPostMaxSize();
+            $request->getSession()->getFlashBag()->set('warning', "Post size can not exceed $post_max_size");
+            $referer = $request->headers->get('referer');
+            
+            if (empty($referer)) {
+                return $response;
+            } else {
+                return $this->redirect($referer);
+            }
+        }
 
         // Get referral ticket if any
         $ticketValidationGroup = 'CreateTicket';

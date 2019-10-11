@@ -13,3 +13,7 @@ uvdesk_core_bundle_public_routing_resources:
         _locale: '%app_locales%'
     defaults:
         _locale: '%locale%'
+
+uvdesk_core_bundle_controller:
+    resource: "../../Controller"
+    type: annotation

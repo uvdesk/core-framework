@@ -18,6 +18,18 @@ class Thread extends Controller
         $params = $request->request->all();
         $ticket = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($ticketId);
 
+        // Validate Empty Params
+        if (empty($params)) {
+            $post_max_size = \Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService::getPostMaxSize();
+            $request->getSession()->getFlashBag()->set('warning', "Post size can not exceed $post_max_size");
+            $referer = $request->headers->get('referer');
+            
+            if (empty($referer)) {
+                return $this->redirect($this->generateUrl('helpdesk_member_ticket_collection'));
+            } else {
+                return $this->redirect($referer);
+            }
+        }
         // Validate Request
         if (empty($ticket)) {
             throw new \Exception('Ticket not found', 404);
