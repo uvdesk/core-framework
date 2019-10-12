@@ -103,12 +103,6 @@ class HomepageTemplate implements ExtendableComponentInterface
 	{
 		$whitelist = [];
 
-		//Saved Replies given as default privilege to Agent. 
-		if( in_array('ROLE_AGENT',$this->userService->getCurrentUser()->getRoles()))
-		{
-			$whitelist["Webkul\UVDesk\CoreFrameworkBundle\UIComponents\Dashboard\Homepage\Sections\Productivity"][] = "Webkul\UVDesk\CoreFrameworkBundle\UIComponents\Dashboard\Homepage\Items\SavedReplies";
-		}
-
 		// Filter segments based on user credentials
 		foreach ($this->sections as $segment) {
 			if (false == $this->isSegmentAccessible($segment)) {

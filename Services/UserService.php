@@ -698,75 +698,57 @@ class UserService
         return \DateTimeZone::listIdentifiers();
     }
 
-     public function sideBarPrivileges($requiredPermissions)
-     {
-         $agentPrivileges = $this->getUserPrivileges($this->getCurrentUser()->getId()); 
-         foreach($requiredPermissions as $permission)
-         {
-             if(in_array($permission, $agentPrivileges))
-             {
-                 return true;
-             }
-         }
-         return false;
-     }
+    public function getUserSavedReplyReferenceIds()
+    {
+        // @TODO: Refactor this function
+        $savedReplyIds = [];
+        $groupIds = [];
+        $teamIds = []; 
+        $userId = $this->container->get('security.token_storage')->getToken()->getUser()->getId();
 
-     public function getUserSavedRepliesIds()
-     {
-         $savedReplyIds = [];
-         $groupIds = [];
-         $teamIds = []; 
-         $userId = $this->container->get('security.token_storage')->getToken()->getUser()->getId();
-
-        //Get all the saved reply the current user has created.
+        // Get all the saved reply the current user has created.
         $savedReplyRepo = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SavedReplies')->findAll();
-        foreach($savedReplyRepo as $sr)
-        {
-            if($userId == $sr->getUser()->getId())
-            {
+
+        foreach ($savedReplyRepo as $sr) {
+            if ($userId == $sr->getUser()->getId()) {
                 //Save the ids of the saved reply.
                 array_push($savedReplyIds, (int)$sr->getId());
             }
         }
 
 
-        //Get the ids of the Group(s) the current user is associated with.
+        // Get the ids of the Group(s) the current user is associated with.
         $query = "select * from uv_user_support_groups where userInstanceId =".$userId;
         $connection = $this->entityManager->getConnection();
         $stmt = $connection->prepare($query);
         $stmt->execute();
         $result = $stmt->fetchAll();
 
-        foreach($result as $row)
-        {
+        foreach ($result as $row) {
             array_push($groupIds, $row['supportGroupId']);
         }
 
-        //Get all the saved reply's ids that is associated with the user's group(s).
+        // Get all the saved reply's ids that is associated with the user's group(s).
         $query = "select * from uv_saved_replies_groups";
         $stmt = $connection->prepare($query);
         $stmt->execute();
         $result = $stmt->fetchAll();
 
-        foreach($result as $row)
-        {
-            if(in_array($row['group_id'], $groupIds))
-            {
+        foreach ($result as $row) {
+            if (in_array($row['group_id'], $groupIds)) {
                 array_push($savedReplyIds, (int) $row['savedReply_id']);
             }
         }
 
-        //Get the ids of the Team(s) the current user is associated with.
+        // Get the ids of the Team(s) the current user is associated with.
         $query = "select * from uv_user_support_teams";
         $connection = $this->entityManager->getConnection();
         $stmt = $connection->prepare($query);
         $stmt->execute();
         $result = $stmt->fetchAll();
 
-        foreach($result as $row)
-        {
-            if($row['userInstanceId'] == $userId)
-            {
+        foreach($result as $row) {
+            if ($row['userInstanceId'] == $userId) {
                 array_push($teamIds, $row['supportTeamId']);
             }
         }
@@ -776,13 +758,12 @@ class UserService
         $stmt->execute();
         $result = $stmt->fetchAll();
 
-        foreach($result as $row)
-        {
-            if(in_array($row['subgroup_id'], $teamIds))
-            {
+        foreach ($result as $row) {
+            if (in_array($row['subgroup_id'], $teamIds)) {
                 array_push($savedReplyIds, (int)$row['savedReply_id']);
             }
         }
+
         return $savedReplyIds;
     }
 }
