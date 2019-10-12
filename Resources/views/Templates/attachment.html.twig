@@ -7,126 +7,39 @@
     $(function () {
         var FileView = Backbone.View.extend({
             fileCounter: 0,
-            maxFileSize: 2097152,
-            maxFileLimit: 20,
-            maxPostDataSize: 8388608,
             el: '.attachment-block',
             events : {
                 'click .uv-file-label': 'createFileType',
                 'change .attachment': 'selectFile',
                 'click .uv-added-attachment span': 'removeFile'
             },
-            initialize: function() {
-                $.get("{{path("uvdesk_get_ini_parameter", {'parameter': 'upload_max_filesize'})}}").then(response => {
-                    switch(response['upload_max_filesize'][(response['upload_max_filesize'].length-1)].toLowerCase()) {
-                        case 'm':
-                            this.maxFileSize = (Number)(response['upload_max_filesize'].substring(0, response['upload_max_filesize'].length-1)) * 1024 * 1024;
-                            break;
-                        case 'k':
-                            this.maxFileSize = (Number)(response['upload_max_filesize'].substring(0, response['upload_max_filesize'].length-1)) * 1024;
-                            break;
-                        default:
-                            this.maxFileSize = (Number)(response['upload_max_filesize'].substring(0, response['upload_max_filesize'].length-1));
-                            break;
-                    }
-                });
-                $.get("{{path("uvdesk_get_ini_parameter", {'parameter': 'max_file_uploads'})}}").then(response => {
-                    this.maxFileLimit = (Number)(response['max_file_uploads']);
-                });
-                $.get("{{path("uvdesk_get_ini_parameter", {'parameter': 'post_max_size'})}}").then(response => {
-                    switch(response['post_max_size'][(response['post_max_size'].length-1)].toLowerCase()) {
-                        case 'm':
-                            this.maxPostDataSize = (Number)(response['post_max_size'].substring(0, response['post_max_size'].length-1)) * 1024 * 1024;
-                            break;
-                        case 'k':
-                            this.maxPostDataSize = (Number)(response['post_max_size'].substring(0, response['post_max_size'].length-1)) * 1024;
-                            break;
-                        default:
-                            this.maxPostDataSize = (Number)(response['post_max_size'].substring(0, response['post_max_size'].length-1));
-                            break;
-                    }
-                });
-            },
             createFileType: function(e) {
-                var currentElement = Backbone.$(e.currentTarget)
-                currentElement.parents('.attachment-block').find('.uv-attachment-error').remove();
+                currentElement = Backbone.$(e.currentTarget)
                 this.fileCounter += 1;
-                var formType = currentElement.parents('form').attr('id');
-                currentElement.parents('.attachment-block').append('<div class="uv-added-attachment" style="display: none" id="' + formType + '-file-' + this.fileCounter + '"><div class="uv-attachment"><input type="file" name="attachments[]" class="attachment" multiple="multiple"></div><span></span></div>');
-                $(`#${formType}-file-${this.fileCounter}`).find('.attachment').trigger('click');
+                currentElement.parents('.attachment-block').append('<div class="uv-added-attachment" style="display: none" id="file-' + this.fileCounter + '"><div class="uv-attachment"><input type="file" name="attachments[]" class="attachment" multiple="multiple"></div><span></span></div>')
+                $('#file-' + this.fileCounter).find('.attachment').trigger('click')
             },
             labelTemplate: _.template('<label class="file-name"><%- fileName %></label><br>'),
             selectFile: function(e) {
-                var currentElement = Backbone.$(e.currentTarget),
-                    attachmentBlock = currentElement.parents(".uv-added-attachment"),
-                    isFileSizeError = false,
-                    fileView = currentElement.parents('.attachment-block');
+                currentElement = Backbone.$(e.currentTarget)
+                var attachmentBlock = currentElement.parents(".uv-added-attachment");
                 if(currentElement.length) {
-                    files = currentElement[0].files;
-                    if(files.length) {
+                   files = currentElement[0].files; 
+                   if(files.length) {
                         for (var i = 0; i < files.length; i++) {
-                            var filesize = (files[i].size / (1024 * 1024)).toString();
-                            var fileName = files[i].name + ' x ' + filesize.substring(0, filesize.indexOf('.') + 3) + 'MB';
-                            isFileSizeError = files[i].size > this.maxFileSize ? true : false; 
+                            var fileName = files[i].name;
                             attachmentBlock.append(this.labelTemplate({'fileName': fileName}));
                         }
-                    }
+                   }
                 }
-                
-                var errorElement = $('<div class="uv-attachment-error"></div>');
-                if (isFileSizeError) {
-                    errorElement.append('<span class="uv-field-message">File size must be no more than 2MB</span>');
-                }
-                var isMaxFileLimitError = fileView.children('.uv-added-attachment').length > this.maxFileLimit ? true : false; 
-                if(isMaxFileLimitError) {
-                    errorElement.append('<span class="uv-field-message">You can upload only upto ' + this.maxFileLimit + ' files</span>');
-                }
-                if (isFileSizeError || isMaxFileLimitError) {
-                    fileView.append(errorElement);
-                    attachmentBlock.remove();
-                    this.fileCounter -= 1;
-                } else {
-                    attachmentBlock.show();
-                }
+
+                attachmentBlock.show()
             },
             removeFile: function(e) {
-                var element = Backbone.$(e.currentTarget);
-                element.parents('.attachment-block').find('.uv-attachment-error').remove();
-                element.parents('.uv-added-attachment').remove()
-            },
-            removeAttachmentError(event) {
-                Backbone.$(event.currentTarget).parents('form').find('.attachment-block .uv-attachment-error').remove();
-            },
-            validateFormDataSize(event) {
-                var formData = new FormData(Backbone.$(event.currentTarget).parents('form')[0]),
-                    attachmentBlock = Backbone.$(event.currentTarget).parents('form').find('.attachment-block'),
-                    filesSize = 0,
-                    totalSize = 0;
-                for (var pair of formData.entries()) {
-                    if (pair[1] instanceof Blob) {
-                        totalSize += pair[1].size;
-                        filesSize += pair[1].size;
-                    } else {
-                        totalSize += pair[1].length;
-                    }
-                }
-                var fileAttachmentError = attachmentBlock.find('.uv-attachment-error');
-                if (!(fileAttachmentError.length)) {
-                    fileAttachmentError = $('<div class="uv-attachment-error"></div>');
-                    attachmentBlock.append(fileAttachmentError);
-                }
-                fileAttachmentError.html('');
-                if (totalSize > this.maxPostDataSize) {
-                    var requiredSize = ((this.maxPostDataSize - totalSize + filesSize)/(1024*1024)).toString();
-                    fileAttachmentError.append('<span class="uv-field-message">Total files size must not be more than ' + requiredSize.substring(0, requiredSize.indexOf('.') + 3) + 'MB</span>');
-                    return false;
-                } else {
-                    this.removeAttachmentError(event);
-                    return true;
-                }
-            },
+                Backbone.$(e.currentTarget).parents('.uv-added-attachment').remove()
+            }
         });
         
-        window.fileView = window.fileView || new FileView();
+        var fileView = new FileView();
     });
 </script>

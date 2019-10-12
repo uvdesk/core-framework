@@ -54,49 +54,40 @@ class MailCustomer extends WorkflowAction
                     break;
                 }
 
-                $attachments = [];
-                if (!empty($createdThread) && 1 === preg_match( '/{%\s*ticket.attachments\s*%}/', $emailTemplate->getMessage())) {
-                    $threadAttachments = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Attachment')->findByThread($createdThread);
-
-                    foreach ($threadAttachments as $attachment) {
-                        $projectDir = $container->getParameter('kernel.project_dir');
-                        $basePath   = $attachment->getPath();
-                        $attachments[] = $projectDir . ($projectDir[strlen($projectDir) - 1] === '/' ? '' : '/') . 
-                            'public' . ($basePath[0] === '/' ? '' : '/') . $attachment->getPath();
-                    }
+                // Only process attachments if required in the message body
+                // @TODO: Revist -> Maybe we should always include attachments if they are provided??
+                if (!empty($createdThread) && (strpos($emailTemplate->getMessage(), '{%ticket.attachments%}') !== false || strpos($emailTemplate->getMessage(), '{% ticket.attachments %}') !== false)) {
+                    $attachments = array_map(function($attachment) use ($container) { 
+                        return str_replace('//', '/', $container->get('kernel')->getProjectDir() . "/public" . $attachment->getPath());
+                    }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:Attachment')->findByThread($createdThread));
                 }
 
                 $ticketPlaceholders = $container->get('email.service')->getTicketPlaceholderValues($entity);
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $ticketPlaceholders);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $ticketPlaceholders);
-                $emailHeaders = ['References' => $entity->getReferenceIds()];
-                
-                if (!empty($currentThread) && null != $currentThread->getMessageId()) {
-                    $emailHeaders['In-Reply-To'] = $currentThread->getMessageId();
-                }
-
-                $cc = $bcc = [];
 
                 if (!empty($thread)) {
-                    $cc = $thread->getCc();
-                    $bcc = $thread->getBcc();
+                    $headers = ['References' => $entity->getReferenceIds()];
+                
+                    if (!empty($currentThread) && null != $currentThread->getMessageId()) {
+                        $headers['In-Reply-To'] = $currentThread->getMessageId();
+                    }
 
                     switch($thread->getThreadType()) {
                         case 'forward':
-                            $messageId = $container->get('email.service')->sendMail($subject, $message, $thread->getReplyTo(), $emailHeaders, $entity->getMailboxEmail(), $attachments, $cc, $bcc);
+                            $messageId = $container->get('email.service')->sendMail($subject, $message, $thread->getReplyTo(), $headers, $entity->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
                             break;
                         default:
-                            $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $emailHeaders, $entity->getMailboxEmail(), $attachments, $cc, $bcc);
+                            $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $headers, $entity->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
                             break;
                     }
-                }
-                
-                if (!empty($messageId)) {
-                    $createdThread->setMessageId($messageId);
-                    $entityManager->persist($createdThread);
-                    $entityManager->flush();
-                }
 
+                    if (!empty($messageId)) {
+                        $createdThread->setMessageId($messageId);
+                        $entityManager->persist($createdThread);
+                        $entityManager->flush();
+                    }
+                }
                 break;
             default:
                 break;

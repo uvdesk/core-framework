@@ -81,23 +81,24 @@ class MailAgent extends WorkflowAction
                 if (!empty($entity->getReferenceIds())) {
                     $emailHeaders['References'] = $entity->getReferenceIds();
                 }
-                $attachments = [];
-                if (1 === preg_match( '/{%\s*ticket.attachments\s*%}/', $emailTemplate->getMessage())) {
+
+                // Only process attachments if required in the message body
+                // @TODO: Revist -> Maybe we should always include attachments if they are provided??
+                if (strpos($emailTemplate->getMessage(), '{%ticket.attachments%}') !== false || strpos($emailTemplate->getMessage(), '{% ticket.attachments %}') !== false) {
                     $attachments = array_map(function($attachment) use ($container) { 
-                        $projectDir = $container->get('kernel')->getProjectDir();
-                        $result['name'] = $attachment['name'];
-                        $result['path'] = ($projectDir . ($projectDir[strlen($projectDir) - 1] === '/' ? '' : '/') . 
-                            "public" . ($attachment['relativePath'][0] === '/' ? '' : '/') . $attachment['relativePath']);
-                        return $result; 
+                        return [
+                            'name' => $attachment['name'],
+                            'path' => str_replace('//', '/', $container->get('kernel')->getProjectDir() . "/public" . $attachment['relativePath']),
+                        ];
                     }, $createdThread['attachments']);
                 }
 
-                $placeHolderValues   = $container->get('email.service')->getTicketPlaceholderValues($entity, 'agent');
-                $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(),$placeHolderValues);
-                $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(),$placeHolderValues);
+                $placeHolderValues = $container->get('email.service')->getTicketPlaceholderValues($entity, 'agent');
+                $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $placeHolderValues);
+                $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $placeHolderValues);
                 
                 foreach($emails as $email){
-                    $messageId = $container->get('email.service')->sendMail($subject, $message, $email, $emailHeaders, null, $attachments);
+                    $messageId = $container->get('email.service')->sendMail($subject, $message, $email, $emailHeaders, null, $attachments ?? []);
                 }
             } else {
                 // Email Template/Emails Not Found. Disable Workflow/Prepared Response
