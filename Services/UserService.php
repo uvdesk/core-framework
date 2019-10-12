@@ -720,5 +720,23 @@ class UserService
         }
     }
 	
+    //Get converted time (customer's timezone) for thread replies.
+    public function getCustomerThreadLocalTimezone($customerId, $threadTime)
+    {
+        $user = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findById($customerId);
+
+        if($user[0]->getTimezone() != null)
+        {
+            $userTimezone = $user[0]->getTimezone();
+            $localCustomerTimezone = $threadTime->setTimeZone(new \DateTimeZone($userTimezone))->format('d-m-Y h:ia');
+            return $localCustomerTimezone; 
+
+        } else {
+
+            return date_format($thread['createdAt'],"m-d-y h:i A");
+
+        }
+    }
+	
 	
 }
