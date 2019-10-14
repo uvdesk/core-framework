@@ -342,7 +342,7 @@ class EmailService
         }
         
         // Link to update account login credentials
-        $updateCredentialsURL = $router->generate(('customer' == $userType) ? 'helpdesk_customer_update_account_credentials' : 'helpdesk_member_update_account_credentials', [
+        $updateCredentialsURL = $router->generate( 'helpdesk_reset_account_password', [
             'email' => $user->getEmail(),
             'verificationCode' => $user->getVerificationCode(),
         ], UrlGeneratorInterface::ABSOLUTE_URL);
@@ -527,6 +527,8 @@ class EmailService
             return "<$messageId>";
         } catch (\Exception $e) {
             // @TODO: Log exception
+            dump($e->getMessage());
+            die;
         }
 
         return null;
