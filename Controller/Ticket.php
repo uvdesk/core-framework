@@ -29,36 +29,32 @@ class Ticket extends Controller
     public function loadTicket($ticketId, QuickActionButtonCollection $quickActionButtonCollection)
     {
         $entityManager = $this->getDoctrine()->getManager();
-        $request = $this->container->get('request_stack')->getCurrentRequest();
         $userRepository = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User');
         $ticketRepository = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket');
 
         $ticket = $ticketRepository->findOneById($ticketId);
-        $ticketAcess = $this->get('ticket.service')->getTicketAccess($ticket);
-        if ($ticketAcess === false){
-            return  $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
-          }
-
+        
         if (empty($ticket)) {
             throw new \Exception('Page not found');
-        } else {
-            // $this->denyAccessUnlessGranted('VIEW', $ticket);
-
-            // Mark as viewed by agents
-            if (false == $ticket->getIsAgentViewed()) {
-                $ticket->setIsAgentViewed(true);
-
-                $entityManager->persist($ticket);
-                $entityManager->flush();
-            }
         }
-
-        // ( in_array($this->getUser()->getRole(), ['ROLE_SUPER_ADMIN', 'ROLE_ADMIN'])
-        // ?: (in_array('ROLE_AGENT_AGENT_KICK', $this->get('user.service')->getAgentPrivilege($this->getUser()->getId()))) )
+        
+        $user = $this->get('user.service')->getSessionUser();
+        
+        // Proceed only if user has access to the resource
+        if (false == $this->get('ticket.service')->isTicketAccessGranted($ticket, $user)) {
+            throw new \Exception('Access Denied', 403);
+        }
 
         $agent = $ticket->getAgent();
         $customer = $ticket->getCustomer();
-        $user = $this->get('user.service')->getSessionUser();
+        
+        // Mark as viewed by agents
+        if (false == $ticket->getIsAgentViewed()) {
+            $ticket->setIsAgentViewed(true);
+
+            $entityManager->persist($ticket);
+            $entityManager->flush();
+        }
 
         $quickActionButtonCollection->prepareAssets();
 

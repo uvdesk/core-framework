@@ -5,11 +5,12 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread;
-use Symfony\Component\HttpFoundation\Response;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -35,7 +36,9 @@ class TicketService
         return sprintf("<%s%s>", TokenGenerator::generateToken(20, '0123456789abcdefghijklmnopqrstuvwxyz'), $emailDomain);
     }
 
-    public function getUser() {
+    // @TODO: Refactor this out of this service. Use UserService::getSessionUser() instead.
+    public function getUser()
+    {
         return $this->container->get('user.service')->getCurrentUser();
     }
 
@@ -1352,50 +1355,52 @@ class TicketService
         $time['timeFormatString'] = $timeFormatString;
         return $time;
     }
-    public function getTicketAccess($ticket){
-        $ticketAgent = '';
-        $ticketAgent = $ticket->getAgent() != null ? $ticket->getAgent()->getId() : null;
-        
-        $agentId = $this->getUser()->getAgentInstance()->getId();
-        $ticketGroup = $ticket->getSupportGroup() != null ? $ticket->getSupportGroup()->getId() : null;
-        $ticketTeam =  $ticket->getSupportTeam() != null ? $ticket->getSupportTeam()->getId() : null;
-        $agentTeams = $this->getUser()->getAgentInstance()->getSupportTeams()->toArray();
-        $agentGroups = $this->getUser()->getAgentInstance()->getSupportGroups()->toArray();
-        $agentGroupIdArray = array();
-        if($agentGroups){
-            foreach($agentGroups as $agentGroup){
-                $agentGroupIdArray[]= $agentGroup->getId();
-            }
-        }
-        $agentTeamIdArray = array();
-        if($agentTeams){
-            foreach($agentTeams as $agentTeam){
-                $agentTeamIdArray[]= $agentTeam->getId();
-            }
-        }
-        $supportRole = $this->getUser()->getAgentInstance()->getSupportRole()->getId();
-        $ticketAccessLevel = $this->getUser()->getAgentInstance()->getTicketAccessLevel();
-        if($supportRole == 3){
-            switch ($ticketAccessLevel){
-                case 1: 
-                return true;
-                case 2:
-                if(in_array($ticketGroup, $agentGroupIdArray, true) || in_array($ticketTeam, $agentTeamIdArray, true) || $ticketAgent == $this->getUser()->getId())
-                return true;
-                case 3:
-                if(in_array($ticketTeam, $agentTeamIdArray, true) || $ticketAgent == $this->getUser()->getId())
-                return true;
-                case 4:
-                if($ticketAccessLevel == 4 && $ticketAgent == $this->getUser()->getId())
-                return true;
-                default:
-                return false;
-            }
-        }
-        else{
-            return true;
-        }
     
-}
+    public function isTicketAccessGranted(Ticket $ticket, User $user = null, $firewall = 'members')
+    {
+        // @TODO: Take current firewall into consideration (access check on behalf of agent/customer)
+        if (empty($user)) {
+            $user = $this->container->get('user.service')->getSessionUser();
+
+            if (empty($user)) {
+                return false;
+            } else {
+                $agentInstance = $this->getUser()->getAgentInstance();
+
+                if (empty($agentInstance)) {
+                    return false;
+                }
+            }
+        }
+
+        if ($agentInstance->getSupportRole()->getId() == 3 && in_array($agentInstance->getTicketAccessLevel(), [2, 3, 4])) {
+            $accessLevel = $agentInstance->getTicketAccessLevel();
+
+            // Check if user has been given inidividual access
+            if ($ticket->getAgent() != null && $ticket->getAgent()->getId() == $user->getId()) {
+                return true;
+            }
+            
+            if ($accessLevel == 2 || $accessLevel == 3) {
+                // Check if user belongs to a support team assigned to ticket
+                $teamReferenceIds = array_map(function ($team) { return $team->getId(); }, $agent->getSupportTeams()->toArray());
+                
+                if ($ticket->getSupportTeam() != null && in_array($ticket->getSupportTeam()->getId(), $teamReferenceIds)) {
+                    return true;
+                } else if ($accessLevel == 2) {
+                    // Check if user belongs to a support group assigned to ticket
+                    $groupReferenceIds = array_map(function ($group) { return $group->getId(); }, $agent->getSupportGroups()->toArray());
+
+                    if ($ticket->getSupportGroup() != null && in_array($ticket->getSupportGroup()->getId(), $groupReferenceIds)) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        return true;
+    }
 }
 
