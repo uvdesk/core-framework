@@ -13,12 +13,10 @@ class EmailTemplates extends DoctrineFixture
         CoreEmailTemplates\Agent\TicketReply::class,
         CoreEmailTemplates\Agent\TicketCreated::class,
         CoreEmailTemplates\Agent\AccountCreated::class,
-        CoreEmailTemplates\Agent\ForgotPassword::class,
         CoreEmailTemplates\Agent\TicketAssigned::class,
         CoreEmailTemplates\Customer\TicketReply::class,
         CoreEmailTemplates\Customer\TicketCreated::class,
         CoreEmailTemplates\Customer\AccountCreated::class,
-        CoreEmailTemplates\Customer\ForgotPassword::class,
         CoreEmailTemplates\User\ForgotPassword::class,
     ];
 
