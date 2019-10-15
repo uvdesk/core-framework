@@ -766,4 +766,46 @@ class UserService
 
         return $savedReplyIds;
     }
+	
+    //Used to display local customer time in the customer's ticket list section.
+    public  function getCustomerTicketLocalTimezone($customerId,$ticketId)
+    {
+        $user = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findById($customerId);
+
+        if($user[0]->getTimezone() != null)
+        {
+            //Return the formated time in the customer's local timezone.
+            $ticket = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findById($ticketId);
+            $ticketDateTime = $ticket[0]->getCreatedAt();
+            $userTimezone = $user[0]->getTimezone();
+            $localCustomerTimezone = $ticketDateTime->setTimeZone(new \DateTimeZone($userTimezone))->format('d-m-Y h:ia');
+            return $localCustomerTimezone; 
+
+        } else {
+
+            $ticket = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findById($ticketId);
+            return $ticket[0]->getCreatedAt()->format('d-m-Y h:ia');
+            
+        }
+    }
+	
+    //Get converted time (customer's timezone) for thread replies.
+    public function getCustomerThreadLocalTimezone($customerId, $threadTime)
+    {
+        $user = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findById($customerId);
+
+        if($user[0]->getTimezone() != null)
+        {
+            $userTimezone = $user[0]->getTimezone();
+            $localCustomerTimezone = $threadTime->setTimeZone(new \DateTimeZone($userTimezone))->format('d-m-Y h:ia');
+            return $localCustomerTimezone; 
+
+        } else {
+
+            return date_format($thread['createdAt'],"m-d-y h:i A");
+
+        }
+    }
+	
+	
 }
