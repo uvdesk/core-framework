@@ -77,18 +77,7 @@ class AsideTemplate implements ExtendableComponentInterface
         usort($sidebar['collection'], function ($item_1, $item_2) {
             return strcasecmp($item_1['title'], $item_2['title']);
         });
-		
-	// Remove Swiftmailer link from aside for Agents, because they do not have Swiftmailer privilege.
-        if($sidebar['title'] == 'Settings' && in_array('ROLE_AGENT', $this->userService->getCurrentUser()->getRoles()))
-        {
-            foreach($sidebar['collection'] as $key=>$value)
-            {
-                if($value['title'] == 'Swift Mailer')
-                {
-                    unset($sidebar['collection'][$key]);
-                }
-            }
-        }
+
         return $this->twig->render('@UVDeskCoreFramework/Templates/aside.html.twig', [ 'sidebar' => $sidebar ]);
 	}
 }
