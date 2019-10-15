@@ -3,6 +3,19 @@ CHANGELOG for 1.0.x
 
 This changelog references any relevant changes introduced in 1.0 minor versions.
 
+* 1.0.1 (2019-10-15)
+    * **Issue #177:** How could individual customer set timezone for their own panel?
+    * **Issue #119:** Asset visibility checkbox layout in ticket view
+    * **Issue #217:** Super user could not access the tickets assign to other agent
+    * **Issue #216:** No access of customer's tickets to super user
+    * **Issue #209:** Mail Received by customer for add note and forward reply even no workflow setup
+    * **Issue #226:** Show saved replies as default privileges to Agent
+    * **Issue #218:** Side bar missing at agent panel
+    * **Issue #208:** Customer not receive ticket reply mail if attachment were added to ticket
+    * **Issue #54:** Attachment's are not received on agent's mail
+    * **Misc. Updates:**
+        * Only users with admin level privileges can configure Swiftmailer settings
+
 * 1.0.0 (Released on 2019-10-09)
     * **Issue #202:** Agent receives customer forget password link (raised by vaishaliwebkul)
     * **Issue #63:** Ticket counts get wrong when filter ticket on the basis of ticket replies (raised by vaishaliwebkul)
