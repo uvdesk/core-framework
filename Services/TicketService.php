@@ -1364,13 +1364,13 @@ class TicketService
 
             if (empty($user)) {
                 return false;
-            } else {
-                $agentInstance = $this->getUser()->getAgentInstance();
-
-                if (empty($agentInstance)) {
-                    return false;
-                }
             }
+        }
+
+        $agentInstance = $user->getAgentInstance();
+
+        if (empty($agentInstance)) {
+            return false;
         }
 
         if ($agentInstance->getSupportRole()->getId() == 3 && in_array($agentInstance->getTicketAccessLevel(), [2, 3, 4])) {
@@ -1383,13 +1383,13 @@ class TicketService
             
             if ($accessLevel == 2 || $accessLevel == 3) {
                 // Check if user belongs to a support team assigned to ticket
-                $teamReferenceIds = array_map(function ($team) { return $team->getId(); }, $agent->getSupportTeams()->toArray());
+                $teamReferenceIds = array_map(function ($team) { return $team->getId(); }, $agentInstance->getSupportTeams()->toArray());
                 
                 if ($ticket->getSupportTeam() != null && in_array($ticket->getSupportTeam()->getId(), $teamReferenceIds)) {
                     return true;
                 } else if ($accessLevel == 2) {
                     // Check if user belongs to a support group assigned to ticket
-                    $groupReferenceIds = array_map(function ($group) { return $group->getId(); }, $agent->getSupportGroups()->toArray());
+                    $groupReferenceIds = array_map(function ($group) { return $group->getId(); }, $agentInstance->getSupportGroups()->toArray());
 
                     if ($ticket->getSupportGroup() != null && in_array($ticket->getSupportGroup()->getId(), $groupReferenceIds)) {
                         return true;
