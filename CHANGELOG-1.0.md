@@ -4,6 +4,8 @@ CHANGELOG for 1.0.x
 This changelog references any relevant changes introduced in 1.0 minor versions.
 
 * 1.0.1 (2019-10-15)
+    * **Issue #223:** Custom field privilege issue
+    * **Issue #224:** Email template privilege issue
     * **Issue #177:** How could individual customer set timezone for their own panel?
     * **Issue #119:** Asset visibility checkbox layout in ticket view
     * **Issue #217:** Super user could not access the tickets assign to other agent
