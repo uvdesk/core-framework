@@ -138,7 +138,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
                 'source' => $thread['source'],
                 'threadType' => $thread['threadType'],
                 'userType' => 'customer',
-                'formatedCreatedAt' => date_format($thread['createdAt'],"m-d-y h:i A"),
+                'formatedCreatedAt' => $userService->getLocalizedFormattedTime($userService->getSessionUser(), $thread['createdAt']),
                 'timestamp' => $userService->convertToDatetimeTimezoneTimestamp($thread['createdAt']),
                 'cc' => $thread['cc'],
                 'bcc' => $thread['bcc'],
