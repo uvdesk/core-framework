@@ -28,7 +28,7 @@ class SwiftMailer implements PanelSidebarItemInterface
 
     public static function getRoles() : array
     {
-        return ['ROLE_AGENT_MANAGE_EMAIL_TEMPLATE'];
+        return ['ROLE_ADMIN'];
     }
 
     public static function getSidebarReferenceId() : string
