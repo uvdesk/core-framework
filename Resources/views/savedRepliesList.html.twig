@@ -195,9 +195,16 @@
 				},
 				render : function () {
 					this.$el.find("tr").remove();
-					if(savedReplyCollection.length) {
+
+					if (savedReplyCollection.length) {
+						let savedReplyReferenceIds = {{ savedReplyReferenceIds|json_encode|raw}};
+
 						_.each(savedReplyCollection.models, function (item) {
-							this.renderSavedReply(item);
+							for(var i=0; i < savedReplyReferenceIds.length; i++) {
+								if (item.id == savedReplyReferenceIds[i]) {
+									this.renderSavedReply(item);
+								}
+							}
 						}, this);
 					} else {
 						this.$el.append("<tr style='text-align: center;'><td colspan='3'>{% trans %}No Record Found{% endtrans %}</td></tr>")

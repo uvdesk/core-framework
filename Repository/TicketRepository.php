@@ -203,7 +203,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 'totalThreads' => $ticketService->getTicketTotalThreads($ticket[0]['id']),
                 'agent' => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
                 'customer' => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
-                'formatedCreatedAt' => $ticket[0]['createdAt']->format('d-m-Y h:ia'),
+                'formatedCreatedAt' => $userService->getLocalizedFormattedTime($userService->getSessionUser(), $ticket[0]['createdAt']),
             ];
         }
 

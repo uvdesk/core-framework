@@ -5,9 +5,8 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Webkul\UVDesk\CoreFrameworkBundle\Form as CoreFrameworkBundleForms;
-use Webkul\UVDesk\CoreFrameworkBundle\Utils\HTMLFilter;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Form as CoreFrameworkBundleForms;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
 
 class SavedReplies extends Controller
@@ -17,84 +16,101 @@ class SavedReplies extends Controller
 
     public function loadSavedReplies(Request $request)
     {
-        return $this->render('@UVDeskCoreFramework//savedRepliesList.html.twig');
+        $savedReplyReferenceIds = $this->container->get('user.service')->getUserSavedReplyReferenceIds();
+
+        return $this->render('@UVDeskCoreFramework//savedRepliesList.html.twig', [
+            'savedReplyReferenceIds' => array_unique($savedReplyReferenceIds),
+        ]);
     }
 
     public function updateSavedReplies(Request $request)
     {
-        $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:SavedReplies');
-        if($request->attributes->get('template'))
-            $template = $repository->getSavedReply($request->attributes->get('template'), $this->container);
-        else
-            $template = new CoreFrameworkBundleEntities\SavedReplies();
+        $templateId = $request->attributes->get('template');
+        $repository = $this->getDoctrine()->getRepository(CoreFrameworkBundleEntities\SavedReplies::class);
 
-        if(!$template)
-            $this->noResultFound();
+        if (empty($templateId)) {
+            $template = new CoreFrameworkBundleEntities\SavedReplies();
+        } else {
+            // @TODO: Refactor: We shouldn't be passing around the container.
+            $template = $repository->getSavedReply($templateId, $this->container);
+
+            if (empty($template)) {
+                $this->noResultFound();
+            }
+        }
 
         $errors = [];
         if ($request->getMethod() == 'POST') {
-            if(empty($request->request->get('message'))){
+            if (empty($request->request->get('message'))) {
                 $this->addFlash('warning',  $this->get('translator')->trans('Error! Saved reply body can not be blank'));
-                return $this->render('@UVDeskCoreFramework//savedReplyForm.html.twig', array(
+                
+                return $this->render('@UVDeskCoreFramework//savedReplyForm.html.twig', [
                     'template' => $template,
                     'errors' => json_encode($errors)
-                ));
+                ]);
             }
 
             $em = $this->getDoctrine()->getManager();
             $template->setName($request->request->get('name'));
-            //if($this->get('user.service')->checkPermission('ROLE_ADMIN')) {
-            /* groups */
-            $groups = explode(',', $request->request->get('tempGroups'));
+
+            // Groups
             $previousGroupIds = [];
-            if($template->getSupportGroups()) {
-                foreach($template->getSupportGroups() as $key => $group) {
+            $groups = explode(',', $request->request->get('tempGroups'));
+
+            if ($template->getSupportGroups()) {
+                foreach ($template->getSupportGroups() as $key => $group) {
                     $previousGroupIds[] = $group->getId();
-                    if(!in_array($group->getId(), $groups ) ) {
+                   
+                    if (!in_array($group->getId(), $groups) && !empty($groups[0])) {
                         $template->removeSupportGroups($group);
                         $em->persist($template);
                     }
                 }
             }
+
             foreach($groups as $key => $groupId) {
-                if($groupId) {
+                if ($groupId) {
                     $group = $em->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')->findOneBy([ 'id' => $groupId ]);
-                    if($group && (empty($previousGroupIds) || !in_array($groupId, $previousGroupIds)) ) {
+
+                    if ($group && (empty($previousGroupIds) || !in_array($groupId, $previousGroupIds))) {
                         $template->addSupportGroup($group);
                         $em->persist($template);
                     }
                 }
             }
 
-            /* teams */
-            $teams = explode(',', $request->request->get('tempTeams'));
+            // Teams
             $previousTeamIds = [];
-            if($template->getSupportTeams()) {
-                foreach($template->getSupportTeams() as $key => $team) {
+            $teams = explode(',', $request->request->get('tempTeams'));
+
+            if ($template->getSupportTeams()) {
+                foreach ($template->getSupportTeams() as $key => $team) {
                     $previousTeamIds[] = $team->getId();
-                    if(!in_array($team->getId(), $teams ) ) {
+                   
+                    if (!in_array($team->getId(), $teams) && !empty($teams[0])) {
                         $template->removeSupportTeam($team);
                         $em->persist($template);
                     }
                 }
             }
-            foreach($teams as $key => $teamId) {
-                if($teamId) {
+
+            foreach ($teams as $key => $teamId) {
+                if ($teamId) {
                     $team = $em->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')->findOneBy([ 'id' => $teamId ]);
-                    if($team && (empty($previousTeamIds) || !in_array($teamId, $previousTeamIds)) ) {
+
+                    if ($team && (empty($previousTeamIds) || !in_array($teamId, $previousTeamIds))) {
                         $template->addSupportTeam($team);
                         $em->persist($template);
                     }
                 }
             }
 
-            $htmlFilter = new HTMLFilter();
-
-            //htmlfilter these values
             $template->setMessage($request->request->get('message'));
-            if(empty($template->getUser()))  {
+
+            if (empty($template->getUser()))  {
                 $template->setUser($this->getUser()->getAgentInstance());
             }
+            
             $em->persist($template);
             $em->flush();
 
