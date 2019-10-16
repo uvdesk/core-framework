@@ -697,46 +697,84 @@ class UserService
     {
         return \DateTimeZone::listIdentifiers();
     }
-	
-    //Used to display local customer time in the customer's ticket list section.
-    public  function getCustomerTicketLocalTimezone($customerId,$ticketId)
+
+    public function getUserSavedReplyReferenceIds()
     {
-        $user = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findById($customerId);
+        // @TODO: Refactor this function
+        $savedReplyIds = [];
+        $groupIds = [];
+        $teamIds = []; 
+        $userId = $this->container->get('security.token_storage')->getToken()->getUser()->getId();
 
-        if($user[0]->getTimezone() != null)
-        {
-            //Return the formated time in the customer's local timezone.
-            $ticket = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findById($ticketId);
-            $ticketDateTime = $ticket[0]->getCreatedAt();
-            $userTimezone = $user[0]->getTimezone();
-            $localCustomerTimezone = $ticketDateTime->setTimeZone(new \DateTimeZone($userTimezone))->format('d-m-Y h:ia');
-            return $localCustomerTimezone; 
+        // Get all the saved reply the current user has created.
+        $savedReplyRepo = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SavedReplies')->findAll();
 
-        } else {
-
-            $ticket = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findById($ticketId);
-            return $ticket[0]->getCreatedAt()->format('d-m-Y h:ia');
-            
+        foreach ($savedReplyRepo as $sr) {
+            if ($userId == $sr->getUser()->getId()) {
+                //Save the ids of the saved reply.
+                array_push($savedReplyIds, (int)$sr->getId());
+            }
         }
+
+
+        // Get the ids of the Group(s) the current user is associated with.
+        $query = "select * from uv_user_support_groups where userInstanceId =".$userId;
+        $connection = $this->entityManager->getConnection();
+        $stmt = $connection->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+
+        foreach ($result as $row) {
+            array_push($groupIds, $row['supportGroupId']);
+        }
+
+        // Get all the saved reply's ids that is associated with the user's group(s).
+        $query = "select * from uv_saved_replies_groups";
+        $stmt = $connection->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+
+        foreach ($result as $row) {
+            if (in_array($row['group_id'], $groupIds)) {
+                array_push($savedReplyIds, (int) $row['savedReply_id']);
+            }
+        }
+
+        // Get the ids of the Team(s) the current user is associated with.
+        $query = "select * from uv_user_support_teams";
+        $connection = $this->entityManager->getConnection();
+        $stmt = $connection->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+
+        foreach($result as $row) {
+            if ($row['userInstanceId'] == $userId) {
+                array_push($teamIds, $row['supportTeamId']);
+            }
+        }
+
+        $query = "select * from uv_saved_replies_teams";
+        $stmt = $connection->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+
+        foreach ($result as $row) {
+            if (in_array($row['subgroup_id'], $teamIds)) {
+                array_push($savedReplyIds, (int)$row['savedReply_id']);
+            }
+        }
+
+        return $savedReplyIds;
     }
 	
-    //Get converted time (customer's timezone) for thread replies.
-    public function getCustomerThreadLocalTimezone($customerId, $threadTime)
+    // Return formatted time on user preference basis
+    public function getLocalizedFormattedTime($user = null, \DateTime $timestamp, $format = 'm-d-y h:i A')
     {
-        $user = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findById($customerId);
-
-        if($user[0]->getTimezone() != null)
-        {
-            $userTimezone = $user[0]->getTimezone();
-            $localCustomerTimezone = $threadTime->setTimeZone(new \DateTimeZone($userTimezone))->format('d-m-Y h:ia');
-            return $localCustomerTimezone; 
-
-        } else {
-
-            return date_format($thread['createdAt'],"m-d-y h:i A");
-
+        if (!empty($user) && $user != 'anon.' && $user->getTimezone() != null) {
+            $timestamp = clone $timestamp;
+            $timestamp->setTimeZone(new \DateTimeZone($user->getTimezone()));
         }
+        
+        return $timestamp->format($format);
     }
-	
-	
 }

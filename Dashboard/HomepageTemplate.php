@@ -117,18 +117,6 @@ class HomepageTemplate implements ExtendableComponentInterface
 				$whitelist[get_class($segment)][] = get_class($childSegment);
 			}
 		}
-		
-		//Disable Mailbox section item when Workflow privilege is given to agent, (currently no option to give an Agent Mailbox privilege, but it is still given by default).
-		if(in_array('ROLE_AGENT', $this->userService->getCurrentUser()->getRoles())  &&  isset($whitelist["Webkul\UVDesk\CoreFrameworkBundle\UIComponents\Dashboard\Homepage\Sections\Productivity"])  &&  in_array("Webkul\UVDesk\AutomationBundle\UIComponents\Dashboard\Homepage\Items\Workflows", $whitelist["Webkul\UVDesk\CoreFrameworkBundle\UIComponents\Dashboard\Homepage\Sections\Productivity"]))
-		{ 
-			foreach($whitelist["Webkul\UVDesk\CoreFrameworkBundle\UIComponents\Dashboard\Homepage\Sections\Settings"] as $key=>$value)
-			{
-				if($value == "Webkul\UVDesk\MailboxBundle\UIComponents\Dashboard\Homepage\Items\Mailbox")
-				{
-					unset($whitelist["Webkul\UVDesk\CoreFrameworkBundle\UIComponents\Dashboard\Homepage\Sections\Settings"][$key]);
-				}
-			}
-		}
 
 		return $whitelist;
 	}

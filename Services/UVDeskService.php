@@ -218,8 +218,6 @@ class UVDeskService
                 'ROLE_AGENT_MANAGE_AGENT' => $translator->trans('Can manage agents'),
                 'ROLE_AGENT_MANAGE_AGENT_PRIVILEGE' => $translator->trans('Can manage agent privileges'),
                 'ROLE_AGENT_MANAGE_TICKET_TYPE' => $translator->trans('Can manage ticket types'),
-		//Disable custom fields option untill the custom fields app is installed.            
-		//'ROLE_AGENT_MANAGE_CUSTOM_FIELD' => $translator->trans('Can manage ticket custom fields'),
                 'ROLE_AGENT_MANAGE_CUSTOMER' => $translator->trans('Can manage customers'),
                 'ROLE_AGENT_MANAGE_WORKFLOW_MANUAL' => $translator->trans('Can manage Prepared Responses'),
                 'ROLE_AGENT_MANAGE_WORKFLOW_AUTOMATIC' => $translator->trans('Can manage Automatic workflow'),
