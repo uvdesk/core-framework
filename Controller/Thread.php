@@ -11,43 +11,42 @@ use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 
 class Thread extends Controller
 {
-    public function saveThread($ticketId)
+    public function saveThread($ticketId, Request $request)
     {
-        $entityManager = $this->getDoctrine()->getManager();
-        $request = $this->container->get('request_stack')->getCurrentRequest();
         $params = $request->request->all();
+        $entityManager = $this->getDoctrine()->getManager();
+
         $ticket = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($ticketId);
 
-        // Validate Request
         if (empty($ticket)) {
             throw new \Exception('Ticket not found', 404);
         } else if ('POST' !== $request->getMethod()) {
             throw new \Exception('Invalid Request', 403);
-        } else {
-            // Validate user permission if the thread being added is a note
-            if ('note' == $params['threadType']) {
-                if (false == $this->get('user.service')->isAccessAuthorized('ROLE_AGENT_ADD_NOTE')) {
-                    throw new \Exception('Insufficient Permisions', 400);
-                }
-            }
-
-            // // Deny access unles granted ticket view permission
-            // $this->denyAccessUnlessGranted('AGENT_VIEW', $ticket);
-
-            // Check if reply content is empty
-            $parsedMessage = trim(strip_tags($params['reply'], '<img>'));
-            $parsedMessage = str_replace('&nbsp;', '', $parsedMessage);
-            $parsedMessage = str_replace(' ', '', $parsedMessage);
-
-            if (null == $parsedMessage) {
-                $this->addFlash('warning', "Reply content cannot be left blank.");
-            }
-
-            // @TODO: Validate file attachments
-            // if (true !== $this->get('file.service')->validateAttachments($request->files->get('attachments'))) {
-            //     $this->addFlash('warning', "Invalid attachments.");
-            // }
         }
+
+        if (empty($params)) {
+            return $this->redirect($request->headers->get('referer') ?: $this->generateUrl('helpdesk_member_ticket_collection'));
+        } else if ('note' == $params['threadType'] && false == $this->get('user.service')->isAccessAuthorized('ROLE_AGENT_ADD_NOTE')) {
+            // Insufficient user privilege to create a note
+            throw new \Exception('Insufficient Permisions', 400);
+        }
+
+        // // Deny access unles granted ticket view permission
+        // $this->denyAccessUnlessGranted('AGENT_VIEW', $ticket);
+
+        // Check if reply content is empty
+        $parsedMessage = trim(strip_tags($params['reply'], '<img>'));
+        $parsedMessage = str_replace('&nbsp;', '', $parsedMessage);
+        $parsedMessage = str_replace(' ', '', $parsedMessage);
+
+        if (null == $parsedMessage) {
+            $this->addFlash('warning', "Reply content cannot be left blank.");
+        }
+
+        // @TODO: Validate file attachments
+        // if (true !== $this->get('file.service')->validateAttachments($request->files->get('attachments'))) {
+        //     $this->addFlash('warning', "Invalid attachments.");
+        // }
 
         $threadDetails = [
             'user' => $this->getUser(),
@@ -87,24 +86,26 @@ class Thread extends Controller
 
         // @TODO: Cross Review
         // check for thread types
-        switch ($thread->getThreadType()){
+        switch ($thread->getThreadType()) {
             case 'note':
                 $event = new GenericEvent(CoreWorkflowEvents\Ticket\Note::getId(), [
                     'entity' =>  $ticket,
                     'thread' =>  $thread
                 ]);
+
                 $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
-                    break;
+                break;
             case 'reply':
                 $event = new GenericEvent(CoreWorkflowEvents\Ticket\AgentReply::getId(), [
                     'entity' =>  $ticket,
                     'thread' =>  $thread
                 ]);
+
                 $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
-                    break;
+                break;
             default:
-                    break;
-         }
+                break;
+        }
 
         // Check if ticket status needs to be updated
         $updateTicketToStatus = !empty($params['status']) ? (trim($params['status']) ?: null) : null;

@@ -163,8 +163,8 @@
                 this.model = new CreateTicketModel();
                 this.model.set(data);
                 Backbone.Validation.bind(this);
-
-                if(this.model.isValid(true)) {
+                
+                if (this.model.isValid(true)) {
                     $('#create-ticket-form').submit();
                     $('form').find('#create-ticket-btn').attr('disabled', 'disabled');
                 }
