@@ -7,6 +7,8 @@
 CoreFrameworkBundle
 --------------
 
+[![Join the chat at https://gitter.im/uvdesk/core-framework](https://badges.gitter.im/uvdesk/core-framework.svg)](https://gitter.im/uvdesk/core-framework?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 The standalone **CoreFrameworkBundle** lies at the heart of the [UVDesk Community][1] helpdesk, providing the core essential functionalities and integration tools to easily integrate any other community helpdesk packages, furhter extending the capabilities of the helpdesk system.
 
 The core framework bundle comes loaded with the following features:
