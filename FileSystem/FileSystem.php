@@ -117,19 +117,20 @@ class FileSystem
     {
         $router = $this->container->get('router');
         $request = $this->requestStack->getCurrentRequest();
-
+        $script_name = $request->server->get('SCRIPT_NAME');
+        
         if ($request->isSecure()) {
             $baseURL = "https:////" . $request->getHttpHost() . '/';
         } else {
             $baseURL = "http:////" . $request->getHttpHost() . '/';
         }
-
+        
         $assetDetails = [
             'id' => $attachment->getId(),
             'name' => $attachment->getName(),
-            'path' => $baseURL . $attachment->getPath(),
+            'path' => $baseURL . "$script_name/" . $attachment->getPath(),
             'relativePath' => $attachment->getPath(),
-            'iconURL' => $baseURL . $this->getAssetIconURL($attachment),
+            'iconURL' => $baseURL .  dirname($script_name) . '/'  . $this->getAssetIconURL($attachment),
             'downloadURL' => null,
         ];
 
