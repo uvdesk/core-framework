@@ -78,7 +78,7 @@
         </div>
 
         {% set currentUser = user_service.getSessionUser() %}
-        {% if currentUser is not empty %}
+        {% if currentUser is not empty and currentUser.getAgentInstance() is not empty %}
             {% set currentUserDetails = currentUser.getAgentInstance().getPartialDetails() %}
         {% endif %}
 
