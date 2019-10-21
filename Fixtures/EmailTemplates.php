@@ -10,6 +10,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Templates\Email\Resources as CoreEmailTemp
 class EmailTemplates extends DoctrineFixture
 {
     private static $seeds = [
+        CoreEmailTemplates\UserForgotPassword::class,
         CoreEmailTemplates\Agent\TicketReply::class,
         CoreEmailTemplates\Agent\TicketCreated::class,
         CoreEmailTemplates\Agent\AccountCreated::class,
@@ -17,7 +18,6 @@ class EmailTemplates extends DoctrineFixture
         CoreEmailTemplates\Customer\TicketReply::class,
         CoreEmailTemplates\Customer\TicketCreated::class,
         CoreEmailTemplates\Customer\AccountCreated::class,
-        CoreEmailTemplates\User\ForgotPassword::class,
     ];
 
     public function load(ObjectManager $entityManager)
