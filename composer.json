@@ -26,7 +26,7 @@
         "psr-4": { "Webkul\\UVDesk\\CoreFrameworkBundle\\": "" }
     },
     "extra": {
-        "uvdesk-package-extension": "Webkul\\UVDesk\\CoreFrameworkBundle\\Package\\Composer",
+        "uvdesk-package-extension": "Webkul\\UVDesk\\CoreFrameworkBundle\\Package\\Composer"
 
     },
     "minimum-stability": "dev"
