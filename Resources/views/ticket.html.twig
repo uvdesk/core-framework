@@ -415,7 +415,7 @@
                                     <ul class="uv-agents-list agent" data-action="agent">
                                         {% for agent in user_service.getAgentPartialDataCollection() %}
                                             <li data-index="{{ agent.id }}">
-                                                <img src="{{ agent.smallThumbnail != null ? app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') ~ agent.smallThumbnail : asset(default_agent_image_path) }}"/> {{ agent.name }}
+                                                <img src="{{ agent.smallThumbnail != null ? app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') ~ agent.smallThumbnail : asset(default_agent_image_path) }}"/> {{ agentName }}
                                             </li>
                                         {% endfor %}
                                     </ul>
