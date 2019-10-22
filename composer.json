@@ -27,7 +27,6 @@
     },
     "extra": {
         "uvdesk-package-extension": "Webkul\\UVDesk\\CoreFrameworkBundle\\Package\\Composer"
-
     },
     "minimum-stability": "dev"
 }
