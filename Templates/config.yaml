@@ -9,6 +9,11 @@ parameters:
     uvdesk_site_path.member_prefix: member
     uvdesk_site_path.knowledgebase_customer_prefix: customer
 
+    # File uploads constraints
+    default_max_post_size: 8388608
+    default_max_file_uploads: 20
+    default_upload_max_filesize: 2097152
+
 uvdesk:
     site_url: 'localhost:8000'
     upload_manager:
