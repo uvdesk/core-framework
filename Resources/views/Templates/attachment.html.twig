@@ -7,9 +7,9 @@
     $(function () {
         var FileView = Backbone.View.extend({
             fileCounter: 0,
-            max_post_size: {{ default_max_post_size }},
-            max_file_uploads: {{ default_max_file_uploads }},
-            upload_max_filesize: {{ default_upload_max_filesize }},
+            max_post_size: {{ max_post_size }},
+            max_file_uploads: {{ max_file_uploads }},
+            upload_max_filesize: {{ upload_max_filesize }},
             el: '.attachment-block',
             events : {
                 'click .uv-file-label': 'createFileType',
@@ -31,21 +31,26 @@
             },
             labelTemplate: _.template('<label class="file-name"><%- fileName %></label><br>'),
             selectFile: function(e) {
-                var currentElement = Backbone.$(e.currentTarget)
-                    attachmentBlock = currentElement.parents(".uv-added-attachment"),
-                    isError = false
-                if(currentElement.length) {
+                var currentElement = Backbone.$(e.currentTarget);
+                var attachmentBlock = currentElement.parents(".uv-added-attachment");
+                var isError = false;
+                
+                if (currentElement.length) {
                     files = currentElement[0].files; 
-                    if(files.length) {
+
+                    if (files.length) {
                         for (var i = 0; i < files.length; i++) {
                             var fileName = files[i].name;
+                            
                             if (files[i].size > this.upload_max_filesize) {
                                 isError = true;
                                 break;
                             }
+
                             // Validating Form Size
                             var formSize = 0
                             var formData = new FormData(currentElement.parents('form')[0])
+                            
                             for (var pair of formData.entries()) {
                                 if (pair[1] instanceof Blob) {
                                     formSize += pair[1].size
@@ -53,9 +58,11 @@
                                     formSize += pair[1].length
                                 }
                             }
+
                             if (formSize > this.max_post_size) {
                                 isError = true
                             }
+
                             attachmentBlock.append(this.labelTemplate({'fileName': fileName}));
                         }
                     }
@@ -66,6 +73,7 @@
                     attachmentBlock.remove()
                     return
                 }
+
                 attachmentBlock.show()
             },
             removeFile: function(e) {

@@ -1359,21 +1359,18 @@ class TicketService
     public function isTicketAccessGranted(Ticket $ticket, User $user = null, $firewall = 'members')
     {
         // @TODO: Take current firewall into consideration (access check on behalf of agent/customer)
-        $user = $user ?? $user = $this->container->get('user.service')->getSessionUser();
+        if (empty($user)) {
+            $user = $this->container->get('user.service')->getSessionUser();
+        }
+
         if (empty($user)) {
             return false;
         } else {
-            $agentInstance = $this->getUser()->getAgentInstance();
-
+            $agentInstance = $user->getAgentInstance();
+    
             if (empty($agentInstance)) {
                 return false;
             }
-        }
-
-        $agentInstance = $user->getAgentInstance();
-
-        if (empty($agentInstance)) {
-            return false;
         }
 
         if ($agentInstance->getSupportRole()->getId() == 3 && in_array($agentInstance->getTicketAccessLevel(), [2, 3, 4])) {
