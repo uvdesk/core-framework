@@ -10,6 +10,7 @@ This changelog references any relevant changes introduced in 1.0 minor versions.
     * **Issue #240:** Super admin name is not showing when set via terminal
     * **Misc. Updates:**
         * Both agents and customers now share a common password reset page
+        * Updated README.md with link to the official gitter chat for uvdesk/core-framework
 
 * 1.0.1 (2019-10-15)
     * **Issue #223:** Custom field privilege issue
