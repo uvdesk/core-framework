@@ -2,12 +2,12 @@
     <img src="https://s3-ap-southeast-1.amazonaws.com/cdn.uvdesk.com/uvdesk/bundles/webkuldefault/images/uvdesk-wide.svg">
 </a></p>
 
-[UVDesk Community Edition][1] is an easy-to-use, highly customizable open-source **helpdesk solution** built on top of the reliable [Symfony][2] **PHP framework**, enabling organizations to provide their customers with the best level of support solution possible.
-
-CoreFrameworkBundle
---------------
-
-[![Join the chat at https://gitter.im/uvdesk/core-framework](https://badges.gitter.im/uvdesk/core-framework.svg)](https://gitter.im/uvdesk/core-framework?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+<p align="center">
+    <a href="https://packagist.org/packages/uvdesk/core-framework"><img src="https://poser.pugx.org/uvdesk/core-framework/v/stable.svg" alt="Latest Stable Version"></a>
+    <a href="https://packagist.org/packages/uvdesk/core-framework"><img src="https://poser.pugx.org/uvdesk/core-framework/d/total.svg" alt="Total Downloads"></a>
+    <a href="https://packagist.org/packages/uvdesk/core-framework"><img src="https://poser.pugx.org/uvdesk/core-framework/license.svg" alt="License"></a>
+    <a href="https://gitter.im/uvdesk/core-framework"><img src="https://badges.gitter.im/uvdesk/core-framework.svg" alt="connect on gitter"></a>
+</p>
 
 The standalone **CoreFrameworkBundle** lies at the heart of the [UVDesk Community][1] helpdesk, providing the core essential functionalities and integration tools to easily integrate any other community helpdesk packages, furhter extending the capabilities of the helpdesk system.
 
