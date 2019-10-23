@@ -3,13 +3,14 @@ CHANGELOG for 1.0.x
 
 This changelog references any relevant changes introduced in 1.0 minor versions.
 
-* 1.0.2 (2019-10-22)
+* 1.0.3 (2019-10-23)
     * **Issue #230:** Custom field privilege issue
     * **Issue #29:** File attachment limit exceed
     * **Issue #234:** Agent profile issue while thread added at customer panel
     * **Issue #240:** Super admin name is not showing when set via terminal
     * **Misc. Updates:**
-        * Both agents and customers now share a common password reset page
+        * Added patch to support previously configured workflows with deprecated events
+        * Both agents and customers now share a common password reset page (events agent.forgot_password & customer.forgot_password deprecated)
         * Updated README.md with link to the official gitter chat for uvdesk/core-framework
 
 * 1.0.1 (2019-10-15)
