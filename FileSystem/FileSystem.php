@@ -119,7 +119,7 @@ class FileSystem
         $request = $this->requestStack->getCurrentRequest();
 
         if ($request->isSecure()) {
-            $router->getContext->setSecure('https');
+            $router->getContext()->setScheme('https');
         }
         $baseURL = $router->generate('base_route', [], UrlGeneratorInterface::ABSOLUTE_URL);
     
