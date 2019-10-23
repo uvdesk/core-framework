@@ -7,15 +7,6 @@ helpdesk_member_handle_logout:
     path:     /logout
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Authentication::logout
 
-helpdesk_member_forgot_account_password:
-    path:     /forgot-password
-    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Authentication::forgotPassword
-
-helpdesk_member_update_account_credentials:
-    path:     /update-credentials/{email}/{verificationCode}
-    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Authentication::updateCredentials
-    defaults: { email: '', verificationCode: '' }
-
 # Agent Panel Resources
 helpdesk_member_dashboard:
     path:     /dashboard
