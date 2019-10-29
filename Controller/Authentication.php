@@ -33,11 +33,7 @@ class Authentication extends Controller
     }
 
     public function forgotPassword(Request $request)
-    {
-        if (null != $this->get('user.service')->getSessionUser()) {
-            return new Response('How did you land here? :/', 404);
-        }
-
+    {   
         $entityManager = $this->getDoctrine()->getManager();
             
         if ($request->getMethod() == 'POST') {
@@ -72,17 +68,16 @@ class Authentication extends Controller
 
     public function updateCredentials($email, $verificationCode, Request $request, UserPasswordEncoderInterface $encoder)
     {
-        if (empty($email) || empty($verificationCode)) {
-            return new Response('How did you land here? :/', 404);
-        } else {
-            $entityManager = $this->getDoctrine()->getManager();
-            $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($email);
-    
-            if (empty($user) || $user->getVerificationCode() != $verificationCode) {
-                return new Response('How did you land here? :/', 404);
-            }
-        }
+        
+        $entityManager = $this->getDoctrine()->getManager();
+        $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($email);
 
+        if (empty($user) || $user->getVerificationCode() != $verificationCode) {
+            $request->getSession()->getFlashBag()->set('warning', "Invalid Credentials.");
+
+            return $this->render("@UVDeskCoreFramework//forgotPassword.html.twig");
+        }
+        
         if ($request->getMethod() == 'POST') {
             $updatedCredentials = $request->request->all();
 
