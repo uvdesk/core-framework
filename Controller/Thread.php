@@ -96,6 +96,7 @@ class Thread extends Controller
                 $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
                 break;
             case 'reply':
+            case 'forward':
                 $event = new GenericEvent(CoreWorkflowEvents\Ticket\AgentReply::getId(), [
                     'entity' =>  $ticket,
                     'thread' =>  $thread
