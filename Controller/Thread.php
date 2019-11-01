@@ -128,7 +128,11 @@ class Thread extends Controller
             return $this->redirect($this->generateUrl('helpdesk_member_ticket_collection'));
         }
 
-        $request->getSession()->getFlashBag()->set('success', ('Success! Reply has been added successfully'));
+        if($thread->getThreadType() == 'note'){
+            $request->getSession()->getFlashBag()->set('success', ('Success! Note added successfully'));
+        }else{
+            $request->getSession()->getFlashBag()->set('success', ('Success! Reply has been added successfully'));
+        }
         return $this->redirect($this->generateUrl('helpdesk_member_ticket', ['ticketId' => $ticket->getId()]));
     }
 
