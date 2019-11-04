@@ -56,7 +56,7 @@ class MailAgent extends WorkflowAction
         ];
     }
 
-    public static function applyAction(ContainerInterface $container, $entity, $value = null)
+    public static function applyAction(ContainerInterface $container, $entity, $value = null, $thread)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         if($entity instanceof Ticket) {
@@ -72,7 +72,7 @@ class MailAgent extends WorkflowAction
                     ->setMaxResults(1);
                 
                 $inReplyTo = $queryBuilder->getQuery()->getSingleResult();
-                $createdThread = $container->get('ticket.service')->getLastReply($entity->getId(), 'customer');
+                $createdThread = $container->get('ticket.service')->getLastReply($entity->getId(), $thread->getCreatedBy());
                 
                 if (!empty($inReplyTo)) {
                     $emailHeaders['In-Reply-To'] = $inReplyTo;
@@ -117,7 +117,7 @@ class MailAgent extends WorkflowAction
                     $agentMails = array_merge($agentMails, $currentEmails);
                 else
                     $agentMails[] = $currentEmails;
-            }elseif($agent == 'responsePerforming' && is_object($currentUser = $this->container->get('security.tokenstorage')->getToken()->getUser())) //add current user email if any
+            }elseif($agent == 'responsePerforming' && is_object($currentUser = $container->get('security.token_storage')->getToken()->getUser())) //add current user email if any
                 $agentMails[] = $currentUser->getEmail();
             
             elseif($agent == 'baseAgent'){ //add selected user email if any
