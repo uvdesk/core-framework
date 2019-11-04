@@ -1153,7 +1153,7 @@ class TicketService
         return $result ? $result[0] : null;
     }
 
-    public function getLastReply($ticketId, $userType = null) 
+    public function getLastReply($ticketId, $userType = null, $threadType) 
     {
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $queryBuilder->select("th, a, u.id as userId")
@@ -1163,7 +1163,7 @@ class TicketService
             ->leftJoin('th.user','u')
             ->andWhere('t.id = :ticketId')
             ->andWhere('th.threadType = :threadType')
-            ->setParameter('threadType','reply')
+            ->setParameter('threadType',$threadType)
             ->setParameter('ticketId',$ticketId)
             ->orderBy('th.id', 'DESC')
             ->getMaxResults(1);

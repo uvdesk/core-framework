@@ -56,7 +56,7 @@ class MailAgent extends WorkflowAction
         ];
     }
 
-    public static function applyAction(ContainerInterface $container, $entity, $value = null, $thread)
+    public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         if($entity instanceof Ticket) {
@@ -72,7 +72,7 @@ class MailAgent extends WorkflowAction
                     ->setMaxResults(1);
                 
                 $inReplyTo = $queryBuilder->getQuery()->getSingleResult();
-                $createdThread = $container->get('ticket.service')->getLastReply($entity->getId(), $thread->getCreatedBy());
+                $createdThread = $container->get('ticket.service')->getLastReply($entity->getId(), $entity->createdThread->getCreatedBy(), $entity->createdThread->getThreadType());
                 
                 if (!empty($inReplyTo)) {
                     $emailHeaders['In-Reply-To'] = $inReplyTo;
