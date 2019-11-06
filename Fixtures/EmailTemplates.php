@@ -19,6 +19,7 @@ class EmailTemplates extends DoctrineFixture
         CoreEmailTemplates\Customer\TicketCreated::class,
         CoreEmailTemplates\Customer\AccountCreated::class,
         CoreEmailTemplates\Customer\ForgotPassword::class,
+        CoreEmailTemplates\Agent\TicketForward::class,
     ];
 
     public function load(ObjectManager $entityManager)
