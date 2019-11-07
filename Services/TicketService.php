@@ -1403,5 +1403,33 @@ class TicketService
 
         return true;
     }
+    public function forwardThread($entity, $thread){
+       
+        $currentThread = $entity->currentThread;
+        $createdThread = $entity->createdThread;
+
+        if (!empty($createdThread)) {
+        $attachments = array_map(function($attachment) { 
+            return str_replace('//', '/', $this->container->get('kernel')->getProjectDir() . "/public" . $attachment->getPath());
+        }, $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Attachment')->findByThread($createdThread));
+        }   
+        $subject = 'Thread Forwarded to you';
+        $message = $createdThread->getMessage();
+        if (!empty($thread)) {
+            $headers = ['References' => $entity->getReferenceIds()];
+        
+            if (!empty($currentThread) && null != $currentThread->getMessageId()) {
+                $headers['In-Reply-To'] = $currentThread->getMessageId();
+            }
+
+            $messageId = $this->container->get('email.service')->sendMail($subject, $message, $thread->getReplyTo(), $headers, $entity->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
+
+            if (!empty($messageId)) {
+                $createdThread->setMessageId($messageId);
+                $this->entityManager->persist($createdThread);
+                $this->entityManager->flush();
+            }
+        }
+    }
 }
 
