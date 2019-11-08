@@ -117,13 +117,9 @@ class FileSystem
     {
         $router = $this->container->get('router');
         $request = $this->requestStack->getCurrentRequest();
-
-        if ($request->isSecure()) {
-            $baseURL = "https:////" . $request->getHttpHost() . '/';
-        } else {
-            $baseURL = "http:////" . $request->getHttpHost() . '/';
-        }
-
+        
+        $baseURL = $router->generate('base_route', [], UrlGeneratorInterface::ABSOLUTE_URL);
+    
         $assetDetails = [
             'id' => $attachment->getId(),
             'name' => $attachment->getName(),
@@ -142,9 +138,6 @@ class FileSystem
                 'attachmendId' => $attachment->getId(),
             ]);
         }
-
-        $assetDetails['path'] = str_replace('//', '/', $assetDetails['path']);
-        $assetDetails['iconURL'] = str_replace('//', '/', $assetDetails['iconURL']);
 
         return $assetDetails;
     }
