@@ -25,8 +25,6 @@ use Symfony\Component\Security\Core\Exception\InvalidArgumentException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 
-
-
 class SynchronizeLdapUsers extends Command
 {
     CONST CLS = "\033[H"; // Clear screen
@@ -42,10 +40,9 @@ class SynchronizeLdapUsers extends Command
     private $ldap;
 
 
-    public function __construct(ContainerInterface $container, EntityManagerInterface $entityManager )
+    public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->entityManager = $entityManager;
         
         parent::__construct();
     }
@@ -118,9 +115,9 @@ class SynchronizeLdapUsers extends Command
         }
 
         $output->write([self::MCH, self::CLS]);
-        $output->writeln("\n<comment>  Examining existing Ldap Configuration:</comment>\n");
+        $output->writeln("\n<comment>  Examining existing Database Configuration:</comment>\n");
 
-        $entityManager = $this->container->get('entityManager');
+        $entityManager = $this->container->get('doctrine.entity_manager');
         $db_name = $entityManager->getConnection()->getDatabase();
 
         if (false === $this->isDatabaseConfigurationValid($entityManager)) {
@@ -147,14 +144,8 @@ class SynchronizeLdapUsers extends Command
         if ('Y' === strtoupper($this->questionHelper->ask($input, $output, $interactiveQuestion))) {
             $autoGenerateName = true;
         }
-        $name_attr = $this->askInteractiveQuestion("<info>User's name attribute </info>: ", 'cn', 6, false, false, "Please enter a valid attribute name");
-        
-        $encode_password = false;
+        $name_attr = $this->askInteractiveQuestion("<info>User's name attribute </info>: ", 'cn', 6, false, false, "Please enter a valid attribute name");        
         $password_attr = $this->askInteractiveQuestion("<info>User's password attribute name</info>: ", 'userPassword', 6, false, false, "Please enter a valid attribute name");
-        $interactiveQuestion = new Question("\n      <comment>Do you want to encode password field? [Y/N]</comment> ", 'Y');
-        if ('Y' === strtoupper($this->questionHelper->ask($input, $output, $interactiveQuestion))) {
-            $encode_password = true;
-        }
 
         $choiceQuestion = new ChoiceQuestion(
             'Please selects the role (defaults to ROLE_AGENT)',
@@ -163,7 +154,8 @@ class SynchronizeLdapUsers extends Command
         );
         $choiceQuestion->setErrorMessage('Role %s is invalid.');
         $role = $this->questionHelper->ask($input, $output, $choiceQuestion);
-        
+        $role = $entityManager->getRepository("UVDeskCoreFrameworkBundle:SupportRole")->findOneByCode($role);
+
         if ("mass" !== strtolower($sync_type)) {
             $email = $this->askInteractiveQuestion("<info>Email</info>: ", '', 6, false, false, "Please enter a valid email address");
         }
@@ -193,9 +185,17 @@ class SynchronizeLdapUsers extends Command
 
         foreach($entries as $entry) {
             $email = $this->getAttributeValue($entry, $email_attr);
-            $user = $entityManager->getRepository("UVDeskCoreFrameworkBundle:User")->findOneByEmail
+            $user = $entityManager->getRepository("UVDeskCoreFrameworkBundle:User")->findOneByEmail($email);
+            
+            if (!empty($user)) {
+                continue;
+            }
+            $user = new User;
             $password = $this->getAttributeValue($entry, $password_attr);
             
+            $user->setEmail($email);
+            $user->setPassword($password);            
+
             if ($autoGenerateName) {
                 $name = ucwords(current(explode("@", $email)));
             } else {
@@ -203,7 +203,21 @@ class SynchronizeLdapUsers extends Command
                 $names = explode(" ", $name, 2);
                 
             } 
-            
+            $user->setFirstName($names[0]);
+            $user->setLastName(isset($names[1]) ? $names[0] : " ");
+            $user->setIsEnabled(true);
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            $userInstance = new UserInstance;
+            $userInstance->setSource('website');
+            $userInstance->setIsActive(true);
+            $userInstance->setIsVerified(true);
+            $userInstance->setUser($user);
+            $userInstance->setSupportRole($role);
+
+            $this->entityManager->persist($userInstance);
+            $this->entityManager->flush();
         }
 
     }
