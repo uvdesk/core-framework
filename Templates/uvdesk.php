@@ -1,0 +1,61 @@
+<?php
+
+return <<<STRING
+
+parameters:
+    app_locales: en|fr|it
+    
+    # Default Assets
+    assets_default_agent_profile_image_path: 'bundles/uvdeskcoreframework/images/uv-avatar-batman.png'
+    assets_default_customer_profile_image_path: 'bundles/uvdeskcoreframework/images/uv-avatar-ironman.png'
+    assets_default_helpdesk_profile_image_path: 'bundles/uvdeskcoreframework/images/uv-avatar-uvdesk.png'
+
+    uvdesk_site_path.member_prefix: member
+    uvdesk_site_path.knowledgebase_customer_prefix: customer
+    
+    # File uploads constraints
+    # @TODO: Set these parameters via compilers
+    max_post_size: 8388608
+    max_file_uploads: 20
+    upload_max_filesize: 2097152
+
+uvdesk:
+    site_url: '{{ SITE_URL }}'
+    upload_manager:
+        id: Webkul\UVDesk\CoreFrameworkBundle\FileSystem\UploadManagers\Localhost
+    
+    support_email:
+        id: {{ SUPPORT_EMAIL_ID }}
+        name: {{ SUPPORT_EMAIL_NAME }}
+        mailer_id: {{ SUPPORT_EMAIL_MAILER_ID }}
+    
+    # Default resources
+    default:
+        ticket:
+            type: support
+            status: open
+            priority: low
+        templates:
+            email: mail.html.twig
+
+    #Ldap Configuration
+    ldap:
+        connection:
+            host: 192.168.1.73
+            port: 389
+            encryption: none
+            options: 
+                protocol_version: 3
+                referrals: false
+        base_dn: 'dc=webkultest,dc=com'
+        search_dn: 'cn=admin,dc=webkultest,dc=com' 
+        search_password: 'ldap@567#'
+        default_roles: ['ROLE_AGENT'] 
+        uid_key: mail
+        filter: ''
+        password_attribute: userPassword
+        id_attribute: cn
+
+STRING;
+
+?>
