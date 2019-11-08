@@ -8,12 +8,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
+use Symfony\Component\EventDispatcher\GenericEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 
 class TicketService
 {
@@ -672,6 +674,11 @@ class TicketService
                     $ticket->setAgent($agent);
                     $this->entityManager->persist($ticket);
                     $this->entityManager->flush();
+                    // Trigger Agent Assign event
+                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Agent::getId(), [
+                        'entity' => $ticket,
+                    ]);
+                    $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     break;
                 case 'status':
@@ -688,6 +695,11 @@ class TicketService
                     $ticket->setStatus($status);
                     $this->entityManager->persist($ticket);
                     $this->entityManager->flush();
+                    // Trigger ticket status event
+                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Status::getId(), [
+                        'entity' => $ticket,
+                    ]);
+                    $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     break;
                 case 'type':
@@ -704,6 +716,11 @@ class TicketService
                     $ticket->setType($type);
                     $this->entityManager->persist($ticket);
                     $this->entityManager->flush();
+                    // Trigger ticket type event
+                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Type::getId(), [
+                        'entity' => $ticket,
+                    ]);
+                    $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     break;
                 case 'group':
@@ -720,6 +737,11 @@ class TicketService
                     $ticket->setSupportGroup($group);
                     $this->entityManager->persist($ticket);
                     $this->entityManager->flush();
+                     // Trigger Support group event
+                     $event = new GenericEvent(CoreWorkflowEvents\Ticket\Group::getId(), [
+                        'entity' => $ticket,
+                    ]);
+                    $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     break;
                 case 'team':
@@ -736,6 +758,11 @@ class TicketService
                     $ticket->setSupportTeam($team);
                     $this->entityManager->persist($ticket);
                     $this->entityManager->flush();
+                    // Trigger team event
+                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Team::getId(), [
+                        'entity' => $ticket,
+                    ]);
+                    $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
                     break;
                 case 'priority':
                     $flag = 0;
@@ -752,6 +779,11 @@ class TicketService
                     $ticket->setPriority($priority);
                     $this->entityManager->persist($ticket);
                     $this->entityManager->flush();
+                    // Trigger ticket Priority event
+                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Priority::getId(), [
+                        'entity' => $ticket,
+                    ]);
+                    $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     
                     break;
