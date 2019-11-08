@@ -119,17 +119,20 @@ class FileSystem
         $request = $this->requestStack->getCurrentRequest();
 
         if ($request->isSecure()) {
-            $baseURL = "https:////" . $request->getHttpHost() . '/';
-        } else {
-            $baseURL = "http:////" . $request->getHttpHost() . '/';
+            $router->getContext()->setScheme('https');
         }
-
+        $baseURL = $router->generate('base_route', [], UrlGeneratorInterface::ABSOLUTE_URL);
+    
+        if ('/' == substr($baseURL, -1)) {
+            $baseURL = substr($baseURL, 0, -1);
+        } 
+        
         $assetDetails = [
             'id' => $attachment->getId(),
             'name' => $attachment->getName(),
-            'path' => $baseURL . $attachment->getPath(),
+            'path' => $baseURL . "$script_name/" . $attachment->getPath(),
             'relativePath' => $attachment->getPath(),
-            'iconURL' => $baseURL . $this->getAssetIconURL($attachment),
+            'iconURL' => $baseURL .  dirname($script_name) . '/'  . $this->getAssetIconURL($attachment),
             'downloadURL' => null,
         ];
 
@@ -142,9 +145,6 @@ class FileSystem
                 'attachmendId' => $attachment->getId(),
             ]);
         }
-
-        $assetDetails['path'] = str_replace('//', '/', $assetDetails['path']);
-        $assetDetails['iconURL'] = str_replace('//', '/', $assetDetails['iconURL']);
 
         return $assetDetails;
     }
