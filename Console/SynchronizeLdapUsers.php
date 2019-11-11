@@ -6,6 +6,7 @@ use Doctrine\DBAL\DBALException;
 use Symfony\Component\Ldap\Ldap;
 use Symfony\Component\Ldap\Entry;
 use Doctrine\ORM\EntityManagerInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Symfony\Component\Ldap\LdapInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\NullOutput;
@@ -85,7 +86,7 @@ class SynchronizeLdapUsers extends Command
         }
     }
 
-    protected function isDatabaseConfigurationValid(EntityMnagerInterface $entityManager)
+    protected function isDatabaseConfigurationValid(EntityManagerInterface $entityManager)
     {
         $databaseConnection = $entityManager->getConnection();
         if (false === $databaseConnection->isConnected()) {
@@ -102,8 +103,17 @@ class SynchronizeLdapUsers extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $output->write([self::MCH, self::CLS]);
-        $output->writeln("\n<comment>  Examining existing Ldap Configuration:</comment>\n");  
+        $output->writeln("\n<comment>  Examining existing Database Configuration:</comment>\n");
+        $entityManager = $this->container->get('doctrine.orm.entity_manager');
+        $db_name = $entityManager->getConnection()->getDatabase();
+        if (false === $this->isDatabaseConfigurationValid($entityManager)) {
+            $this-> reConfigureDatabase();
+        } else {
+            $output->writeln("  <info>[v]</info> Successfully established a connection with database <info>$db_name</info>\n");
+        }
         
+        $output->write([self::MCH, self::CLS]);
+        $output->writeln("\n<comment>  Examining existing Ldap Configuration:</comment>\n");  
         $base_dn = $this->container->getParameter('uvdesk.ldap.base_dn');
         $search_dn = $this->container->getParameter('uvdesk.ldap.search_dn');
         $search_password = $this->container->getParameter('uvdesk.ldap.search_password');
@@ -113,73 +123,60 @@ class SynchronizeLdapUsers extends Command
         } else {
             $output->writeln("  <info>[v]</info> Successfully established a connection with Ldap server <info>$base_dn</info>\n");
         }
+        $parent_dn = $this->askInteractiveQuestion("<comment>Please enter user's parent entry DN</comment>: ", null, 6, true, false, "Please enter a valid DN");
+        $email_attr = $this->askInteractiveQuestion("<comment>User's email attribute name (defaults to mail)</comment>: ", 'mail', 6, false, false, "Please enter a valid attribute name");
 
-        $output->write([self::MCH, self::CLS]);
-        $output->writeln("\n<comment>  Examining existing Database Configuration:</comment>\n");
-
-        $entityManager = $this->container->get('doctrine.entity_manager');
-        $db_name = $entityManager->getConnection()->getDatabase();
-
-        if (false === $this->isDatabaseConfigurationValid($entityManager)) {
-            $this-> reConfigureDatabase();
+        $autoGenerateName = false;
+        $output->write([self::MCA, self::CLL, "\n"]);
+        $interactiveQuestion = new Question("      <comment>Do you want to have name auto-generated from email? [Y/N]</comment> ", 'Y');
+        if ('Y' === strtoupper($this->questionHelper->ask($input, $output, $interactiveQuestion))) {
+            $autoGenerateName = true;
         } else {
-            $output->writeln("  <info>[v]</info> Successfully established a connection with database <info>$database</info>\n");
+            $output->write([self::MCA, self::CLL]);
+            $name_attr = $this->askInteractiveQuestion("<comment>User's name attribute (defaults to cn)</comment>: ", 'cn', 6, false, false, "Please enter a valid attribute name");        
         }
+        $output->write([self::MCA, self::CLL]);
+        $password_attr = $this->askInteractiveQuestion("<comment>User's password attribute name (defaults to userPassword)</comment>: ", 'userPassword', 6, false, false, "Please enter a valid attribute name");
 
-        $parent_rdn = $this->askInteractiveQuestion("<info>User's parent entry RDN attribute name</info>: ", 'cn', 6, false, false, "Please enter a valid attribute name");
-        $parent_rdn_value = $this->askInteractiveQuestion("<info>User's parent entry RDN attribute value</info>: ", '', 6, false, false, "Please enter a valid attribute value");
-        
+        $roles = ['ROLE_AGENT', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN', 'ROLE_CUSTOMER'];
+        $role = $this->askChoiceQuestion("<comment>Please selects the role (defaults to ROLE_AGENT)</comment>:", $roles, 0, 6, false);
+
+        $role = $entityManager->getRepository("UVDeskCoreFrameworkBundle:SupportRole")->findOneByCode($role);
+
+
         $choiceQuestion = new ChoiceQuestion(
-            'Please selects the type of synchronization (defaults to mass)',
+        '   <comment>Please selects the type of synchronization (defaults to mass)</comment>',
             ['Mass', 'Single User Configuration'],
             0
         );
         $choiceQuestion->setErrorMessage('Type %s is invalid.');
         $sync_type = $this->questionHelper->ask($input, $output, $choiceQuestion);
 
-        $email_attr = $this->askInteractiveQuestion("<info>User's email attribute name (defaults to mail)</info>: ", 'mail', 6, false, false, "Please enter a valid attribute name");
-        
-        $autoGenerateName = false;
-        $interactiveQuestion = new Question("\n      <comment>Do you want to have name auto-generated from email? [Y/N]</comment> ", 'Y');
-        if ('Y' === strtoupper($this->questionHelper->ask($input, $output, $interactiveQuestion))) {
-            $autoGenerateName = true;
-        }
-        $name_attr = $this->askInteractiveQuestion("<info>User's name attribute </info>: ", 'cn', 6, false, false, "Please enter a valid attribute name");        
-        $password_attr = $this->askInteractiveQuestion("<info>User's password attribute name</info>: ", 'userPassword', 6, false, false, "Please enter a valid attribute name");
-
-        $choiceQuestion = new ChoiceQuestion(
-            'Please selects the role (defaults to ROLE_AGENT)',
-            ['ROLE_AGENT', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN', 'ROLE_CUSTOMER'],
-            0
-        );
-        $choiceQuestion->setErrorMessage('Role %s is invalid.');
-        $role = $this->questionHelper->ask($input, $output, $choiceQuestion);
-        $role = $entityManager->getRepository("UVDeskCoreFrameworkBundle:SupportRole")->findOneByCode($role);
-
         if ("mass" !== strtolower($sync_type)) {
-            $email = $this->askInteractiveQuestion("<info>Email</info>: ", '', 6, false, false, "Please enter a valid email address");
+            $email = $this->askInteractiveQuestion("\n<info>Email</info>: ", '', 6, false, false, "Please enter a valid email address");
+        } else {
+            $email = '*';
         }
+
 
         try {
-            $this->ldap->bind($this->searchDn, $this->searchPassword);
-            $username = $this->ldap->escape($username, '', LdapInterface::ESCAPE_FILTER);
-            $query = "($parent_rdn=$parent_rdn_value," . $base_dn.")";
-            if (!empty($email)) {
-                $filter_dn = "(&($email_attr=$email)$query)";
+            $this->ldap->bind($search_dn, $search_password);
+            $query = "($email_attr={email})";
+            if (strpos($parent_dn, $base_dn) === false) {
+                $base_dn = !empty($parent_dn) ? ("$parent_dn,". $base_dn) : $base_dn;
             }
-            $search = $this->ldap->query($this->baseDn, $query, ['scope' => QueryInterface::ONE]);
+            $query = str_replace("{email}", $email, $query);
+            $search = $this->ldap->query($base_dn, $query);
         } catch (ConnectionException $e) {
             throw new LdapException('Could not connect to ldap server');
         }
 
-        $entries = $search->execute();
+        $entries = $search->execute()->toArray();
         $count = \count($entries);
-
         if (!$count) {
             throw new LdapException('No user found.');
         }
-
-        if ( !empty($email) && ($count > 1) ) {
+        if ( $email !== "*" && ($count > 1) ) {
             throw new UsernameNotFoundException('More than one user found');
         }
 
@@ -190,7 +187,7 @@ class SynchronizeLdapUsers extends Command
             if (!empty($user)) {
                 continue;
             }
-            $user = new User;
+            $user = new CoreEntities\User;
             $password = $this->getAttributeValue($entry, $password_attr);
             
             $user->setEmail($email);
@@ -198,6 +195,7 @@ class SynchronizeLdapUsers extends Command
 
             if ($autoGenerateName) {
                 $name = ucwords(current(explode("@", $email)));
+                $names = [$name];
             } else {
                 $name = $this->getAttributeValue($entry, $email_attr);
                 $names = explode(" ", $name, 2);
@@ -209,15 +207,15 @@ class SynchronizeLdapUsers extends Command
             $entityManager->persist($user);
             $entityManager->flush();
 
-            $userInstance = new UserInstance;
+            $userInstance = new CoreEntities\UserInstance;
             $userInstance->setSource('website');
             $userInstance->setIsActive(true);
             $userInstance->setIsVerified(true);
             $userInstance->setUser($user);
             $userInstance->setSupportRole($role);
 
-            $this->entityManager->persist($userInstance);
-            $this->entityManager->flush();
+            $entityManager->persist($userInstance);
+            $entityManager->flush();
         }
 
     }
@@ -250,13 +248,49 @@ class SynchronizeLdapUsers extends Command
         return $input ?? null;
     }
 
+    protected function askChoiceQuestion($question, array $choices, int $defaultIndex = 0, int $indentLength = 6, bool $nullable = true, string $warningMessage = null)
+    {
+        $flag = false;
+        $indent = str_repeat(' ', $indentLength);
+        $choiceError = "$indent<comment>Warning</comment>: Please enter a valid option";
+        $choicesCount = count($choices);
+
+        do {    
+            $choicesString = "";
+            foreach($choices as $index => $choice) {
+                $choicesString .= ($indent . "  [<info>$index</info>] " . "$choice\n");
+            }
+            
+            $prompt = new Question($indent . $question . "\n$choicesString$indent", $defaultIndex);
+            $input = $this->questionHelper->ask($this->consoleInput, $this->consoleOutput, $prompt);
+            
+            foreach(range(0, $choicesCount) as $i) {
+                $this->consoleOutput->write([self::MCA, self::CLL]);
+            }
+            $this->consoleOutput->write([self::MCA, self::CLL, self::MCA, self::CLL]);
+            
+            if (!is_int($input)) {
+                if ($nullable) {
+                    $index = $defaultIndex;
+                    $this->consoleOutput->writeln("$indent\You have selected {$chocie[$input]} option.");                
+                } else {
+                    $this->consoleOutput->writeln($choiceError);
+                }
+            } elseif (($input >= 0) && ($input < $choicesCount)) {
+                $this->consoleOutput->writeln("$indent\You have selected {$chocie[$input]} option.");                
+            }
+        } while ( !is_int($input) || ( false == $nullable && is_int($input) && ($input < 0) && ($input >= $choicesCount)) );
+
+        return $choices[$input] ?? null;
+    }
+
     private function reConfigureLdap() : ?LdapInterface
     {
-        return ;
+        return null;
     }
 
     private function reConfigureDatabase(): ?EntityManagerInterface {
-        return ;
+        return null;
     }
 
     private function getAttributeValue(Entry $entry, $attribute)
