@@ -26,7 +26,6 @@ use Symfony\Component\Console\Input\ArrayInput as ConsoleOptions;
 use Symfony\Component\Security\Core\Exception\InvalidArgumentException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 
 class SynchronizeLdapUsers extends Command
@@ -44,10 +43,9 @@ class SynchronizeLdapUsers extends Command
     private $ldap;
 
 
-    public function __construct(ContainerInterface $container, UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->passwordEncoder = $passwordEncoder;
 
         parent::__construct();
     }
@@ -81,7 +79,7 @@ class SynchronizeLdapUsers extends Command
     
 
     protected function isLdapConfigurationValid(LdapInterface $ldap, string $search_dn, string $search_password)
-    {
+    {   
         try {
             $ldap->bind($search_dn, $search_password);
         } catch(ConnectionException $e) {
@@ -91,7 +89,7 @@ class SynchronizeLdapUsers extends Command
     }
 
     protected function isDatabaseConfigurationValid(EntityManagerInterface $entityManager)
-    {
+    {   
         $databaseConnection = $entityManager->getConnection();
         if (false === $databaseConnection->isConnected()) {
             try {    
@@ -111,7 +109,12 @@ class SynchronizeLdapUsers extends Command
         $entityManager = $this->container->get('doctrine.orm.entity_manager');
         $db_name = $entityManager->getConnection()->getDatabase();
         if (false === $this->isDatabaseConfigurationValid($entityManager)) {
-            $this-> reConfigureDatabase();
+            $output->writeln([
+                "  <fg=red;>[x]</> Invalid Database configuration.",
+                "\n  Exiting evaluation process.\n",
+            ]);
+            // @TODO: Reconfigure database
+            return;
         } else {
             $output->writeln("  <info>[v]</info> Successfully established a connection with database <info>$db_name</info>\n");
         }
@@ -122,7 +125,12 @@ class SynchronizeLdapUsers extends Command
         $search_password = $this->container->getParameter('uvdesk.ldap.search_password');
         
         if (false === $this->isLdapConfigurationValid($this->ldap, $search_dn, $search_password)) {
-            $this->reConfigureLdap();
+            $output->writeln([
+                "  <fg=red;>[x]</> Invalid Ldap configuration.",
+                "\n  Exiting evaluation process.\n",
+            ]);
+            // @TODO: Reconfigure Ldap
+            return;
         } else {
             $output->writeln("  <info>[v]</info> Successfully established a connection with Ldap server <info>$base_dn</info>\n");
         }
@@ -150,9 +158,9 @@ class SynchronizeLdapUsers extends Command
         $sync_types = ['Mass', 'Single User Configuration'];
         $sync_type = $this->askChoiceQuestion('<comment>Please selects the type of synchronization (defaults to Mass)</comment>:', $sync_types, 0, 6, false, "You have selected <info>{option}</info> option.");
 
+        $output->write([self::MCA, self::CLL]); 
         if ("mass" !== strtolower($sync_type)) {
-            $output->write([self::MCA, self::CLL]);        
-            $email = $this->askInteractiveQuestion("<info>Email</info>: ", '', 6, false, false, "Please enter a valid email address");
+            $email = $this->askInteractiveQuestion("<comment>Email</comment>: ", '', 6, false, false, "Please enter a valid email address");
         } else {
             $email = '*';
         }
@@ -179,46 +187,53 @@ class SynchronizeLdapUsers extends Command
         }
 
         foreach($entries as $entry) {
-            $email = $this->getAttributeValue($entry, $email_attr);
-            $user = $entityManager->getRepository("UVDeskCoreFrameworkBundle:User")->findOneByEmail($email);
-            
-            if (!empty($user)) {
+            try {
+                $email = $this->getAttributeValue($entry, $email_attr);
+                $user = $entityManager->getRepository("UVDeskCoreFrameworkBundle:User")->findOneByEmail($email);
+                
+                if (!empty($user)) {
+                    $output->writeln( "      <comment>User</comment>:  " . $email . " exists already.\n             Skipping....\n"); 
+                    continue;
+                }
+                $user = new CoreEntities\User;
+                $password = $this->getAttributeValue($entry, $password_attr);
+                
+                $user->setEmail($email);
+                $user->setPassword($password);
+
+                if ($autoGenerateName) {
+                    $name = ucwords(current(explode("@", $email)));
+                    $names = [$name];
+                } else {
+                    $name = $this->getAttributeValue($entry, $email_attr);
+                    $names = explode(" ", $name, 2);
+                }
+                $user->setFirstName($names[0]);
+                $user->setLastName(isset($names[1]) ? $names[0] : " ");
+                $user->setIsEnabled(true);
+                $entityManager->persist($user);
+                $entityManager->flush();
+
+                $userInstance = new CoreEntities\UserInstance;
+                $userInstance->setSource('website');
+                $userInstance->setIsActive(true);
+                $userInstance->setIsVerified(true);
+                $userInstance->setUser($user);
+                $userInstance->setSupportRole($role);
+
+                $entityManager->persist($userInstance);
+                $entityManager->flush();
+                $output->writeln( "      <comment>User</comment>:  " . $email . " created successfully.\n"); 
+
+            } catch(\Exception $e) {
+                $message = "      <comment>User</comment>:  " . $email . "\n" . 
+                           "      <comment>Error</comment>: " . $e->getMessage() . "\n"; 
+                $output->writeln($message);
                 continue;
             }
-            $user = new CoreEntities\User;
-            $password = $this->getAttributeValue($entry, $password_attr);
-            
-            $user->setEmail($email);
-            $encodedPassword = $this->passwordEncoder->encode($user, $password);
-            $user->setPassword($encodedPassword);            
-
-            if ($autoGenerateName) {
-                $name = ucwords(current(explode("@", $email)));
-                $names = [$name];
-            } else {
-                $name = $this->getAttributeValue($entry, $email_attr);
-                $names = explode(" ", $name, 2);
-            }
-
-            $user->setFirstName($names[0]);
-            $user->setLastName(isset($names[1]) ? $names[0] : " ");
-            $user->setIsEnabled(true);
-            $entityManager->persist($user);
-            $entityManager->flush();
-
-            $userInstance = new CoreEntities\UserInstance;
-            $userInstance->setSource('website');
-            $userInstance->setIsActive(true);
-            $userInstance->setIsVerified(true);
-            $userInstance->setUser($user);
-            $userInstance->setSupportRole($role);
-
-            $entityManager->persist($userInstance);
-            $entityManager->flush();
         }
         
         $output->writeln(["      Synchronization Process Completed.", ""]);
-        $output->writeln(["      Exiting Evaluation Process.", ""]);
     }
 
     protected function askInteractiveQuestion($question, $default, int $indentLength = 6, bool $nullable = true, bool $secure = false, $warningMessage = "")
@@ -287,11 +302,14 @@ class SynchronizeLdapUsers extends Command
     }
 
     private function reConfigureLdap() : ?LdapInterface
-    {
+    {   
+        // @TODO: Reconfigure Ldap;
         return null;
     }
 
     private function reConfigureDatabase(): ?EntityManagerInterface {
+        
+        // @TODO: Reconfigure database;
         return null;
     }
 
