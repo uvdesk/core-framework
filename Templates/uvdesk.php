@@ -50,11 +50,9 @@ uvdesk:
         base_dn: 'dc=webkultest,dc=com'
         search_dn: 'cn=admin,dc=webkultest,dc=com' 
         search_password: 'ldap@567#'
-        default_roles: ['ROLE_AGENT'] 
-        uid_key: mail
-        filter: ''
+        search_password: 'ldap@567#'
+        username_attribute: mail
         password_attribute: userPassword
-        id_attribute: cn
 
 STRING;
 

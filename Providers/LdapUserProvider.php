@@ -46,8 +46,7 @@ class LdapUserProvider implements UserProviderInterface
     private $baseDn;
     private $searchDn;
     private $searchPassword;
-    private $defaultRoles;
-    private $uidKey;
+    private $usernameAttribute;
     private $defaultSearch;
     private $passwordAttribute;
 
@@ -69,19 +68,16 @@ class LdapUserProvider implements UserProviderInterface
         $this->baseDn = $this->container->getParameter('uvdesk.ldap.base_dn');
         $this->searchDn = $this->container->getParameter('uvdesk.ldap.search_dn');
         $this->searchPassword = $this->container->getParameter('uvdesk.ldap.search_password');
-        $this->defaultRoles = $this->container->getParameter('uvdesk.ldap.default_roles');
-        $this->uidKey = $this->container->getParameter('uvdesk.ldap.uid_key');
+        $this->usernameAttribute = $this->container->getParameter('uvdesk.ldap.username_attribute');
         $this->passwordAttribute = $this->container->getParameter('uvdesk.ldap.password_attribute');
-        $this->idAttribute = $this->container->getParameter('uvdesk.ldap.id_attribute');
-        $filter = !empty($this->container->getParameter('uvdesk.ldap.filter')) ? $this->container->getParameter('uvdesk.ldap.filter') : $filter = '({uid_key}={username})';
-        $this->defaultSearch = str_replace('{uid_key}', $this->uidKey, $filter);
+        $this->defaultSearch = "({$this->usernameAttribute}={username})";
     }
 
     /**
      * {@inheritdoc}
      */
     public function loadUserByUsername($username)
-    {
+    {   
         try {
             $this->ldap->bind($this->searchDn, $this->searchPassword);
             $username = $this->ldap->escape($username, '', LdapInterface::ESCAPE_FILTER);
@@ -90,10 +86,8 @@ class LdapUserProvider implements UserProviderInterface
         } catch (ConnectionException $e) {
             throw new UsernameNotFoundException(sprintf('User "%s" not found.', $username), 0, $e);
         }
-
         $entries = $search->execute();
         $count = \count($entries);
-
         if (!$count) {
             throw new UsernameNotFoundException(sprintf('User "%s" not found.', $username));
         }
@@ -101,12 +95,11 @@ class LdapUserProvider implements UserProviderInterface
         if ($count > 1) {
             throw new UsernameNotFoundException('More than one user found');
         }
-
         $entry = $entries[0];
 
         try {
-            if (null !== $this->uidKey) {
-                $username = $this->getAttributeValue($entry, $this->uidKey);
+            if (null !== $this->usernameAttribute) {
+                $username = $this->getAttributeValue($entry, $this->usernameAttribute);
             }
         } catch (InvalidArgumentException $e) {
         }
@@ -173,61 +166,19 @@ class LdapUserProvider implements UserProviderInterface
     {
         if (null !== $this->passwordAttribute) {
             $password = $this->getAttributeValue($entry, $this->passwordAttribute);
-        } 
-        if (null !== $this->idAttribute) {
-            $id = $this->getAttributeValue($entry, $this->idAttribute);
         }
-        if (empty($id) || empty($password)) {
+        if (empty($password)) {
             throw new UsernameNotFoundException("Partial details");
         }
         
         //Refreshing user from database
         $user = $this->loadUserByUsernameFromDatabase($username);
         if (!empty($user)) {
+
             return $user;
         }
 
         throw new UsernameNotFoundException(sprintf('Username "%s" does not exist.', $username));
-        // $user = new User;
-        // $name = current(explode('@', $username));
-        // $user->setFirstName($name);
-        // $user->setEmail($username);
-        // $user->setPassword($password);
-        // $user->setIsEnabled(true);
-        // $userClass = new \ReflectionClass($user);
-        // $idProperty = $userClass->getProperty('id');
-        // $idProperty->setAccessible(true);
-        // $idProperty->setValue($user, $id);
-        
-        // $activeFirewall = $this->firewall->getFirewallConfig($this->requestStack->getCurrentRequest())->getName();
-
-        // switch (strtolower($activeFirewall)) {
-        //     case 'member':
-        //     case 'back_support':
-        //         $roles = $this->defaultRoles;
-        //         break;
-        //     case 'customer':
-        //     case 'front_support':
-        //         $roles = ['ROLE_CUSTOMER'];
-        //         break;
-        //     default:
-        //         throw new UsernameNotFoundException('Firewall not supported.');
-        //         break;
-        // }
-        // $user->setRoles($roles);
-
-
-        // ($role = new SupportRole)->setCode($roles[0]);
-        
-        // $userInstance = new UserInstance();
-        // $userInstance->setSupportRole($role);
-        // $userInstance->setUser($user);
-        // $userInstance->setIsActive(true);
-        // $userInstance->setIsVerified(0);
-        // $userInstance->setSource('website');
-        // $user->setCurrentInstance($userInstance);
-
-        // return $user;
     }
 
     protected function loadUserByUsernameFromDatabase($username)

@@ -72,17 +72,8 @@ class BundleConfiguration implements ConfigurationInterface
                 ->node('base_dn', 'scalar')->defaultValue(null)->end()
                 ->node('search_dn', 'scalar')->defaultValue(null)->end()
                 ->node('search_password', 'scalar')->defaultValue(null)->end()
-                ->node('default_roles', 'array')
-                    ->beforeNormalization()
-                        ->ifTrue(function($v) { return \is_array($v) && \count($v) === 0; })
-                        ->then( function($v) { return ['ROLE_AGENT'];} )->end()
-                    ->requiresAtLeastOneElement()
-                    ->prototype('scalar')->end()
-                ->end()
-                ->node('uid_key', 'scalar')->defaultValue('mail')->end()
-                ->node('filter', 'scalar')->defaultValue('')->end()
+                ->node('username_attribute', 'scalar')->defaultValue('mail')->end()
                 ->node('password_attribute', 'scalar')->defaultValue('userPassword')->end()
-                ->node('id_attribute', 'scalar')->defaultValue('cn')->end()
             ->end()
         ;
 

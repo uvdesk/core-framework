@@ -6,7 +6,6 @@ use Doctrine\DBAL\DBALException;
 use Symfony\Component\Ldap\Ldap;
 use Symfony\Component\Ldap\Entry;
 use Doctrine\ORM\EntityManagerInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Symfony\Component\Ldap\LdapInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\NullOutput;
@@ -20,11 +19,15 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Ldap\Exception\ConnectionException;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportRole;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Symfony\Component\Console\Input\ArrayInput as ConsoleOptions;
 use Symfony\Component\Security\Core\Exception\InvalidArgumentException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+
 
 class SynchronizeLdapUsers extends Command
 {
@@ -41,10 +44,11 @@ class SynchronizeLdapUsers extends Command
     private $ldap;
 
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container, UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->container = $container;
-        
+        $this->passwordEncoder = $passwordEncoder;
+
         parent::__construct();
     }
 
@@ -112,7 +116,6 @@ class SynchronizeLdapUsers extends Command
             $output->writeln("  <info>[v]</info> Successfully established a connection with database <info>$db_name</info>\n");
         }
         
-        $output->write([self::MCH, self::CLS]);
         $output->writeln("\n<comment>  Examining existing Ldap Configuration:</comment>\n");  
         $base_dn = $this->container->getParameter('uvdesk.ldap.base_dn');
         $search_dn = $this->container->getParameter('uvdesk.ldap.search_dn');
@@ -131,33 +134,28 @@ class SynchronizeLdapUsers extends Command
         $interactiveQuestion = new Question("      <comment>Do you want to have name auto-generated from email? [Y/N]</comment> ", 'Y');
         if ('Y' === strtoupper($this->questionHelper->ask($input, $output, $interactiveQuestion))) {
             $autoGenerateName = true;
+            $output->write([self::MCA, self::CLL]);
         } else {
             $output->write([self::MCA, self::CLL]);
             $name_attr = $this->askInteractiveQuestion("<comment>User's name attribute (defaults to cn)</comment>: ", 'cn', 6, false, false, "Please enter a valid attribute name");        
         }
-        $output->write([self::MCA, self::CLL]);
+        
         $password_attr = $this->askInteractiveQuestion("<comment>User's password attribute name (defaults to userPassword)</comment>: ", 'userPassword', 6, false, false, "Please enter a valid attribute name");
 
         $roles = ['ROLE_AGENT', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN', 'ROLE_CUSTOMER'];
         $role = $this->askChoiceQuestion("<comment>Please selects the role (defaults to ROLE_AGENT)</comment>:", $roles, 0, 6, false);
-
         $role = $entityManager->getRepository("UVDeskCoreFrameworkBundle:SupportRole")->findOneByCode($role);
-
-
-        $choiceQuestion = new ChoiceQuestion(
-        '   <comment>Please selects the type of synchronization (defaults to mass)</comment>',
-            ['Mass', 'Single User Configuration'],
-            0
-        );
-        $choiceQuestion->setErrorMessage('Type %s is invalid.');
-        $sync_type = $this->questionHelper->ask($input, $output, $choiceQuestion);
+        
+        $output->write([self::MCA, self::CLL]);
+        $sync_types = ['Mass', 'Single User Configuration'];
+        $sync_type = $this->askChoiceQuestion('<comment>Please selects the type of synchronization (defaults to Mass)</comment>:', $sync_types, 0, 6, false, "You have selected <info>{option}</info> option.");
 
         if ("mass" !== strtolower($sync_type)) {
-            $email = $this->askInteractiveQuestion("\n<info>Email</info>: ", '', 6, false, false, "Please enter a valid email address");
+            $output->write([self::MCA, self::CLL]);        
+            $email = $this->askInteractiveQuestion("<info>Email</info>: ", '', 6, false, false, "Please enter a valid email address");
         } else {
             $email = '*';
         }
-
 
         try {
             $this->ldap->bind($search_dn, $search_password);
@@ -174,10 +172,10 @@ class SynchronizeLdapUsers extends Command
         $entries = $search->execute()->toArray();
         $count = \count($entries);
         if (!$count) {
-            throw new LdapException('No user found.');
+            $output->writeln(["      No User Found.", ""]);
         }
         if ( $email !== "*" && ($count > 1) ) {
-            throw new UsernameNotFoundException('More than one user found');
+            $output->writeln(["      More than one user found.", ""]);
         }
 
         foreach($entries as $entry) {
@@ -191,7 +189,8 @@ class SynchronizeLdapUsers extends Command
             $password = $this->getAttributeValue($entry, $password_attr);
             
             $user->setEmail($email);
-            $user->setPassword($password);            
+            $encodedPassword = $this->passwordEncoder->encode($user, $password);
+            $user->setPassword($encodedPassword);            
 
             if ($autoGenerateName) {
                 $name = ucwords(current(explode("@", $email)));
@@ -199,8 +198,8 @@ class SynchronizeLdapUsers extends Command
             } else {
                 $name = $this->getAttributeValue($entry, $email_attr);
                 $names = explode(" ", $name, 2);
-                
-            } 
+            }
+
             $user->setFirstName($names[0]);
             $user->setLastName(isset($names[1]) ? $names[0] : " ");
             $user->setIsEnabled(true);
@@ -217,7 +216,9 @@ class SynchronizeLdapUsers extends Command
             $entityManager->persist($userInstance);
             $entityManager->flush();
         }
-
+        
+        $output->writeln(["      Synchronization Process Completed.", ""]);
+        $output->writeln(["      Exiting Evaluation Process.", ""]);
     }
 
     protected function askInteractiveQuestion($question, $default, int $indentLength = 6, bool $nullable = true, bool $secure = false, $warningMessage = "")
@@ -248,38 +249,39 @@ class SynchronizeLdapUsers extends Command
         return $input ?? null;
     }
 
-    protected function askChoiceQuestion($question, array $choices, int $defaultIndex = 0, int $indentLength = 6, bool $nullable = true, string $warningMessage = null)
+    protected function askChoiceQuestion($question, array $choices, int $defaultIndex = 0, int $indentLength = 6, bool $nullable = true, string $successMessageTemplate = "You have selected <info>{option}</info> option.")
     {
         $flag = false;
         $indent = str_repeat(' ', $indentLength);
-        $choiceError = "$indent<comment>Warning</comment>: Please enter a valid option";
         $choicesCount = count($choices);
+        foreach($choices as $index => $choice) {
+            $formattedChoices[] = ($indent . "  [<info>$index</info>] " . "$choice");
+        }
+        $formattedChoices[] = " ";
 
         do {    
-            $choicesString = "";
-            foreach($choices as $index => $choice) {
-                $choicesString .= ($indent . "  [<info>$index</info>] " . "$choice\n");
+            
+            $choicesString = implode("\n", $formattedChoices);
+            $prompt = new Question($indent . $question . "\n$choicesString\n$indent", $defaultIndex);
+            $input  = $this->questionHelper->ask($this->consoleInput, $this->consoleOutput, $prompt);            
+            $this->consoleOutput->write([self::MCA, self::CLL]);
+
+            if (!is_numeric($input) || (is_numeric($input) && ($input < 0) && ($input >= $choicesCount) && false == $nullable ) ) { 
+                $formattedChoices[$choicesCount] = "$indent<bg=red;>Type $input is Invalid</>";
+            } elseif ($nullable || (is_numeric($input) && ($input >= 0) && ($input < $choicesCount)) ) {
+                if ($nullable && !(is_numeric($input) && ($input >= 0) && ($input < $choicesCount))) {
+                    $input = $defaultIndex;
+                }
+                if ($formattedChoices[$choicesCount] !== " ") {
+                    $this->consoleOutput->write([self::MCA, self::CLL]);
+                }
+                $this->consoleOutput->writeln($indent.str_replace('{option}', $choices[$input], $successMessageTemplate));
             }
-            
-            $prompt = new Question($indent . $question . "\n$choicesString$indent", $defaultIndex);
-            $input = $this->questionHelper->ask($this->consoleInput, $this->consoleOutput, $prompt);
-            
-            foreach(range(0, $choicesCount) as $i) {
+            foreach(range(0, $choicesCount + 1) as $i) {
                 $this->consoleOutput->write([self::MCA, self::CLL]);
             }
-            $this->consoleOutput->write([self::MCA, self::CLL, self::MCA, self::CLL]);
             
-            if (!is_int($input)) {
-                if ($nullable) {
-                    $index = $defaultIndex;
-                    $this->consoleOutput->writeln("$indent\You have selected {$chocie[$input]} option.");                
-                } else {
-                    $this->consoleOutput->writeln($choiceError);
-                }
-            } elseif (($input >= 0) && ($input < $choicesCount)) {
-                $this->consoleOutput->writeln("$indent\You have selected {$chocie[$input]} option.");                
-            }
-        } while ( !is_int($input) || ( false == $nullable && is_int($input) && ($input < 0) && ($input >= $choicesCount)) );
+        } while ( !is_numeric($input) || ( false == $nullable && (is_numeric($input) && ($input < 0) && ($input >= $choicesCount)) ) );
 
         return $choices[$input] ?? null;
     }
