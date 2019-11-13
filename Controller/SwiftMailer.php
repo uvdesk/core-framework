@@ -6,15 +6,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\Event\ConfigurationUpdatedEvent;
 
 class SwiftMailer extends Controller
 {
     public function loadMailers()
     {
-	//Disabling Agent's access when Agent enters URL
         if (!$this->get('user.service')->isAccessAuthorized('ROLE_ADMIN')) {
-            return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
+            throw new AccessDeniedException("Insufficient account privileges");
         }
 
         return $this->render('@UVDeskCoreFramework//SwiftMailer//listConfigurations.html.twig');

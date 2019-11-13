@@ -4,14 +4,14 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class EmailSettings extends Controller
 {
     public function loadSettings()
     {
-	//Disabling Agent's access when agent enters URL 
         if (!$this->get('user.service')->isAccessAuthorized('ROLE_ADMIN')) {
-            return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
+            throw new AccessDeniedException("Insufficient account privileges");
         }
 
         $swiftmailerConfigurations = array_map(function ($configuartion) {
