@@ -1303,8 +1303,8 @@ class TicketService
         $timeFormat = $website->getTimeformat();
 
         $activeUser = $this->container->get('user.service')->getSessionUser();
-        $agentTimeZone = $activeUser->getTimezone();
-        $agentTimeFormat = $activeUser->getTimeformat();
+        $agentTimeZone = !empty($activeUser) ? $activeUser->getTimezone() : null;
+        $agentTimeFormat = !empty($activeUser) ? $activeUser->getTimeformat() : null;
 
         $parameterType = gettype($dateFlag);
         if($parameterType == 'string'){
