@@ -9,6 +9,11 @@ class EmailSettings extends Controller
 {
     public function loadSettings()
     {
+	//Disabling Agent's access when agent enters URL 
+        if (!$this->get('user.service')->isAccessAuthorized('ROLE_ADMIN')) {
+            return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
+        }
+
         $swiftmailerConfigurations = array_map(function ($configuartion) {
             return $configuartion->getId();
         }, $this->get('swiftmailer.service')->parseSwiftMailerConfigurations());
