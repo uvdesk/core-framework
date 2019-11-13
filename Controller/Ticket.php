@@ -55,7 +55,8 @@ class Ticket extends Controller
             $entityManager->persist($ticket);
             $entityManager->flush();
         }
-
+	
+	$quickActionButtonCollection->setHasPreparedResponsePrivilege(in_array('ROLE_AGENT_MANAGE_WORKFLOW_MANUAL', $this->get('user.service')->getUserPrivileges($user->getId())));
         $quickActionButtonCollection->prepareAssets();
 
         return $this->render('@UVDeskCoreFramework//ticket.html.twig', [

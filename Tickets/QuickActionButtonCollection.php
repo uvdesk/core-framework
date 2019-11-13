@@ -9,7 +9,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Framework\ExtendableComponentInterface;
 class QuickActionButtonCollection implements ExtendableComponentInterface
 {
 	private $collection = [];
-
+	private $hasPreparedResponsePrivilege = false; 
 	public function __construct(TwigEnvironment $twig, DashboardTemplate $dashboard)
     {
 		$this->twig = $twig;
@@ -23,6 +23,13 @@ class QuickActionButtonCollection implements ExtendableComponentInterface
 
 	public function injectTemplates()
 	{
+	
+		foreach( $this->collection as $key=>$value)
+		{
+			if(get_class($value) == "Webkul\UVDesk\AutomationBundle\UIComponents\Ticket\QuickActionButtons\PreparedResponses" && !$this->hasPreparedResponsePrivilege)
+				unset($this->collection[$key]);
+		}
+
 		return array_reduce($this->collection, function ($stream, $quickActionButton) {
 			return $stream .= $quickActionButton->renderTemplate($this->twig);
 		}, '');
@@ -33,5 +40,10 @@ class QuickActionButtonCollection implements ExtendableComponentInterface
 		foreach ($this->collection as $quickActionButton) {
 			$quickActionButton->prepareDashboard($this->dashboard);
 		}
+	}
+
+	public function setHasPreparedResponsePrivilegeFlag($hasPreparedResponsePrivilege) 
+	{
+		$this->hasPreparedResponsePrivilege = $hasPreparedResponsePrivilege;
 	}
 }
