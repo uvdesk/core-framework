@@ -71,11 +71,6 @@ class Privilege extends Controller
         if ('POST' == $request->getMethod()) {
             $supportPrivilegeDetails = $request->request->get('privilege_form');
 
-            //Set Saved Replies privilege if Workflow privilege set for Agent
-            if(array_key_exists('ROLE_AGENT_MANAGE_WORKFLOW_AUTOMATIC', array_flip($supportPrivilegeDetails['privileges']))){
-                array_push($supportPrivilegeDetails['privileges'], 'ROLE_AGENT_MANAGE_SAVED_REPLIES');
-            }
-
             $supportPrivilege->setName($supportPrivilegeDetails['name']);
             $supportPrivilege->setDescription($supportPrivilegeDetails['description']);
             $supportPrivilege->setPrivileges($supportPrivilegeDetails['privileges']);
