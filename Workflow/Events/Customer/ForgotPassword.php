@@ -3,16 +3,10 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events\Customer;
 
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\AutomationBundle\Workflow\Event as WorkflowEvent;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events\UserForgotPassword as UserForgotPasswordEvent;
 
-class ForgotPassword extends WorkflowEvent
+class ForgotPassword extends UserForgotPasswordEvent
 {
-    public static function getId()
-    {
-        return 'uvdesk.customer.forgot_password';
-    }
-
     public static function getDescription()
     {
         return 'Customer Forgot Password';

@@ -73,14 +73,7 @@ class MailCustomer extends WorkflowAction
                         $headers['In-Reply-To'] = $currentThread->getMessageId();
                     }
 
-                    switch($thread->getThreadType()) {
-                        case 'forward':
-                            $messageId = $container->get('email.service')->sendMail($subject, $message, $thread->getReplyTo(), $headers, $entity->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
-                            break;
-                        default:
-                            $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $headers, $entity->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
-                            break;
-                    }
+                    $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $headers, $entity->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
 
                     if (!empty($messageId)) {
                         $createdThread->setMessageId($messageId);

@@ -1336,8 +1336,8 @@ class TicketService
         $timeFormat = $website->getTimeformat();
 
         $activeUser = $this->container->get('user.service')->getSessionUser();
-        $agentTimeZone = $activeUser->getTimezone();
-        $agentTimeFormat = $activeUser->getTimeformat();
+        $agentTimeZone = !empty($activeUser) ? $activeUser->getTimezone() : null;
+        $agentTimeFormat = !empty($activeUser) ? $activeUser->getTimeformat() : null;
 
         $parameterType = gettype($dateFlag);
         if($parameterType == 'string'){
@@ -1394,16 +1394,16 @@ class TicketService
         // @TODO: Take current firewall into consideration (access check on behalf of agent/customer)
         if (empty($user)) {
             $user = $this->container->get('user.service')->getSessionUser();
-
-            if (empty($user)) {
-                return false;
-            }
         }
 
-        $agentInstance = $user->getAgentInstance();
-
-        if (empty($agentInstance)) {
+        if (empty($user)) {
             return false;
+        } else {
+            $agentInstance = $user->getAgentInstance();
+    
+            if (empty($agentInstance)) {
+                return false;
+            }
         }
 
         if ($agentInstance->getSupportRole()->getId() == 3 && in_array($agentInstance->getTicketAccessLevel(), [2, 3, 4])) {
@@ -1435,33 +1435,6 @@ class TicketService
 
         return true;
     }
-    public function forwardThread($entity, $thread){
-       
-        $currentThread = $entity->currentThread;
-        $createdThread = $entity->createdThread;
 
-        if (!empty($createdThread)) {
-        $attachments = array_map(function($attachment) { 
-            return str_replace('//', '/', $this->container->get('kernel')->getProjectDir() . "/public" . $attachment->getPath());
-        }, $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Attachment')->findByThread($createdThread));
-        }   
-        $subject = 'Thread Forwarded to you';
-        $message = $createdThread->getMessage();
-        if (!empty($thread)) {
-            $headers = ['References' => $entity->getReferenceIds()];
-        
-            if (!empty($currentThread) && null != $currentThread->getMessageId()) {
-                $headers['In-Reply-To'] = $currentThread->getMessageId();
-            }
-
-            $messageId = $this->container->get('email.service')->sendMail($subject, $message, $thread->getReplyTo(), $headers, $entity->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
-
-            if (!empty($messageId)) {
-                $createdThread->setMessageId($messageId);
-                $this->entityManager->persist($createdThread);
-                $this->entityManager->flush();
-            }
-        }
-    }
 }
 
