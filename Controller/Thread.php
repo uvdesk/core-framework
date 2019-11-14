@@ -98,6 +98,9 @@ class Thread extends Controller
                 ]);
 
                 $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+
+                // @TODO: Render response on the basis of event response (if propogation was stopped or not)
+                $request->getSession()->getFlashBag()->set('success', 'Note added to ticket successfully.');
                 break;
             case 'reply':
                 $event = new GenericEvent(CoreWorkflowEvents\Ticket\AgentReply::getId(), [
@@ -106,6 +109,9 @@ class Thread extends Controller
                 ]);
 
                 $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+
+                // @TODO: Render response on the basis of event response (if propogation was stopped or not)
+                $request->getSession()->getFlashBag()->set('success', 'Reply added to ticket successfully.');
                 break;
             case 'forward':
                 // Prepare headers
@@ -122,14 +128,22 @@ class Thread extends Controller
                 }, $attachments);
 
                 // Forward thread to users
-                $messageId = $this->get('email.service')->sendMail($params['subject'] ?? ("Forward: " . $ticket->getSubject()), $thread->getMessage(), $thread->getReplyTo(), $headers, $ticket->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
-
-                if (!empty($messageId)) {
-                    $thread->setMessageId($messageId);
-
-                    $entityManager->persist($createdThread);
-                    $entityManager->flush();
+                try {
+                    $messageId = $this->get('email.service')->sendMail($params['subject'] ?? ("Forward: " . $ticket->getSubject()), $thread->getMessage(), $thread->getReplyTo(), $headers, $ticket->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
+    
+                    if (!empty($messageId)) {
+                        $thread->setMessageId($messageId);
+    
+                        $entityManager->persist($createdThread);
+                        $entityManager->flush();
+                    }
+                } catch (\Exception $e) {
+                    // Do nothing ...
+                    // @TODO: Log exception
                 }
+
+                // @TODO: Render response on the basis of event response (if propogation was stopped or not)
+                $request->getSession()->getFlashBag()->set('success', 'Reply added to the ticket and forwarded successfully.');
                 break;
             default:
                 break;
@@ -155,18 +169,7 @@ class Thread extends Controller
         if ('redirect' === $params['nextView']) {
             return $this->redirect($this->generateUrl('helpdesk_member_ticket_collection'));
         }
-
-        switch($thread->getThreadType()) {
-            case 'reply':
-                $request->getSession()->getFlashBag()->set('success', ('Success! Reply has been added successfully'));
-                break;
-            case 'note':
-                $request->getSession()->getFlashBag()->set('success', ('Success! Note added successfully'));
-                break;
-            case 'forward':
-                $request->getSession()->getFlashBag()->set('success', ('Success! Forward added successfully'));
-                break;
-        }
+        
         return $this->redirect($this->generateUrl('helpdesk_member_ticket', ['ticketId' => $ticket->getId()]));
     }
 

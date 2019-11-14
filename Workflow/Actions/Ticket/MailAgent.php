@@ -59,7 +59,8 @@ class MailAgent extends WorkflowAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        if($entity instanceof Ticket) {
+
+        if ($entity instanceof Ticket) {
             $emailTemplate = $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findOneById($value['value']);
             $emails = self::getAgentMails($value['for'], (($ticketAgent = $entity->getAgent()) ? $ticketAgent->getEmail() : ''), $container);
             
@@ -72,8 +73,7 @@ class MailAgent extends WorkflowAction
                     ->setMaxResults(1);
                 
                 $inReplyTo = $queryBuilder->getQuery()->getSingleResult();
-                $createdThread = $container->get('ticket.service')->getLastReply($entity->getId(), $entity->createdThread->getCreatedBy(), $entity->createdThread->getThreadType());
-                
+
                 if (!empty($inReplyTo)) {
                     $emailHeaders['In-Reply-To'] = $inReplyTo;
                 }
@@ -84,20 +84,20 @@ class MailAgent extends WorkflowAction
 
                 // Only process attachments if required in the message body
                 // @TODO: Revist -> Maybe we should always include attachments if they are provided??
-                if (strpos($emailTemplate->getMessage(), '{%ticket.attachments%}') !== false || strpos($emailTemplate->getMessage(), '{% ticket.attachments %}') !== false) {
+                if (!empty($entity->createdThread) && strpos($emailTemplate->getMessage(), '{%ticket.attachments%}') !== false || strpos($emailTemplate->getMessage(), '{% ticket.attachments %}') !== false) {
                     $attachments = array_map(function($attachment) use ($container) { 
                         return [
                             'name' => $attachment['name'],
                             'path' => str_replace('//', '/', $container->get('kernel')->getProjectDir() . "/public" . $attachment['relativePath']),
                         ];
-                    }, $createdThread['attachments']);
+                    }, $entity->createdThread->getAttachments());
                 }
 
                 $placeHolderValues = $container->get('email.service')->getTicketPlaceholderValues($entity, 'agent');
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $placeHolderValues);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $placeHolderValues);
                 
-                foreach($emails as $email){
+                foreach ($emails as $email) {
                     $messageId = $container->get('email.service')->sendMail($subject, $message, $email, $emailHeaders, null, $attachments ?? []);
                 }
             } else {
@@ -109,33 +109,39 @@ class MailAgent extends WorkflowAction
 
     public static function getAgentMails($for, $currentEmails, $container)
     {
-        $entityManager = $container->get('doctrine.orm.entity_manager');
         $agentMails = [];
+        $entityManager = $container->get('doctrine.orm.entity_manager');
+
         foreach ($for as $agent) {
-            if($agent == 'assignedAgent'){
-                if(is_array($currentEmails))
+            if ($agent == 'assignedAgent') {
+                if (is_array($currentEmails)) {
                     $agentMails = array_merge($agentMails, $currentEmails);
-                else
+                } else {
                     $agentMails[] = $currentEmails;
-            }elseif($agent == 'responsePerforming' && is_object($currentUser = $container->get('security.token_storage')->getToken()->getUser())) //add current user email if any
+                }
+            } else if ($agent == 'responsePerforming' && is_object($currentUser = $container->get('security.token_storage')->getToken()->getUser())) {
+                // Add current user email if any
                 $agentMails[] = $currentUser->getEmail();
-            
-            elseif($agent == 'baseAgent'){ //add selected user email if any
-                if(is_array($currentEmails))
+            } else if ($agent == 'baseAgent') {
+                // Add selected user email if any
+                if (is_array($currentEmails)) {
                     $agentMails = array_merge($agentMails, $currentEmails);
-                else
+                } else {
                     $agentMails[] = $currentEmails;
-            }elseif((int)$agent){
+                }
+            } else if((int)$agent) {
                 $qb = $entityManager->createQueryBuilder();
                 $email = $qb->select('u.email')->from('UVDeskCoreFrameworkBundle:User', 'u')
-                            ->andwhere("u.id = :userId")
-                            ->setParameter('userId', $agent)
-                            ->getQuery()->getResult()
-                        ;
-                if(isset($email[0]['email']))
+                    ->andwhere("u.id = :userId")
+                    ->setParameter('userId', $agent)
+                    ->getQuery()->getResult();
+                
+                if (isset($email[0]['email'])) {
                     $agentMails[] = $email[0]['email'];
+                }
             }
         }
+
         return array_filter($agentMails);
     }
 }

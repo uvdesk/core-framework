@@ -616,189 +616,160 @@ class TicketService
 
     public function massXhrUpdate(Request $request)
     {
-        $permissionMessages = [
-            'trashed' => ['permission' => 'ROLE_AGENT_DELETE_TICKET', 'message' => 'Success ! Tickets moved to trashed successfully.'],
-            'delete' => ['permission' =>  'ROLE_AGENT_DELETE_TICKET', 'message' => 'Success ! Tickets removed successfully.'],
-            'restored' => ['permission' =>  'ROLE_AGENT_RESTORE_TICKET', 'message' => 'Success ! Tickets restored successfully.'],
-            'agent' => ['permission' =>  'ROLE_AGENT_ASSIGN_TICKET', 'message' => 'Success ! Agent assigned successfully.'],
-            'status' => ['permission' =>  'ROLE_AGENT_UPDATE_TICKET_STATUS', 'message' => 'Success ! Tickets status updated successfully.'],
-            'type' => ['permission' =>  'ROLE_AGENT_ASSIGN_TICKET_TYPE', 'message' => 'Success ! Tickets type updated successfully.'],
-            'group' => ['permission' =>  'ROLE_AGENT_ASSIGN_TICKET_GROUP', 'message' => 'Success ! Tickets group updated successfully.'],
-            'team' => ['permission' =>  'ROLE_AGENT_ASSIGN_TICKET_GROUP', 'message' => 'Success ! Tickets team updated successfully.'],
-            'priority' => ['permission' =>  'ROLE_AGENT_UPDATE_TICKET_PRIORITY', 'message' => 'Success ! Tickets priority updated successfully.'],
-            'label' => ['permission' =>  '', 'message' => 'Success ! Tickets added to label successfully.']
-        ];
-        $json = array();
-        $data = $request->request->get('data');
-        
-        $ids = $data['ids'];        
-        foreach ($ids as $id) {
-            $ticket = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->find($id);
-            if(!$ticket)
+        $params = $request->request->get('data');
+
+        foreach ($params['ids'] as $ticketId) {
+            $ticket = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->find($ticketId);
+            
+            if (empty($ticket)) {
                 continue;
+            }
 
-            switch($data['actionType']) {
+            switch ($params['actionType']) {
                 case 'trashed':
-                    $ticket->setIsTrashed(1);
-                    $this->entityManager->persist($ticket);
-                    $this->entityManager->flush();                  
-                    break;
-                case 'delete':
-
-                    $this->entityManager->remove($ticket);
-                    $this->entityManager->flush();
-                    break;
-                case 'restored':
-                    $ticket->setIsTrashed(0);
-                    $this->entityManager->persist($ticket);
-                    $this->entityManager->flush();
-
-                   
-                    break;
-                case 'agent':
-                    $flag = 0;
-                    $agent = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->find($data['targetId']);
-                    $targetAgent = $agent->getUserInstance()['agent'] ? $agent->getUserInstance()['agent']->getName() : 'UnAssigned';
-                    if($ticket->getAgent() != $agent) {
-                        $ticketAgent = $ticket->getAgent();
-                        $currentAgent = $ticketAgent ? ($ticketAgent->getUserInstance()['agent'] ? $ticketAgent->getUserInstance()['agent']->getName() : 'UnAssigned') : 'UnAssigned';
-
-                        $notePlaceholders = $this->getNotePlaceholderValues(
-                                $currentAgent,
-                                $targetAgent,
-                                'agent'
-                            );
-                        $flag = 1;
+                    if (false == $ticket->getIsTrashed()) {
+                        $ticket->setIsTrashed(true);
+                        
+                        $this->entityManager->persist($ticket);
+                        $this->entityManager->flush();
                     }
 
-                    $ticket->setAgent($agent);
-                    $this->entityManager->persist($ticket);
+                    break;
+                case 'delete':
+                    $this->entityManager->remove($ticket);
                     $this->entityManager->flush();
-                    // Trigger Agent Assign event
-                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Agent::getId(), [
-                        'entity' => $ticket,
-                    ]);
-                    $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+
+                    break;
+                case 'restored':
+                    if (true == $ticket->getIsTrashed()) {
+                        $ticket->setIsTrashed(false);
+
+                        $this->entityManager->persist($ticket);
+                        $this->entityManager->flush();
+                    }
+
+                    break;
+                case 'agent':
+                    if ($ticket->getAgent()->getId() != $params['targetId']) {
+                        $agent = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->find($params['targetId']);
+                        $ticket->setAgent($agent);
+    
+                        $this->entityManager->persist($ticket);
+                        $this->entityManager->flush();
+    
+                        // Trigger Agent Assign event
+                        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Agent::getId(), [
+                            'entity' => $ticket,
+                        ]);
+    
+                        $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                    }
 
                     break;
                 case 'status':
-                    $status = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->find($data['targetId']);
-                    $flag = 0;
-                    if($ticket->getStatus() != $status) {
-                        $notePlaceholders = $this->getNotePlaceholderValues(
-                                $ticket->getStatus()->getCode(),
-                                $status->getCode(),
-                                'status'
-                            );
-                        $flag = 1;
-                    }
-                    $ticket->setStatus($status);
-                    $this->entityManager->persist($ticket);
-                    $this->entityManager->flush();
-                    // Trigger ticket status event
-                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Status::getId(), [
-                        'entity' => $ticket,
-                    ]);
-                    $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                    if ($ticket->getStatus()->getId() != $params['targetId']) {
+                        $status = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->findOneById($params['targetId']);
+                        $ticket->setStatus($status);
 
+                        $this->entityManager->persist($ticket);
+                        $this->entityManager->flush();
+
+                        // Trigger ticket status event
+                        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Status::getId(), [
+                            'entity' => $ticket,
+                        ]);
+                        
+                        $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                    }
+                    
                     break;
                 case 'type':
-                    $type = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->find($data['targetId']);
-                    $flag = 0;
-                    if($ticket->getType() != $type) {
-                        $notePlaceholders = $this->getNotePlaceholderValues(
-                                $ticket->getType() ? $ticket->getType()->getCode() :'UnAssigned',
-                                $type->getCode(),
-                                'status'
-                            );
-                        $flag = 1;
+                    if ($ticket->getType()->getId() != $params['targetId']) {
+                        $type = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findOneById($params['targetId']);
+                        $ticket->setType($type);
+    
+                        $this->entityManager->persist($ticket);
+                        $this->entityManager->flush();
+    
+                        // Trigger ticket type event
+                        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Type::getId(), [
+                            'entity' => $ticket,
+                        ]);
+    
+                        $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
                     }
-                    $ticket->setType($type);
-                    $this->entityManager->persist($ticket);
-                    $this->entityManager->flush();
-                    // Trigger ticket type event
-                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Type::getId(), [
-                        'entity' => $ticket,
-                    ]);
-                    $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     break;
                 case 'group':
-                    $group = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')->find($data['targetId']);
-                    $flag = 0;
-                    if($ticket->getSupportGroup() != $group) {
-                        $notePlaceholders = $this->getNotePlaceholderValues(
-                                    $ticket->getSupportGroup() ? $ticket->getSupportGroup()->getName() : 'UnAssigned',
-                                    $group ? $group->getName() :'UnAssigned',
-                                    'group'
-                                );
-                        $flag = 1;
+                    if ($ticket->getSupportGroup()->getId() != $params['targetId']) {
+                        $group = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')->find($params['targetId']);
+                        $ticket->setSupportGroup($group);
+    
+                        $this->entityManager->persist($ticket);
+                        $this->entityManager->flush();
+    
+                        // Trigger Support group event
+                        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Group::getId(), [
+                            'entity' => $ticket,
+                        ]);
+    
+                        $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
                     }
-                    $ticket->setSupportGroup($group);
-                    $this->entityManager->persist($ticket);
-                    $this->entityManager->flush();
-                     // Trigger Support group event
-                     $event = new GenericEvent(CoreWorkflowEvents\Ticket\Group::getId(), [
-                        'entity' => $ticket,
-                    ]);
-                    $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     break;
                 case 'team':
-                    $team = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')->find($data['targetId']);
-                    $flag = 0;
-                    if($ticket->getSupportTeam() != $team){
-                        $notePlaceholders = $this->getNotePlaceholderValues(
-                                $ticket->getSupportTeam() ? $ticket->getSupportTeam()->getName() :'UnAssigned',
-                                $team ? $team->getName() :'UnAssigned',
-                                'team'
-                            );
-                        $flag = 1;
+                    if ($ticket->getSupportTeam()->getId() != $params['targetId']) {
+                        $team = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')->find($params['targetId']);
+                        $ticket->setSupportTeam($team);
+                        
+                        $this->entityManager->persist($ticket);
+                        $this->entityManager->flush();
+        
+                        // Trigger team event
+                        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Team::getId(), [
+                            'entity' => $ticket,
+                        ]);
+        
+                        $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
                     }
-                    $ticket->setSupportTeam($team);
-                    $this->entityManager->persist($ticket);
-                    $this->entityManager->flush();
-                    // Trigger team event
-                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Team::getId(), [
-                        'entity' => $ticket,
-                    ]);
-                    $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+
                     break;
                 case 'priority':
-                    $flag = 0;
-                    $priority = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketPriority')->find($data['targetId']);
-                   
-                    if($ticket->getPriority() != $priority) {
-                        $notePlaceholders = $this->getNotePlaceholderValues(
-                                    $ticket->getPriority()->getCode(),
-                                    $priority->getCode(),
-                                    'priority'
-                                );
-                        $flag = 1;
+                    if ($ticket->getPriority()->getId() != $params['targetId']) {
+                        $priority = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketPriority')->find($params['targetId']);
+                        $ticket->setPriority($priority);
+    
+                        $this->entityManager->persist($ticket);
+                        $this->entityManager->flush();
+    
+                        // Trigger ticket Priority event
+                        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Priority::getId(), [
+                            'entity' => $ticket,
+                        ]);
+    
+                        $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
                     }
-                    $ticket->setPriority($priority);
-                    $this->entityManager->persist($ticket);
-                    $this->entityManager->flush();
-                    // Trigger ticket Priority event
-                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Priority::getId(), [
-                        'entity' => $ticket,
-                    ]);
-                    $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
-                    
                     break;
                 case 'label':
-                    $label = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportLabel')->find($data['targetId']);
-                    if($label && !$this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->isLabelAlreadyAdded($ticket, $label))
+                    $label = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportLabel')->find($params['targetId']);
+                    
+                    if ($label && !$this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->isLabelAlreadyAdded($ticket, $label)) {
                         $ticket->addSupportLabel($label);
+                    }
+                    
                     $this->entityManager->persist($ticket);
                     $this->entityManager->flush();
+
+                    break;
+                default:
                     break;
             }
         }
+
         return [
             'alertClass' => 'success',
-            'alertMessage' => $permissionMessages[$data['actionType']]['message'],
+            'alertMessage' => 'Tickets have been updated successfully.',
         ];
     }
 
@@ -1185,7 +1156,7 @@ class TicketService
         return $result ? $result[0] : null;
     }
 
-    public function getLastReply($ticketId, $userType = null, $threadType = null) 
+    public function getLastReply($ticketId, $userType = null) 
     {
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $queryBuilder->select("th, a, u.id as userId")
@@ -1194,13 +1165,12 @@ class TicketService
             ->leftJoin('th.attachments', 'a')
             ->leftJoin('th.user','u')
             ->andWhere('t.id = :ticketId')
+            ->andWhere('th.threadType = :threadType')
+            ->setParameter('threadType','reply')
             ->setParameter('ticketId',$ticketId)
             ->orderBy('th.id', 'DESC')
             ->getMaxResults(1);
 
-        if (!empty($threadType)) {
-            $queryBuilder->andWhere('th.threadType = :threadType')->setParameter('threadType',$threadType);
-        }
         if (!empty($userType)) {
             $queryBuilder->andWhere('th.createdBy = :createdBy')->setParameter('createdBy', $userType);
         }
@@ -1435,6 +1405,4 @@ class TicketService
 
         return true;
     }
-
 }
-

@@ -27,6 +27,11 @@ SVG;
         return 'helpdesk_member_ticket_collection';
     }
 
+    public static function getRoles() : array
+    {
+        return [];
+    }
+
     public function getChildrenRoutes() : array
     {
         return [];
