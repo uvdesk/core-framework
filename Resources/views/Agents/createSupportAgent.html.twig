@@ -329,7 +329,7 @@
                 </div>
 
                 <!-- CSRF token Field -->
-                <input type="hidden" name="user_form[_token]" value="{{ uvdesk_service.generateCsrfToken('user_form') }}"/>
+                {# <input type="hidden" name="user_form[_token]" value="{{ default_service.generateCsrfToken('user_form') }}"/> #}
 
 				<input class="uv-btn" href="#" value="{{ 'Save Changes'|trans }}" type="submit">
             </form>
