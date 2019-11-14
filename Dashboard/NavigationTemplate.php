@@ -31,7 +31,9 @@ class NavigationTemplate implements ExtendableComponentInterface
 	{
 		$router = $this->router;
 		$request = $this->requestStack->getCurrentRequest();
-
+		if(!$this->container->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_KNOWLEDGEBASE')){
+			unset($this->segments[3]);
+		}
 		$html = array_reduce($this->segments, function($html, $segment) use ($router, $request) {
 			$html .= strtr(self::TEMPLATE_ITEM, [
 				'[[ SVG ]]' => $segment::getIcon(),
