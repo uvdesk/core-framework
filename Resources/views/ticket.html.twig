@@ -1230,7 +1230,7 @@
                     <div class="uv-dropdown-container">
                         <ul>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_EDIT_THREAD_NOTE') %}
-                                <% if(userType != 'system') { %>
+                                <% if (userType != 'system' && userType != 'System') { %>
                                     <li data-action="edit">{{ 'Edit Thread'|trans }}</li>
                                 <% } %>
                             {% endif %}
@@ -1272,7 +1272,7 @@
                     </div>
                 </div>
             </span>
-            <% if(userType != 'system') { %>
+            <% if (userType != 'system' && userType != 'System') { %>
                 <% if(user && user.smallThumbnail != null) { %>
                     <img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%- user.smallThumbnail %>" />
                 <% } else { %>

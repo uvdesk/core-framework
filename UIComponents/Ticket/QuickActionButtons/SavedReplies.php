@@ -8,6 +8,11 @@ use Webkul\UVDesk\CoreFrameworkBundle\Tickets\QuickActionButtonInterface;
 
 class SavedReplies implements QuickActionButtonInterface
 {
+    public static function getRoles() : array
+    {
+        return [];
+    }
+
     public function renderTemplate(TwigEnvironment $twig)
     {
         return $twig->render('@UVDeskCoreFramework/tickets/quick-actions/saved-replies.html.twig');

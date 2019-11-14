@@ -1166,10 +1166,14 @@
                             </span>
                         </div>
                         <div class="uv-ticket-main-lt">
-                            <% if(customer.smallThumbnail != null) { %>
-                            <img class='border' src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%= customer.smallThumbnail %>"/>
+                            <% if (createThread.user.smallThumbnail != null) { %>
+                                <img class='border' src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%= createThread.user.smallThumbnail %>"/>
                             <% } else { %>
-                            <img class='border' src="{{ asset(default_customer_image_path) }}"/>
+                                <% if (createThread.createdBy == 'customer') { %>
+                                    <img class='border' src="{{ asset(default_customer_image_path) }}"/>
+                                <% } else { %>
+                                    <img class='border' src="{{ asset(default_agent_image_path) }}"/>
+                                <% } %>
                             <% } %>
                         </div>
                         <div class="uv-ticket-main-rt">
@@ -1226,12 +1230,14 @@
                                 </span>
                         </div>
                         <div class="uv-ticket-main-lt">
-                            <% if(typeof(lastReply.smallThumbnail) != 'undefined' && lastReply.smallThumbnail != null) { %>
-                            <img class='border' src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%= lastReply.smallThumbnail %>"/>
-                            <% } else if(lastReply.createdBy == 'agent') { %>
-                            <img class='border' src="{{ asset(default_agent_image_path) }}"/>
+                            <% if (lastReply.user.smallThumbnail != null) { %>
+                                <img class='border' src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%= lastReply.user.smallThumbnail %>"/>
                             <% } else { %>
-                            <img class='border' src="{{ asset(default_customer_image_path) }}"/>
+                                <% if (lastReply.createdBy == 'customer') { %>
+                                    <img class='border' src="{{ asset(default_customer_image_path) }}"/>
+                                <% } else { %>
+                                    <img class='border' src="{{ asset(default_agent_image_path) }}"/>
+                                <% } %>
                             <% } %>
                         </div>
                         <div class="uv-ticket-main-rt">

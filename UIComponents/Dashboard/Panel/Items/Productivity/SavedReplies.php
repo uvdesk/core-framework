@@ -28,7 +28,7 @@ class SavedReplies implements PanelSidebarItemInterface
 
     public static function getRoles() : array
     {
-        return ['ROLE_AGENT_MANAGE_SAVED_REPLIES'];
+        return [];
     }
 
     public static function getSidebarReferenceId() : string
