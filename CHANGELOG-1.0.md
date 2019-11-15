@@ -3,6 +3,24 @@ CHANGELOG for 1.0.x
 
 This changelog references any relevant changes introduced in 1.0 minor versions.
 
+* 1.0.4 (2019-11-15)
+    * **Issue #237:** Invalid base url for file icon
+    * **Issue #242:** Prepared response (ticket quick action button) always enabled irrespective of assigned privileges
+    * **Issue #243:** Deny access to protected routes based on user privileges
+    * **Issue #195:** Collaborator replies via email are not being added to ticket
+    * **Issue #263:** Wrong thumbnail is being shown for system generated threads
+    * **Issue #264:** Workflow actions are not working when perform over ticket list
+    * **Issue #261:** Wrong thumbnails are being shown for user threads in ticket quick view
+    * **Issue #260:** Exception occur while executing action {mail to agent:repsonse performing agent}
+    * **Issue #256:** Same flash message being shown for different ticket replies
+    * **Issue #248:** Remove knowledgebase from dashboard navigation if user doesn't have required privileges
+    * **Issue #250:** Saved replies should be accessible irrespective of privileges assigned
+    * **Feature:** Ticket Quick Action Buttons & Dashboard Navigation Items can now define minimum required user privileges to be accessible
+    * **Misc. Updates:**
+        * Included Github issue templates
+        * Included "Powered by Uvdesk" to dashboard
+        * Updated composer dependencies & set minimum required php version to 7.2
+
 * 1.0.3 (2019-10-23)
     * **Issue #230:** Custom field privilege issue
     * **Issue #29:** File attachment limit exceed

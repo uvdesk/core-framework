@@ -18,11 +18,6 @@ class Productivity extends HomepageSection
 
     public static function getRoles() : array
     {
-        return [
-            'ROLE_AGENT_MANAGE_WORKFLOW_MANUAL',
-            'ROLE_AGENT_MANAGE_WORKFLOW_AUTOMATIC',
-            'ROLE_AGENT_MANAGE_TICKET_TYPE',
-            'ROLE_AGENT_MANAGE_TAG',
-        ];
+        return [];
     }
 }

@@ -55,7 +55,7 @@ class Ticket extends Controller
             $entityManager->persist($ticket);
             $entityManager->flush();
         }
-
+	
         $quickActionButtonCollection->prepareAssets();
 
         return $this->render('@UVDeskCoreFramework//ticket.html.twig', [

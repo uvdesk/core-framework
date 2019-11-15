@@ -203,12 +203,19 @@
 		.uv-mob-aside {
 			display: none;
 		}
+    {# .uv-copyright {
+        text-align: center;
+    } #}
 	</style>
 {% endblock %}
 
 {% block pageContent %}
     <div class="uv-area">
-		{{ uvdesk_extensibles.getRegisteredComponent('Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\Dashboard').getHomepageTemplate().render()|raw }}
+        {{ uvdesk_extensibles.getRegisteredComponent('Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\Dashboard').getHomepageTemplate().render()|raw }}
+
+        <div class="uv-copyright">
+            <span class="uv-credit-text">Powered by <a href="https://www.uvdesk.com" target="_blank">UVdesk</a></span>
+        </div>
     </div>
 {% endblock %}
 

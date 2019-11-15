@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": "^7.1.3",
+        "php": "^7.2",
         "uvdesk/composer-plugin": "^1.0",
         "doctrine/doctrine-bundle": "^1.11",
         "doctrine/doctrine-fixtures-bundle": "^3.2",

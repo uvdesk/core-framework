@@ -58,7 +58,7 @@ class AsideTemplate implements ExtendableComponentInterface
                         ];
                     } else {
                         foreach ($item::getRoles() as $requiredPermission) {
-                            if ($this->userService->isAccessAuthorized($item::getRoles())) {
+                            if ($this->userService->isAccessAuthorized($requiredPermission)) {
                                 $sidebar['collection'][] = [
                                     'title' => $item::getTitle(),
                                     'routeName' => $item::getRouteName(),
