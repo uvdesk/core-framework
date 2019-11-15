@@ -19,6 +19,7 @@ This changelog references any relevant changes introduced in 1.0 minor versions.
     * **Misc. Updates:**
         * Included Github issue templates
         * Included "Powered by Uvdesk" to dashboard
+        * Updated composer dependencies & set minimum required php version to 7.2
 
 * 1.0.3 (2019-10-23)
     * **Issue #230:** Custom field privilege issue
