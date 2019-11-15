@@ -17,13 +17,13 @@ solution possible.
 
 To start things off, here are a few commands to help you setup:
 
-  * <fg=blue;options=bold;>Bootstrapping your project:</>
+  * <fg=blue;options=bold;>Configuring your project:</>
 
-    <comment>php bin/console uvdesk:guides:bootstrapping-project</comment>
+    <comment>php bin/console uvdesk:configure-helpdesk</comment>
 
-  * <fg=blue;options=bold;>View all available guides:</>
+  * <fg=blue;options=bold;>Run your project through a local php web server:</>
 
-    <comment>php bin/console list uvdesk:guides</comment>
+    <comment>php bin/console server:run</comment>
 
 
 Made with $love by the UVDesk Team. Happy helping :)
