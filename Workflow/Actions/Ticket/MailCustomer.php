@@ -45,8 +45,17 @@ class MailCustomer extends WorkflowAction
 
         switch (true) {
             case $entity instanceof CoreEntities\Ticket:
-                $currentThread = $entity->currentThread;
-                $createdThread = $entity->createdThread;
+                if (isset($entity->currentThread)) {
+                    $currentThread = $entity->currentThread ;
+                } else {
+                    $currentThread = '';
+                }
+
+                if (isset($entity->createdThread)) {
+                    $createdThread = $entity->createdThread;
+                } else {
+                    $createdThread = '';
+                }
 
                 $emailTemplate = $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findOneById($value);
 
