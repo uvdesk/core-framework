@@ -123,8 +123,10 @@ class Thread extends Controller
 
                 // Prepare attachments
                 $attachments = $entityManager->getRepository(Attachment::class)->findByThread($thread);
-                $attachments = array_map(function($attachment) use ($container) { 
-                    return str_replace('//', '/', $this->get('kernel')->getProjectDir() . "/public" . $attachment->getPath());
+
+                $projectDir = $this->get('kernel')->getProjectDir();
+                $attachments = array_map(function($attachment) use ($projectDir) {
+                return str_replace('//', '/', $projectDir . "/public" . $attachment->getPath());
                 }, $attachments);
 
                 // Forward thread to users

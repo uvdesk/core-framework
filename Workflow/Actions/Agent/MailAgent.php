@@ -82,7 +82,7 @@ class MailAgent extends WorkflowAction
                     $entityManager->flush();
                 }
 
-                $emailTemplate = $this->container->get('email.service')->getEmailTemplate($action['value']['value'], $object->getCompany()->getId());
+                $emailTemplate = $container->get('email.service')->getEmailTemplate($action['value']['value'], $object->getCompany()->getId());
 
                 // $emails = $this->getAgentMails($action['value']['for'], (($ticketAgent = $object->getAgent()) ? $ticketAgent->getEmail() : ''));
 

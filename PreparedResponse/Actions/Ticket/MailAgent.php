@@ -97,7 +97,7 @@ class MailAgent extends PreparedResponseAction
                     $agentMails = array_merge($agentMails, $currentEmails);
                 else
                     $agentMails[] = $currentEmails;
-            }elseif($agent == 'responsePerforming' && is_object($currentUser = $this->container->get('security.tokenstorage')->getToken()->getUser())) //add current user email if any
+            }elseif($agent == 'responsePerforming' && is_object($currentUser = $container->get('security.tokenstorage')->getToken()->getUser())) //add current user email if any
                 $agentMails[] = $currentUser->getEmail();
             
             elseif($agent == 'baseAgent'){ //add selected user email if any
