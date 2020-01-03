@@ -90,7 +90,7 @@ class MailAgent extends WorkflowAction
                             'name' => $attachment['name'],
                             'path' => str_replace('//', '/', $container->get('kernel')->getProjectDir() . "/public" . $attachment['relativePath']),
                         ];
-                    }, $entity->createdThread->getAttachments());
+                    }, $entity->createdThread->getAttachments()->toArray());
                 }
 
                 $placeHolderValues = $container->get('email.service')->getTicketPlaceholderValues($entity, 'agent');
