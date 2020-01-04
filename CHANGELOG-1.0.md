@@ -3,7 +3,7 @@ CHANGELOG for 1.0.x
 
 This changelog references any relevant changes introduced in 1.0 minor versions.
 
-* 1.0.5 (2020-01-03)
+* 1.0.6 (2020-01-04)
     * **Issue #275:** Customer reply error when workflow set for Mail to Agent.
     * **Issue #276:** Exception occur while forwording ticket (undefined variable container).
 
