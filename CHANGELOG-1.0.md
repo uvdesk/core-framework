@@ -3,6 +3,10 @@ CHANGELOG for 1.0.x
 
 This changelog references any relevant changes introduced in 1.0 minor versions.
 
+* 1.0.5 (2020-01-03)
+    * **Issue #275:** Customer reply error when workflow set for Mail to Agent.
+    * **Issue #276:** Exception occur while forwording ticket (undefined variable container).
+
 * 1.0.4 (2019-11-15)
     * **Issue #237:** Invalid base url for file icon
     * **Issue #242:** Prepared response (ticket quick action button) always enabled irrespective of assigned privileges
