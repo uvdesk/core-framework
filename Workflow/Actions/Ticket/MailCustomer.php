@@ -56,6 +56,7 @@ class MailCustomer extends WorkflowAction
 
                 // Only process attachments if required in the message body
                 // @TODO: Revist -> Maybe we should always include attachments if they are provided??
+                $attachments = [];
                 if (!empty($createdThread) && (strpos($emailTemplate->getMessage(), '{%ticket.attachments%}') !== false || strpos($emailTemplate->getMessage(), '{% ticket.attachments %}') !== false)) {
                     $attachments = array_map(function($attachment) use ($container) { 
                         return str_replace('//', '/', $container->get('kernel')->getProjectDir() . "/public" . $attachment->getPath());
@@ -65,7 +66,8 @@ class MailCustomer extends WorkflowAction
                 $ticketPlaceholders = $container->get('email.service')->getTicketPlaceholderValues($entity);
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $ticketPlaceholders);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $ticketPlaceholders);
-
+                
+                $thread = ($thread != null) ? $thread : $createdThread;
                 if (!empty($thread)) {
                     $headers = ['References' => $entity->getReferenceIds()];
                 
