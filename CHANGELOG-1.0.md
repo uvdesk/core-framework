@@ -3,6 +3,10 @@ CHANGELOG for 1.0.x
 
 This changelog references any relevant changes introduced in 1.0 minor versions.
 
+* 1.0.7 (2020-01-25)
+    * **Issue #277:** error when ticket is created - mail to customer not sent
+    * **Issue #240:** super admin name is not showing when set via terminal.
+    
 * 1.0.6 (2020-01-04)
     * **Issue #275:** Customer reply error when workflow set for Mail to Agent.
     * **Issue #276:** Exception occur while forwording ticket (undefined variable container).
