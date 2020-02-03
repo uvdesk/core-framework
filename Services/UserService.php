@@ -704,7 +704,7 @@ class UserService
         $savedReplyIds = [];
         $groupIds = [];
         $teamIds = []; 
-        $userId = $this->container->get('security.token_storage')->getToken()->getUser()->getId();
+        $userId = $this->getCurrentUser()->getAgentInstance()->getId();
 
         // Get all the saved reply the current user has created.
         $savedReplyRepo = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SavedReplies')->findAll();
@@ -715,7 +715,6 @@ class UserService
                 array_push($savedReplyIds, (int)$sr->getId());
             }
         }
-
 
         // Get the ids of the Group(s) the current user is associated with.
         $query = "select * from uv_user_support_groups where userInstanceId =".$userId;
