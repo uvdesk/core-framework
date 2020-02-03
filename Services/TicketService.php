@@ -701,7 +701,8 @@ class TicketService
 
                     break;
                 case 'group':
-                    if ($ticket->getSupportGroup()->getId() != $params['targetId']) {
+                    if ($ticket->getSupportGroup() == null || $ticket->getSupportGroup() && $ticket->getSupportGroup()->getId() != $params['targetId']) {
+
                         $group = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')->find($params['targetId']);
                         $ticket->setSupportGroup($group);
     
@@ -718,7 +719,7 @@ class TicketService
 
                     break;
                 case 'team':
-                    if ($ticket->getSupportTeam()->getId() != $params['targetId']) {
+                    if ($ticket->getSupportTeam() == null || $ticket->getSupportTeam() && $ticket->getSupportTeam()->getId() != $params['targetId']) {
                         $team = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')->find($params['targetId']);
                         $ticket->setSupportTeam($team);
                         
