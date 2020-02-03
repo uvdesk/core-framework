@@ -1097,17 +1097,147 @@ class TicketService
 
     public function getManualWorkflow()
     {
+
+        $preparedResponseIds = [];
+        $groupIds = [];
+        $teamIds = []; 
+        $userId = $this->container->get('user.service')->getCurrentUser()->getAgentInstance()->getId();
+
+        $preparedResponseRepo = $this->entityManager->getRepository('UVDeskAutomationBundle:PreparedResponses')->findAll();
+
+        foreach ($preparedResponseRepo as $pr) {
+            if ($userId == $pr->getUser()->getId()) {
+                //Save the ids of the saved reply.
+                array_push($preparedResponseIds, (int)$pr->getId());
+            }
+        }
+
+        // Get the ids of the Group(s) the current user is associated with.
+        $query = "select * from uv_user_support_groups where userInstanceId =".$userId;
+        $connection = $this->entityManager->getConnection();
+        $stmt = $connection->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+
+        foreach ($result as $row) {
+            array_push($groupIds, $row['supportGroupId']);
+        }
+
+        // Get all the saved reply's ids that is associated with the user's group(s).
+        $query = "select * from uv_prepared_response_support_groups";
+        $stmt = $connection->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+
+        foreach ($result as $row) {
+            if (in_array($row['group_id'], $groupIds)) {
+                array_push($preparedResponseIds, (int) $row['savedReply_id']);
+            }
+        }
+
+        // Get the ids of the Team(s) the current user is associated with.
+        $query = "select * from uv_user_support_teams";
+        $connection = $this->entityManager->getConnection();
+        $stmt = $connection->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+
+        foreach($result as $row) {
+            if ($row['userInstanceId'] == $userId) {
+                array_push($teamIds, $row['supportTeamId']);
+            }
+        }
+
+        $query = "select * from uv_prepared_response_support_teams";
+        $stmt = $connection->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+
+        foreach ($result as $row) {
+            if (in_array($row['subgroup_id'], $teamIds)) {
+                array_push($preparedResponseIds, (int)$row['savedReply_id']);
+            }
+        }
+
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('DISTINCT mw')->from('UVDeskAutomationBundle:PreparedResponses', 'mw');
-        $qb->andwhere('mw.status = 1');
+        $qb->select('DISTINCT mw')
+            ->from('UVDeskAutomationBundle:PreparedResponses', 'mw')
+            ->where('mw.status = 1')
+            ->andWhere('mw.id IN (:ids)')
+            ->setParameter('ids', $preparedResponseIds);
         
         return $qb->getQuery()->getResult();
     }
 
     public function getSavedReplies()
-    {
+    {   
+        $savedReplyIds = [];
+        $groupIds = [];
+        $teamIds = []; 
+        $userId = $this->container->get('user.service')->getCurrentUser()->getAgentInstance()->getId();
+
+        $savedReplyRepo = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SavedReplies')->findAll();
+
+        foreach ($savedReplyRepo as $sr) {
+            if ($userId == $sr->getUser()->getId()) {
+                //Save the ids of the saved reply.
+                array_push($savedReplyIds, (int)$sr->getId());
+            }
+        }
+
+        // Get the ids of the Group(s) the current user is associated with.
+        $query = "select * from uv_user_support_groups where userInstanceId =".$userId;
+        $connection = $this->entityManager->getConnection();
+        $stmt = $connection->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+
+        foreach ($result as $row) {
+            array_push($groupIds, $row['supportGroupId']);
+        }
+
+        // Get all the saved reply's ids that is associated with the user's group(s).
+        $query = "select * from uv_saved_replies_groups";
+        $stmt = $connection->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+
+        foreach ($result as $row) {
+            if (in_array($row['group_id'], $groupIds)) {
+                array_push($savedReplyIds, (int) $row['savedReply_id']);
+            }
+        }
+
+        // Get the ids of the Team(s) the current user is associated with.
+        $query = "select * from uv_user_support_teams";
+        $connection = $this->entityManager->getConnection();
+        $stmt = $connection->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+
+        foreach($result as $row) {
+            if ($row['userInstanceId'] == $userId) {
+                array_push($teamIds, $row['supportTeamId']);
+            }
+        }
+
+        $query = "select * from uv_saved_replies_teams";
+        $stmt = $connection->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+
+        foreach ($result as $row) {
+            if (in_array($row['subgroup_id'], $teamIds)) {
+                array_push($savedReplyIds, (int)$row['savedReply_id']);
+            }
+        }
+
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('DISTINCT sr')->from('UVDeskCoreFrameworkBundle:SavedReplies', 'sr');
+        $qb->select('DISTINCT sr')
+        ->from('UVDeskCoreFrameworkBundle:SavedReplies', 'sr')
+        ->Where('sr.id IN (:ids)')
+        ->setParameter('ids', $savedReplyIds);
+        
         return $qb->getQuery()->getResult();
     }
 
