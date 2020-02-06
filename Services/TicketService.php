@@ -15,19 +15,29 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
+use UVDesk\CommunityPackages\UVDesk\FormComponent\Services\CustomFieldsService;
+use UVDesk\CommunityPackages\UVDesk\FormComponent\Services\FileUploadService;
+use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity;
 
 class TicketService
 {
     protected $container;
 	protected $requestStack;
     protected $entityManager;
+    protected $fileUploadService;
     
-    public function __construct(ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager)
+    public function __construct(
+        ContainerInterface $container, 
+        RequestStack $requestStack, 
+        EntityManagerInterface $entityManager, 
+        FileUploadService $fileUploadService,
+        CustomFieldsService $customFieldsService)
     {
         $this->container = $container;
 		$this->requestStack = $requestStack;
         $this->entityManager = $entityManager;
+        $this->fileUploadService = $fileUploadService;
+        $this->customFieldsService = $customFieldsService;
     }
 
     public function getRandomRefrenceId($email = null)
@@ -82,12 +92,14 @@ class TicketService
     }
 
     public function getMemberCreateTicketSnippet()
-    {
+    {   
         $twigTemplatingEngine = $this->container->get('twig');
         $ticketTypeCollection = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findByIsActive(true);
         
+        $headerCustomFields = $this->customFieldsService->getCustomFieldsArray('user');
         return $twigTemplatingEngine->render('@UVDeskCoreFramework/Snippets/createMemberTicket.html.twig', [
-            'ticketTypeCollection' => $ticketTypeCollection
+            'ticketTypeCollection' => $ticketTypeCollection,
+            'headerCustomFields' => $headerCustomFields,
         ]);
     }
 
@@ -1535,5 +1547,62 @@ class TicketService
         }
 
         return true;
+    }
+
+    public function addTicketCustomFields($ticket, $requestCustomFields = [], $filesCustomFields = [])
+    {
+        $skipFileUpload = false;
+        $customFieldsCollection = $this->entityManager->getRepository('UVDeskFormComponentPackage:CustomFields')->findAll();
+        foreach ($customFieldsCollection as $customFields) {
+            if(in_array($customFields->getFieldType(), ['select', 'checkbox', 'radio']) && !count($customFields->getCustomFieldValues()))
+                continue;
+            elseif('file' != $customFields->getFieldType() && $requestCustomFields && array_key_exists($customFields->getId(), $requestCustomFields) && $requestCustomFields[$customFields->getId()]) {
+
+                if(count($customFields->getCustomFieldsDependency()) && !in_array($ticket->getType(), $customFields->getCustomFieldsDependency()->toArray()))
+                    continue;
+
+                $ticketCustomField = new Entity\TicketCustomFieldsValues();
+                $ticketCustomField->setTicket($ticket);
+                //custom field
+                $ticketCustomField->setTicketCustomFieldsValues($customFields);
+                $ticketCustomField->setValue(json_encode($requestCustomFields[$customFields->getId()]));
+
+                if(in_array($customFields->getFieldType(), ['select', 'checkbox', 'radio'])) {
+                    //add custom field values mapping too
+                    if(is_array($requestCustomFields[$customFields->getId()])) {
+                        foreach ($requestCustomFields[$customFields->getId()] as $value) {
+                            if($ticketCustomFieldValues = $this->entityManager->getRepository('UVDeskFormComponentPackage:CustomFieldsValues')
+                                ->findOneBy(['customFields' => $customFields, 'id' => $value]))
+                                $ticketCustomField->setTicketCustomFieldValueValues($ticketCustomFieldValues);
+                        }
+                    } elseif($ticketCustomFieldValues = $this->entityManager->getRepository('UVDeskFormComponentPackage:CustomFieldsValues')
+                            ->findOneBy(['customFields' => $customFields, 'id' => $requestCustomFields[$customFields->getId()]]))                                                        
+                        $ticketCustomField->setTicketCustomFieldValueValues($ticketCustomFieldValues);
+                }
+
+                $this->entityManager->persist($ticketCustomField);
+                $this->entityManager->flush();
+            } elseif($filesCustomFields && array_key_exists($customFields->getId(), $filesCustomFields) && $filesCustomFields[$customFields->getId()] && !$skipFileUpload) {
+                $skipFileUpload = true;
+                //upload files
+            
+                $path = '/custom-fields/ticket/' . $ticket->getId() . '/';
+                $fileNames = $this->fileUploadService->uploadFile($filesCustomFields[$customFields->getid()], $path, true);
+
+                if(!empty($fileNames)) {
+                    //save files entry to attachment table
+                    $newFilesNames = $this->customFieldsService->addFilesEntryToAttachmentTable([$fileNames]);
+                    foreach ($newFilesNames as $value) {
+                        $ticketCustomField = new Entity\TicketCustomFieldsValues();
+                        $ticketCustomField->setTicket($ticket);
+                        //custom field
+                        $ticketCustomField->setTicketCustomFieldsValues($customFields);
+                        $ticketCustomField->setValue(json_encode(['name' => $value['name'], 'path' => $value['path'], 'id' => $value['id']]));
+                        $this->entityManager->persist($ticketCustomField);
+                        $this->entityManager->flush();
+                    }
+                }
+            }
+        }
     }
 }

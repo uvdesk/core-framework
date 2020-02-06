@@ -12,9 +12,17 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\DataProxies as CoreFrameworkBundleDataProxies;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Tickets\QuickActionButtonCollection;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use UVDesk\CommunityPackages\UVDesk\FormComponent\Services\CustomFieldsService;
+use Webkul\UVDesk\CoreFrameworkBundle\Repository\TicketRepository;
 
 class Ticket extends Controller
-{
+{   
+
+    public function __construct(CustomFieldsService $customFieldsService) {
+        $this->customFieldsService = $customFieldsService;
+    }
+
     public function listTicketCollection(Request $request)
     {
         $entityManager = $this->getDoctrine()->getManager();
@@ -56,6 +64,56 @@ class Ticket extends Controller
             $entityManager->flush();
         }
 	
+        // Ticket Authorization
+        $supportRole = $user->getCurrentInstance()->getSupportRole()->getCode(); 
+        switch($supportRole) {
+            case 'ROLE_ADMIN':
+            case 'ROLE_SUPER_ADMIN':
+                break;
+            case 'ROLE_AGENT':
+                $accessLevel = (int) $user->getCurrentInstance()->getTicketAccessLevel();
+                switch($accessLevel) {
+                    case TicketRepository::TICKET_GLOBAL_ACCESS:
+                        break;
+                    case TicketRepository::TICKET_GROUP_ACCESS:
+                        $supportGroups = array_map(function($supportGroup) { return $supportGroup->getId(); }, $user->getCurrentInstance()->getSupportGroups()->getValues());                       
+                        $ticketAccessableGroups = $ticket->getSupportGroup() ? [$ticket->getSupportGroup()->getId()] : [];
+                        
+                        if ($ticket->getSupportTeam()) {
+                            $ticketSupportTeamGroups = array_map(function($supportGroup) { return $supportGroup->getId(); }, $ticket->getSupportTeam()->getSupportGroups()->getValues());
+                            $ticketAccessableGroups = array_merge($ticketAccessableGroups, $ticketSupportTeamGroups);
+                        }
+                        $isAccessableGroupFound = false;
+                        foreach($ticketAccessableGroups as $groupId) {
+                            if (in_array($groupId, $supportGroups)) {
+                                $isAccessableGroupFound = true;
+                                break;
+                            }
+                        }
+                        if (!$isAccessableGroupFound) {
+                            throw new \Exception('Page not found');
+                        }
+                        break;
+                    case TicketRepository::TICKET_TEAM_ACCESS:
+                        $supportTeams = array_map(function($supportTeam) { return $supportTeam->getId(); }, $user->getCurrentInstance()->getSupportTeams()->getValues());                         
+                        $supportTeam = $ticket->getSupportTeam();
+                        if (!($supportTeam && in_array($supportTeam->getId(), $supportTeams))) {
+                            throw new \Exception('Page not found');
+                        }
+                        break;
+                    default:
+                        $collaborators = array_map( function ($collaborator) { return $collaborator->getId(); }, $ticket->getCollaborators()->getValues());
+                        $accessableAgents = array_merge($collaborators, $ticket->getAgent() ? [$ticket->getAgent()->getId()] : []);
+                        if (!in_array($user->getId(), $accessableAgents)) {
+                            throw new \Exception('Page not found');
+                        }
+                        break;
+                }
+                break;
+            default:
+                throw new \Exception('Page not found');
+        }
+
         $quickActionButtonCollection->prepareAssets();
 
         return $this->render('@UVDeskCoreFramework//ticket.html.twig', [
@@ -106,6 +164,10 @@ class Ticket extends Controller
 
         $ticketType = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findOneById($requestParams['type']);
 
+        extract($this->customFieldsService->customFieldsValidation($request, 'user'));
+        if(!empty($errorFlashMessage)) {
+            $this->addFlash('warning', $errorFlashMessage);
+        }
         $ticketProxy = new CoreFrameworkBundleDataProxies\CreateTicketDataClass();
         $form = $this->createForm(CoreFrameworkBundleForms\CreateTicket::class, $ticketProxy);
 
@@ -176,6 +238,9 @@ class Ticket extends Controller
 
         if (!empty($thread)) {
             $ticket = $thread->getTicket();
+            if($request->request->get('customFields') || $request->files->get('customFields')) {
+                $this->get('ticket.service')->addTicketCustomFields($ticket, $request->request->get('customFields'), $request->files->get('customFields'));                        
+            }
             $request->getSession()->getFlashBag()->set('success', sprintf('Success! Ticket #%s has been created successfully.', $ticket->getId()));
 
             if ($this->get('user.service')->isAccessAuthorized('ROLE_ADMIN')) {
@@ -343,10 +408,10 @@ class Ticket extends Controller
     }
 
     public function downloadAttachment(Request $request)
-    {
-        $attachmendId = $request->attributes->get('attachmendId');
+    {   
+        $attachmentId = $request->attributes->get('attachmendId');
         $attachmentRepository = $this->getDoctrine()->getManager()->getRepository('UVDeskCoreFrameworkBundle:Attachment');
-        $attachment = $attachmentRepository->findOneById($attachmendId);
+        $attachment = $attachmentRepository->findOneById($attachmentId);
         $baseurl = $request->getScheme() . '://' . $request->getHttpHost() . $request->getBasePath();
 
         if (!$attachment) {
@@ -364,5 +429,14 @@ class Ticket extends Controller
         $response->setContent(readfile($path));
 
         return $response;
+    }
+
+    /**
+     * If customer is playing with url and no result is found then what will happen
+     * @return 
+     */
+    protected function noResultFound()
+    {
+        throw new NotFoundHttpException('Not Found!');
     }
 }

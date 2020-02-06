@@ -536,7 +536,7 @@ class UserService
 
         $scheduleDate->setTimeZone(new \DateTimeZone('Asia/Kolkata'));
 
-        return $scheduleDate->format('Asia/Kolkata');
+        return $scheduleDate->format('Y-m-d H:ia');
     }
 
     public function convertToDatetimeTimezoneTimestamp($date, $format = "d-m-Y h:ia")
