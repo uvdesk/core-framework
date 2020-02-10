@@ -15,6 +15,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use UVDesk\CommunityPackages\UVDesk\FormComponent\Services\CustomFieldsService;
 use UVDesk\CommunityPackages\UVDesk\FormComponent\Services\FileUploadService;
 use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity;
