@@ -647,10 +647,10 @@ class TicketService
                         $this->entityManager->persist($ticket);
                         $this->entityManager->flush();
                     }
-
                     break;
                 case 'agent':
-                    if ($ticket->getAgent()->getId() != $params['targetId']) {
+                    if ($ticket->getAgent() == null || $ticket->getAgent() && $ticket->getAgent()->getId() != $params['targetId']) {
+
                         $agent = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->find($params['targetId']);
                         $ticket->setAgent($agent);
     
@@ -664,10 +664,10 @@ class TicketService
     
                         $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
                     }
-
                     break;
                 case 'status':
-                    if ($ticket->getStatus()->getId() != $params['targetId']) {
+                    if ($ticket->getStatus() == null || $ticket->getStatus() && $ticket->getStatus()->getId() != $params['targetId']) {
+
                         $status = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->findOneById($params['targetId']);
                         $ticket->setStatus($status);
 
@@ -684,7 +684,8 @@ class TicketService
                     
                     break;
                 case 'type':
-                    if ($ticket->getType()->getId() != $params['targetId']) {
+                    if ($ticket->getType() == null || $ticket->getType() && $ticket->getType()->getId() != $params['targetId']) {
+
                         $type = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findOneById($params['targetId']);
                         $ticket->setType($type);
     
@@ -719,7 +720,8 @@ class TicketService
 
                     break;
                 case 'team':
-                    if ($ticket->getSupportTeam() == null || $ticket->getSupportTeam() && $ticket->getSupportTeam()->getId() != $params['targetId']) {
+                    if ($ticket->getSupportTeam() == null || $ticket->getSupportTeam() && $ticket->getSupportTeam()->getId() != $params['targetId']){
+
                         $team = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')->find($params['targetId']);
                         $ticket->setSupportTeam($team);
                         
@@ -736,7 +738,8 @@ class TicketService
 
                     break;
                 case 'priority':
-                    if ($ticket->getPriority()->getId() != $params['targetId']) {
+                    if ($ticket->getPriority() == null || $ticket->getPriority() && $ticket->getPriority()->getId() != $params['targetId']) {
+                        
                         $priority = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketPriority')->find($params['targetId']);
                         $ticket->setPriority($priority);
     
@@ -773,7 +776,7 @@ class TicketService
             'alertMessage' => 'Tickets have been updated successfully.',
         ];
     }
-
+    
     public function getNotePlaceholderValues($currentProperty,$targetProperty,$type = "", $details = null)
     {
         $variables = array();
