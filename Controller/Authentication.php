@@ -33,11 +33,7 @@ class Authentication extends Controller
     }
 
     public function forgotPassword(Request $request)
-    {
-        if (null != $this->get('user.service')->getSessionUser()) {
-            return new Response('How did you land here? :/', 404);
-        }
-
+    {   
         $entityManager = $this->getDoctrine()->getManager();
             
         if ($request->getMethod() == 'POST') {
@@ -52,7 +48,7 @@ class Authentication extends Controller
             if ($form->isValid()) {
                 $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:User');
                 $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($form->getData()->getEmail());
-            
+
                 if (!empty($user)) {
                     // Trigger agent forgot password event
                     $event = new GenericEvent(CoreWorkflowEvents\UserForgotPassword::getId(), [
@@ -61,6 +57,9 @@ class Authentication extends Controller
                         
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
                     $request->getSession()->getFlashBag()->set('success', 'Please check your mail for password update.');
+
+                    return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
+
                 } else {
                     $request->getSession()->getFlashBag()->set('warning', 'This email address is not registered with us.');
                 }
@@ -72,17 +71,15 @@ class Authentication extends Controller
 
     public function updateCredentials($email, $verificationCode, Request $request, UserPasswordEncoderInterface $encoder)
     {
-        if (empty($email) || empty($verificationCode)) {
-            return new Response('How did you land here? :/', 404);
-        } else {
-            $entityManager = $this->getDoctrine()->getManager();
-            $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($email);
-    
-            if (empty($user) || $user->getVerificationCode() != $verificationCode) {
-                return new Response('How did you land here? :/', 404);
-            }
-        }
+        $entityManager = $this->getDoctrine()->getManager();
+        $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($email);
 
+        if (empty($user) || $user->getVerificationCode() != $verificationCode) {
+            $request->getSession()->getFlashBag()->set('warning', "You have already update password using this link if you wish to change password again click on forget password link here from login page!!");
+
+            return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
+        }
+        
         if ($request->getMethod() == 'POST') {
             $updatedCredentials = $request->request->all();
 
@@ -93,7 +90,9 @@ class Authentication extends Controller
                 $entityManager->persist($user);
                 $entityManager->flush();
 
-                $request->getSession()->getFlashBag()->set('success', 'Your password has been updated successfully.');
+                $request->getSession()->getFlashBag()->set('success', 'Your password has been successfully updated. Login using updated password');
+
+                return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
             } else {
                 $request->getSession()->getFlashBag()->set('warning', "Please try again. The passwords do not match.");
             }
