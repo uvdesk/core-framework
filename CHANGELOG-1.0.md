@@ -3,6 +3,20 @@ CHANGELOG for 1.0.x
 
 This changelog references any relevant changes introduced in 1.0 minor versions.
 
+* 1.0.8 (2020-02-12)
+    * **Misc. Updates:**
+        * **#175:** Set default article text color equals to black
+        * **#245:** Show error page instead of simple text error
+        * **#281:** Issue template Added
+
+    * **Bug Fixes:**
+        * **Issue #280:** Error when update mass ticket group or team
+        * **Issue #282:** Agent unable to view listed saved replies.
+        * **Issue #283:** Getting error during ticket assignment to an agent
+        * **Issue #284:** Exception occurred when view fetched ticket(When Creted ticket through email and there is no content in message).
+        * **Issue #59:** Mails not received by forward mail to / CC / BCC users when add into ticket.
+        * **Issue #279:** Getting exception when redirects customer/agents list from admin panel
+
 * 1.0.7 (2020-01-25)
     * **Issue #277:** error when ticket is created - mail to customer not sent
     * **Issue #240:** super admin name is not showing when set via terminal.
