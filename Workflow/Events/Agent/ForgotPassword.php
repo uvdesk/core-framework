@@ -9,7 +9,7 @@ class ForgotPassword extends UserForgotPasswordEvent
 {
     public static function getDescription()
     {
-        return 'Agent Forgot Password';
+        return self::dynamicTranslation("Agent Forgot Password");
     }
 
     public static function getFunctionalGroup()

@@ -15,7 +15,7 @@ class Create extends WorkflowEvent
 
     public static function getDescription()
     {
-        return 'Agent Created';
+        return self::dynamicTranslation("Agent Created");
     }
 
     public static function getFunctionalGroup()

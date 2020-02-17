@@ -45,17 +45,17 @@
 		{{ uvdesk_extensibles.getRegisteredComponent(asideTemplate).renderSidebar(asideSidebarReference) | raw }}
         
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
-            <h1>Create Agent</h1>
+            <h1>{{ 'Create Agent'|trans }}</h1>
 
             {# Registeration Form #}
 			<form method="post" action="" id="user-form" enctype="multipart/form-data">
                 {# Registeration Form Tabs #}
                 <div class="uv-tabs">
                     <ul>
-                        <li for="profile" class="uv-tab-active">General</li>
-                        <li for="groups">Groups</li>
+                        <li for="profile" class="uv-tab-active">{{ 'General'|trans }}</li>
+                        <li for="groups">{{ 'Groups'|trans }}</li>
                         {% if "ROLE_SUPER_ADMIN" not in user.roles %}
-                            <li for="permission">Permission</li>
+                            <li for="permission">{{ 'Permission'|trans }}</li>
                         {% endif %}
                     </ul>
                 </div>
@@ -79,14 +79,14 @@
                     </div>
 
                     <div class="uv-element-block">
-                        <label class="uv-field-label">First Name</label>
+                        <label class="uv-field-label">{{ 'First Name'|trans }}</label>
                         <div class="uv-field-block">
                             <input name="user_form[firstName]" class="uv-field" type="text" value="">
                         </div>
                     </div>
 
                     <div class="uv-element-block">
-                        <label class="uv-field-label">Last Name</label>
+                        <label class="uv-field-label">{{ 'Last Name'|trans }}</label>
                         <div class="uv-field-block">
                             <input name="user_form[lastName]" class="uv-field" type="text" value="">
                         </div>
@@ -139,8 +139,8 @@
                     <div class="uv-scroll-plank">
                         <!-- Checkbox Block -->
                         <div class="uv-element-block">
-                            <label class="uv-field-label">Groups</label>
-                            <span class="uv-field-info uv-margin-top-5">Assigning group(s) to user to view tickets regardless assignment.</span>
+                            <label class="uv-field-label">{{ 'Groups'|trans }}</label>
+                            <span class="uv-field-info uv-margin-top-5">{{ 'Assigning group(s) to user to view tickets regardless assignment.'|trans }}</span>
                         </div>
 
                         <div>

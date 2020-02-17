@@ -16,7 +16,7 @@ class UpdateTeam extends WorkflowAction
 
     public static function getDescription()
     {
-        return 'Assign to team';
+        return self::dynamicTranslation("Assign to team");
     }
 
     public static function getFunctionalGroup()

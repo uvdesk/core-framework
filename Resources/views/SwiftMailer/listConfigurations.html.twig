@@ -30,11 +30,11 @@
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
 			<div class="uv-action-bar">
                 <div class="uv-action-bar-col-lt">
-					<h1>SwiftMailer Configurations</h1>
+					<h1>{{ 'SwiftMailer Configurations'|trans }}</h1>
                 </div>
 
 				<div class="uv-action-bar-col-rt">
-					<a href="{{ path('helpdesk_member_swiftmailer_create_mailer_configuration') }}" type="button" class="uv-btn-action">Create Configuration</a>
+					<a href="{{ path('helpdesk_member_swiftmailer_create_mailer_configuration') }}" type="button" class="uv-btn-action">{{ 'Create Configuration'|trans }}</a>
 				</div>
             </div>
 
@@ -42,11 +42,11 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Email</th>
-                            <th>Type</th>
-							<th>Status</th>
-                            <th class="uv-last">Action</th>
+                            <th>{{ 'ID'|trans }}</th>
+                            <th>{{ 'Email'|trans }}</th>
+                            <th>{{ 'Type'|trans }}</th>
+							<th>{{ 'Status'|trans }}</th>
+                            <th class="uv-last">{{ 'Action'|trans }}</th>
                         </tr>
                     </thead>
 
@@ -75,9 +75,9 @@
 		<td><%- transport %></td>
 
 		<% if (isActive) { %>
-			<td><span class="uv-text-success">Enabled</span></td>
+			<td><span class="uv-text-success">{{ 'Enabled'|trans }}</span></td>
 		<% } else { %>
-			<td><span class="uv-text-danger">Disabled</span></td>
+			<td><span class="uv-text-danger">{{ 'Disabled'|trans }}</span></td>
 		<% } %>
 
 		<td data-value="{{ 'Action'|trans }}" class="uv-last">

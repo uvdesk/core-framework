@@ -32,17 +32,17 @@
 		{{ uvdesk_extensibles.getRegisteredComponent(asideTemplate).renderSidebar(asideSidebarReference) | raw }}
         
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
-			<h1>Tags</h1>
+			<h1>{{ 'Tags'|trans }}</h1>
             
 			{# Ticket Tag Action Handler #}
 			<div class="uv-action-bar">
                 <div class="uv-action-bar-col-lt">
 					{# Sort Ticket Tag #}
                     <div class="uv-dropdown sort">
-                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Sort By: Id</div>
+                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">{{ 'Sort By:'|trans }} Id</div>
                         <div class="uv-dropdown-list uv-bottom-left">
 							<div class="uv-dropdown-container">
-								<label>Sort By</label>
+								<label>{{ 'Sort By'|trans }}</label>
 								<ul></ul>
 							</div>
                         </div>
@@ -50,7 +50,7 @@
                 </div>
 
 				<div class="uv-action-bar-col-rt">
-					<input type="text" class="uv-search-inline uv-vertical-align uv-margin-right-15" placeholder="Search">
+					<input type="text" class="uv-search-inline uv-vertical-align uv-margin-right-15" placeholder="{{ 'Search'|trans }}">
 				</div>
             </div>
 
@@ -59,12 +59,12 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Code</th>
-                            <th>Total Ticket(s)</th>
+                            <th>{{ 'Code'|trans }}</th>
+                            <th>{{ 'Total Ticket(s)'|trans }}</th>
 							{% if articlesEnabled is defined and articlesEnabled == true %}
-								<th>Total Article(s)</th>
+								<th>{{ 'Total Article(s)'|trans }}</th>
 							{% endif %}
-                            <th class="uv-last">Action</th>
+                            <th class="uv-last">{{ 'Action'|trans }}</th>
                         </tr>
                     </thead>
 

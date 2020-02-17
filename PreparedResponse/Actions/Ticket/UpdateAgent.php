@@ -16,7 +16,7 @@ class UpdateAgent extends PreparedResponseAction
 
     public static function getDescription()
     {
-        return 'Assign to agent';
+        return self::dynamicTranslation("Assign to agent");
     }
 
     public static function getFunctionalGroup()

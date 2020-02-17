@@ -16,6 +16,7 @@ class Delete extends WorkflowEvent
     public static function getDescription()
     {
         return 'Customer Deleted';
+        return self::dynamicTranslation("Customer Deleted");
     }
 
     public static function getFunctionalGroup()
