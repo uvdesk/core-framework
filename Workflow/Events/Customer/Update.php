@@ -15,7 +15,7 @@ class Update extends WorkflowEvent
 
     public static function getDescription()
     {
-        return 'Customer Update';
+        return self::dynamicTranslation("Customer Update");
     }
 
     public static function getFunctionalGroup()

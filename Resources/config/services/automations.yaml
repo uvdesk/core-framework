@@ -16,3 +16,7 @@ services:
         arguments: ['@service_container', '@request_stack', '@doctrine.orm.entity_manager']
         tags:
             - { name: uvdesk.automations.prepared_response.actions }
+
+    # Webkul\UVDesk\CoreFrameworkBundle\Segments\:
+    #     resource: '../../../Segments/HomepageSectionItem'
+    #     arguments: ['@service_container', '@request_stack']

@@ -16,7 +16,7 @@ class MailAgent extends PreparedResponseAction
 
     public static function getDescription()
     {
-        return 'Mail to agent';
+        return self::dynamicTranslation("Mail to agent");
     }
 
     public static function getFunctionalGroup()

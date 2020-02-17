@@ -293,7 +293,7 @@
             <div class="uv-main-info-block">
                 <div class="uv-aside-head">
                     <div class="uv-aside-title">
-                        <h6>Ticket #{{ ticket.id }}</h6>
+                        <h6>{{ 'Ticket'|trans }} #{{ ticket.id }}</h6>
                     </div>
                     <div class="uv-aside-back">
                         <span onclick="history.length > 1 ? history.go(-1) : window.location = '{{ path("helpdesk_member_ticket_collection") }}';">{{ 'Back'|trans }}</span>
@@ -1048,7 +1048,7 @@
                                         </div>
 
                                         <div class="uv-dropdown reply">
-                                            <div class="uv-btn uv-dropdown-other">Reply <span class="uv-icon-down-light"></span></div>
+                                            <div class="uv-btn uv-dropdown-other">{{ 'Reply'|trans}}<span class="uv-icon-down-light"></span></div>
 
                                             <div class="uv-dropdown-list uv-top-left">
                                                 <div class="uv-dropdown-container">

@@ -13,7 +13,7 @@ class Users extends HomepageSection
 
     public static function getDescription() : string
     {
-        return "Control your Groups, Teams, Agents and Customers";
+        return self::dynamicTranslation("Control your Groups, Teams, Agents and Customers");
     }
 
     public static function getRoles() : array

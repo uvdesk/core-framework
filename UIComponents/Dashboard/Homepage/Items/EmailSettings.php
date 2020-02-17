@@ -20,7 +20,7 @@ SVG;
 
     public static function getTitle() : string
     {
-        return "Email Settings";
+        return self::dynamicTranslation("Email Settings");
     }
 
     public static function getRouteName() : string
