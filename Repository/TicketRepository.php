@@ -392,7 +392,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->groupBy('status');
 
         // applyFilter according to params
-        if ($user->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
+        if ($user->getRoles()[0] != 'ROLE_SUPER_ADMIN' && $user->getRoles()[0] != 'ROLE_ADMIN') {
             $queryBuilder->andwhere('agent = ' . $user->getId());
         }
         
