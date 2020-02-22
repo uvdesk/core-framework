@@ -467,7 +467,7 @@ class TicketService
         $queryBuilder->select('COUNT(DISTINCT ticket.id) as ticketCount')->from('UVDeskCoreFrameworkBundle:Ticket', 'ticket')
             ->leftJoin('ticket.agent', 'agent');
         
-        if ($currentUser->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
+        if ($currentUser->getRoles()[0] != 'ROLE_SUPER_ADMIN' && $currentUser->getRoles()[0] != 'ROLE_ADMIN') {
             $queryBuilder->andwhere('agent = ' . $currentUser->getId());
         }
         
