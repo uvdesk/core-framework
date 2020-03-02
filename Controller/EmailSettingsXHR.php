@@ -12,20 +12,17 @@ class EmailSettingsXHR extends Controller
     public function updateSettingsXHR(Request $request)
     {
         $filePath = $this->get('kernel')->getProjectDir() . '/config/packages/uvdesk.yaml';
-        
         $app_locales = 'en|fr|it'; //default app_locales values
-        foreach( file($filePath) as $val)
-        {
+
+        foreach ( file($filePath) as $val) {
             $exploded = explode(":", trim($val));
             if($exploded[0] == 'app_locales' && ($app_locales != $exploded[1]))
             {
                 $app_locales = trim($exploded[1]);
             }
         }
-        
-        
+
         $supportEmailConfiguration = json_decode($request->getContent(), true);
-        
         $mailer_id = ( $supportEmailConfiguration['mailer_id'] == 'None Selected' ? '~' : $supportEmailConfiguration['mailer_id'] );
 
         $file_content_array = strtr(require __DIR__ . "/../Templates/uvdesk.php", [
