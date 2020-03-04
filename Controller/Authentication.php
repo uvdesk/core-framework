@@ -56,12 +56,12 @@ class Authentication extends Controller
                     ]);
                         
                     $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
-                    $request->getSession()->getFlashBag()->set('success', 'Please check your mail for password update.');
+                    $this->addFlash('success', $this->get('translator')->trans('Please check your mail for password update'));
 
                     return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
 
                 } else {
-                    $request->getSession()->getFlashBag()->set('warning', 'This email address is not registered with us.');
+                    $this->addFlash('warning', $this->get('translator')->trans('This email address is not registered with us'));
                 }
             }
         }
@@ -75,7 +75,7 @@ class Authentication extends Controller
         $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($email);
 
         if (empty($user) || $user->getVerificationCode() != $verificationCode) {
-            $request->getSession()->getFlashBag()->set('warning', "You have already update password using this link if you wish to change password again click on forget password link here from login page!!");
+            $this->addFlash('success', $this->get('translator')->trans('You have already update password using this link if you wish to change password again click on forget password link here from login page'));
 
             return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
         }
@@ -90,11 +90,11 @@ class Authentication extends Controller
                 $entityManager->persist($user);
                 $entityManager->flush();
 
-                $request->getSession()->getFlashBag()->set('success', 'Your password has been successfully updated. Login using updated password');
+                $this->addFlash('success', $this->get('translator')->trans('Your password has been successfully updated. Login using updated password'));
 
                 return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
             } else {
-                $request->getSession()->getFlashBag()->set('warning', "Please try again. The passwords do not match.");
+                $this->addFlash('success', $this->get('translator')->trans('Please try again, The passwords do not match'));
             }
         }
 

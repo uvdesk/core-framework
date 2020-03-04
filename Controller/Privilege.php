@@ -40,7 +40,6 @@ class Privilege extends Controller
 
             $this->addFlash('success', $this->get('translator')->trans('Success ! Privilege information saved successfully.'));
             return $this->redirect($this->generateUrl('helpdesk_member_privilege_collection'));
-
         }
 
         return $this->render('@UVDeskCoreFramework/Privileges/createSupportPrivelege.html.twig', [
@@ -78,8 +77,8 @@ class Privilege extends Controller
             $entityManager->persist($supportPrivilege);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Privilege updated successfully.');
-
+            $this->addFlash('success', $this->get('translator')->trans('Privilege updated successfully.'));
+            
             return $this->redirect($this->generateUrl('helpdesk_member_privilege_collection'));
         }
 

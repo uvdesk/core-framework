@@ -182,7 +182,7 @@ class Ticket extends Controller
                 return $this->redirect($this->generateUrl('helpdesk_member_ticket', ['ticketId' => $ticket->getId()]));
             }
         } else {
-            $request->getSession()->getFlashBag()->set('warning', 'Could not create ticket, invalid details.');
+            $this->addFlash('warning', $this->get('translator')->trans('Could not create ticket, invalid details.'));
         }
 
         return $this->redirect(!empty($referralURL) ? $referralURL : $this->generateUrl('helpdesk_member_ticket_collection'));
@@ -230,9 +230,9 @@ class Ticket extends Controller
                 $em->flush();
 
                 if (!$request->attributes->get('ticketTypeId')) {
-                    $this->addFlash('success', sprintf('Success! Ticket type saved successfully.'));
+                    $this->addFlash('success', $this->get('translator')->trans('Success! Ticket type saved successfully.'));
                 } else {
-                    $this->addFlash('success', sprintf('Success! Ticket type updated successfully.'));
+                    $this->addFlash('success', $this->get('translator')->trans('Success! Ticket type updated successfully.'));
                 }
 
                 return $this->redirect($this->generateUrl('helpdesk_member_ticket_type_collection'));
