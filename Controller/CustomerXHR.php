@@ -53,10 +53,10 @@ class CustomerXHR extends Controller
                 $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = ('Success ! Customer removed successfully.');
+                $json['alertMessage'] = $this->get('translator')->trans('Success ! Customer removed successfully.');
             } else {
                 $json['alertClass'] =  'danger';
-                $json['alertMessage'] = ('Error ! Invalid customer id.');
+                $json['alertMessage'] = $this->get('translator')->trans('Error ! Invalid customer id.');
                 $json['statusCode'] = Response::HTTP_NOT_FOUND;
             }
         }

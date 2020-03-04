@@ -773,7 +773,7 @@ class TicketService
 
         return [
             'alertClass' => 'success',
-            'alertMessage' => 'Tickets have been updated successfully.',
+            'alertMessage' => $this->trans('Tickets have been updated successfully'),
         ];
     }
     

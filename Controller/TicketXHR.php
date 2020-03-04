@@ -354,7 +354,7 @@ class TicketXHR extends Controller
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => 'Ticket assigned to support group ' . $supportGroup->getName(),
+                        'alertMessage' => $this->get('translator')->trans('Ticket assigned to support group '). $supportGroup->getName(),
                     ]), 200, ['Content-Type' => 'application/json']);
                 }
                 break;
