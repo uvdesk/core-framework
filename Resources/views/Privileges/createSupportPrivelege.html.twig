@@ -115,23 +115,23 @@
 				validation: {
 					'privilege_form[name]': [{
 						required: true,
-						msg: "This field is mandatory"
+						msg: "{{ 'This field is mandatory'|trans }}"
 					}, {
 						pattern: '^((?![!@#$%^&*()<>]).)*$',
-						msg: 'Privilege Name must have characters only'
+						msg: "{{ 'Privilege Name must have characters only'|trans }}"
 					},{
 						maxLength:50,
-                        msg:'Maximum character length is 50'
+                        msg: "{{ 'Maximum character length is 50'|trans }}"
 					}],
 					'privilege_form[description]': {
 						required: true,
-						msg: 'This field is mandatory'
+						msg: "{{ 'This field is mandatory'|trans }}"
 					},
 					'privilege_form[privileges][]': {
                         fn: function() {
                             return !$("input[name='privilege_form[privileges][]']:checked").length ? true : false;
                         },
-                        msg: 'This field is mandatory'
+                        msg: "{{ 'This field is mandatory'|trans }}"
                     },
 				}
 			});

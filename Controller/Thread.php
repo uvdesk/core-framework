@@ -100,7 +100,7 @@ class Thread extends Controller
                 $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                 // @TODO: Render response on the basis of event response (if propogation was stopped or not)
-                $request->getSession()->getFlashBag()->set('success', 'Note added to ticket successfully.');
+                $this->addFlash('success', $this->get('translator')->trans('Note added to ticket successfully.'));
                 break;
             case 'reply':
                 $event = new GenericEvent(CoreWorkflowEvents\Ticket\AgentReply::getId(), [
@@ -111,7 +111,7 @@ class Thread extends Controller
                 $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                 // @TODO: Render response on the basis of event response (if propogation was stopped or not)
-                $request->getSession()->getFlashBag()->set('success', 'Reply added to ticket successfully.');
+                $this->addFlash('success', $this->get('translator')->trans('Reply added to ticket successfully.'));
                 break;
             case 'forward':
                 // Prepare headers

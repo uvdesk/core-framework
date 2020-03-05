@@ -134,22 +134,22 @@
 				validation: {
 					'customer_form[firstName]': [{
                         required: true,
-                        msg: 'This field is mandatory'
+                        msg: '{{ "This field is mandatory"|trans }}'
                     },{
                         pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
-                        msg: 'This field must have characters only'
+                        msg: '{{ "This field must have characters only"|trans }}'
                     },{
                         maxLength:40,
-                        msg:'Maximum character length is 40'
+                        msg: '{{ "Maximum character length is 40"|trans }}'
                     }],
 					'customer_form[lastName]': function(value) {
                         if(value != undefined && value !== '') {
                             [{
                                 pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
-                                msg: 'This field must have characters only'
+                                msg: '{{ "This field must have characters only"|trans }}'
                             },{
                                 maxLength:40,
-                                msg:'Maximum character length is 40'
+                                msg: '{{ "Maximum character length is 40"|trans }}'
                             }]
                         }
                     },
