@@ -171,21 +171,21 @@
 				validation: {
 					'name': [{
 						required: true,
-						msg: 'This field is mandatory'
+						msg: '{{ "This field is mandatory" | trans}}'
 					},
 					{
 						maxLength: 100,
-						msg: 'This field contain 100 characters only'
+						msg: '{{ "This field contain 100 characters only" | trans}}'
 					},{
 						pattern:"^[ a-zA-Z_0-9 ']*$",
-						msg:"This field contain characters only"
+						msg:'{{ "This field contain characters only" | trans}}'
 					}],
 					'subject': [{
 						required: true,
-						msg: 'This field is mandatory'
+						msg: '{{ "This field is mandatory" | trans}}'
 					},{
 						maxLength:100,
-						msg: 'This field contain 100 characters only'
+						msg: '{{ "This field contain 100 characters only" | trans}}'
 					}]
 				}
 			});
