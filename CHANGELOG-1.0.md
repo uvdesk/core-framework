@@ -3,6 +3,15 @@ CHANGELOG for 1.0.x
 
 This changelog references any relevant changes introduced in 1.0 minor versions.
 
+* 1.0.9 (2020-03-17)
+    * **Misc. Updates:**
+        * **Added Missing translation**
+        
+    * **Bug Fixes:**
+        * **Issue #285:** No Ticket counts when login as another administrative account.
+        * **Issue #289:** Error when trying to open Email templates.
+        * **Issue #288:** Uploading image in branding showing tmp file doesn't exist.
+
 * 1.0.8 (2020-02-12)
     * **Misc. Updates:**
         * **#175:** Set default article text color equals to black.
