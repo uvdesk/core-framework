@@ -16,7 +16,7 @@ class UpdateStatus extends WorkflowAction
 
     public static function getDescription()
     {
-        return 'Set Status As';
+        return self::dynamicTranslation("Set Status As");
     }
 
     public static function getFunctionalGroup()

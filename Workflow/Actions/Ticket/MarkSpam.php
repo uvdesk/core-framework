@@ -16,7 +16,7 @@ class MarkSpam extends WorkflowAction
 
     public static function getDescription()
     {
-        return 'Mark Spam';
+        return self::dynamicTranslation("Mark Spam");
     }
 
     public static function getFunctionalGroup()

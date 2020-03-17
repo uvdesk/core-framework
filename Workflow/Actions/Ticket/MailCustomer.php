@@ -17,7 +17,7 @@ class MailCustomer extends WorkflowAction
 
     public static function getDescription()
     {
-        return 'Mail to customer';
+        return self::dynamicTranslation("Mail to customer");
     }
 
     public static function getFunctionalGroup()

@@ -3,7 +3,7 @@
 return <<<STRING
 
 parameters:
-    app_locales: en|fr|it
+    app_locales: {{ APP_LOCALES }}
     
     # Default Assets
     assets_default_agent_profile_image_path: 'bundles/uvdeskcoreframework/images/uv-avatar-batman.png'

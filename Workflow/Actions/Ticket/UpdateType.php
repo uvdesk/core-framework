@@ -16,7 +16,7 @@ class UpdateType extends WorkflowAction
 
     public static function getDescription()
     {
-        return 'Set Type As';
+        return self::dynamicTranslation("Set Type As");
     }
 
     public static function getFunctionalGroup()

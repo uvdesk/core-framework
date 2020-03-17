@@ -16,6 +16,7 @@ class Create extends WorkflowEvent
     public static function getDescription()
     {
         return 'Customer Created';
+        return self::dynamicTranslation("Customer Created");
     }
 
     public static function getFunctionalGroup()

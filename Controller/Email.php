@@ -76,9 +76,10 @@ class Email extends Controller
             $entityManager->flush();
 
             if ($request->attributes->get('template')) {
-                $message = 'Success! Template has been updated successfully.';
+                $message = $this->get('translator')->trans('Success! Template has been updated successfully.');
             } else {
-                $message = 'Success! Template has been added successfully.';
+                $message = $this->get('translator')->trans('Success! Template has been added successfully.');
+
             }
 
             $this->addFlash('success', $message);

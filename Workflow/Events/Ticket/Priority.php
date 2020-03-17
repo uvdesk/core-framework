@@ -15,7 +15,7 @@ class Priority extends WorkflowEvent
 
     public static function getDescription()
     {
-        return 'Priority Updated';
+        return self::dynamicTranslation("Priority Updated");
     }
 
     public static function getFunctionalGroup()

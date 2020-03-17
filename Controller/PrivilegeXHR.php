@@ -44,7 +44,7 @@ class PrivilegeXHR extends Controller
 
                 return new Response(json_encode([
                     'alertClass' => 'success',
-                    'alertMessage' => 'Support Privilege removed successfully.',
+                    'alertMessage' => $this->get('translator')->trans('Support Privilege removed successfully'),
                 ]), 200, ['Content-Type' => 'application/json']);
             }
         }
