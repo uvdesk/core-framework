@@ -360,7 +360,7 @@ class TicketService
 
         // Get base query
         $baseQuery = $ticketRepository->prepareBaseTicketQuery($activeUser, $supportGroupReference, $supportTeamReference, $params);
-        $ticketTabs = $ticketRepository->getTicketTabDetails($activeUser, $params);
+        $ticketTabs = $ticketRepository->getTicketTabDetails($activeUser, $supportGroupReference, $supportTeamReference, $params);
 
         // Apply Pagination
         $pageNumber = !empty($params['page']) ? (int) $params['page'] : 1;
@@ -451,26 +451,23 @@ class TicketService
             'pagination' => $paginationData,
             'tabs' => $ticketTabs,
             'labels' => [
-                'predefind' => $this->getPredefindLabelDetails($this->container, $params),
+                'predefind' => $this->getPredefindLabelDetails($activeUser, $supportGroupReference, $supportTeamReference, $params),
                 'custom' => $this->getCustomLabelDetails($this->container),
             ],
           
         ];
     }
     
-    public function getPredefindLabelDetails($container, $params)
+    public function getPredefindLabelDetails(User $currentUser, array $supportGroupIds = [], array $supportTeamIds = [], array $params = [], bool $filterByStatus = true)
     {
-        $currentUser = $container->get('user.service')->getCurrentUser();
         $data = array();
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket');
         $queryBuilder->select('COUNT(DISTINCT ticket.id) as ticketCount')->from('UVDeskCoreFrameworkBundle:Ticket', 'ticket')
             ->leftJoin('ticket.agent', 'agent');
         
-        if ($currentUser->getRoles()[0] != 'ROLE_SUPER_ADMIN' && $currentUser->getRoles()[0] != 'ROLE_ADMIN') {
-            $queryBuilder->andwhere('agent = ' . $currentUser->getId());
-        }
-        
+        // applyFilter according to permission
+        $ticketRepository->addPermissionFilter($queryBuilder, $currentUser, $supportGroupIds, $supportTeamIds);
         $queryBuilder->andwhere('ticket.isTrashed != 1');
 
         // for all tickets count
