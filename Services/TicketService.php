@@ -458,17 +458,37 @@ class TicketService
         ];
     }
     
-    public function getPredefindLabelDetails(User $currentUser, array $supportGroupIds = [], array $supportTeamIds = [], array $params = [], bool $filterByStatus = true)
+    public function getPredefindLabelDetails(User $currentUser, array $supportGroupIds = [], array $supportTeamIds = [], array $params = [])
     {
         $data = array();
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket');
-        $queryBuilder->select('COUNT(DISTINCT ticket.id) as ticketCount')->from('UVDeskCoreFrameworkBundle:Ticket', 'ticket')
-            ->leftJoin('ticket.agent', 'agent');
+        $queryBuilder->select('COUNT(DISTINCT ticket.id) as ticketCount')->from('UVDeskCoreFrameworkBundle:Ticket', 'ticket');
+            
+        // // applyFilter according to permission
+        $queryBuilder->where('ticket.isTrashed != 1');
+        $userInstance = $currentUser->getAgentInstance();
         
-        // applyFilter according to permission
-        $ticketRepository->addPermissionFilter($queryBuilder, $currentUser, $supportGroupIds, $supportTeamIds);
-        $queryBuilder->andwhere('ticket.isTrashed != 1');
+        if(!empty($userInstance) &&  'ROLE_AGENT' == $userInstance->getSupportRole()->getCode() && $userInstance->getTicketAccesslevel() != 1) {
+            $supportGroupIds = implode(',', $supportGroupIds);
+            $supportTeamIds = implode(',', $supportTeamIds);
+
+            if ($userInstance->getTicketAccesslevel() == 4) {
+                $queryBuilder
+                            ->andwhere('ticket.agent = ' . $currentUser->getId());
+            } elseif ($userInstance->getTicketAccesslevel() == 2) {
+                $queryBuilder
+                            ->leftJoin('ticket.supportGroup', 'supportGroup')
+                            ->leftJoin('ticket.supportTeam', 'supportTeam')
+                            ->andwhere('ticket.agent = ' . $currentUser->getId(). ' OR supportGroup.id IN('.$supportGroupIds.') OR supportTeam.id IN('.$supportTeamIds.')');
+                    
+            } elseif ($userInstance->getTicketAccesslevel() == 3) {
+                $queryBuilder
+                            ->leftJoin('ticket.supportGroup', 'supportGroup')
+                            ->leftJoin('ticket.supportTeam', 'supportTeam')
+                            ->andwhere('ticket.agent = ' . $currentUser->getId(). ' OR supportTeam.id IN('.$supportTeamIds.')');
+            }
+        }
 
         // for all tickets count
         $data['all'] = $queryBuilder->getQuery()->getSingleScalarResult();
@@ -490,7 +510,7 @@ class TicketService
 
         // for my tickets count
         $mineQb = clone $queryBuilder;
-        $mineQb->andWhere("agent = :agentId")
+        $mineQb->andWhere("ticket.agent = :agentId")
                 ->setParameter('agentId', $currentUser->getId());
         $data['mine'] = $mineQb->getQuery()->getSingleScalarResult();
 
@@ -503,13 +523,13 @@ class TicketService
         $trashedQb = clone $queryBuilder;
         $trashedQb->where('ticket.isTrashed = 1');
         if ($currentUser->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
-            $trashedQb->andwhere('agent = ' . $currentUser->getId());
+            $trashedQb->andwhere('ticket.agent = ' . $currentUser->getId());
         }
         $data['trashed'] = $trashedQb->getQuery()->getSingleScalarResult();
 
         return $data;
     }
-
+    
     public function paginateMembersTicketThreadCollection(Ticket $ticket, Request $request)
     {
         $params = $request->query->all();
