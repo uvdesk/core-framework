@@ -154,7 +154,7 @@ class HomepageTemplate implements ExtendableComponentInterface
 			}
 
 			$html .= strtr(self::SECTION_TEMPLATE, [
-				'[[ TITLE ]]' => $segment::getTitle(),
+				'[[ TITLE ]]' => $this->translator->trans($segment::getTitle()),
 				'[[ DESCRIPTION ]]' => $this->translator->trans($segment::getDescription()),
 				'[[ COLLECTION ]]' => $sectionHtml,
 			]);
