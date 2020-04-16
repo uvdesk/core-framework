@@ -469,24 +469,33 @@ class TicketService
         $queryBuilder->where('ticket.isTrashed != 1');
         $userInstance = $currentUser->getAgentInstance();
 
-        if (!empty($userInstance) &&  'ROLE_AGENT' == $userInstance->getSupportRole()->getCode() && $userInstance->getTicketAccesslevel() != 1) {
+        if (!empty($userInstance) &&  'ROLE_AGENT' == $userInstance->getSupportRole()->getCode() 
+        && $userInstance->getTicketAccesslevel() != 1) {
             $supportGroupIds = implode(',', $supportGroupIds);
             $supportTeamIds = implode(',', $supportTeamIds);
 
             if ($userInstance->getTicketAccesslevel() == 4) {
-                $queryBuilder
-                            ->andwhere('ticket.agent = ' . $currentUser->getId());
+                $queryBuilder->andwhere('ticket.agent = ' . $currentUser->getId());
             } elseif ($userInstance->getTicketAccesslevel() == 2) {
-                $queryBuilder
-                            ->leftJoin('ticket.supportGroup', 'supportGroup')
+                $query = '';
+                if ($supportGroupIds){
+                    $query .= ' OR supportGroup.id IN('.$supportGroupIds.') ';
+                }
+                if ($supportTeamIds) {
+                    $query .= ' OR supportTeam.id IN('.$supportTeamIds.') ';
+                }
+                $queryBuilder->leftJoin('ticket.supportGroup', 'supportGroup')
                             ->leftJoin('ticket.supportTeam', 'supportTeam')
-                            ->andwhere('ticket.agent = ' . $currentUser->getId(). ' OR supportGroup.id IN('.$supportGroupIds.') OR supportTeam.id IN('.$supportTeamIds.')');
+                            ->andwhere('( ticket.agent = ' . $currentUser->getId().$query.')');
                     
             } elseif ($userInstance->getTicketAccesslevel() == 3) {
-                $queryBuilder
-                            ->leftJoin('ticket.supportGroup', 'supportGroup')
+                $query = '';
+                if ($supportTeamIds) {
+                    $query .= ' OR supportTeam.id IN('.$supportTeamIds.') ';
+                }
+                $queryBuilder->leftJoin('ticket.supportGroup', 'supportGroup')
                             ->leftJoin('ticket.supportTeam', 'supportTeam')
-                            ->andwhere('ticket.agent = ' . $currentUser->getId(). ' OR supportTeam.id IN('.$supportTeamIds.')');
+                            ->andwhere('( ticket.agent = ' . $currentUser->getId().$query. ')');
             }
         }
 
