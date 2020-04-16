@@ -16,7 +16,7 @@ class MailTeam extends PreparedResponseAction
 
     public static function getDescription()
     {
-        return self::dynamicTranslation("Mail to team");
+        return "Mail to team";
     }
 
     public static function getFunctionalGroup()

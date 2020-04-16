@@ -16,7 +16,7 @@ class UpdateType extends PreparedResponseAction
 
     public static function getDescription()
     {
-        return self::dynamicTranslation("Set Type As");
+        return "Set Type As";
     }
 
     public static function getFunctionalGroup()

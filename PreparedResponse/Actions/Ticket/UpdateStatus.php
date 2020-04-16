@@ -16,7 +16,7 @@ class UpdateStatus extends PreparedResponseAction
 
     public static function getDescription()
     {
-        return self::dynamicTranslation("Set Status As");
+        return "Set Status As";
     }
 
     public static function getFunctionalGroup()

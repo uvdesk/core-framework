@@ -15,7 +15,7 @@ class CustomerReply extends WorkflowEvent
 
     public static function getDescription()
     {
-        return self::dynamicTranslation("Customer Reply");
+        return "Customer Reply";
     }
 
     public static function getFunctionalGroup()

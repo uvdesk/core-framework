@@ -15,7 +15,7 @@ class Group extends WorkflowEvent
 
     public static function getDescription()
     {
-        return self::dynamicTranslation("Group Updated");
+        return "Group Updated";
     }
 
     public static function getFunctionalGroup()

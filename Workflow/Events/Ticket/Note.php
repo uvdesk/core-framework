@@ -15,7 +15,7 @@ class Note extends WorkflowEvent
 
     public static function getDescription()
     {
-        return self::dynamicTranslation("Note Added");
+        return "Note Added";
     }
     public static function getFunctionalGroup()
     {

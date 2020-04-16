@@ -16,7 +16,7 @@ class UpdateTag extends PreparedResponseAction
 
     public static function getDescription()
     {
-        return self::dynamicTranslation("Set Tag As");
+        return "Set Tag As";
     }
 
     public static function getFunctionalGroup()
