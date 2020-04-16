@@ -1383,7 +1383,7 @@ class TicketService
         $variables['ticket.status'] = $ticket->getStatus()->getCode();
         $variables['ticket.priority'] = $ticket->getPriority()->getCode();
         if($ticket->getSupportGroup())
-            $variables['ticket.group'] = $ticket->getSupportGroups()->getName();
+            $variables['ticket.group'] = $ticket->getSupportGroup()->getName();
         else
             $variables['ticket.group'] = '';
 
