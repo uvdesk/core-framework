@@ -15,7 +15,7 @@ class TransferTickets extends PreparedResponseAction
 
     public static function getDescription()
     {
-        return self::dynamicTranslation("Transfer Tickets");
+        return "Transfer Tickets";
     }
 
     public static function getFunctionalGroup()

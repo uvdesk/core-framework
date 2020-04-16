@@ -8,12 +8,12 @@ class Settings extends HomepageSection
 {
     public static function getTitle() : string
     {
-        return self::dynamicTranslation("Settings");
+        return "Settings";
     }
 
     public static function getDescription() : string
     {
-        return self::dynamicTranslation("Manage your Brand Identity, Company Information and other details at a glance");
+        return "Manage your Brand Identity, Company Information and other details at a glance";
     }
 
     public static function getRoles() : array

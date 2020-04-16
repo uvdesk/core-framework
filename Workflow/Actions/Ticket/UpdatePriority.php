@@ -16,7 +16,7 @@ class UpdatePriority extends WorkflowAction
 
     public static function getDescription()
     {
-        return self::dynamicTranslation("Set Priority As");
+        return "Set Priority As";
     }
 
     public static function getFunctionalGroup()

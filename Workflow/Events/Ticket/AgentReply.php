@@ -15,7 +15,7 @@ class AgentReply extends WorkflowEvent
 
     public static function getDescription()
     {
-        return self::dynamicTranslation("Agent Reply");
+        return "Agent Reply";
     }
 
     public static function getFunctionalGroup()

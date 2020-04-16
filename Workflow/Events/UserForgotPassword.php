@@ -15,7 +15,7 @@ class UserForgotPassword extends WorkflowEvent
 
     public static function getDescription()
     {
-        return self::dynamicTranslation("User Forgot Password");
+        return "User Forgot Password";
     }
 
     public static function getFunctionalGroup()

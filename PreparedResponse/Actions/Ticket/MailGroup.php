@@ -16,7 +16,7 @@ class MailGroup extends PreparedResponseAction
 
     public static function getDescription()
     {
-        return self::dynamicTranslation("Mail to group");
+        return "Mail to group";
     }
 
     public static function getFunctionalGroup()

@@ -17,7 +17,6 @@ class MailGroup extends WorkflowAction
     public static function getDescription()
     {
         return 'Mail to group';
-        return self::dynamicTranslation("Mail to group");
     }
 
     public static function getFunctionalGroup()

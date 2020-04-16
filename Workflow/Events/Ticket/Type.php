@@ -15,7 +15,7 @@ class Type extends WorkflowEvent
 
     public static function getDescription()
     {
-        return self::dynamicTranslation("Type Updated");
+        return "Type Updated";
     }
 
     public static function getFunctionalGroup()
