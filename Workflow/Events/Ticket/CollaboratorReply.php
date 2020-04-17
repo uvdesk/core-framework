@@ -15,7 +15,7 @@ class CollaboratorReply extends WorkflowEvent
 
     public static function getDescription()
     {
-        return self::dynamicTranslation("Collaborator Reply");
+        return "Collaborator Reply";
     }
 
     public static function getFunctionalGroup()

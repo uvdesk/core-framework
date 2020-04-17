@@ -7,7 +7,7 @@
 			<a href="{{ path(item.routeName) }}">
 				<div class="uv-search-result-row">
 					<div class="uv-brick-icon">{{ item.icon | raw }}</div>
-					<p>{{ item.title }}</p>
+					<p>{{ item.title |trans }}</p>
 				</div>
 			</a>
 		{% endfor %}

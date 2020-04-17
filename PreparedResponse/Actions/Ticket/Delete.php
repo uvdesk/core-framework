@@ -16,7 +16,7 @@ class Delete extends PreparedResponseAction
 
     public static function getDescription()
     {
-        return self::dynamicTranslation("Delete Ticket");
+        return "Delete Ticket";
     }
 
     public static function getFunctionalGroup()

@@ -15,7 +15,7 @@ class Status extends WorkflowEvent
 
     public static function getDescription()
     {
-        return self::dynamicTranslation("Status Updated");
+        return "Status Updated";
     }
 
     public static function getFunctionalGroup()

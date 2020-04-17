@@ -15,7 +15,7 @@ class ThreadUpdate extends WorkflowEvent
 
     public static function getDescription()
     {
-        return self::dynamicTranslation("Thread Updated");
+        return "Thread Updated";
     }
 
     public static function getFunctionalGroup()

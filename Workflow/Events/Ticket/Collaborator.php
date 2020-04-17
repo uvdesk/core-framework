@@ -15,7 +15,7 @@ class Collaborator extends WorkflowEvent
 
     public static function getDescription()
     {
-        return self::dynamicTranslation("Collaborator Added");
+        return "Collaborator Added";
     }
 
     public static function getFunctionalGroup()

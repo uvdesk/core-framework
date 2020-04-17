@@ -17,7 +17,6 @@ class UpdatePriority extends PreparedResponseAction
     public static function getDescription()
     {
         return 'Set Priority As';
-        return self::dynamicTranslation("Set Priority As");
     }
 
     public static function getFunctionalGroup()

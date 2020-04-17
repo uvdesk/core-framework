@@ -8,6 +8,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\NavigationInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Framework\ExtendableComponentInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class NavigationTemplate implements ExtendableComponentInterface
 {
@@ -16,12 +17,13 @@ class NavigationTemplate implements ExtendableComponentInterface
 	
 	private $segments = [];
 
-	public function __construct(ContainerInterface $container, RequestStack $requestStack, RouterInterface $router, UserService $userService)
+	public function __construct(ContainerInterface $container, RequestStack $requestStack, RouterInterface $router, UserService $userService, TranslatorInterface $translator)
 	{
 		$this->router = $router;
 		$this->container = $container;
 		$this->requestStack = $requestStack;
 		$this->userService = $userService;
+		$this->translator = $translator;
 	}
 
 	public function appendNavigation(NavigationInterface $segment, $tags = [])
@@ -55,7 +57,7 @@ class NavigationTemplate implements ExtendableComponentInterface
 		$html = array_reduce($accessibleSegments, function($html, $segment) use ($router, $request) {
 			$html .= strtr(self::TEMPLATE_ITEM, [
 				'[[ SVG ]]' => $segment::getIcon(),
-				'[[ NAME ]]' => $segment::getTitle(),
+				'[[ NAME ]]' => $this->translator->trans($segment::getTitle()),
 				'[[ URL ]]' => $router->generate($segment::getRouteName()),
 			]);
 

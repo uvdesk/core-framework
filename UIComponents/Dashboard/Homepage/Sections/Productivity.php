@@ -8,12 +8,12 @@ class Productivity extends HomepageSection
 {
     public static function getTitle() : string
     {
-        return self::dynamicTranslation("Productivity");
+        return "Productivity";
     }
 
     public static function getDescription() : string
     {
-        return self::dynamicTranslation("Automate your processes by creating set of rules and presets to respond faster to the tickets");
+        return "Automate your processes by creating set of rules and presets to respond faster to the tickets";
     }
 
     public static function getRoles() : array

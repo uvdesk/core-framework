@@ -16,7 +16,7 @@ class MailLastCollaborator extends WorkflowAction
 
     public static function getDescription()
     {
-        return self::dynamicTranslation("Mail to last collaborator");
+        return "Mail to last collaborator";
     }
 
     public static function getFunctionalGroup()
