@@ -3,6 +3,17 @@ CHANGELOG for 1.0.x
 
 This changelog references any relevant changes introduced in 1.0 minor versions.
 
+
+* 2.0.0 (2020-04-17)
+    * **Misc. Updates:**
+        * **Change processing function and removed unnecessary code for speed up.**
+        
+    * **Bug Fixes:**
+        * **Issue #290:** counts of view more ticket link is wrong when single ticket exist.
+        * **Issue #292:** getting exception when apply save reply on ticket.
+        * **Issue #293:** Wrong ticket count at agents panel.
+        * **Issue #294:** customer is not receiving email when agent reply on customer's ticket.
+
 * 1.0.9 (2020-03-17)
     * **Misc. Updates:**
         * **Added Missing translation**
