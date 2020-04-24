@@ -180,14 +180,17 @@ class TicketService
         $thread->setCreatedAt(new \DateTime());
         $thread->setUpdatedAt(new \DateTime());
 
-        foreach ($threadData as $property => $value) {
-            if (!empty($value)) {
-                $callable = 'set' . ucwords($property);
-                
-                if (method_exists($thread, $callable)) {
-                    $thread->$callable($value);
+        if ($threadData['threadType'] != "note") {
+            foreach ($threadData as $property => $value) {
+                if (!empty($value)) {
+                    $callable = 'set' . ucwords($property);
+                    if (method_exists($thread, $callable)) {
+                        $thread->$callable($value);
+                    }
                 }
             }
+        } else {
+            $this->setTicketNotePlaceholderValue($thread, $threadData, $ticket);
         }
 
         // Update ticket reference ids is thread message id is defined
@@ -232,6 +235,33 @@ class TicketService
         }
 
         return $thread;
+    }
+
+    public function setTicketNotePlaceholderValue($thread, $threadData, $ticket)
+    {
+        if (!empty($threadData)) {
+            foreach ($threadData as $property => $value) {
+                if (!empty($value)) {
+                    $callable = 'set' . ucwords($property);
+                    if (method_exists($thread, $callable)) {
+                        if($callable != "setMessage") {
+                            $thread->$callable($value);
+                        } else {
+                            $notesPlaceholders = $this->getNotePlaceholderValues($ticket, 'customer');
+                            $content = $value;
+                            foreach ($notesPlaceholders as $key => $val) {
+                                if(strpos($value, "{%$key%}") !== false){
+                                    $content = strtr($value, ["{%$key%}" => $val, "{% $key %}" => $val]);
+                                }
+                            }
+                            
+                            $content = stripslashes($content);
+                            $thread->$callable($content);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public function saveThreadAttachment($thread, array $attachments)
@@ -803,34 +833,49 @@ class TicketService
         ];
     }
     
-    public function getNotePlaceholderValues($currentProperty,$targetProperty,$type = "", $details = null)
+    public function getNotePlaceholderValues($ticket, $type = "customer")
     {
         $variables = array();
+        $variables['ticket.id'] = $ticket->getId();
+        $variables['ticket.subject'] = $ticket->getSubject();
 
-        $variables['type.previousType'] = ($type == 'type') ? $currentProperty : '';
-        $variables['type.updatedType'] = ($type == 'type') ? $targetProperty : '';
+        $variables['ticket.status'] = $ticket->getStatus()->getCode();
+        $variables['ticket.priority'] = $ticket->getPriority()->getCode();
+        if($ticket->getSupportGroup())
+            $variables['ticket.group'] = $ticket->getSupportGroup()->getName();
+        else
+            $variables['ticket.group'] = '';
 
-        $variables['status.previousStatus'] = ($type == 'status') ? $currentProperty : '';
-        $variables['status.updatedStatus'] = ($type == 'status') ? $targetProperty : '';
+        $variables['ticket.team'] = ($ticket->getSupportTeam() ? $ticket->getSupportTeam()->getName() : '');
 
-        $variables['group.previousGroup'] = ($type == 'group') ? $currentProperty : '';
-        $variables['group.updatedGroup'] = ($type == 'group') ? $targetProperty : '';
-
-        $variables['team.previousTeam'] = ($type == 'team') ? $currentProperty : '';
-        $variables['team.updatedTeam'] = ($type == 'team') ? $targetProperty : '';
-
-        $variables['priority.previousPriority'] = ($type == 'priority') ? $currentProperty : '';
-        $variables['priority.updatedPriority'] = ($type == 'priority') ? $targetProperty : '';
-
-        $variables['agent.previousAgent'] = ($type == 'agent') ? $currentProperty : '';
-        $variables['agent.updatedAgent'] = ($type == 'agent') ? $targetProperty : '';
-
-        if($details) {
-            $variables['agent.responsePerformingAgent'] = $details;
-        } else {
-            $detail = $this->getUser()->getUserInstance();
-            $variables['agent.responsePerformingAgent'] = !empty($detail['agent']) ? $detail['agent']->getName() : '';
+        $customer = $this->container->get('user.service')->getCustomerPartialDetailById($ticket->getCustomer()->getId());
+        $variables['ticket.customerName'] = $customer['name'];
+        $userService = $this->container->get('user.service');
+      
+        $variables['ticket.agentName'] = '';
+        $variables['ticket.agentEmail'] = '';
+        if ($ticket->getAgent()) {
+            $agent = $this->container->get('user.service')->getAgentDetailById($ticket->getAgent()->getId());
+            if($agent) {
+                $variables['ticket.agentName'] = $agent['name'];
+                $variables['ticket.agentEmail'] = $agent['email'];
+            }
         }
+
+        $router = $this->container->get('router');
+
+        if ($type == 'customer') {
+            $ticketListURL = $router->generate('helpdesk_member_ticket_collection', [
+                'id' => $ticket->getId(),
+            ], UrlGeneratorInterface::ABSOLUTE_URL);
+        } else {
+            $ticketListURL = $router->generate('helpdesk_customer_ticket_collection', [
+                'id' => $ticket->getId(),
+            ], UrlGeneratorInterface::ABSOLUTE_URL);
+        }
+
+        $variables['ticket.link'] = sprintf("<a href='%s'>#%s</a>", $ticketListURL, $ticket->getId());
+
         return $variables;
     }
 
