@@ -16,7 +16,7 @@ class MarkSpam extends PreparedResponseAction
 
     public static function getDescription()
     {
-        return 'Mark Spam';
+        return "Mark Spam";
     }
 
     public static function getFunctionalGroup()

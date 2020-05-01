@@ -15,7 +15,7 @@ class Agent extends WorkflowEvent
 
     public static function getDescription()
     {
-        return 'Agent Updated';
+        return "Agent Updated";
     }
 
     public static function getFunctionalGroup()

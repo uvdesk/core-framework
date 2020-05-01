@@ -17,7 +17,7 @@ class TransferTickets extends WorkflowAction
 
     public static function getDescription()
     {
-        return 'Transfer Tickets';
+        return "Transfer Tickets";
     }
 
     public static function getFunctionalGroup()

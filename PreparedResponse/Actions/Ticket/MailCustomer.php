@@ -16,7 +16,7 @@ class MailCustomer extends PreparedResponseAction
 
     public static function getDescription()
     {
-        return 'Mail to customer';
+        return "Mail to customer";
     }
 
     public static function getFunctionalGroup()

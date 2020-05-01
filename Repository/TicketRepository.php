@@ -363,7 +363,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         return $queryBuilder;
     }
 
-    public function getTicketTabDetails($user, array $params)
+    public function getTicketTabDetails(User $user, array $supportGroupIds = [], array $supportTeamIds = [], array $params = [], bool $filterByStatus = true)
     {
         $data = array(1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0);
         
@@ -391,10 +391,8 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->andWhere('ticket.isTrashed = :isTrashed')->setParameter('isTrashed', isset($params['trashed']) ? true : false)
             ->groupBy('status');
 
-        // applyFilter according to params
-        if ($user->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
-            $queryBuilder->andwhere('agent = ' . $user->getId());
-        }
+        // applyFilter according to permission
+        $this->addPermissionFilter($queryBuilder, $user, $supportGroupIds, $supportTeamIds);
         
         $queryBuilder = $this->prepareTicketListQueryWithParams($queryBuilder, $params);
         $results = $queryBuilder->getQuery()->getResult();

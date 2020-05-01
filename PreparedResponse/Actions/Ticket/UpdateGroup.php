@@ -16,7 +16,7 @@ class UpdateGroup extends PreparedResponseAction
 
     public static function getDescription()
     {
-        return 'Assign to group';
+        return "Assign to group";
     }
 
     public static function getFunctionalGroup()

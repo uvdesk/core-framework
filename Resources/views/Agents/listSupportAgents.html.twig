@@ -13,8 +13,7 @@
 		{{ uvdesk_extensibles.getRegisteredComponent(asideTemplate).renderSidebar(asideSidebarReference) | raw }}
 
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
-			<h1>Agents</h1>
-
+			<h1>{{ 'Agents'|trans }}</h1>
 			<div class="uv-action-bar">
 				<div class="uv-action-bar-col-lt">
 					{# Sort Agents #}
@@ -46,7 +45,7 @@
 
 				<div class="uv-action-bar-col-rt">
 					{# Search Agent #}
-					<input type="text" class="uv-search-inline uv-vertical-align uv-margin-right-15" placeholder="Search">
+					<input type="text" class="uv-search-inline uv-vertical-align uv-margin-right-15" placeholder="{{ 'Search'|trans }}">
 
 					{# Create New Agent #}
 					<a href="{{ path('helpdesk_member_create_account') }}" type="button" class="uv-btn-action"><span class="uv-icon-add"></span> {{ 'New Agent'|trans }}</a>

@@ -1,5 +1,5 @@
 <div class="uv-search-wrapper uv-no-error-success-icon">
-	<input placeholder="Search" class="uv-search-bar" type="text" name="">
+	<input placeholder="{{ 'Search'|trans }}" class="uv-search-bar" type="text" name="">
 	<div class="uv-search-result-wrapper" id="beauty-scroll">
 		<h6>Results</h6>
 
@@ -7,7 +7,7 @@
 			<a href="{{ path(item.routeName) }}">
 				<div class="uv-search-result-row">
 					<div class="uv-brick-icon">{{ item.icon | raw }}</div>
-					<p>{{ item.title }}</p>
+					<p>{{ item.title |trans }}</p>
 				</div>
 			</a>
 		{% endfor %}

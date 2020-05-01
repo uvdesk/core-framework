@@ -41,10 +41,10 @@ class TeamXHR extends Controller
             if (!empty($supportTeam)) {
                 $entityManager->remove($supportTeam);
                 $entityManager->flush();
-
+                
                 return new Response(json_encode([
                     'alertClass' => 'success',
-                    'alertMessage' => $translator->trans('Support Team removed successfully.'),
+                    'alertMessage' => $this->get('translator')->trans('Support Team removed successfully.'),
                 ]), 200, ['Content-Type' => 'application/json']);
             }
         }

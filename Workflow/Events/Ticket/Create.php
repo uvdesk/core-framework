@@ -15,7 +15,7 @@ class Create extends WorkflowEvent
 
     public static function getDescription()
     {
-        return 'Ticket Created';
+        return "Ticket Created";
     }
 
     public static function getFunctionalGroup()

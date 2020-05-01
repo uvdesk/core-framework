@@ -16,7 +16,7 @@ class MailLastCollaborator extends PreparedResponseAction
 
     public static function getDescription()
     {
-        return 'Mail to last collaborator';
+        return "Mail to last collaborator";
     }
 
     public static function getFunctionalGroup()

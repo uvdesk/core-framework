@@ -318,27 +318,27 @@
             <div class="uv-dropdown-list uv-bottom-right uv-text-left">
                 <div class="uv-dropdown-container">
 
-                    <label>Signed in as </label>
+                    <label>{{ 'Signed in as'|trans }} </label>
                         <p class="user-name">{{ currentUser.firstName }} {{ currentUser.lastName }}</p>
                     <div role="none" class="dropdown-divider"></div>
 
                     <ul>
-                        <li><a href="{{ path('edit_profile') }}" class='profiler'>Your Profile</a></li>
+                        <li><a href="{{ path('edit_profile') }}" class='profiler'>{{ 'Your Profile'|trans }}</a></li>
                     </ul>
-
+                    
                     <ul>
                         {% if user_service.isAccessAuthorized('ROLE_AGENT_CREATE_TICKET') %}
-                            <li data-action="create" class="uv-open-popup" data-target="create-ticket-modal">Create Ticket</li>
+                            <li data-action="create" class="uv-open-popup" data-target="create-ticket-modal">{{ 'Create Ticket'|trans }}</li>
                         {% endif %}
 						{% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT') %}
-                            <li><a href="{{ path('helpdesk_member_create_account') }}">Create Agent</a></li>
+                            <li><a href="{{ path('helpdesk_member_create_account') }}">{{ 'Create Agent'|trans }}</a></li>
                         {% endif %}
 						{% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER') %}
-                            <li><a href="{{ path('helpdesk_member_create_customer_account') }}">Create Customer</a></li>
+                            <li><a href="{{ path('helpdesk_member_create_customer_account') }}">{{ 'Create Customer'|trans }}</a></li>
                         {% endif %}
 
                         <div role="none" class="dropdown-divider"></div>
-                        <li><a class="uv-text-danger" href="{{ path('helpdesk_member_handle_logout') }}">Sign Out</a></li>
+                        <li><a class="uv-text-danger" href="{{ path('helpdesk_member_handle_logout') }}">{{ 'Sign Out'|trans }}</a></li>
                     </ul>
                 </div>
             </div>

@@ -15,7 +15,7 @@ class Delete extends WorkflowEvent
 
     public static function getDescription()
     {
-        return 'Ticket Deleted';
+        return "Ticket Deleted";
     }
 
     public static function getFunctionalGroup()

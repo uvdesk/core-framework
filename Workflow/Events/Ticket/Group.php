@@ -15,7 +15,7 @@ class Group extends WorkflowEvent
 
     public static function getDescription()
     {
-        return 'Group Updated';
+        return "Group Updated";
     }
 
     public static function getFunctionalGroup()

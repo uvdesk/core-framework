@@ -119,7 +119,7 @@ class Ticket extends Controller
         return $this->render('@UVDeskCoreFramework//ticket.html.twig', [
             'ticket' => $ticket,
             'totalReplies' => $ticketRepository->countTicketTotalThreads($ticket->getId()),
-            'totalCustomerTickets' => $ticketRepository->countCustomerTotalTickets($customer),
+            'totalCustomerTickets' => ($ticketRepository->countCustomerTotalTickets($customer) - 1),
             'initialThread' => $this->get('ticket.service')->getTicketInitialThreadDetails($ticket),
             'ticketAgent' => !empty($agent) ? $agent->getAgentInstance()->getPartialDetails() : null,
             'customer' => $customer->getCustomerInstance()->getPartialDetails(),
@@ -247,7 +247,7 @@ class Ticket extends Controller
                 return $this->redirect($this->generateUrl('helpdesk_member_ticket', ['ticketId' => $ticket->getId()]));
             }
         } else {
-            $request->getSession()->getFlashBag()->set('warning', 'Could not create ticket, invalid details.');
+            $this->addFlash('warning', $this->get('translator')->trans('Could not create ticket, invalid details.'));
         }
 
         return $this->redirect(!empty($referralURL) ? $referralURL : $this->generateUrl('helpdesk_member_ticket_collection'));
@@ -295,9 +295,9 @@ class Ticket extends Controller
                 $em->flush();
 
                 if (!$request->attributes->get('ticketTypeId')) {
-                    $this->addFlash('success', sprintf('Success! Ticket type saved successfully.'));
+                    $this->addFlash('success', $this->get('translator')->trans('Success! Ticket type saved successfully.'));
                 } else {
-                    $this->addFlash('success', sprintf('Success! Ticket type updated successfully.'));
+                    $this->addFlash('success', $this->get('translator')->trans('Success! Ticket type updated successfully.'));
                 }
 
                 return $this->redirect($this->generateUrl('helpdesk_member_ticket_type_collection'));

@@ -15,7 +15,7 @@ class AgentReply extends WorkflowEvent
 
     public static function getDescription()
     {
-        return 'Agent Reply';
+        return "Agent Reply";
     }
 
     public static function getFunctionalGroup()

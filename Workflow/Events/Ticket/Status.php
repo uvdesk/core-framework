@@ -15,7 +15,7 @@ class Status extends WorkflowEvent
 
     public static function getDescription()
     {
-        return 'Status Updated';
+        return "Status Updated";
     }
 
     public static function getFunctionalGroup()

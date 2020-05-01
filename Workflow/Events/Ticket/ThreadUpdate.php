@@ -15,7 +15,7 @@ class ThreadUpdate extends WorkflowEvent
 
     public static function getDescription()
     {
-        return 'Thread Updated';
+        return "Thread Updated";
     }
 
     public static function getFunctionalGroup()

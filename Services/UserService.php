@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
+use Symfony\Component\Translation\Translator;
+use Symfony\Component\Translation\Loader\YamlFileLoader;
 
 class UserService
 {

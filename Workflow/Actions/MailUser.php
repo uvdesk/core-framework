@@ -17,7 +17,7 @@ class MailUser extends WorkflowAction
 
     public static function getDescription()
     {
-        return 'Mail to User';
+        return "Mail to User";
     }
 
     public static function getFunctionalGroup()

@@ -2,6 +2,11 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments;
 
+use Symfony\Component\Translation\Translator;
+use Symfony\Component\Translation\Loader\YamlFileLoader;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Translation\TranslatorInterface;
+
 abstract class HomepageSectionItem implements HomepageSectionItemInterface
 {
     CONST SVG = <<<SVG
@@ -19,7 +24,7 @@ SVG;
     {
         return [];
     }
-
+    
     public abstract static function getTitle() : string;
     public abstract static function getRouteName() : string;
     public abstract static function getSectionReferenceId() : string;

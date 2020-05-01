@@ -2,6 +2,10 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments;
 
+use Symfony\Component\Translation\Translator;
+use Symfony\Component\Translation\Loader\YamlFileLoader;
+use Symfony\Component\HttpFoundation\Request;
+
 abstract class HomepageSection implements HomepageSectionInterface
 {
     private $collection = [];

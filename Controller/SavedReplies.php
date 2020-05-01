@@ -114,7 +114,8 @@ class SavedReplies extends Controller
             $em->persist($template);
             $em->flush();
 
-            $this->addFlash('success', $request->attributes->get('template') ? 'Success! Reply has been updated successfully.': 'Success! Reply has been added successfully.');
+            $this->addFlash('success', $request->attributes->get('template') ? $this->get('translator')->trans('Success! Reply has been updated successfully.'): $this->get('translator')->trans('Success! Reply has been added successfully.'));
+
             return $this->redirectToRoute('helpdesk_member_saved_replies');
         }
 
@@ -153,7 +154,7 @@ class SavedReplies extends Controller
 
             $responseContent = [
                 'alertClass' => 'success',
-                'alertMessage' => 'Success! Saved Reply has been deleted successfully.'
+                'alertMessage' => $this->get('translator')->trans('Success! Saved Reply has been deleted successfully.')
             ];
         }
 

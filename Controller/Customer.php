@@ -234,13 +234,13 @@ class Customer extends Controller
             $em->persist($userInstance);
             $em->flush();
             $json['alertClass'] = 'success';
-            $json['message'] = 'unstarred Action Completed successfully';
+            $json['message'] = $this->get('translator')->trans('unstarred Action Completed successfully');
         } else {
             $userInstance->setIsStarred(1);
             $em->persist($userInstance);
             $em->flush();
             $json['alertClass'] = 'success';
-            $json['message'] = 'starred Action Completed successfully';
+            $json['message'] = $this->get('translator')->trans('starred Action Completed successfully');
         }
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');

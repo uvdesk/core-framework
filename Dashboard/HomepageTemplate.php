@@ -7,6 +7,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Webkul\UVDesk\CoreFrameworkBundle\Framework\ExtendableComponentInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\HomepageSectionInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\HomepageSectionItemInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class HomepageTemplate implements ExtendableComponentInterface
 {
@@ -17,10 +18,11 @@ class HomepageTemplate implements ExtendableComponentInterface
 	private $sectionItems = [];
 	private $isOrganized = false;
 
-	public function __construct(RouterInterface $router, UserService $userService)
+	public function __construct(RouterInterface $router, UserService $userService, TranslatorInterface $translator)
 	{
 		$this->router = $router;
 		$this->userService = $userService;
+		$this->translator = $translator;
 	}
 
 	public function appendSection(HomepageSectionInterface $section, $tags = [])
@@ -146,14 +148,14 @@ class HomepageTemplate implements ExtendableComponentInterface
 
 				$sectionHtml .= strtr(self::SECTION_ITEM_TEMPLATE, [
 					'[[ SVG ]]' => $childSegment::getIcon(),
-					'[[ TITLE ]]' => $childSegment::getTitle(),
+					'[[ TITLE ]]' => $this->translator->trans($childSegment::getTitle()),
 					'[[ PATH ]]' => $this->router->generate($childSegment::getRouteName()),
 				]);
 			}
 
 			$html .= strtr(self::SECTION_TEMPLATE, [
-				'[[ TITLE ]]' => $segment::getTitle(),
-				'[[ DESCRIPTION ]]' => $segment::getDescription(),
+				'[[ TITLE ]]' => $this->translator->trans($segment::getTitle()),
+				'[[ DESCRIPTION ]]' => $this->translator->trans($segment::getDescription()),
 				'[[ COLLECTION ]]' => $sectionHtml,
 			]);
 		}

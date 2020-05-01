@@ -36,8 +36,7 @@ class SwiftMailer extends Controller
                 
                 try {
                     $swiftmailer->writeSwiftMailerConfigurations($configurations);
-
-                    $this->addFlash('success', 'SwiftMailer configuration created successfully.');
+                    $this->addFlash('success', $this->get('translator')->trans('SwiftMailer configuration created successfully.'));
                     return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_settings'));
                 } catch (\Exception $e) {
                     $this->addFlash('warning', $e->getMessage());
@@ -78,7 +77,7 @@ class SwiftMailer extends Controller
             $swiftmailerConfigurations[$index] = $swiftmailerConfiguration;            
             $swiftmailerService->writeSwiftMailerConfigurations($swiftmailerConfigurations);
             
-            $this->addFlash('success', 'SwiftMailer configuration updated successfully.');
+            $this->addFlash('success', $this->get('translator')->trans('SwiftMailer configuration updated successfully.'));
             return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_settings'));
         }
 

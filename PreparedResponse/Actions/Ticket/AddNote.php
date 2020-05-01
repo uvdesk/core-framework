@@ -16,7 +16,7 @@ class AddNote extends PreparedResponseAction
 
     public static function getDescription()
     {
-        return 'Add Note';
+        return "Add Note";
     }
 
     public static function getFunctionalGroup()

@@ -44,7 +44,7 @@ class Thread extends Controller
         $parsedMessage = str_replace(' ', '', $parsedMessage);
 
         if (null == $parsedMessage) {
-            $this->addFlash('warning', "Reply content cannot be left blank.");
+            $this->addFlash('warning', $this->get('translator')->trans('Reply content cannot be left blank.'));
         }
 
         // @TODO: Validate file attachments
@@ -100,7 +100,7 @@ class Thread extends Controller
                 $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                 // @TODO: Render response on the basis of event response (if propogation was stopped or not)
-                $request->getSession()->getFlashBag()->set('success', 'Note added to ticket successfully.');
+                $this->addFlash('success', $this->get('translator')->trans('Note added to ticket successfully.'));
                 break;
             case 'reply':
                 $event = new GenericEvent(CoreWorkflowEvents\Ticket\AgentReply::getId(), [
@@ -111,7 +111,7 @@ class Thread extends Controller
                 $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                 // @TODO: Render response on the basis of event response (if propogation was stopped or not)
-                $request->getSession()->getFlashBag()->set('success', 'Reply added to ticket successfully.');
+                $this->addFlash('success', $this->get('translator')->trans('Reply added to ticket successfully.'));
                 break;
             case 'forward':
                 // Prepare headers
@@ -145,7 +145,7 @@ class Thread extends Controller
                 }
 
                 // @TODO: Render response on the basis of event response (if propogation was stopped or not)
-                $request->getSession()->getFlashBag()->set('success', 'Reply added to the ticket and forwarded successfully.');
+                $this->addFlash('success', $this->get('translator')->trans('Reply added to the ticket and forwarded successfully.'));
                 break;
             default:
                 break;

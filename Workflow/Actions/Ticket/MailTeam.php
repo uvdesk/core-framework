@@ -16,7 +16,7 @@ class MailTeam extends WorkflowAction
 
     public static function getDescription()
     {
-        return 'Mail to team';
+        return "Mail to team";
     }
 
     public static function getFunctionalGroup()

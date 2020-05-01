@@ -141,13 +141,13 @@
 				validation: {
 					'name': [{
                         required: true,
-                        msg: 'This field is mandatory'
+                        msg: "{{ 'This field is mandatory'|trans }}"
                     },{
                         pattern: /^((?![!@#$%^&*()<_+]).)*$/,
-                        msg: 'This field must have characters only'
+                        msg: "{{ 'This field must have characters only'|trans }}"
                     },{
 						maxLength:50,
-                        msg:'Maximum character length is 50'
+                        msg: "{{ 'Maximum character length is 50'|trans }}"
 					}],
 					'description': {
 						required: true,

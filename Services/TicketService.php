@@ -193,14 +193,17 @@ class TicketService
         $thread->setCreatedAt(new \DateTime());
         $thread->setUpdatedAt(new \DateTime());
 
-        foreach ($threadData as $property => $value) {
-            if (!empty($value)) {
-                $callable = 'set' . ucwords($property);
-                
-                if (method_exists($thread, $callable)) {
-                    $thread->$callable($value);
+        if ($threadData['threadType'] != "note") {
+            foreach ($threadData as $property => $value) {
+                if (!empty($value)) {
+                    $callable = 'set' . ucwords($property);
+                    if (method_exists($thread, $callable)) {
+                        $thread->$callable($value);
+                    }
                 }
             }
+        } else {
+            $this->setTicketNotePlaceholderValue($thread, $threadData, $ticket);
         }
 
         // Update ticket reference ids is thread message id is defined
@@ -245,6 +248,33 @@ class TicketService
         }
 
         return $thread;
+    }
+
+    public function setTicketNotePlaceholderValue($thread, $threadData, $ticket)
+    {
+        if (!empty($threadData)) {
+            foreach ($threadData as $property => $value) {
+                if (!empty($value)) {
+                    $callable = 'set' . ucwords($property);
+                    if (method_exists($thread, $callable)) {
+                        if($callable != "setMessage") {
+                            $thread->$callable($value);
+                        } else {
+                            $notesPlaceholders = $this->getNotePlaceholderValues($ticket, 'customer');
+                            $content = $value;
+                            foreach ($notesPlaceholders as $key => $val) {
+                                if(strpos($value, "{%$key%}") !== false){
+                                    $content = strtr($value, ["{%$key%}" => $val, "{% $key %}" => $val]);
+                                }
+                            }
+                            
+                            $content = stripslashes($content);
+                            $thread->$callable($content);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public function saveThreadAttachment($thread, array $attachments)
@@ -373,7 +403,7 @@ class TicketService
 
         // Get base query
         $baseQuery = $ticketRepository->prepareBaseTicketQuery($activeUser, $supportGroupReference, $supportTeamReference, $params);
-        $ticketTabs = $ticketRepository->getTicketTabDetails($activeUser, $params);
+        $ticketTabs = $ticketRepository->getTicketTabDetails($activeUser, $supportGroupReference, $supportTeamReference, $params);
 
         // Apply Pagination
         $pageNumber = !empty($params['page']) ? (int) $params['page'] : 1;
@@ -464,27 +494,53 @@ class TicketService
             'pagination' => $paginationData,
             'tabs' => $ticketTabs,
             'labels' => [
-                'predefind' => $this->getPredefindLabelDetails($this->container, $params),
+                'predefind' => $this->getPredefindLabelDetails($activeUser, $supportGroupReference, $supportTeamReference, $params),
                 'custom' => $this->getCustomLabelDetails($this->container),
             ],
           
         ];
     }
     
-    public function getPredefindLabelDetails($container, $params)
+    public function getPredefindLabelDetails(User $currentUser, array $supportGroupIds = [], array $supportTeamIds = [], array $params = [])
     {
-        $currentUser = $container->get('user.service')->getCurrentUser();
         $data = array();
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket');
-        $queryBuilder->select('COUNT(DISTINCT ticket.id) as ticketCount')->from('UVDeskCoreFrameworkBundle:Ticket', 'ticket')
-            ->leftJoin('ticket.agent', 'agent');
-        
-        if ($currentUser->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
-            $queryBuilder->andwhere('agent = ' . $currentUser->getId());
+        $queryBuilder->select('COUNT(DISTINCT ticket.id) as ticketCount')->from('UVDeskCoreFrameworkBundle:Ticket', 'ticket');
+            
+        // // applyFilter according to permission
+        $queryBuilder->where('ticket.isTrashed != 1');
+        $userInstance = $currentUser->getAgentInstance();
+
+        if (!empty($userInstance) &&  'ROLE_AGENT' == $userInstance->getSupportRole()->getCode() 
+        && $userInstance->getTicketAccesslevel() != 1) {
+            $supportGroupIds = implode(',', $supportGroupIds);
+            $supportTeamIds = implode(',', $supportTeamIds);
+
+            if ($userInstance->getTicketAccesslevel() == 4) {
+                $queryBuilder->andwhere('ticket.agent = ' . $currentUser->getId());
+            } elseif ($userInstance->getTicketAccesslevel() == 2) {
+                $query = '';
+                if ($supportGroupIds){
+                    $query .= ' OR supportGroup.id IN('.$supportGroupIds.') ';
+                }
+                if ($supportTeamIds) {
+                    $query .= ' OR supportTeam.id IN('.$supportTeamIds.') ';
+                }
+                $queryBuilder->leftJoin('ticket.supportGroup', 'supportGroup')
+                            ->leftJoin('ticket.supportTeam', 'supportTeam')
+                            ->andwhere('( ticket.agent = ' . $currentUser->getId().$query.')');
+                    
+            } elseif ($userInstance->getTicketAccesslevel() == 3) {
+                $query = '';
+                if ($supportTeamIds) {
+                    $query .= ' OR supportTeam.id IN('.$supportTeamIds.') ';
+                }
+                $queryBuilder->leftJoin('ticket.supportGroup', 'supportGroup')
+                            ->leftJoin('ticket.supportTeam', 'supportTeam')
+                            ->andwhere('( ticket.agent = ' . $currentUser->getId().$query. ')');
+            }
         }
-        
-        $queryBuilder->andwhere('ticket.isTrashed != 1');
 
         // for all tickets count
         $data['all'] = $queryBuilder->getQuery()->getSingleScalarResult();
@@ -506,7 +562,7 @@ class TicketService
 
         // for my tickets count
         $mineQb = clone $queryBuilder;
-        $mineQb->andWhere("agent = :agentId")
+        $mineQb->andWhere("ticket.agent = :agentId")
                 ->setParameter('agentId', $currentUser->getId());
         $data['mine'] = $mineQb->getQuery()->getSingleScalarResult();
 
@@ -519,13 +575,13 @@ class TicketService
         $trashedQb = clone $queryBuilder;
         $trashedQb->where('ticket.isTrashed = 1');
         if ($currentUser->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
-            $trashedQb->andwhere('agent = ' . $currentUser->getId());
+            $trashedQb->andwhere('ticket.agent = ' . $currentUser->getId());
         }
         $data['trashed'] = $trashedQb->getQuery()->getSingleScalarResult();
 
         return $data;
     }
-
+    
     public function paginateMembersTicketThreadCollection(Ticket $ticket, Request $request)
     {
         $params = $request->query->all();
@@ -786,38 +842,53 @@ class TicketService
 
         return [
             'alertClass' => 'success',
-            'alertMessage' => 'Tickets have been updated successfully.',
+            'alertMessage' => $this->trans('Tickets have been updated successfully'),
         ];
     }
     
-    public function getNotePlaceholderValues($currentProperty,$targetProperty,$type = "", $details = null)
+    public function getNotePlaceholderValues($ticket, $type = "customer")
     {
         $variables = array();
+        $variables['ticket.id'] = $ticket->getId();
+        $variables['ticket.subject'] = $ticket->getSubject();
 
-        $variables['type.previousType'] = ($type == 'type') ? $currentProperty : '';
-        $variables['type.updatedType'] = ($type == 'type') ? $targetProperty : '';
+        $variables['ticket.status'] = $ticket->getStatus()->getCode();
+        $variables['ticket.priority'] = $ticket->getPriority()->getCode();
+        if($ticket->getSupportGroup())
+            $variables['ticket.group'] = $ticket->getSupportGroup()->getName();
+        else
+            $variables['ticket.group'] = '';
 
-        $variables['status.previousStatus'] = ($type == 'status') ? $currentProperty : '';
-        $variables['status.updatedStatus'] = ($type == 'status') ? $targetProperty : '';
+        $variables['ticket.team'] = ($ticket->getSupportTeam() ? $ticket->getSupportTeam()->getName() : '');
 
-        $variables['group.previousGroup'] = ($type == 'group') ? $currentProperty : '';
-        $variables['group.updatedGroup'] = ($type == 'group') ? $targetProperty : '';
-
-        $variables['team.previousTeam'] = ($type == 'team') ? $currentProperty : '';
-        $variables['team.updatedTeam'] = ($type == 'team') ? $targetProperty : '';
-
-        $variables['priority.previousPriority'] = ($type == 'priority') ? $currentProperty : '';
-        $variables['priority.updatedPriority'] = ($type == 'priority') ? $targetProperty : '';
-
-        $variables['agent.previousAgent'] = ($type == 'agent') ? $currentProperty : '';
-        $variables['agent.updatedAgent'] = ($type == 'agent') ? $targetProperty : '';
-
-        if($details) {
-            $variables['agent.responsePerformingAgent'] = $details;
-        } else {
-            $detail = $this->getUser()->getUserInstance();
-            $variables['agent.responsePerformingAgent'] = !empty($detail['agent']) ? $detail['agent']->getName() : '';
+        $customer = $this->container->get('user.service')->getCustomerPartialDetailById($ticket->getCustomer()->getId());
+        $variables['ticket.customerName'] = $customer['name'];
+        $userService = $this->container->get('user.service');
+      
+        $variables['ticket.agentName'] = '';
+        $variables['ticket.agentEmail'] = '';
+        if ($ticket->getAgent()) {
+            $agent = $this->container->get('user.service')->getAgentDetailById($ticket->getAgent()->getId());
+            if($agent) {
+                $variables['ticket.agentName'] = $agent['name'];
+                $variables['ticket.agentEmail'] = $agent['email'];
+            }
         }
+
+        $router = $this->container->get('router');
+
+        if ($type == 'customer') {
+            $ticketListURL = $router->generate('helpdesk_member_ticket_collection', [
+                'id' => $ticket->getId(),
+            ], UrlGeneratorInterface::ABSOLUTE_URL);
+        } else {
+            $ticketListURL = $router->generate('helpdesk_customer_ticket_collection', [
+                'id' => $ticket->getId(),
+            ], UrlGeneratorInterface::ABSOLUTE_URL);
+        }
+
+        $variables['ticket.link'] = sprintf("<a href='%s'>#%s</a>", $ticketListURL, $ticket->getId());
+
         return $variables;
     }
 
@@ -1370,7 +1441,7 @@ class TicketService
         $variables['ticket.status'] = $ticket->getStatus()->getCode();
         $variables['ticket.priority'] = $ticket->getPriority()->getCode();
         if($ticket->getSupportGroup())
-            $variables['ticket.group'] = $ticket->getSupportGroups()->getName();
+            $variables['ticket.group'] = $ticket->getSupportGroup()->getName();
         else
             $variables['ticket.group'] = '';
 

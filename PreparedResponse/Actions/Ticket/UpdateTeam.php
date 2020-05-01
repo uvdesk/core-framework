@@ -16,7 +16,7 @@ class UpdateTeam extends PreparedResponseAction
 
     public static function getDescription()
     {
-        return 'Assign to team';
+        return "Assign to team";
     }
 
     public static function getFunctionalGroup()

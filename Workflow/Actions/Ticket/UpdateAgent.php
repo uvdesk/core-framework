@@ -16,7 +16,7 @@ class UpdateAgent extends WorkflowAction
 
     public static function getDescription()
     {
-        return 'Assign to agent';
+        return "Assign to agent";
     }
 
     public static function getFunctionalGroup()

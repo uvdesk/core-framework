@@ -52,12 +52,12 @@
 		{{ uvdesk_extensibles.getRegisteredComponent(asideTemplate).renderSidebar(asideSidebarReference) | raw }}
 
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
-			<h1>Profile</h1>
+			<h1>{{ 'Profile'|trans }}</h1>
             {%  set agentDetails = user_service.getAgentDetailById(user.id) %}
            
             <div class="uv-tabs">
                 <ul>
-                    <li for="profile" class="uv-tab-active">Edit Profile</li>
+                    <li for="profile" class="uv-tab-active">{{ 'Edit Profile'|trans }}</li>
                 </ul>
             </div>
             {% for message in app.flashes('warning') %}
@@ -215,10 +215,10 @@
                         if(value != undefined && value !== '') {
                             [{
                                 pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
-                                msg: 'This field must have characters only'
+                                msg: '{{ "This field must have characters only"|trans }}'
                             },{
                                 maxLength:40,
-                                msg:'Maximum character length is 40'
+                                msg: '{{ "Maximum character length is 40"|trans }}'
                             }]
                         }
                     },

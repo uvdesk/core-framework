@@ -15,7 +15,7 @@ class Priority extends WorkflowEvent
 
     public static function getDescription()
     {
-        return 'Priority Updated';
+        return "Priority Updated";
     }
 
     public static function getFunctionalGroup()

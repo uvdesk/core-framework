@@ -9,7 +9,7 @@ class ForgotPassword extends UserForgotPasswordEvent
 {
     public static function getDescription()
     {
-        return 'Customer Forgot Password';
+        return "Customer Forgot Password";
     }
 
     public static function getFunctionalGroup()
