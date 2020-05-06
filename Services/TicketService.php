@@ -106,7 +106,7 @@ class TicketService
 
     public function getCustomerCreateTicketCustomFieldSnippet()
     {   
-        $customFields = $this->customFieldsService->getCustomFieldsArray('user');
+        $customFields = $this->customFieldsService->getCustomFieldsArray('customer');
 
         return $customFields;
         
