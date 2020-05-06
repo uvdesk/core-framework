@@ -104,6 +104,14 @@ class TicketService
         ]);
     }
 
+    public function getCustomerCreateTicketCustomFieldSnippet()
+    {   
+        $customFields = $this->customFieldsService->getCustomFieldsArray('user');
+
+        return $customFields;
+        
+    }
+
     public function createTicket(array $params = [])
     {
         $thread = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Thread')->findOneByMessageId($params['messageId']);
