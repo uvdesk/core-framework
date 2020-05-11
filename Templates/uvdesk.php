@@ -10,8 +10,8 @@ parameters:
     assets_default_customer_profile_image_path: 'bundles/uvdeskcoreframework/images/uv-avatar-ironman.png'
     assets_default_helpdesk_profile_image_path: 'bundles/uvdeskcoreframework/images/uv-avatar-uvdesk.png'
 
-    uvdesk_site_path.member_prefix: member
-    uvdesk_site_path.knowledgebase_customer_prefix: customer
+    uvdesk_site_path.member_prefix: {{ MEMBER_PANEL_PREFIX }}
+    uvdesk_site_path.knowledgebase_customer_prefix: {{ CUSTOMER_PANEL_PREFIX }}
     
     # File uploads constraints
     # @TODO: Set these parameters via compilers
