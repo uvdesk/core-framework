@@ -4,6 +4,14 @@ CHANGELOG for 1.0.x
 This changelog references any relevant changes introduced in 1.0 minor versions.
 
 
+* 1.0.11 (2020-05-22)
+    * **Bug Fixes:**
+        * **Issue #296:** translation exception when forwarding ticket thread.
+        * **Issue #297:** Getting none encryption error when select none in swiftmailer.
+        * **Issue #298:** no tickets.
+        * **Issue #299:** 1.0.10 no email to agent & duplicate tickets.
+        * **Issue #300:** helpdesk prefix are resetting when update email settings.
+
 * 1.0.10 (2020-04-17)
     * **Misc. Updates:**
         * **Change processing function and removed unnecessary code for speed up.**
