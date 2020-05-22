@@ -12,6 +12,10 @@ class EmailSettingsXHR extends Controller
     public function updateSettingsXHR(Request $request)
     {
         $filePath = $this->get('kernel')->getProjectDir() . '/config/packages/uvdesk.yaml';
+
+        $memberPrefix = $this->container->getParameter('uvdesk_site_path.member_prefix') ?? 'member';
+        $customerPrefix = $this->container->getParameter('uvdesk_site_path.knowledgebase_customer_prefix') ?? 'customer';
+
         $app_locales = 'en|fr|it'; //default app_locales values
 
         foreach ( file($filePath) as $val) {
@@ -31,6 +35,8 @@ class EmailSettingsXHR extends Controller
             '{{ SUPPORT_EMAIL_MAILER_ID }}' => $mailer_id,
             '{{ SITE_URL }}' => $this->container->getParameter('uvdesk.site_url'),
             '{{ APP_LOCALES }}' => $app_locales,
+            '{{ MEMBER_PANEL_PREFIX }}' => $memberPrefix,
+            '{{ CUSTOMER_PANEL_PREFIX }}' => $customerPrefix,
         ]);
         
         // update uvdesk.yaml file

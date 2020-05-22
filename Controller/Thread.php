@@ -145,7 +145,7 @@ class Thread extends Controller
                 }
 
                 // @TODO: Render response on the basis of event response (if propogation was stopped or not)
-                $this->addFlash('success', $this->translator->trans('Reply added to the ticket and forwarded successfully.'));
+                $this->addFlash('success', $this->get('translator')->trans('Reply added to the ticket and forwarded successfully.'));
                 break;
             default:
                 break;
