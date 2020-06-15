@@ -2816,7 +2816,7 @@
             selector : '.uv-ticket-reply textarea',
             toolbar: toolbarOptions + ' | translate',
             mentions : getMentions(),
-            images_upload_url: "{{ path('helpdesk_member_thread_encoded_image_uploader', {ticketId: app.request.get('ticketId')}) }}",
+            images_upload_url: "",
             setup: function(editor) {
                 editor.on('keydown', function(e) { /** for pageup, pagedown keys **/
                     if(e.keyCode == 34 || e.keyCode == 33){
