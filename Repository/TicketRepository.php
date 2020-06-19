@@ -606,6 +606,10 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                         ->groupBy('ticket.id')
                         ->andHaving('count(threads.id) > :threadValueGreater')->setParameter('threadValueGreater', intval($params['repliesMore']));
                     break;
+                case 'mailbox':
+                        $queryBuilder->andwhere('ticket.mailboxEmail IN (:mailboxEmails)');
+                        $queryBuilder->setParameter('mailboxEmails', explode(',', $fieldValue));
+                    break;
                 default:
                     break;
             }
