@@ -778,6 +778,31 @@
                             <div class="uv-filtered-tags"></div>
                         </div>
                     </div>
+                    <div class="uv-element-block">
+                        <label class="uv-field-label">{{ 'Mailbox'|trans }}</label>
+                        <div class="uv-field-block" id="mailbox-filter">
+                            <input class="uv-field uv-dropdown-other preloaded" type="text" data-filter-type="mailbox" id="mailbox-filter-input">
+                            <div class="uv-dropdown-list uv-bottom-left">
+                                <div class="uv-dropdown-container">
+                                    <label>{{ 'Filter With'|trans }}</label>
+                                    <ul class="">
+                                        {% set options = [] %}
+                                        {% for mailbox in ticket_service.getAllMailboxes() %}
+                                            {% set options = options|merge([{'id': mailbox.email, 'name': mailbox.name}]) %}
+                                            <li data-id="{{mailbox.email}}">
+                                                {{ mailbox.name|trans }}
+                                            </li>
+                                        {% endfor %}
+                                        <li class="uv-no-results" style="display: none;">
+                                            {{ 'No result found'|trans }}
+                                        </li>
+                                        {% set filterContext = filterContext|merge({'mailbox': options}) %}
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="uv-filtered-tags"></div>
+                        </div>
+                    </div>
 
                     <div class="uv-element-block">
                         <label class="uv-field-label">{{ 'Before'|trans }}</label>
@@ -2830,7 +2855,7 @@
 
                 },
                 filterMine : function(status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','',1,'','',status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','',currentUserId,'','',status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterstarred : function(status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
