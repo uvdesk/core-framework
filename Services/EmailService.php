@@ -517,7 +517,7 @@ class EmailService
 
         $messageHeaders = $message->getHeaders();
         foreach ($headers as $headerName => $headerValue) {
-            $messageHeaders->addTextHeader($headerName, $headerName);
+            $messageHeaders->addTextHeader($headerName, $headerValue);
         }
 
         try {
