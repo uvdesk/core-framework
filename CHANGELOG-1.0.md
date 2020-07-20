@@ -4,6 +4,18 @@ CHANGELOG for 1.0.x
 This changelog references any relevant changes introduced in 1.0 minor versions.
 
 
+* 1.0.12 (2020-07-20)
+    * **Misc. Updates:**
+        * **Added mailbox filter for ticket so that we get to know from which mailbox ticket came from.**
+        * **Ticket type sort alphabetically**
+        
+    * **Bug Fixes:**
+        * **Issue #304:** getting exception when update status in ticket set as workflow condition.
+        * **Issue #301:** My ticket's section ticket status are not clickable on agent panel
+        * **Issue #306:** Incorrect email headers.
+        * **Issue #299:** getting exception when drag & drop image on ticket reply editor box.
+        * **Issue #302:** getting error on agent panel when filter ticket by customer name
+
 * 1.0.11 (2020-05-22)
     * **Bug Fixes:**
         * **Issue #296:** translation exception when forwarding ticket thread.
