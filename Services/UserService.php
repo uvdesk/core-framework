@@ -358,12 +358,7 @@ class UserService
     public function getCustomersPartial(Request $request = null)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        if ($this->getCurrentUser()->getRoles()[0] == "ROLE_AGENT") {
-            $qb->from('UVDeskCoreFrameworkBundle:Ticket', 't')->leftJoin('t.customer', 'u');
-            $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->addPermissionFilter($qb, $this->container, false);
-        } else {
-            $qb->from('UVDeskCoreFrameworkBundle:User', 'u');
-        }
+        $qb->from('UVDeskCoreFrameworkBundle:User', 'u');
 
         $qb->select("DISTINCT u.id,CONCAT(u.firstName,' ', COALESCE(u.lastName,'')) AS name, userInstance.profileImagePath as smallThumbnail ")
             ->leftJoin('u.userInstance', 'userInstance')
