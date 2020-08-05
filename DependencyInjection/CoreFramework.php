@@ -11,6 +11,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Definition\RoutingResourceInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Framework\ExtendableComponentInterface;
 
 use Webkul\UVDesk\CoreFrameworkBundle\Tickets\WidgetInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Tickets\AsideLinkInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Tickets\QuickActionButtonInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\SearchItemInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\NavigationInterface;
@@ -80,6 +81,7 @@ class CoreFramework extends Extension
 
         $container->registerForAutoconfiguration(RouterInterface::class)->addTag('routing.loader');
         $container->registerForAutoconfiguration(WidgetInterface::class)->addTag(WidgetInterface::class);
+        $container->registerForAutoconfiguration(AsideLinkInterface::class)->addTag(AsideLinkInterface::class);
         $container->registerForAutoconfiguration(QuickActionButtonInterface::class)->addTag(QuickActionButtonInterface::class);
 
         $container->registerForAutoconfiguration(RoutingResourceInterface::class)->addTag(RoutingResourceInterface::class);

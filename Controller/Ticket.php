@@ -12,6 +12,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\DataProxies as CoreFrameworkBundleDataProxies;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Tickets\QuickActionButtonCollection;
+use Webkul\UVDesk\CoreFrameworkBundle\Tickets\AsideLinkCollection;
 
 class Ticket extends Controller
 {
@@ -26,7 +27,7 @@ class Ticket extends Controller
         ]);
     }
 
-    public function loadTicket($ticketId, QuickActionButtonCollection $quickActionButtonCollection)
+    public function loadTicket($ticketId, QuickActionButtonCollection $quickActionButtonCollection, AsideLinkCollection $asideLinkCollection)
     {
         $entityManager = $this->getDoctrine()->getManager();
         $userRepository = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User');
@@ -57,6 +58,7 @@ class Ticket extends Controller
         }
 	
         $quickActionButtonCollection->prepareAssets();
+        $asideLinkCollection->prepareAssets();
 
         return $this->render('@UVDeskCoreFramework//ticket.html.twig', [
             'ticket' => $ticket,
