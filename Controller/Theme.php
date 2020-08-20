@@ -3,9 +3,9 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-class Theme extends Controller
+class Theme extends AbstractController
 {
     public function updateHelpdeskTheme(Request $request)
     {
