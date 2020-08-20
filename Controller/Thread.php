@@ -8,12 +8,12 @@ use Symfony\Component\EventDispatcher\GenericEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread as TicketThread;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 
-class Thread extends Controller
+class Thread extends AbstractController
 {
     public function saveThread($ticketId, Request $request)
     {

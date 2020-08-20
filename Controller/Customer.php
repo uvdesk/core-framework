@@ -6,10 +6,10 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\EventDispatcher\GenericEvent;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 
-class Customer extends Controller
+class Customer extends AbstractController
 {
     public function listCustomers(Request $request)
     {

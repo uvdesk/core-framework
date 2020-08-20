@@ -3,10 +3,10 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\Yaml\Yaml;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-class EmailSettings extends Controller
+class EmailSettings extends AbstractController
 {
     public function loadSettings()
     {

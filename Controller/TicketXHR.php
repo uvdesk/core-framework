@@ -7,13 +7,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportLabel;
 use Symfony\Component\EventDispatcher\GenericEvent;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Form as CoreFrameworkBundleForms;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\DataProxies as CoreFrameworkBundleDataProxies;
 
-class TicketXHR extends Controller
+class TicketXHR extends AbstractController
 {
     public function loadTicketXHR($ticketId)
     {

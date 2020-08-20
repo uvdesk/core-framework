@@ -4,9 +4,9 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-class ThreadXHR extends Controller
+class ThreadXHR extends AbstractController
 {
     public function listTicketThreadCollectionXHR($ticketId)
     {

@@ -5,9 +5,9 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportPrivilege;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-class Privilege extends Controller
+class Privilege extends AbstractController
 {
     public function listPrivilege(Request $request)
     {

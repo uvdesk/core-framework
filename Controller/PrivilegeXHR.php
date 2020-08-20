@@ -6,10 +6,10 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportPrivilege;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-class PrivilegeXHR extends Controller
+class PrivilegeXHR extends AbstractController
 {
     public function listPrivilegeXHR(Request $request) 
     {

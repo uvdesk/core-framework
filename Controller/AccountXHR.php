@@ -7,11 +7,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedFilters;
 use Symfony\Component\EventDispatcher\GenericEvent;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-class AccountXHR extends Controller
+class AccountXHR extends AbstractController
 {
     public function listAgentsXHR(Request $request)
     {

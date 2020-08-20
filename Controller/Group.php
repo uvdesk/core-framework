@@ -10,9 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-class Group extends Controller
+class Group extends AbstractController
 {
     public function listGroups(Request $request)
     {
