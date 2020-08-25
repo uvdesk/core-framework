@@ -13,12 +13,9 @@ class EmailTemplatesRepository extends EntityRepository
 
     public function getEmailTemplates(\Symfony\Component\HttpFoundation\ParameterBag $obj = null, $container)
     {
-        $user_id = $container->get('security.token_storage')->getToken()->getUser()->getId();
         $json = array();
         $qb = $this->getEntityManager()->createQueryBuilder();
-        $qb->select('sr')->from($this->getEntityName(), 'sr')
-            ->orWhere('sr.user IS NULL ')
-            ->orWhere('sr.user='.$user_id);
+        $qb->select('sr')->from($this->getEntityName(), 'sr');
 
         $data = $obj->all();
         $data = array_reverse($data);
