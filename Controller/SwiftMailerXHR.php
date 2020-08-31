@@ -53,14 +53,14 @@ class SwiftMailerXHR extends AbstractController
                 
                 return new JsonResponse([
                     'alertClass' => 'success',
-                    'alertMessage' => $this->get('translator')->trans('Swiftmailer configuration removed successfully.'),
+                    'alertMessage' => $this->translator->trans('Swiftmailer configuration removed successfully.'),
                 ]);
             }
         }
 
         return new JsonResponse([
             'alertClass' => 'error',
-            'alertMessage' => $this->get('translator')->trans('No swiftmailer configurations found for mailer id:') . $params['id'],
+            'alertMessage' => $this->translator->trans('No swiftmailer configurations found for mailer id:') . $params['id'],
         ], 404);
     }
 }

@@ -16,7 +16,7 @@ class Group extends AbstractController
 {
     public function listGroups(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')){
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -25,7 +25,7 @@ class Group extends AbstractController
 
     public function editGroup(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')){
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -123,7 +123,7 @@ class Group extends AbstractController
             $em->persist($group);
             $em->flush();
 
-            $this->addFlash('success', $this->get('translator')->trans('Success ! Group information updated successfully.'));
+            $this->addFlash('success', $this->translator->trans('Success ! Group information updated successfully.'));
             return $this->redirect($this->generateUrl('helpdesk_member_support_group_collection'));
         }
 
@@ -135,7 +135,7 @@ class Group extends AbstractController
 
     public function createGroup(Request $request)
     {
-        if(!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')){
+        if(!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -197,7 +197,7 @@ class Group extends AbstractController
             $em->persist($group);
             $em->flush();
 
-            $this->addFlash('success', $this->get('translator')->trans('Success ! Group information saved successfully.'));
+            $this->addFlash('success', $this->translator->trans('Success ! Group information saved successfully.'));
             return $this->redirect($this->generateUrl('helpdesk_member_support_group_collection'));
         }
 

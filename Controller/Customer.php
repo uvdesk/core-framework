@@ -8,12 +8,27 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class Customer extends AbstractController
-{
+{   
+    private $userService;
+    private $eventDispatcher;
+    private $translator;
+
+    public function __construct(UserService $userService, EventDispatcher $eventDispatcher, TranslatorInterface $translator)
+    {
+        $this->userService = $userService;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->translator = $translator;
+    }
+
     public function listCustomers(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')){
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -22,7 +37,7 @@ class Customer extends AbstractController
 
     public function createCustomer(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')){
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -35,7 +50,7 @@ class Customer extends AbstractController
             $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
             if(isset($uploadedFiles['profileImage'])){
                 if(!in_array($uploadedFiles['profileImage']->getMimeType(), $validMimeType)){
-                    $this->addFlash('warning', $this->get('translator')->trans('Error ! Profile image is not valid, please upload a valid format'));
+                    $this->addFlash('warning', $this->translator->trans('Error ! Profile image is not valid, please upload a valid format'));
                     return $this->redirect($this->generateUrl('helpdesk_member_create_customer_account'));
                 }
             }
@@ -55,12 +70,12 @@ class Customer extends AbstractController
                         'image' => $uploadedFiles['profileImage'],
                     ]);
 
-                    $this->addFlash('success', $this->get('translator')->trans('Success ! Customer saved successfully.'));
+                    $this->addFlash('success', $this->translator->trans('Success ! Customer saved successfully.'));
 
                     return $this->redirect($this->generateUrl('helpdesk_member_manage_customer_account_collection'));
                 }
             } else {
-                $this->addFlash('warning', $this->get('translator')->trans('Error ! User with same email already exist.'));
+                $this->addFlash('warning', $this->translator->trans('Error ! User with same email already exist.'));
             }
         }
 
@@ -72,7 +87,7 @@ class Customer extends AbstractController
 
     public function editCustomer(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -91,7 +106,7 @@ class Customer extends AbstractController
             $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
             if(isset($contentFile['profileImage'])){
                 if(!in_array($contentFile['profileImage']->getMimeType(), $validMimeType)){
-                    $this->addFlash('warning', $this->get('translator')->trans('Error ! Profile image is not valid, please upload a valid format'));
+                    $this->addFlash('warning', $this->translator->trans('Error ! Profile image is not valid, please upload a valid format'));
                     return $this->render('@UVDeskCoreFramework/Customers/updateSupportCustomer.html.twig', ['user' => $user,'errors' => json_encode([])]);
                 }
             }
@@ -144,12 +159,12 @@ class Customer extends AbstractController
                         'entity' => $user,
                     ]);
 
-                    $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
 
-                    $this->addFlash('success', $this->get('translator')->trans('Success ! Customer information updated successfully.'));
+                    $this->addFlash('success', $this->translator->trans('Success ! Customer information updated successfully.'));
                     return $this->redirect($this->generateUrl('helpdesk_member_manage_customer_account_collection'));
                 } else {
-                    $this->addFlash('warning', $this->get('translator')->trans('Error ! User with same email is already exist.'));
+                    $this->addFlash('warning', $this->translator->trans('Error ! User with same email is already exist.'));
                 }
             }
         } elseif($request->getMethod() == "PUT") {
@@ -185,10 +200,10 @@ class Customer extends AbstractController
                 $em->flush();
 
                 $json['alertClass']      = 'success';
-                $json['alertMessage']    = $this->get('translator')->trans('Success ! Customer updated successfully.');
+                $json['alertMessage']    = $this->translator->trans('Success ! Customer updated successfully.');
             } else {
                 $json['alertClass']      = 'error';
-                $json['alertMessage']    = $this->get('translator')->trans('Error ! Customer with same email already exist.');
+                $json['alertMessage']    = $this->translator->trans('Error ! Customer with same email already exist.');
             }
 
             return new Response(json_encode($json), 200, []);
@@ -210,7 +225,7 @@ class Customer extends AbstractController
 
     public function bookmarkCustomer(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -234,13 +249,13 @@ class Customer extends AbstractController
             $em->persist($userInstance);
             $em->flush();
             $json['alertClass'] = 'success';
-            $json['message'] = $this->get('translator')->trans('unstarred Action Completed successfully');
+            $json['message'] = $this->translator->trans('unstarred Action Completed successfully');
         } else {
             $userInstance->setIsStarred(1);
             $em->persist($userInstance);
             $em->flush();
             $json['alertClass'] = 'success';
-            $json['message'] = $this->get('translator')->trans('starred Action Completed successfully');
+            $json['message'] = $this->translator->trans('starred Action Completed successfully');
         }
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');

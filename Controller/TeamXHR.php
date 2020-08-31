@@ -13,7 +13,7 @@ class TeamXHR extends AbstractController
 {
     public function listTeamsXHR(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -28,7 +28,7 @@ class TeamXHR extends AbstractController
 
     public function deleteTeamXHR($supportTeamId, TranslatorInterface $translator)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -44,7 +44,7 @@ class TeamXHR extends AbstractController
                 
                 return new Response(json_encode([
                     'alertClass' => 'success',
-                    'alertMessage' => $this->get('translator')->trans('Support Team removed successfully.'),
+                    'alertMessage' => $this->translator->trans('Support Team removed successfully.'),
                 ]), 200, ['Content-Type' => 'application/json']);
             }
         }

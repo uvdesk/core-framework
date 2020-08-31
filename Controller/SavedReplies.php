@@ -42,7 +42,7 @@ class SavedReplies extends AbstractController
         $errors = [];
         if ($request->getMethod() == 'POST') {
             if (empty($request->request->get('message'))) {
-                $this->addFlash('warning',  $this->get('translator')->trans('Error! Saved reply body can not be blank'));
+                $this->addFlash('warning',  $this->translator->trans('Error! Saved reply body can not be blank'));
                 
                 return $this->render('@UVDeskCoreFramework//savedReplyForm.html.twig', [
                     'template' => $template,
@@ -114,7 +114,7 @@ class SavedReplies extends AbstractController
             $em->persist($template);
             $em->flush();
 
-            $this->addFlash('success', $request->attributes->get('template') ? $this->get('translator')->trans('Success! Reply has been updated successfully.'): $this->get('translator')->trans('Success! Reply has been added successfully.'));
+            $this->addFlash('success', $request->attributes->get('template') ? $this->translator->trans('Success! Reply has been updated successfully.'): $this->translator->trans('Success! Reply has been added successfully.'));
 
             return $this->redirectToRoute('helpdesk_member_saved_replies');
         }
@@ -154,7 +154,7 @@ class SavedReplies extends AbstractController
 
             $responseContent = [
                 'alertClass' => 'success',
-                'alertMessage' => $this->get('translator')->trans('Success! Saved Reply has been deleted successfully.')
+                'alertMessage' => $this->translator->trans('Success! Saved Reply has been deleted successfully.')
             ];
         }
 

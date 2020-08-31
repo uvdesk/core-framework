@@ -33,7 +33,7 @@ class Email extends AbstractController
 
     public function templates(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -42,7 +42,7 @@ class Email extends AbstractController
 
     public function templateForm(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -76,9 +76,9 @@ class Email extends AbstractController
             $entityManager->flush();
 
             if ($request->attributes->get('template')) {
-                $message = $this->get('translator')->trans('Success! Template has been updated successfully.');
+                $message = $this->translator->trans('Success! Template has been updated successfully.');
             } else {
-                $message = $this->get('translator')->trans('Success! Template has been added successfully.');
+                $message = $this->translator->trans('Success! Template has been added successfully.');
 
             }
 
@@ -94,7 +94,7 @@ class Email extends AbstractController
 
     public function templatesxhr(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -118,7 +118,7 @@ class Email extends AbstractController
                             $error = true;
                     } else{
                         $json['alertClass'] = 'danger';
-                        $json['alertMessage'] = $this->get('translator')->trans('Warning! resource not found.');
+                        $json['alertMessage'] = $this->translator->trans('Warning! resource not found.');
                         $json['statusCode'] = Response::HTTP_NO_FOUND;
                     }
                 }
@@ -127,7 +127,7 @@ class Email extends AbstractController
 
         if($error) {
             $json['alertClass'] = 'danger';
-            $json['alertMessage'] = $this->get('translator')->trans('Warning! You can not remove predefined email template which is being used in workflow(s).');
+            $json['alertMessage'] = $this->translator->trans('Warning! You can not remove predefined email template which is being used in workflow(s).');
         }
 
         $response = new Response(json_encode($json));
