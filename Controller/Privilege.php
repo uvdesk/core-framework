@@ -11,7 +11,7 @@ class Privilege extends AbstractController
 {
     public function listPrivilege(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')){
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -20,13 +20,13 @@ class Privilege extends AbstractController
 
     public function createPrivilege(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')){
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
         $formErrors = [];
         $supportPrivilege = new SupportPrivilege();
-        $supportPrivilegeResources = $this->get('uvdesk.service')->getSupportPrivelegesResources();
+        $supportPrivilegeResources = $this->uvdeskService->getSupportPrivelegesResources();
         if ('POST' == $request->getMethod()) {
 
             $entityManager = $this->getDoctrine()->getManager();
@@ -38,7 +38,7 @@ class Privilege extends AbstractController
             $entityManager->persist($supportPrivilege);
             $entityManager->flush();
 
-            $this->addFlash('success', $this->get('translator')->trans('Success ! Privilege information saved successfully.'));
+            $this->addFlash('success', $this->translator->trans('Success ! Privilege information saved successfully.'));
             return $this->redirect($this->generateUrl('helpdesk_member_privilege_collection'));
         }
 
@@ -51,7 +51,7 @@ class Privilege extends AbstractController
 
     public function editPrivilege($supportPrivilegeId)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')){
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -65,7 +65,7 @@ class Privilege extends AbstractController
         }
 
         $formErrors = [];
-        $supportPrivilegeResources = $this->get('uvdesk.service')->getSupportPrivelegesResources();
+        $supportPrivilegeResources = $this->uvdeskService->getSupportPrivelegesResources();
 
         if ('POST' == $request->getMethod()) {
             $supportPrivilegeDetails = $request->request->get('privilege_form');
@@ -77,7 +77,7 @@ class Privilege extends AbstractController
             $entityManager->persist($supportPrivilege);
             $entityManager->flush();
 
-            $this->addFlash('success', $this->get('translator')->trans('Privilege updated successfully.'));
+            $this->addFlash('success', $this->translator->trans('Privilege updated successfully.'));
             
             return $this->redirect($this->generateUrl('helpdesk_member_privilege_collection'));
         }

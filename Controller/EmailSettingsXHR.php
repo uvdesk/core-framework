@@ -49,7 +49,7 @@ class EmailSettingsXHR extends AbstractController
                 'name' => $supportEmailConfiguration['name'],
                 'mailer_id' => $supportEmailConfiguration['mailer_id'],
             ],
-            'alertMessage' => $this->get('translator')->trans('Success ! Email settings are updated successfully.'),
+            'alertMessage' => $this->translator->trans('Success ! Email settings are updated successfully.'),
         ];
 
         return new Response(json_encode($result), 200, ['Content-Type' => 'application/json']);

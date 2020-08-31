@@ -10,7 +10,7 @@ class EmailSettings extends AbstractController
 {
     public function loadSettings()
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_ADMIN')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_ADMIN')) {
             throw new AccessDeniedException("Insufficient account privileges");
         }
 

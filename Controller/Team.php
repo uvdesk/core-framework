@@ -25,7 +25,7 @@ class Team extends AbstractController
 
     public function listTeams(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -34,7 +34,7 @@ class Team extends AbstractController
 
     public function createTeam(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -93,7 +93,7 @@ class Team extends AbstractController
             $em->persist($supportTeam);
             $em->flush();
 
-            $this->addFlash('success', $this->get('translator')->trans('Success ! Team information saved successfully.'));
+            $this->addFlash('success', $this->translator->trans('Success ! Team information saved successfully.'));
 
             return $this->redirect($this->generateUrl('helpdesk_member_support_team_collection'));
         }
@@ -106,7 +106,7 @@ class Team extends AbstractController
 
     public function editTeam(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 

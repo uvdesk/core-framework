@@ -38,7 +38,7 @@ class Ticket extends AbstractController
             throw new \Exception('Page not found');
         }
         
-        $user = $this->get('user.service')->getSessionUser();
+        $user = $this->userService->getSessionUser();
         
         // Proceed only if user has access to the resource
         if (false == $this->get('ticket.service')->isTicketAccessGranted($ticket, $user)) {
@@ -82,7 +82,7 @@ class Ticket extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
         $response = $this->redirect($this->generateUrl('helpdesk_member_ticket_collection'));
 
-        if ($request->getMethod() != 'POST' || false == $this->get('user.service')->isAccessAuthorized('ROLE_AGENT_CREATE_TICKET')) {
+        if ($request->getMethod() != 'POST' || false == $this->userService->isAccessAuthorized('ROLE_AGENT_CREATE_TICKET')) {
             return $response;
         }
 
@@ -134,7 +134,7 @@ class Ticket extends AbstractController
                 $role = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportRole')->findOneByCode('ROLE_CUSTOMER');
 
                 // Create User Instance
-                $customer = $this->get('user.service')->createUserInstance($ticketProxy->getFrom(), $ticketProxy->getName(), $role, [
+                $customer = $this->userService->createUserInstance($ticketProxy->getFrom(), $ticketProxy->getName(), $role, [
                     'source' => 'website',
                     'active' => true
                 ]);
@@ -169,7 +169,7 @@ class Ticket extends AbstractController
                 'entity' =>  $thread->getTicket(),
             ]);
 
-            $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+            $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
         } catch (\Exception $e) {
             // Skip Automation
         }
@@ -178,11 +178,11 @@ class Ticket extends AbstractController
             $ticket = $thread->getTicket();
             $request->getSession()->getFlashBag()->set('success', sprintf('Success! Ticket #%s has been created successfully.', $ticket->getId()));
 
-            if ($this->get('user.service')->isAccessAuthorized('ROLE_ADMIN')) {
+            if ($this->userService->isAccessAuthorized('ROLE_ADMIN')) {
                 return $this->redirect($this->generateUrl('helpdesk_member_ticket', ['ticketId' => $ticket->getId()]));
             }
         } else {
-            $this->addFlash('warning', $this->get('translator')->trans('Could not create ticket, invalid details.'));
+            $this->addFlash('warning', $this->translator->trans('Could not create ticket, invalid details.'));
         }
 
         return $this->redirect(!empty($referralURL) ? $referralURL : $this->generateUrl('helpdesk_member_ticket_collection'));
@@ -190,7 +190,7 @@ class Ticket extends AbstractController
 
     public function listTicketTypeCollection(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -199,7 +199,7 @@ class Ticket extends AbstractController
 
     public function ticketType(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -230,9 +230,9 @@ class Ticket extends AbstractController
                 $em->flush();
 
                 if (!$request->attributes->get('ticketTypeId')) {
-                    $this->addFlash('success', $this->get('translator')->trans('Success! Ticket type saved successfully.'));
+                    $this->addFlash('success', $this->translator->trans('Success! Ticket type saved successfully.'));
                 } else {
-                    $this->addFlash('success', $this->get('translator')->trans('Success! Ticket type updated successfully.'));
+                    $this->addFlash('success', $this->translator->trans('Success! Ticket type updated successfully.'));
                 }
 
                 return $this->redirect($this->generateUrl('helpdesk_member_ticket_type_collection'));
@@ -247,7 +247,7 @@ class Ticket extends AbstractController
 
     public function listTagCollection(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_TAG')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_TAG')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -260,7 +260,7 @@ class Ticket extends AbstractController
 
     public function removeTicketTagXHR($tagId, Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_TAG')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_TAG')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -272,7 +272,7 @@ class Ticket extends AbstractController
                 $em->remove($tag);
                 $em->flush();
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = $this->get('translator')->trans('Success ! Tag removed successfully.');
+                $json['alertMessage'] = $this->translator->trans('Success ! Tag removed successfully.');
             }
         }
 
@@ -303,8 +303,8 @@ class Ticket extends AbstractController
             'entity' => $ticket,
         ]);
 
-        $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
-        $this->addFlash('success', $this->get('translator')->trans('Success ! Ticket moved to trash successfully.'));
+        $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+        $this->addFlash('success', $this->translator->trans('Success ! Ticket moved to trash successfully.'));
 
         return $this->redirectToRoute('helpdesk_member_ticket_collection');
     }

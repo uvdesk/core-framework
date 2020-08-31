@@ -9,7 +9,7 @@ class GroupXHR extends AbstractController
 {
     public function listGroupsXHR(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -24,7 +24,7 @@ class GroupXHR extends AbstractController
 
     public function deleteGroupXHR($supportGroupId)
     {
-        if(!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')) {          
+        if(!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')) {          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 

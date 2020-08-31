@@ -13,7 +13,7 @@ class SwiftMailer extends AbstractController
 {
     public function loadMailers()
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_ADMIN')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_ADMIN')) {
             throw new AccessDeniedException("Insufficient account privileges");
         }
 
@@ -36,7 +36,7 @@ class SwiftMailer extends AbstractController
                 
                 try {
                     $swiftmailer->writeSwiftMailerConfigurations($configurations);
-                    $this->addFlash('success', $this->get('translator')->trans('SwiftMailer configuration created successfully.'));
+                    $this->addFlash('success', $this->translator->trans('SwiftMailer configuration created successfully.'));
                     return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_settings'));
                 } catch (\Exception $e) {
                     $this->addFlash('warning', $e->getMessage());
@@ -77,7 +77,7 @@ class SwiftMailer extends AbstractController
             $swiftmailerConfigurations[$index] = $swiftmailerConfiguration;            
             $swiftmailerService->writeSwiftMailerConfigurations($swiftmailerConfigurations);
             
-            $this->addFlash('success', $this->get('translator')->trans('SwiftMailer configuration updated successfully.'));
+            $this->addFlash('success', $this->translator->trans('SwiftMailer configuration updated successfully.'));
             return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_settings'));
         }
 
