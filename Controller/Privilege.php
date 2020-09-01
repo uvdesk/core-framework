@@ -6,9 +6,23 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportPrivilege;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Translation\TranslatorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
 
 class Privilege extends AbstractController
 {
+    private $userService;
+    private $translator;
+    private $uvdeskService;
+    
+    public function __construct(UserService $userService, TranslatorInterface $translator, UVDeskService $uvdeskService)
+    {
+        $this->userService = $userService;
+        $this->translator = $translator;
+        $this->uvdeskService = $uvdeskService;
+    }
+
     public function listPrivilege(Request $request)
     {
         if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')){

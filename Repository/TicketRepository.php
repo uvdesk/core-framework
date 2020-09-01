@@ -541,7 +541,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 ->andwhere("a IS NULL OR ad.supportRole != 4")
                 ->orderBy('t.id', Criteria::DESC);
 
-        // $currentUser = $this->container->get('user.service')->getCurrentUser();
+        // $currentUser = $this->userService->getCurrentUser();
         // if($currentUser->getRole() == "ROLE_AGENT" && $currentUser->detail['agent']->getTicketView() != UserData::GLOBAL_ACCESS) {
         //     $this->em->getRepository('WebkulTicketBundle:Ticket')->addPermissionFilter($qb, $this->container, false);
         //     $qb->addSelect('gr.name as groupName');
@@ -627,7 +627,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 case 'after':
                     $date = \DateTime::createFromFormat('d-m-Y H:i', $fieldValue.' 23:59');
                     if ($date) {
-                       // $date = \DateTime::createFromFormat('d-m-Y H:i', $this->container->get('user.service')->convertTimezoneToServer($date, 'd-m-Y H:i'));
+                       // $date = \DateTime::createFromFormat('d-m-Y H:i', $this->userService->convertTimezoneToServer($date, 'd-m-Y H:i'));
                         $queryBuilder->andwhere('ticket.createdAt > :afterDate');
                         $queryBuilder->setParameter('afterDate', $date);
                     }

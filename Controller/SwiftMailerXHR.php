@@ -6,9 +6,20 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\Event\ConfigurationRemovedEvent;
+use Symfony\Component\Translation\TranslatorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer as SwiftMailerService;
 
 class SwiftMailerXHR extends AbstractController
 {
+    private $translator;
+    private $swiftMailer;
+    
+    public function __construct(TranslatorInterface $translator,SwiftMailerService $swiftMailer)
+    {
+        $this->translator = $translator;
+        $this->swiftMailer = $swiftMailer;
+    }
+
     public function loadMailersXHR(Request $request)
     {
         if (true === $request->isXmlHttpRequest()) {
@@ -19,7 +30,7 @@ class SwiftMailerXHR extends AbstractController
                     'transport' => $configuartion->getTransportName(),
                     'isActive' => $configuartion->getDeliveryStatus(),
                 ];
-            }, $this->get('swiftmailer.service')->parseSwiftMailerConfigurations());
+            }, $this->swiftMailer->parseSwiftMailerConfigurations());
 
             return new JsonResponse($collection);
         } 
@@ -30,7 +41,7 @@ class SwiftMailerXHR extends AbstractController
     public function removeMailerConfiguration(Request $request)
     {
         $params = $request->query->all();
-        $swiftmailer = $this->get('swiftmailer.service');
+        $swiftmailer = $this->swiftMailer;
         $configurations = $swiftmailer->parseSwiftMailerConfigurations();
        
         if (!empty($configurations)) {

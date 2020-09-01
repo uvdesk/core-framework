@@ -8,15 +8,26 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Form as CoreFrameworkBundleForms;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class SavedReplies extends AbstractController
 {
     const LIMIT = 10;
     const ROLE_REQUIRED = 'saved_replies';
 
+    private $userService;
+    private $translator;
+    
+    public function __construct(UserService $userService, TranslatorInterface $translator)
+    {
+        $this->userService = $userService;
+        $this->translator = $translator;
+    }
+
     public function loadSavedReplies(Request $request)
     {
-        $savedReplyReferenceIds = $this->container->get('user.service')->getUserSavedReplyReferenceIds();
+        $savedReplyReferenceIds = $this->userService->getUserSavedReplyReferenceIds();
 
         return $this->render('@UVDeskCoreFramework//savedRepliesList.html.twig', [
             'savedReplyReferenceIds' => array_unique($savedReplyReferenceIds),

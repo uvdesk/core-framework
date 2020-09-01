@@ -12,9 +12,29 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread as TicketThread;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Translation\TranslatorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\EmailService;
 
 class Thread extends AbstractController
 {
+    private $userService;
+    private $translator;
+    private $eventDispatcher;
+    private $ticketService;
+    private $emailService;
+
+    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcher $eventDispatcher)
+    {
+        $this->userService = $userService;
+        $this->emailService = $emailService;
+        $this->translator = $translator;
+        $this->ticketService = $ticketService;
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
     public function saveThread($ticketId, Request $request)
     {
         $params = $request->request->all();
@@ -82,7 +102,7 @@ class Thread extends AbstractController
         }
 
         // Create Thread
-        $thread = $this->get('ticket.service')->createThread($ticket, $threadDetails);
+        $thread = $this->ticketService->createThread($ticket, $threadDetails);
         // $this->addFlash('success', ucwords($params['threadType']) . " added successfully.");
 
         // @TODO: Remove Agent Draft Thread
@@ -131,7 +151,7 @@ class Thread extends AbstractController
 
                 // Forward thread to users
                 try {
-                    $messageId = $this->get('email.service')->sendMail($params['subject'] ?? ("Forward: " . $ticket->getSubject()), $thread->getMessage(), $thread->getReplyTo(), $headers, $ticket->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
+                    $messageId = $this->emailService->sendMail($params['subject'] ?? ("Forward: " . $ticket->getSubject()), $thread->getMessage(), $thread->getReplyTo(), $headers, $ticket->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
     
                     if (!empty($messageId)) {
                         $thread->setMessageId($messageId);

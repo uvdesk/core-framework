@@ -15,6 +15,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
+use Webkul\UVDesk\CoreFrameworkBundle\FileSystem\FileSystem;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -27,14 +28,17 @@ class Account extends AbstractController
     private $translator;
     private $passwordEncoder;
     private $uvdeskService;
+    private $fileSystem;
 
-    public function __construct(UserService $userService, EventDispatcher $eventDispatcher, TranslatorInterface $translator, UserPasswordEncoderInterface $passwordEncoder, UVDeskService $uvdeskService)
+    public function __construct(UserService $userService, EventDispatcher $eventDispatcher, TranslatorInterface $translator, UserPasswordEncoderInterface $passwordEncoder, UVDeskService $uvdeskService, FileSystem $fileSystem)
     {
         $this->userService = $userService;
         $this->eventDispatcher = $eventDispatcher;
         $this->translator = $translator;
         $this->passwordEncoder = $passwordEncoder;
         $this->uvdeskService = $uvdeskService;
+        $this->fileSystem = $fileSystem;
+        
     }
 
     private function encodePassword(User $user, $plainPassword)
@@ -120,10 +124,10 @@ class Account extends AbstractController
                     $em->flush();
 
                     $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(array('user' => $user->getId()));
-                    $userInstance = $this->container->get('user.service')->getUserDetailById($user->getId());
+                    $userInstance = $this->userService->getUserDetailById($user->getId());
 
                     if (isset($dataFiles['profileImage'])) {
-                        $assetDetails = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
+                        $assetDetails = $this->filesystem->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
                         $userInstance->setProfileImagePath($assetDetails['path']);
                     }
 
@@ -233,7 +237,7 @@ class Account extends AbstractController
                     $userInstance->setSource('website');
 
                     if (isset($dataFiles['profileImage'])) {
-                        $assetDetails = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
+                        $assetDetails = $this->fileSystem->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
                         $userInstance->setProfileImagePath($assetDetails['path']);
                     }
 
@@ -375,7 +379,7 @@ class Account extends AbstractController
                     $fullname = trim(implode(' ', [$formDetails['firstName'], $formDetails['lastName']]));
                     $supportRole = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportRole')->findOneByCode($formDetails['role']);
 
-                    $user = $this->container->get('user.service')->createUserInstance($formDetails['email'], $fullname, $supportRole, [
+                    $user = $this->userService->createUserInstance($formDetails['email'], $fullname, $supportRole, [
                         'contact' => $formDetails['contactNumber'],
                         'source' => 'website',
                         'active' => !empty($formDetails['isActive']) ? true : false,
