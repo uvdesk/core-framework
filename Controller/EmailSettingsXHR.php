@@ -6,15 +6,29 @@ use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Translation\TranslatorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer;
 
 class EmailSettingsXHR extends AbstractController
 {
+    private $userService;
+    private $translator;
+    private $swiftMailer;
+
+    public function __construct(UserService $userService, TranslatorInterface $translator,SwiftMailer $swiftMailer)
+    {
+        $this->userService = $userService;
+        $this->translator = $translator;
+        $this->swiftMailer = $swiftMailer;
+    }
+
     public function updateSettingsXHR(Request $request)
     {
         $filePath = $this->get('kernel')->getProjectDir() . '/config/packages/uvdesk.yaml';
 
-        $memberPrefix = $this->container->getParameter('uvdesk_site_path.member_prefix') ?? 'member';
-        $customerPrefix = $this->container->getParameter('uvdesk_site_path.knowledgebase_customer_prefix') ?? 'customer';
+        $memberPrefix = $this->getParameter('uvdesk_site_path.member_prefix') ?? 'member';
+        $customerPrefix = $this->getParameter('uvdesk_site_path.knowledgebase_customer_prefix') ?? 'customer';
 
         $app_locales = 'en|fr|it'; //default app_locales values
 
@@ -33,7 +47,7 @@ class EmailSettingsXHR extends AbstractController
             '{{ SUPPORT_EMAIL_ID }}' => $supportEmailConfiguration['id'],
             '{{ SUPPORT_EMAIL_NAME }}' => $supportEmailConfiguration['name'],
             '{{ SUPPORT_EMAIL_MAILER_ID }}' => $mailer_id,
-            '{{ SITE_URL }}' => $this->container->getParameter('uvdesk.site_url'),
+            '{{ SITE_URL }}' => $this->getParameter('uvdesk.site_url'),
             '{{ APP_LOCALES }}' => $app_locales,
             '{{ MEMBER_PANEL_PREFIX }}' => $memberPrefix,
             '{{ CUSTOMER_PANEL_PREFIX }}' => $customerPrefix,

@@ -8,9 +8,23 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\Event\ConfigurationUpdatedEvent;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Translation\TranslatorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer as SwiftMailerService;
 
 class SwiftMailer extends AbstractController
 {
+    private $userService;
+    private $translator;
+    private $swiftMailer;
+    
+    public function __construct(UserService $userService, TranslatorInterface $translator,SwiftMailerService $swiftMailer)
+    {
+        $this->userService = $userService;
+        $this->translator = $translator;
+        $this->swiftMailer = $swiftMailer;
+    }
+
     public function loadMailers()
     {
         if (!$this->userService->isAccessAuthorized('ROLE_ADMIN')) {
@@ -24,7 +38,7 @@ class SwiftMailer extends AbstractController
     {
         if ($request->getMethod() == 'POST') {
             $params = $request->request->all();
-            $swiftmailer = $this->get('swiftmailer.service');
+            $swiftmailer = $this->swiftmailer;
 
             $swiftmailerConfiguration = $swiftmailer->createConfiguration($params['transport'], $params['id']);
             
@@ -49,7 +63,7 @@ class SwiftMailer extends AbstractController
 
     public function updateMailerConfiguration($id, Request $request)
     {
-        $swiftmailerService = $this->get('swiftmailer.service');
+        $swiftmailerService = $this->swiftmailer;;
         $swiftmailerConfigurations = $swiftmailerService->parseSwiftMailerConfigurations();
         
         foreach ($swiftmailerConfigurations as $index => $configuration) {

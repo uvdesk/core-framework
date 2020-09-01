@@ -12,9 +12,30 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\DataProxies as CoreFrameworkBundleDataProxies;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Tickets\QuickActionButtonCollection;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Translation\TranslatorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\EmailService;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class Ticket extends AbstractController
 {
+    private $userService;
+    private $translator;
+    private $eventDispatcher;
+    private $ticketService;
+    private $emailService;
+
+    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcher $eventDispatcher)
+    {
+        $this->userService = $userService;
+        $this->emailService = $emailService;
+        $this->translator = $translator;
+        $this->ticketService = $ticketService;
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
     public function listTicketCollection(Request $request)
     {
         $entityManager = $this->getDoctrine()->getManager();

@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Webkul\UVDesk\CoreFrameworkBundle\FileSystem\FileSystem;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -18,12 +19,14 @@ class Customer extends AbstractController
     private $userService;
     private $eventDispatcher;
     private $translator;
+    private $fileSystem;
 
-    public function __construct(UserService $userService, EventDispatcher $eventDispatcher, TranslatorInterface $translator)
+    public function __construct(UserService $userService, EventDispatcher $eventDispatcher, TranslatorInterface $translator, FileSystem $fileSystem)
     {
         $this->userService = $userService;
         $this->eventDispatcher = $eventDispatcher;
         $this->translator = $translator;
+        $this->fileSystem = $fileSystem;
     }
 
     public function listCustomers(Request $request)
@@ -63,7 +66,7 @@ class Customer extends AbstractController
                     $fullname = trim(implode(' ', [$formDetails['firstName'], $formDetails['lastName']]));
                     $supportRole = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportRole')->findOneByCode('ROLE_CUSTOMER');
 
-                    $user = $this->container->get('user.service')->createUserInstance($formDetails['email'], $fullname, $supportRole, [
+                    $user = $this->userService->createUserInstance($formDetails['email'], $fullname, $supportRole, [
                         'contact' => $formDetails['contactNumber'],
                         'source' => 'website',
                         'active' => !empty($formDetails['isActive']) ? true : false,
@@ -143,7 +146,7 @@ class Customer extends AbstractController
                         $userInstance->setContactNumber($data['contactNumber']);
                     }
                     if(isset($contentFile['profileImage'])){
-                        $assetDetails = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($contentFile['profileImage'], 'profile');
+                        $assetDetails = $this->filesystem->getUploadManager()->uploadFile($contentFile['profileImage'], 'profile');
                         $userInstance->setProfileImagePath($assetDetails['path']);
                     }
 

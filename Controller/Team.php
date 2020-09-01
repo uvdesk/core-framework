@@ -2,7 +2,6 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
-use Symfony\Component\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Form;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
@@ -10,16 +9,17 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class Team extends AbstractController
 {
-    /**
-     * @var TranslatorInterface
-     */
+    private $userService;
     private $translator;
-
-    public function __construct(TranslatorInterface $translator)
+    
+    public function __construct(UserService $userService, TranslatorInterface $translator)
     {
+        $this->userService = $userService;
         $this->translator = $translator;
     }
 

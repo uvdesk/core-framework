@@ -10,10 +10,22 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Translation\TranslatorInterface;
+
 
 class Email extends AbstractController
 {
     const LIMIT = 10;
+    
+    private $userService;
+    private $translator;
+
+    public function __construct(UserService $userService, TranslatorInterface $translator)
+    {
+        $this->userService = $userService;
+        $this->translator = $translator;
+    }
 
     protected function getTemplate($request)
     {
@@ -21,7 +33,7 @@ class Email extends AbstractController
 
         $data = $emailTemplateRepository->findOneby([
             'id' => $request->attributes->get('template'),
-            'user' => $this->container->get('user.service')->getCurrentUser()->getId()
+            'user' => $this->userService->getCurrentUser()->getId()
         ]);
 
         $default = $emailTemplateRepository->findOneby([

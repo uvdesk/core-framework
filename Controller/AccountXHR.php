@@ -12,18 +12,19 @@ use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Translation\TranslatorInterface;
 
 class AccountXHR extends AbstractController
 {
     private $eventDispatcher;
     private $translator;
+    private $userService;
 
     public function __construct(UserService $userService, EventDispatcher $eventDispatcher, TranslatorInterface $translator)
     {
         $this->eventDispatcher = $eventDispatcher;
         $this->translator = $translator;
+        $this->userService = $userService;
     }
 
     public function listAgentsXHR(Request $request)
