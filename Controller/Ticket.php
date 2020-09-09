@@ -62,7 +62,7 @@ class Ticket extends AbstractController
         $user = $this->userService->getSessionUser();
         
         // Proceed only if user has access to the resource
-        if (false == $this->get('ticket.service')->isTicketAccessGranted($ticket, $user)) {
+        if (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) {
             throw new \Exception('Access Denied', 403);
         }
 
@@ -83,7 +83,7 @@ class Ticket extends AbstractController
             'ticket' => $ticket,
             'totalReplies' => $ticketRepository->countTicketTotalThreads($ticket->getId()),
             'totalCustomerTickets' => ($ticketRepository->countCustomerTotalTickets($customer) - 1),
-            'initialThread' => $this->get('ticket.service')->getTicketInitialThreadDetails($ticket),
+            'initialThread' => $this->ticketService->getTicketInitialThreadDetails($ticket),
             'ticketAgent' => !empty($agent) ? $agent->getAgentInstance()->getPartialDetails() : null,
             'customer' => $customer->getCustomerInstance()->getPartialDetails(),
             'currentUserDetails' => $user->getAgentInstance()->getPartialDetails(),
@@ -182,7 +182,7 @@ class Ticket extends AbstractController
             'attachments' => $request->files->get('attachments'),
         ];
 
-        $thread = $this->get('ticket.service')->createTicketBase($ticketData);
+        $thread = $this->ticketService->createTicketBase($ticketData);
 
         // Trigger ticket created event
         try {
