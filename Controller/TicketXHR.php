@@ -151,7 +151,7 @@ class TicketXHR extends AbstractController
 
         if (!$error) {
             $ticket->setSubject($request->request->get('subject'));
-            $createThread = $this->get('ticket.service')->getCreateReply($ticket->getId(), false);
+            $createThread = $this->ticketService->getCreateReply($ticket->getId(), false);
             $createThread = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Thread')->find($createThread['id']);
             $createThread->setMessage($request->request->get('reply'));
 
@@ -488,7 +488,7 @@ class TicketXHR extends AbstractController
     public function listTicketCollectionXHR(Request $request)
     {
         if ($request->isXmlHttpRequest()) {
-            $paginationResponse = $this->get('ticket.service')->paginateMembersTicketCollection($request);
+            $paginationResponse = $this->ticketService->paginateMembersTicketCollection($request);
 
             return new Response(json_encode($paginationResponse), 200, ['Content-Type' => 'application/json']);
         }
@@ -499,7 +499,7 @@ class TicketXHR extends AbstractController
     public function updateTicketCollectionXHR(Request $request)
     {
         if ($request->isXmlHttpRequest()) {
-            $massResponse = $this->get('ticket.service')->massXhrUpdate($request);
+            $massResponse = $this->ticketService->massXhrUpdate($request);
 
             return new Response(json_encode($massResponse), 200, ['Content-Type' => 'application/json']);
         }
@@ -626,7 +626,7 @@ class TicketXHR extends AbstractController
                     $filtersResponse = $this->userService->getSubGroups($request);
                     break;
                 case 'tag':
-                    $filtersResponse = $this->get('ticket.service')->getTicketTags($request);
+                    $filtersResponse = $this->ticketService->getTicketTags($request);
                     break;
                 case 'label':
                     $searchTerm = $request->query->get('query');
@@ -664,9 +664,9 @@ class TicketXHR extends AbstractController
             } elseif ($request->query->get('type') == 'team') {
                 $json = $this->userService->getSubGroups($request);
             } elseif ($request->query->get('type') == 'tag') {
-                $json = $this->get('ticket.service')->getTicketTags($request);
+                $json = $this->ticketService->getTicketTags($request);
             } elseif ($request->query->get('type') == 'label') {
-                $json = $this->get('ticket.service')->getLabels($request);
+                $json = $this->ticketService->getLabels($request);
             }
         }
 
@@ -680,7 +680,7 @@ class TicketXHR extends AbstractController
         }
 
         if (true === $request->isXmlHttpRequest()) {
-            $paginationResponse = $this->get('ticket.service')->paginateMembersTicketTypeCollection($request);
+            $paginationResponse = $this->ticketService->paginateMembersTicketTypeCollection($request);
 
             return new Response(json_encode($paginationResponse), 200, ['Content-Type' => 'application/json']);
         }
@@ -724,7 +724,7 @@ class TicketXHR extends AbstractController
         }
 
         if (true === $request->isXmlHttpRequest()) {
-            $paginationResponse = $this->get('ticket.service')->paginateMembersTagCollection($request);
+            $paginationResponse = $this->ticketService->paginateMembersTagCollection($request);
 
             return new Response(json_encode($paginationResponse), 200, ['Content-Type' => 'application/json']);
         }
@@ -754,7 +754,7 @@ class TicketXHR extends AbstractController
         $data = $request->query->all();
 
         if ($request->isXmlHttpRequest()) {
-            $json['message'] = $this->get('ticket.service')->getSavedReplyContent($data['id'],$data['ticketId']);
+            $json['message'] = $this->ticketService->getSavedReplyContent($data['id'],$data['ticketId']);
         }
 
         $response = new Response(json_encode($json));
@@ -829,9 +829,9 @@ class TicketXHR extends AbstractController
             } elseif($request->query->get('type') == 'team') {
                 $json = $this->userService->getSupportTeams($request);
             } elseif($request->query->get('type') == 'tag') {
-                $json = $this->get('ticket.service')->getTicketTags($request);
+                $json = $this->ticketService->getTicketTags($request);
             } elseif($request->query->get('type') == 'label') {
-                $json = $this->get('ticket.service')->getLabels($request);
+                $json = $this->ticketService->getLabels($request);
             }
         }
 
