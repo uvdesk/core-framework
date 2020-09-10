@@ -110,7 +110,7 @@ class TicketService
     // @TODO: Refactor this out of this service. Use UserService::getSessionUser() instead.
     public function getUser()
     {
-        return $this->userService->getCurrentUser();
+        return $this->container->get('user.service')->getCurrentUser();
     }
 
     public function getDefaultType()
@@ -174,7 +174,7 @@ class TicketService
                 }
                 
                 // Create User Instance
-                $user = $this->userService->createUserInstance($params['from'], $params['name'], $role, [
+                $user = $this->container->get('user.service')->createUserInstance($params['from'], $params['name'], $role, [
                     'source' => strtolower($params['source']),
                     'active' => true,
                 ]);
@@ -445,7 +445,7 @@ class TicketService
     public function paginateMembersTicketCollection(Request $request)
     {
         $params = $request->query->all();
-        $activeUser = $this->userService->getSessionUser();
+        $activeUser = $this->container->get('user.service')->getSessionUser();
         $agentTimeZone = $activeUser->getTimezone();
         $agentTimeFormat = $activeUser->getTimeformat();
 
@@ -643,7 +643,7 @@ class TicketService
     {
         $params = $request->query->all();
         $entityManager = $this->entityManager;
-        $activeUser = $this->userService->getSessionUser();
+        $activeUser = $this->container->get('user.service')->getSessionUser();
 
         $agentTimeZone = $activeUser->getTimezone();
         $agentTimeFormat = $activeUser->getTimeformat();
@@ -652,7 +652,7 @@ class TicketService
         $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
 
         // Get base query
-        $enableLockedThreads = $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_LOCK_AND_UNLOCK_THREAD');
+        $enableLockedThreads = $this->container->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_LOCK_AND_UNLOCK_THREAD');
         $baseQuery = $threadRepository->prepareBasePaginationRecentThreadsQuery($ticket, $params, $enableLockedThreads);
         
         // Apply Pagination
@@ -918,14 +918,14 @@ class TicketService
 
         $variables['ticket.team'] = ($ticket->getSupportTeam() ? $ticket->getSupportTeam()->getName() : '');
 
-        $customer = $this->userService->getCustomerPartialDetailById($ticket->getCustomer()->getId());
+        $customer = $this->container->get('user.service')->getCustomerPartialDetailById($ticket->getCustomer()->getId());
         $variables['ticket.customerName'] = $customer['name'];
-        $userService = $this->userService;
+        $userService = $this->container->get('user.service');
       
         $variables['ticket.agentName'] = '';
         $variables['ticket.agentEmail'] = '';
         if ($ticket->getAgent()) {
-            $agent = $this->userService->getAgentDetailById($ticket->getAgent()->getId());
+            $agent = $this->container->get('user.service')->getAgentDetailById($ticket->getAgent()->getId());
             if($agent) {
                 $variables['ticket.agentName'] = $agent['name'];
                 $variables['ticket.agentEmail'] = $agent['email'];
@@ -1092,7 +1092,7 @@ class TicketService
 
         if((!empty($threadResponse[0][0]))) {
             $threadDetails = $threadResponse[0][0];
-            $userService = $this->userService;
+            $userService = $this->container->get('user.service');
             
             if ($threadDetails['createdBy'] == 'agent') {
                 $threadDetails['user'] = $userService->getAgentDetailById($threadResponse[0]['userId']);
@@ -1246,7 +1246,7 @@ class TicketService
         $preparedResponseIds = [];
         $groupIds = [];
         $teamIds = []; 
-        $userId = $this->userService->getCurrentUser()->getAgentInstance()->getId();
+        $userId = $this->container->get('user.service')->getCurrentUser()->getAgentInstance()->getId();
 
         $preparedResponseRepo = $this->entityManager->getRepository('UVDeskAutomationBundle:PreparedResponses')->findAll();
 
@@ -1319,7 +1319,7 @@ class TicketService
         $savedReplyIds = [];
         $groupIds = [];
         $teamIds = []; 
-        $userId = $this->userService->getCurrentUser()->getAgentInstance()->getId();
+        $userId = $this->container->get('user.service')->getCurrentUser()->getAgentInstance()->getId();
 
         $savedReplyRepo = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SavedReplies')->findAll();
 
@@ -1454,7 +1454,7 @@ class TicketService
         
         if (!empty($threadResponse[0][0])) {
             $threadDetails = $threadResponse[0][0];
-            $userService = $this->userService;
+            $userService = $this->container->get('user.service');
             
             if ($threadDetails['createdBy'] == 'agent') {
                 $threadDetails['user'] = $userService->getAgentDetailById($threadResponse[0]['userId']);
@@ -1504,14 +1504,14 @@ class TicketService
 
         $variables['ticket.team'] = ($ticket->getSupportTeam() ? $ticket->getSupportTeam()->getName() : '');
 
-        $customer = $this->userService->getCustomerPartialDetailById($ticket->getCustomer()->getId());
+        $customer = $this->container->get('user.service')->getCustomerPartialDetailById($ticket->getCustomer()->getId());
         $variables['ticket.customerName'] = $customer['name'];
-        $userService = $this->userService;
+        $userService = $this->container->get('user.service');
       
         $variables['ticket.agentName'] = '';
         $variables['ticket.agentEmail'] = '';
         if ($ticket->getAgent()) {
-            $agent = $this->userService->getAgentDetailById($ticket->getAgent()->getId());
+            $agent = $this->container->get('user.service')->getAgentDetailById($ticket->getAgent()->getId());
             if($agent) {
                 $variables['ticket.agentName'] = $agent['name'];
                 $variables['ticket.agentEmail'] = $agent['email'];
@@ -1540,7 +1540,7 @@ class TicketService
         $flag = false;
         $email = strtolower($email);
         $knowlegeBaseWebsite = $this->entityManager->getRepository('UVDeskSupportCenterBundle:KnowledgebaseWebsite')->findOneBy(['website' => $website->getId(), 'isActive' => 1]);
-        $list = $this->userService->getWebsiteSpamDetails($knowlegeBaseWebsite);
+        $list = $this->container->get('user.service')->getWebsiteSpamDetails($knowlegeBaseWebsite);
 
         // Blacklist
         if (!empty($list['blackList']['email']) && in_array($email, $list['blackList']['email'])) {
@@ -1580,7 +1580,7 @@ class TicketService
         $timeZone = $website->getTimezone();
         $timeFormat = $website->getTimeformat();
 
-        $activeUser = $this->userService->getSessionUser();
+        $activeUser = $this->container->get('user.service')->getSessionUser();
         $agentTimeZone = !empty($activeUser) ? $activeUser->getTimezone() : null;
         $agentTimeFormat = !empty($activeUser) ? $activeUser->getTimeformat() : null;
 
@@ -1638,7 +1638,7 @@ class TicketService
     {
         // @TODO: Take current firewall into consideration (access check on behalf of agent/customer)
         if (empty($user)) {
-            $user = $this->userService->getSessionUser();
+            $user = $this->container->get('user.service')->getSessionUser();
         }
 
         if (empty($user)) {
