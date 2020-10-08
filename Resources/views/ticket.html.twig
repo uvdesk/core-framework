@@ -462,13 +462,13 @@
                                         <label>{{ 'Status'|trans }}</label>
                                         <ul class="status" data-action="status">
                                             {% for status in ticketStatusCollection %}
-                                                <li data-index="{{ status.id }}"><a href="#">{{ status.description }}</a></li>
+                                                <li data-index="{{ status.id }}"><a href="#">{{ status.description|trans }}</a></li>
                                             {% endfor %}
                                         </ul>
                                     </div>
                                 </div>
                             {% else %}
-                                <span class="uv-aside-select-value">{{ ticket.status.description }}</span>
+                                <span class="uv-aside-select-value">{{ ticket.status.description|trans }}</span>
                             {% endif %}
                         </div>
                     </div>
