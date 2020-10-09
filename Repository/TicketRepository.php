@@ -101,7 +101,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $translatorService = $container->get('translator');
 
         foreach ($results as $key => $ticket) {
-            $ticket[0]['status']['code'] = $translatorService->trans($ticket[0]['status']['code']);
+            $ticket[0]['status']['description'] = $translatorService->trans($ticket[0]['status']['description']);
 
             $data[] = [
                 'id' => $ticket[0]['id'],
