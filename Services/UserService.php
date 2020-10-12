@@ -174,6 +174,10 @@ class UserService
     {
         $user = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($email) ?: new User();
         
+        $website = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'knowledgebase']);
+        $timeZone = $website->getTimezone();
+        $timeFormat = $website->getTimeformat();
+
         if (null == $user->getId()) {
             $name = explode(' ', trim($name));
             
@@ -181,6 +185,8 @@ class UserService
             $user->setFirstName(isset($extras['firstName']) ? $extras['firstName'] : array_shift($name));
             $user->setLastName(trim(implode(' ', $name)));
             $user->setIsEnabled(true);
+            $user->setTimeZone($timeZone);
+            $user->setTimeFormat($timeFormat);
 
             $this->entityManager->persist($user);
             $this->entityManager->flush();
