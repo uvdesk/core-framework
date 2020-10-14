@@ -6,12 +6,12 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportPrivilege;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Component\Translation\TranslatorInterface;
 
-class PrivilegeXHR extends AbstractController
+class PrivilegeXHR extends Controller
 {
     private $userService;
     private $translator;

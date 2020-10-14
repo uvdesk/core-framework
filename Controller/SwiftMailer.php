@@ -5,14 +5,14 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\Event\ConfigurationUpdatedEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Component\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer as SwiftMailerService;
 
-class SwiftMailer extends AbstractController
+class SwiftMailer extends Controller
 {
     private $userService;
     private $translator;
@@ -38,7 +38,7 @@ class SwiftMailer extends AbstractController
     {
         if ($request->getMethod() == 'POST') {
             $params = $request->request->all();
-            $swiftmailer = $this->swiftmailer;
+            $swiftmailer = $this->swiftMailer;
 
             $swiftmailerConfiguration = $swiftmailer->createConfiguration($params['transport'], $params['id']);
             
@@ -63,7 +63,7 @@ class SwiftMailer extends AbstractController
 
     public function updateMailerConfiguration($id, Request $request)
     {
-        $swiftmailerService = $this->swiftmailer;;
+        $swiftmailerService = $this->swiftMailer;;
         $swiftmailerConfigurations = $swiftmailerService->parseSwiftMailerConfigurations();
         
         foreach ($swiftmailerConfigurations as $index => $configuration) {
@@ -85,6 +85,7 @@ class SwiftMailer extends AbstractController
               
             // Dispatch swiftmailer configuration updated event
             $event = new ConfigurationUpdatedEvent($swiftmailerConfiguration, $existingSwiftmailerConfiguration);
+            
             $this->get('uvdesk.core.event_dispatcher')->dispatch(ConfigurationUpdatedEvent::NAME, $event);
 
             // Updated swiftmailer configuration file

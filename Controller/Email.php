@@ -3,7 +3,7 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Doctrine\Common\Collections\Criteria;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +14,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Component\Translation\TranslatorInterface;
 
 
-class Email extends AbstractController
+class Email extends Controller
 {
     const LIMIT = 10;
     

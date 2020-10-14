@@ -9,23 +9,26 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Component\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class EmailSettingsXHR extends AbstractController
 {
     private $userService;
     private $translator;
     private $swiftMailer;
+    private $kernel;
 
-    public function __construct(UserService $userService, TranslatorInterface $translator,SwiftMailer $swiftMailer)
+    public function __construct(UserService $userService, TranslatorInterface $translator,SwiftMailer $swiftMailer, KernelInterface $kernel)
     {
         $this->userService = $userService;
         $this->translator = $translator;
         $this->swiftMailer = $swiftMailer;
+        $this->kernel = $kernel;
     }
 
     public function updateSettingsXHR(Request $request)
     {
-        $filePath = $this->get('kernel')->getProjectDir() . '/config/packages/uvdesk.yaml';
+        $filePath = $this->kernel->getProjectDir() . '/config/packages/uvdesk.yaml';
 
         $memberPrefix = $this->getParameter('uvdesk_site_path.member_prefix') ?? 'member';
         $customerPrefix = $this->getParameter('uvdesk_site_path.knowledgebase_customer_prefix') ?? 'customer';
