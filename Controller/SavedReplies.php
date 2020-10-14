@@ -4,14 +4,14 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Form as CoreFrameworkBundleForms;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Component\Translation\TranslatorInterface;
 
-class SavedReplies extends AbstractController
+class SavedReplies extends Controller
 {
     const LIMIT = 10;
     const ROLE_REQUIRED = 'saved_replies';

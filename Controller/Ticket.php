@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Form as CoreFrameworkBundleForms;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\DataProxies as CoreFrameworkBundleDataProxies;
@@ -18,22 +18,25 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\EmailService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 
-class Ticket extends AbstractController
+class Ticket extends Controller
 {
     private $userService;
     private $translator;
     private $eventDispatcher;
     private $ticketService;
     private $emailService;
+    private $kernel;
 
-    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcherInterface $eventDispatcher)
+    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcherInterface $eventDispatcher, KernelInterface $kernel)
     {
         $this->userService = $userService;
         $this->emailService = $emailService;
         $this->translator = $translator;
         $this->ticketService = $ticketService;
         $this->eventDispatcher = $eventDispatcher;
+        $this->kernel = $kernel;
     }
 
     public function listTicketCollection(Request $request)
@@ -374,7 +377,7 @@ class Ticket extends AbstractController
             $this->noResultFound();
         }
 
-        $path = $this->get('kernel')->getProjectDir() . "/public/". $attachment->getPath();
+        $path = $this->kernel->getProjectDir() . "/public/". $attachment->getPath();
 
         $response = new Response();
         $response->setStatusCode(200);
