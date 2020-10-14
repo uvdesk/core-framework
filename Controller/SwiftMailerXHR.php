@@ -57,7 +57,7 @@ class SwiftMailerXHR extends Controller
 
                 // Dispatch swiftmailer configuration removed event
                 $event = new ConfigurationRemovedEvent($swiftmailerConfiguration);
-                $this->get('uvdesk.core.event_dispatcher')->dispatch(ConfigurationRemovedEvent::NAME, $event);
+                $this->get('uvdesk.core.event_dispatcher')->dispatch($event,ConfigurationRemovedEvent::NAME);
 
                 // Update swiftmailer configuration file
                 $swiftmailer->writeSwiftMailerConfigurations($configurations);
