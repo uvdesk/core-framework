@@ -127,7 +127,7 @@ class Account extends AbstractController
                     $userInstance = $this->userService->getUserDetailById($user->getId());
 
                     if (isset($dataFiles['profileImage'])) {
-                        $assetDetails = $this->filesystem->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
+                        $assetDetails = $this->fileSystem->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
                         $userInstance->setProfileImagePath($assetDetails['path']);
                     }
 
