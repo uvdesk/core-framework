@@ -146,7 +146,7 @@ class Customer extends AbstractController
                         $userInstance->setContactNumber($data['contactNumber']);
                     }
                     if(isset($contentFile['profileImage'])){
-                        $assetDetails = $this->filesystem->getUploadManager()->uploadFile($contentFile['profileImage'], 'profile');
+                        $assetDetails = $this->fileSystem->getUploadManager()->uploadFile($contentFile['profileImage'], 'profile');
                         $userInstance->setProfileImagePath($assetDetails['path']);
                     }
 
