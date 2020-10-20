@@ -198,6 +198,7 @@
 				initialize : function() {
 					Backbone.Validation.bind(this);
 					var jsonContext = {};
+					
 		    		for (var field in jsonContext) {
 		    			Backbone.Validation.callbacks.invalid(this, field, jsonContext[field], 'input');
 					}
