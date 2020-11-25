@@ -1240,6 +1240,32 @@ class TicketService
         return $result ? $result : [];
     }
 
+    public function getUserLabels()
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('sl')->from('UVDeskCoreFrameworkBundle:SupportLabel', 'sl')
+                ->leftJoin('sl.user','slu')
+                ->andWhere('slu.id = :userId')
+                ->setParameter('userId', $this->getUser()->getId());
+
+        $result = $qb->getQuery()->getResult();
+        
+        return $result ? $result : [];
+    }
+
+    public function getTicketLabelsAll($ticketId)
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('DISTINCT sl.id,sl.name,sl.colorCode')->from('UVDeskCoreFrameworkBundle:Ticket', 't')
+                ->leftJoin('t.supportLabels','sl')
+                ->andWhere('t.id = :ticketId')
+                ->setParameter('ticketId', $ticketId);
+
+        $result = $qb->getQuery()->getResult();
+        
+        return $result ? $result : [];
+    }
+
     public function getManualWorkflow()
     {
 
