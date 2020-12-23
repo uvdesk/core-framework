@@ -82,6 +82,8 @@ class MailCustomer extends WorkflowAction
                         $entityManager->persist($createdThread);
                         $entityManager->flush();
                     }
+                } else {
+                    $message = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail());
                 }
                 break;
             default:
