@@ -1258,19 +1258,7 @@
                 </div>
             </span>
             <span class="p-relative">
-                <div class="uv-dropdown-list uv-bottom-left uv-translate-list" style="display: none">
-                    <div class="uv-dropdown-container">
-                        <ul class="uv-lang-list language" data-action="language">
-                            <label>{{ 'Language'|trans }}</label>
-                            {% for localeCode, localeName in uvdesk_service.getLocales() %}
-                                <li data-value="{{ localeCode }}">
-                                    <img class="locale-image" src='{{ asset("bundles/uvdeskcoreframework/images/country-flags/" ~ localeCode|lower|replace({" ": "-"}) ~ ".png") }}' alt="{{ localeCode }}" width="24px">
-                                    <span>{{ localeName|trans }}</span>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
+                
             </span>
             <% if (userType != 'system' && userType != 'System') { %>
                 <% if(user && user.smallThumbnail != null) { %>
