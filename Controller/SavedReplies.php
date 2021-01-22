@@ -69,10 +69,9 @@ class SavedReplies extends Controller
             $groups = explode(',', $request->request->get('tempGroups'));
 
             if ($template->getSupportGroups()) {
-                foreach ($template->getSupportGroups() as $key => $group) {
+                foreach ($template->getSupportGroups()->toArray() as $key => $group) {
                     $previousGroupIds[] = $group->getId();
-                   
-                    if (!in_array($group->getId(), $groups) && !empty($groups[0])) {
+                    if (!in_array($group->getId(), $groups)) {
                         $template->removeSupportGroups($group);
                         $em->persist($template);
                     }
@@ -94,11 +93,11 @@ class SavedReplies extends Controller
             $previousTeamIds = [];
             $teams = explode(',', $request->request->get('tempTeams'));
 
-            if ($template->getSupportTeams()) {
-                foreach ($template->getSupportTeams() as $key => $team) {
+            if ($template->getSupportTeams()->toArray()) {
+                foreach ($template->getSupportTeams()->toArray() as $key => $team) {
                     $previousTeamIds[] = $team->getId();
                    
-                    if (!in_array($team->getId(), $teams) && !empty($teams[0])) {
+                    if (!in_array($team->getId(), $teams)) {
                         $template->removeSupportTeam($team);
                         $em->persist($template);
                     }
