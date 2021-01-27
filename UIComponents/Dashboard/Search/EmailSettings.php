@@ -30,6 +30,11 @@ SVG;
         return 'helpdesk_member_emails_settings';
     }
 
+    public static function getRoles() : array
+    {
+        return ['ROLE_ADMIN'];
+    }
+
     public function getChildrenRoutes() : array
     {
         return [];

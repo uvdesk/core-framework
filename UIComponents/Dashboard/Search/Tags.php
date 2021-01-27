@@ -30,6 +30,11 @@ SVG;
         return 'helpdesk_member_ticket_tag_collection';
     }
 
+    public static function getRoles() : array
+    {
+        return ['ROLE_AGENT_MANAGE_TAG'];
+    }
+
     public function getChildrenRoutes() : array
     {
         return [];
