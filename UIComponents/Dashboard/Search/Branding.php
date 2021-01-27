@@ -25,6 +25,11 @@ SVG;
         return "Branding";
     }
 
+    public static function getRoles() : array
+    {
+        return ['ROLE_ADMIN'];
+    }
+
     public static function getRouteName() : string
     {
         return 'helpdesk_member_helpdesk_theme';
