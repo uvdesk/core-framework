@@ -333,6 +333,25 @@ class Ticket extends Controller
         return $this->redirectToRoute('helpdesk_member_ticket_collection');
     }
 
+    // Delete a ticket ticket permanently
+    public function deleteTicket(Request $request)
+    {
+        $ticketId = $request->attributes->get('ticketId');
+        $entityManager = $this->getDoctrine()->getManager();
+        $ticket = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->find($ticketId);
+
+        if (!$ticket) {
+            $this->noResultFound();
+        }
+
+        $entityManager->remove($ticket);
+        $entityManager->flush();
+
+        $this->addFlash('success', $this->get('translator')->trans('Success ! Success ! Ticket Id #'. $ticketId .' has been deleted successfully.'));
+
+        return $this->redirectToRoute('helpdesk_member_ticket_collection');
+    }
+
     public function downloadZipAttachment(Request $request)
     {
         $threadId = $request->attributes->get('threadId');
