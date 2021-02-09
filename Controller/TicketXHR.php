@@ -12,9 +12,30 @@ use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Form as CoreFrameworkBundleForms;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\DataProxies as CoreFrameworkBundleDataProxies;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Translation\TranslatorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\EmailService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class TicketXHR extends Controller
 {
+    private $userService;
+    private $translator;
+    private $eventDispatcher;
+    private $ticketService;
+    private $emailService;
+
+    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcherInterface $eventDispatcher)
+    {
+        $this->userService = $userService;
+        $this->emailService = $emailService;
+        $this->translator = $translator;
+        $this->ticketService = $ticketService;
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
     public function loadTicketXHR($ticketId)
     {
         $entityManager = $this->getDoctrine()->getManager();
@@ -54,12 +75,12 @@ class TicketXHR extends Controller
                 $label->setName($data['name']);
                 if(isset($data['colorCode']))
                     $label->setColorCode($data['colorCode']);
-                $label->setUser($this->get('user.service')->getCurrentUser());
+                $label->setUser($this->userService->getCurrentUser());
                 $em->persist($label);
                 $em->flush();
 
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = $this->get('translator')->trans('Success ! Label created successfully.');
+                $json['alertMessage'] = $this->translator->trans('Success ! Label created successfully.');
                 $json['label'] = json_encode([
                     'id' => $label->getId(),
                     'name' => $label->getName(),
@@ -68,7 +89,7 @@ class TicketXHR extends Controller
                 ]);
             } else {
                 $json['alertClass'] = 'danger';
-                $json['alertMessage'] = $this->get('translator')->trans('Error ! Label name can not be blank.');
+                $json['alertMessage'] = $this->translator->trans('Error ! Label name can not be blank.');
             }
         } elseif($method == "PUT") {
             $data = json_decode($content, true);
@@ -88,10 +109,10 @@ class TicketXHR extends Controller
                     'labelUser' => $label->getUser()->getId(),
                 ]);
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = $this->get('translator')->trans('Success ! Label updated successfully.');
+                $json['alertMessage'] = $this->translator->trans('Success ! Label updated successfully.');
             } else {
                 $json['alertClass'] = 'danger';
-                $json['alertMessage'] = $this->get('translator')->trans('Error ! Invalid label id.');
+                $json['alertMessage'] = $this->translator->trans('Error ! Invalid label id.');
             }
         } elseif($method == "DELETE") {
             $label = $em->getRepository('UVDeskCoreFrameworkBundle:SupportLabel')->findOneBy(array('id' => $request->attributes->get('ticketLabelId')));
@@ -99,10 +120,10 @@ class TicketXHR extends Controller
                 $em->remove($label);
                 $em->flush();
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = $this->get('translator')->trans('Success ! Label removed successfully.');
+                $json['alertMessage'] = $this->translator->trans('Success ! Label removed successfully.');
             } else {
                 $json['alertClass'] = 'danger';
-                $json['alertMessage'] = $this->get('translator')->trans('Error ! Invalid label id.');
+                $json['alertMessage'] = $this->translator->trans('Error ! Invalid label id.');
             }
         }
 
@@ -122,15 +143,15 @@ class TicketXHR extends Controller
         $message = '';
         if ($request->request->get('subject') == '') {
             $error = true;
-            $message = $this->get('translator')->trans('Error! Subject field is mandatory');
+            $message = $this->translator->trans('Error! Subject field is mandatory');
         } elseif ($request->request->get('reply') == '') {
             $error = true;
-            $message = $this->get('translator')->trans('Error! Reply field is mandatory');
+            $message = $this->translator->trans('Error! Reply field is mandatory');
         }
 
         if (!$error) {
             $ticket->setSubject($request->request->get('subject'));
-            $createThread = $this->get('ticket.service')->getCreateReply($ticket->getId(), false);
+            $createThread = $this->ticketService->getCreateReply($ticket->getId(), false);
             $createThread = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Thread')->find($createThread['id']);
             $createThread->setMessage($request->request->get('reply'));
 
@@ -138,7 +159,7 @@ class TicketXHR extends Controller
             $entityManager->persist($ticket);
             $entityManager->flush();
 
-            $this->addFlash('success', $this->get('translator')->trans('Success ! Ticket has been updated successfully.'));
+            $this->addFlash('success', $this->translator->trans('Success ! Ticket has been updated successfully.'));
         } else {
             $this->addFlash('warning', $message);
         }
@@ -160,7 +181,7 @@ class TicketXHR extends Controller
         if (empty($ticket)) {
             $responseContent = [
                 'alertClass' => 'danger',
-                'alertMessage' => $this->get('translator')->trans('Unable to retrieve details for ticket #%ticketId%.', [
+                'alertMessage' => $this->translator->trans('Unable to retrieve details for ticket #%ticketId%.', [
                     '%ticketId%' => $ticketId,
                 ]),
             ];
@@ -169,7 +190,7 @@ class TicketXHR extends Controller
         } else if (!isset($requestContent['attribute'])) {
             $responseContent = [
                 'alertClass' => 'danger',
-                'alertMessage' => $this->get('translator')->trans('Insufficient details provided.'),
+                'alertMessage' => $this->translator->trans('Insufficient details provided.'),
             ];
             return new Response(json_encode($responseContent), 400, ['Content-Type' => 'application/json']);
         }
@@ -183,7 +204,7 @@ class TicketXHR extends Controller
                     // User does not exist
                     return new Response(json_encode([
                         'alertClass' => 'danger',
-                        'alertMessage' => $this->get('translator')->trans('Unable to retrieve agent details'),
+                        'alertMessage' => $this->translator->trans('Unable to retrieve agent details'),
                     ]), 404, ['Content-Type' => 'application/json']);
                 } else {
                     // Check if an agent instance exists for the user
@@ -193,7 +214,7 @@ class TicketXHR extends Controller
                         // Agent does not exist
                         return new Response(json_encode([
                             'alertClass' => 'danger',
-                            'alertMessage' => $this->get('translator')->trans('Unable to retrieve agent details'),
+                            'alertMessage' => $this->translator->trans('Unable to retrieve agent details'),
                         ]), 404, ['Content-Type' => 'application/json']);
                     }
                 }
@@ -204,7 +225,7 @@ class TicketXHR extends Controller
                 if ($ticket->getAgent() && $agent->getId() === $ticket->getAgent()->getId()) {
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => $this->get('translator')->trans('Ticket already assigned to %agent%', [
+                        'alertMessage' => $this->translator->trans('Ticket already assigned to %agent%', [
                             '%agent%' => $agentDetails['name'],
                         ]),
                     ]), 200, ['Content-Type' => 'application/json']);
@@ -219,11 +240,11 @@ class TicketXHR extends Controller
                         'entity' => $ticket,
                     ]);
 
-                    $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => $this->get('translator')->trans('Ticket successfully assigned to %agent%', [
+                        'alertMessage' => $this->translator->trans('Ticket successfully assigned to %agent%', [
                             '%agent%' => $agentDetails['name'],
                         ]),
                     ]), 200, ['Content-Type' => 'application/json']);
@@ -236,14 +257,14 @@ class TicketXHR extends Controller
                     // Selected ticket status does not exist
                     return new Response(json_encode([
                         'alertClass' => 'danger',
-                        'alertMessage' => $this->get('translator')->trans('Unable to retrieve status details'),
+                        'alertMessage' => $this->translator->trans('Unable to retrieve status details'),
                     ]), 404, ['Content-Type' => 'application/json']);
                 }
 
                 if ($ticketStatus->getId() === $ticket->getStatus()->getId()) {
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => $this->get('translator')->trans('Ticket status already set to %status%', [
+                        'alertMessage' => $this->translator->trans('Ticket status already set to %status%', [
                             '%status%' => $ticketStatus->getDescription()
                         ]),
                     ]), 200, ['Content-Type' => 'application/json']);
@@ -258,11 +279,11 @@ class TicketXHR extends Controller
                         'entity' => $ticket,
                     ]);
 
-                    $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => $this->get('translator')->trans('Ticket status update to %status%', [
+                        'alertMessage' => $this->translator->trans('Ticket status update to %status%', [
                             '%status%' => $ticketStatus->getDescription()
                         ]),
                     ]), 200, ['Content-Type' => 'application/json']);
@@ -276,14 +297,14 @@ class TicketXHR extends Controller
                     // Selected ticket priority does not exist
                     return new Response(json_encode([
                         'alertClass' => 'danger',
-                        'alertMessage' => $this->get('translator')->trans('Unable to retrieve priority details'),
+                        'alertMessage' => $this->translator->trans('Unable to retrieve priority details'),
                     ]), 404, ['Content-Type' => 'application/json']);
                 }
 
                 if ($ticketPriority->getId() === $ticket->getPriority()->getId()) {
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => $this->get('translator')->trans('Ticket priority already set to %priority%', [
+                        'alertMessage' => $this->translator->trans('Ticket priority already set to %priority%', [
                             '%priority%' => $ticketPriority->getDescription()
                         ]),
                     ]), 200, ['Content-Type' => 'application/json']);
@@ -298,11 +319,11 @@ class TicketXHR extends Controller
                         'entity' => $ticket,
                     ]);
 
-                    $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => $this->get('translator')->trans('Ticket priority updated to %priority%', [
+                        'alertMessage' => $this->translator->trans('Ticket priority updated to %priority%', [
                             '%priority%' => $ticketPriority->getDescription()
                         ]),
                     ]), 200, ['Content-Type' => 'application/json']);
@@ -322,13 +343,13 @@ class TicketXHR extends Controller
                         $responseCode = 200;
                         $response = [
                             'alertClass' => 'success',
-                            'alertMessage' => $this->get('translator')->trans('Ticket support group updated successfully'),
+                            'alertMessage' => $this->translator->trans('Ticket support group updated successfully'),
                         ];
                     } else {
                         $responseCode = 404;
                         $response = [
                             'alertClass' => 'danger',
-                            'alertMessage' => $this->get('translator')->trans('Unable to retrieve support group details'),
+                            'alertMessage' => $this->translator->trans('Unable to retrieve support group details'),
                         ];
                     }
 
@@ -350,11 +371,11 @@ class TicketXHR extends Controller
                         'entity' => $ticket,
                     ]);
 
-                    $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => $this->get('translator')->trans('Ticket assigned to support group '). $supportGroup->getName(),
+                        'alertMessage' => $this->translator->trans('Ticket assigned to support group '). $supportGroup->getName(),
                     ]), 200, ['Content-Type' => 'application/json']);
                 }
                 break;
@@ -372,13 +393,13 @@ class TicketXHR extends Controller
                         $responseCode = 200;
                         $response = [
                             'alertClass' => 'success',
-                            'alertMessage' => $this->get('translator')->trans('Ticket support team updated successfully'),
+                            'alertMessage' => $this->translator->trans('Ticket support team updated successfully'),
                         ];
                     } else {
                         $responseCode = 404;
                         $response = [
                             'alertClass' => 'danger',
-                            'alertMessage' => $this->get('translator')->trans('Unable to retrieve support team details'),
+                            'alertMessage' => $this->translator->trans('Unable to retrieve support team details'),
                         ];
                     }
 
@@ -400,7 +421,7 @@ class TicketXHR extends Controller
                         'entity' => $ticket,
                     ]);
 
-                    $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
@@ -436,7 +457,7 @@ class TicketXHR extends Controller
                         'entity' => $ticket,
                     ]);
 
-                    $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
@@ -453,7 +474,7 @@ class TicketXHR extends Controller
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => $this->get('translator')->trans('Success ! Ticket to label removed successfully.'),
+                        'alertMessage' => $this->translator->trans('Success ! Ticket to label removed successfully.'),
                     ]), 200, ['Content-Type' => 'application/json']);
                 }
                 break;
@@ -467,7 +488,7 @@ class TicketXHR extends Controller
     public function listTicketCollectionXHR(Request $request)
     {
         if ($request->isXmlHttpRequest()) {
-            $paginationResponse = $this->get('ticket.service')->paginateMembersTicketCollection($request);
+            $paginationResponse = $this->ticketService->paginateMembersTicketCollection($request);
 
             return new Response(json_encode($paginationResponse), 200, ['Content-Type' => 'application/json']);
         }
@@ -478,7 +499,7 @@ class TicketXHR extends Controller
     public function updateTicketCollectionXHR(Request $request)
     {
         if ($request->isXmlHttpRequest()) {
-            $massResponse = $this->get('ticket.service')->massXhrUpdate($request);
+            $massResponse = $this->ticketService->massXhrUpdate($request);
 
             return new Response(json_encode($massResponse), 200, ['Content-Type' => 'application/json']);
         }
@@ -500,7 +521,7 @@ class TicketXHR extends Controller
 
         if ('POST' == $request->getMethod()) {
             $responseContent = [];
-            $user = $this->get('user.service')->getSessionUser();
+            $user = $this->userService->getSessionUser();
             $supportLabel = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportLabel')->findOneBy([
                 'user' => $user->getId(),
                 'name' => $requestContent['name'],
@@ -523,7 +544,7 @@ class TicketXHR extends Controller
                 $entityManager->flush();
 
                 $responseContent['alertClass'] = 'success';
-                $responseContent['alertMessage'] = $this->get('translator')->trans(
+                $responseContent['alertMessage'] = $this->translator->trans(
                     'Label %label% added to ticket successfully', [
                     '%label%' => $supportLabel->getName(),
                 ]);
@@ -542,13 +563,13 @@ class TicketXHR extends Controller
                     $entityManager->flush();
 
                     $responseContent['alertClass'] = 'success';
-                    $responseContent['alertMessage'] = $this->get('translator')->trans(
+                    $responseContent['alertMessage'] = $this->translator->trans(
                         'Label %label% added to ticket successfully', [
                         '%label%' => $supportLabel->getName(),
                     ]);
                 } else {
                     $responseContent['alertClass'] = 'warning';
-                    $responseContent['alertMessage'] = $this->get('translator')->trans(
+                    $responseContent['alertMessage'] = $this->translator->trans(
                         'Label %label% already added to ticket', [
                         '%label%' => $supportLabel->getName(),
                     ]);
@@ -593,19 +614,19 @@ class TicketXHR extends Controller
         if (true === $request->isXmlHttpRequest()) {
             switch ($request->query->get('type')) {
                 case 'agent':
-                    $filtersResponse = $this->get('user.service')->getAgentPartialDataCollection($request);
+                    $filtersResponse = $this->userService->getAgentPartialDataCollection($request);
                     break;
                 case 'customer':
-                    $filtersResponse = $this->get('user.service')->getCustomersPartial($request);
+                    $filtersResponse = $this->userService->getCustomersPartial($request);
                     break;
                 case 'group':
-                    $filtersResponse = $this->get('user.service')->getGroups($request);
+                    $filtersResponse = $this->userService->getGroups($request);
                     break;
                 case 'team':
-                    $filtersResponse = $this->get('user.service')->getSubGroups($request);
+                    $filtersResponse = $this->userService->getSubGroups($request);
                     break;
                 case 'tag':
-                    $filtersResponse = $this->get('ticket.service')->getTicketTags($request);
+                    $filtersResponse = $this->ticketService->getTicketTags($request);
                     break;
                 case 'label':
                     $searchTerm = $request->query->get('query');
@@ -613,7 +634,7 @@ class TicketXHR extends Controller
 
                     $supportLabelQuery = $entityManager->createQueryBuilder()->select('supportLabel')
                         ->from('UVDeskCoreFrameworkBundle:SupportLabel', 'supportLabel')
-                        ->where('supportLabel.user = :user')->setParameter('user', $this->get('user.service')->getSessionUser());
+                        ->where('supportLabel.user = :user')->setParameter('user', $this->userService->getSessionUser());
 
                     if (!empty($searchTerm)) {
                         $supportLabelQuery->andWhere('supportLabel.name LIKE :labelName')->setParameter('labelName', '%' . urldecode($searchTerm) . '%');
@@ -635,17 +656,17 @@ class TicketXHR extends Controller
         $json = [];
         if ($request->isXmlHttpRequest()) {
             if ($request->query->get('type') == 'agent') {
-                $json = $this->get('user.service')->getAgentsPartialDetails($request);
+                $json = $this->userService->getAgentsPartialDetails($request);
             } elseif ($request->query->get('type') == 'customer') {
-                $json = $this->get('user.service')->getCustomersPartial($request);
+                $json = $this->userService->getCustomersPartial($request);
             } elseif ($request->query->get('type') == 'group') {
-                $json = $this->get('user.service')->getGroups($request);
+                $json = $this->userService->getGroups($request);
             } elseif ($request->query->get('type') == 'team') {
-                $json = $this->get('user.service')->getSubGroups($request);
+                $json = $this->userService->getSubGroups($request);
             } elseif ($request->query->get('type') == 'tag') {
-                $json = $this->get('ticket.service')->getTicketTags($request);
+                $json = $this->ticketService->getTicketTags($request);
             } elseif ($request->query->get('type') == 'label') {
-                $json = $this->get('ticket.service')->getLabels($request);
+                $json = $this->ticketService->getLabels($request);
             }
         }
 
@@ -654,12 +675,12 @@ class TicketXHR extends Controller
 
     public function listTicketTypeCollectionXHR(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
         if (true === $request->isXmlHttpRequest()) {
-            $paginationResponse = $this->get('ticket.service')->paginateMembersTicketTypeCollection($request);
+            $paginationResponse = $this->ticketService->paginateMembersTicketTypeCollection($request);
 
             return new Response(json_encode($paginationResponse), 200, ['Content-Type' => 'application/json']);
         }
@@ -669,7 +690,7 @@ class TicketXHR extends Controller
 
     public function removeTicketTypeXHR($typeId, Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -688,7 +709,7 @@ class TicketXHR extends Controller
             $em->flush();
 
             $json['alertClass'] = 'success';
-            $json['alertMessage'] = $this->get('translator')->trans('Success ! Type removed successfully.');
+            $json['alertMessage'] = $this->translator->trans('Success ! Type removed successfully.');
         }
 
         $response = new Response(json_encode($json));
@@ -698,12 +719,12 @@ class TicketXHR extends Controller
 
     public function listTagCollectionXHR(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_TAG')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_TAG')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
         if (true === $request->isXmlHttpRequest()) {
-            $paginationResponse = $this->get('ticket.service')->paginateMembersTagCollection($request);
+            $paginationResponse = $this->ticketService->paginateMembersTagCollection($request);
 
             return new Response(json_encode($paginationResponse), 200, ['Content-Type' => 'application/json']);
         }
@@ -721,8 +742,8 @@ class TicketXHR extends Controller
             'entity' =>  $ticket
         ]);
 
-        $this->get('event_dispatcher')->dispatch('uvdesk.automation.prepared_response.execute', $event);
-        $this->addFlash('success', $this->get('translator')->trans('Success ! Prepared Response applied successfully.'));
+        $this->eventDispatcher->dispatch('uvdesk.automation.prepared_response.execute', $event);
+        $this->addFlash('success', $this->translator->trans('Success ! Prepared Response applied successfully.'));
 
         return $this->redirect($this->generateUrl('helpdesk_member_ticket',['ticketId' => $ticketId]));
     }
@@ -733,7 +754,7 @@ class TicketXHR extends Controller
         $data = $request->query->all();
 
         if ($request->isXmlHttpRequest()) {
-            $json['message'] = $this->get('ticket.service')->getSavedReplyContent($data['id'],$data['ticketId']);
+            $json['message'] = $this->ticketService->getSavedReplyContent($data['id'],$data['ticketId']);
         }
 
         $response = new Response(json_encode($json));
@@ -764,10 +785,10 @@ class TicketXHR extends Controller
                 $em->persist($ticket);
                 $em->flush();
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = $this->get('translator')->trans('Success ! Tag added successfully.');
+                $json['alertMessage'] = $this->translator->trans('Success ! Tag added successfully.');
             } else {
                 $json['alertClass'] = 'danger';
-                $json['alertMessage'] = $this->get('translator')->trans('Please enter tag name.');
+                $json['alertMessage'] = $this->translator->trans('Please enter tag name.');
             }
         } elseif($request->getMethod() == "DELETE") {
             $tag = $em->getRepository('UVDeskCoreFrameworkBundle:Tag')->findOneBy(array('id' => $request->attributes->get('id')));
@@ -782,11 +803,11 @@ class TicketXHR extends Controller
                 $em->persist($ticket);
                 $em->flush();
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = $this->get('translator')->trans('Success ! Tag unassigned successfully.');
+                $json['alertMessage'] = $this->translator->trans('Success ! Tag unassigned successfully.');
 
             } else {
                 $json['alertClass'] = 'danger';
-                $json['alertMessage'] = $this->get('translator')->trans('Error ! Invalid tag.');
+                $json['alertMessage'] = $this->translator->trans('Error ! Invalid tag.');
             }
         }
 
@@ -800,17 +821,17 @@ class TicketXHR extends Controller
         $json = [];
         if ($request->isXmlHttpRequest()) {
             if($request->query->get('type') == 'agent') {
-                $json = $this->get('user.service')->getAgentsPartialDetails($request);
+                $json = $this->userService->getAgentsPartialDetails($request);
             } elseif($request->query->get('type') == 'customer') {
-                $json = $this->get('user.service')->getCustomersPartial($request);
+                $json = $this->userService->getCustomersPartial($request);
             } elseif($request->query->get('type') == 'group') {
-                $json = $this->get('user.service')->getSupportGroups($request);
+                $json = $this->userService->getSupportGroups($request);
             } elseif($request->query->get('type') == 'team') {
-                $json = $this->get('user.service')->getSupportTeams($request);
+                $json = $this->userService->getSupportTeams($request);
             } elseif($request->query->get('type') == 'tag') {
-                $json = $this->get('ticket.service')->getTicketTags($request);
+                $json = $this->ticketService->getTicketTags($request);
             } elseif($request->query->get('type') == 'label') {
-                $json = $this->get('ticket.service')->getLabels($request);
+                $json = $this->ticketService->getLabels($request);
             }
         }
 
@@ -828,7 +849,7 @@ class TicketXHR extends Controller
         if($request->getMethod() == "POST") {
             if($content['email'] == $ticket->getCustomer()->getEmail()) {
                 $json['alertClass'] = 'danger';
-                $json['alertMessage'] = $this->get('translator')->trans('Error ! Customer can not be added as collaborator.');
+                $json['alertMessage'] = $this->translator->trans('Error ! Customer can not be added as collaborator.');
             } else {
                 $data = array(
                     'from' => $content['email'],
@@ -839,7 +860,7 @@ class TicketXHR extends Controller
 
                 $supportRole = $em->getRepository('UVDeskCoreFrameworkBundle:SupportRole')->findOneByCode('ROLE_CUSTOMER');
 
-                $collaborator = $this->get('user.service')->createUserInstance($data['from'], $data['firstName'], $supportRole, $extras = ["active" => true]);
+                $collaborator = $this->userService->createUserInstance($data['from'], $data['firstName'], $supportRole, $extras = ["active" => true]);
                 $checkTicket = $em->getRepository('UVDeskCoreFrameworkBundle:Ticket')->isTicketCollaborator($ticket, $content['email']);
 
                 if (!$checkTicket) {
@@ -858,14 +879,14 @@ class TicketXHR extends Controller
                         'entity' => $ticket,
                     ]);
 
-                    $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     $json['alertClass'] = 'success';
-                    $json['alertMessage'] = $this->get('translator')->trans('Success ! Collaborator added successfully.');
+                    $json['alertMessage'] = $this->translator->trans('Success ! Collaborator added successfully.');
                 } else {
                     $json['alertClass'] = 'danger';
                     $message = "Collaborator is already added.";
-                    $json['alertMessage'] = $this->get('translator')->trans('Error ! ' . $message);
+                    $json['alertMessage'] = $this->translator->trans('Error ! ' . $message);
                 }
             }
         } elseif($request->getMethod() == "DELETE") {
@@ -876,10 +897,10 @@ class TicketXHR extends Controller
                 $em->flush();
 
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = $this->get('translator')->trans('Success ! Collaborator removed successfully.');
+                $json['alertMessage'] = $this->translator->trans('Success ! Collaborator removed successfully.');
             } else {
                 $json['alertClass'] = 'danger';
-                $json['alertMessage'] = $this->get('translator')->trans('Error ! Invalid Collaborator.');
+                $json['alertMessage'] = $this->translator->trans('Error ! Invalid Collaborator.');
             }
         }
 
@@ -917,7 +938,7 @@ class TicketXHR extends Controller
             }
 
             $json['alertClass'] = 'success';
-            $json['alertMessage'] = $this->get('translator')->trans('Success ! Tag updated successfully.');
+            $json['alertMessage'] = $this->translator->trans('Success ! Tag updated successfully.');
         }
 
         $response = new Response(json_encode($json));
@@ -935,7 +956,7 @@ class TicketXHR extends Controller
             $entityManager->flush();
 
             $json['alertClass'] = 'success';
-            $json['alertMessage'] = $this->get('translator')->trans('Success ! Tag removed successfully.');
+            $json['alertMessage'] = $this->translator->trans('Success ! Tag removed successfully.');
         }
 
         $response = new Response(json_encode($json));

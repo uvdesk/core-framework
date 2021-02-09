@@ -174,6 +174,10 @@ class UserService
     {
         $user = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($email) ?: new User();
         
+        $website = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'knowledgebase']);
+        $timeZone = $website->getTimezone();
+        $timeFormat = $website->getTimeformat();
+
         if (null == $user->getId()) {
             $name = explode(' ', trim($name));
             
@@ -181,6 +185,8 @@ class UserService
             $user->setFirstName(isset($extras['firstName']) ? $extras['firstName'] : array_shift($name));
             $user->setLastName(trim(implode(' ', $name)));
             $user->setIsEnabled(true);
+            $user->setTimeZone($timeZone);
+            $user->setTimeFormat($timeFormat);
 
             $this->entityManager->persist($user);
             $this->entityManager->flush();
@@ -358,12 +364,7 @@ class UserService
     public function getCustomersPartial(Request $request = null)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        if ($this->getCurrentUser()->getRoles()[0] == "ROLE_AGENT") {
-            $qb->from('UVDeskCoreFrameworkBundle:Ticket', 't')->leftJoin('t.customer', 'u');
-            $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->addPermissionFilter($qb, $this->container, false);
-        } else {
-            $qb->from('UVDeskCoreFrameworkBundle:User', 'u');
-        }
+        $qb->from('UVDeskCoreFrameworkBundle:User', 'u');
 
         $qb->select("DISTINCT u.id,CONCAT(u.firstName,' ', COALESCE(u.lastName,'')) AS name, userInstance.profileImagePath as smallThumbnail ")
             ->leftJoin('u.userInstance', 'userInstance')

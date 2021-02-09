@@ -30,6 +30,11 @@ SVG;
         return 'email_templates_action';
     }
 
+    public static function getRoles() : array
+    {
+        return ['ROLE_AGENT_MANAGE_EMAIL_TEMPLATE'];
+    }
+
     public function getChildrenRoutes() : array
     {
         return [];

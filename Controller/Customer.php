@@ -6,14 +6,32 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\EventDispatcher\GenericEvent;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Webkul\UVDesk\CoreFrameworkBundle\FileSystem\FileSystem;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Translation\TranslatorInterface;
 
-class Customer extends Controller
-{
+class Customer extends AbstractController
+{   
+    private $userService;
+    private $eventDispatcher;
+    private $translator;
+    private $fileSystem;
+
+    public function __construct(UserService $userService, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator, FileSystem $fileSystem)
+    {
+        $this->userService = $userService;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->translator = $translator;
+        $this->fileSystem = $fileSystem;
+    }
+
     public function listCustomers(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')){
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -22,7 +40,7 @@ class Customer extends Controller
 
     public function createCustomer(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')){
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -35,7 +53,7 @@ class Customer extends Controller
             $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
             if(isset($uploadedFiles['profileImage'])){
                 if(!in_array($uploadedFiles['profileImage']->getMimeType(), $validMimeType)){
-                    $this->addFlash('warning', $this->get('translator')->trans('Error ! Profile image is not valid, please upload a valid format'));
+                    $this->addFlash('warning', $this->translator->trans('Error ! Profile image is not valid, please upload a valid format'));
                     return $this->redirect($this->generateUrl('helpdesk_member_create_customer_account'));
                 }
             }
@@ -48,19 +66,19 @@ class Customer extends Controller
                     $fullname = trim(implode(' ', [$formDetails['firstName'], $formDetails['lastName']]));
                     $supportRole = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportRole')->findOneByCode('ROLE_CUSTOMER');
 
-                    $user = $this->container->get('user.service')->createUserInstance($formDetails['email'], $fullname, $supportRole, [
+                    $user = $this->userService->createUserInstance($formDetails['email'], $fullname, $supportRole, [
                         'contact' => $formDetails['contactNumber'],
                         'source' => 'website',
                         'active' => !empty($formDetails['isActive']) ? true : false,
                         'image' => $uploadedFiles['profileImage'],
                     ]);
 
-                    $this->addFlash('success', $this->get('translator')->trans('Success ! Customer saved successfully.'));
+                    $this->addFlash('success', $this->translator->trans('Success ! Customer saved successfully.'));
 
                     return $this->redirect($this->generateUrl('helpdesk_member_manage_customer_account_collection'));
                 }
             } else {
-                $this->addFlash('warning', $this->get('translator')->trans('Error ! User with same email already exist.'));
+                $this->addFlash('warning', $this->translator->trans('Error ! User with same email already exist.'));
             }
         }
 
@@ -72,7 +90,7 @@ class Customer extends Controller
 
     public function editCustomer(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -91,7 +109,7 @@ class Customer extends Controller
             $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
             if(isset($contentFile['profileImage'])){
                 if(!in_array($contentFile['profileImage']->getMimeType(), $validMimeType)){
-                    $this->addFlash('warning', $this->get('translator')->trans('Error ! Profile image is not valid, please upload a valid format'));
+                    $this->addFlash('warning', $this->translator->trans('Error ! Profile image is not valid, please upload a valid format'));
                     return $this->render('@UVDeskCoreFramework/Customers/updateSupportCustomer.html.twig', ['user' => $user,'errors' => json_encode([])]);
                 }
             }
@@ -128,7 +146,7 @@ class Customer extends Controller
                         $userInstance->setContactNumber($data['contactNumber']);
                     }
                     if(isset($contentFile['profileImage'])){
-                        $assetDetails = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($contentFile['profileImage'], 'profile');
+                        $assetDetails = $this->fileSystem->getUploadManager()->uploadFile($contentFile['profileImage'], 'profile');
                         $userInstance->setProfileImagePath($assetDetails['path']);
                     }
 
@@ -144,12 +162,12 @@ class Customer extends Controller
                         'entity' => $user,
                     ]);
 
-                    $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
 
-                    $this->addFlash('success', $this->get('translator')->trans('Success ! Customer information updated successfully.'));
+                    $this->addFlash('success', $this->translator->trans('Success ! Customer information updated successfully.'));
                     return $this->redirect($this->generateUrl('helpdesk_member_manage_customer_account_collection'));
                 } else {
-                    $this->addFlash('warning', $this->get('translator')->trans('Error ! User with same email is already exist.'));
+                    $this->addFlash('warning', $this->translator->trans('Error ! User with same email is already exist.'));
                 }
             }
         } elseif($request->getMethod() == "PUT") {
@@ -185,10 +203,10 @@ class Customer extends Controller
                 $em->flush();
 
                 $json['alertClass']      = 'success';
-                $json['alertMessage']    = $this->get('translator')->trans('Success ! Customer updated successfully.');
+                $json['alertMessage']    = $this->translator->trans('Success ! Customer updated successfully.');
             } else {
                 $json['alertClass']      = 'error';
-                $json['alertMessage']    = $this->get('translator')->trans('Error ! Customer with same email already exist.');
+                $json['alertMessage']    = $this->translator->trans('Error ! Customer with same email already exist.');
             }
 
             return new Response(json_encode($json), 200, []);
@@ -210,7 +228,7 @@ class Customer extends Controller
 
     public function bookmarkCustomer(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -234,13 +252,13 @@ class Customer extends Controller
             $em->persist($userInstance);
             $em->flush();
             $json['alertClass'] = 'success';
-            $json['message'] = $this->get('translator')->trans('unstarred Action Completed successfully');
+            $json['message'] = $this->translator->trans('unstarred Action Completed successfully');
         } else {
             $userInstance->setIsStarred(1);
             $em->persist($userInstance);
             $em->flush();
             $json['alertClass'] = 'success';
-            $json['message'] = $this->get('translator')->trans('starred Action Completed successfully');
+            $json['message'] = $this->translator->trans('starred Action Completed successfully');
         }
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');

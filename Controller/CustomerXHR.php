@@ -8,13 +8,26 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class CustomerXHR extends Controller
 {
+    private $userService;
+    private $eventDispatcher;
+    private $translator;
+
+    public function __construct(UserService $userService, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator)
+    {
+        $this->userService = $userService;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->translator = $translator;
+    }
+
     public function listCustomersXHR(Request $request) 
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {          
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
         
@@ -32,7 +45,7 @@ class CustomerXHR extends Controller
 
     public function removeCustomerXHR(Request $request) 
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {          
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
         
@@ -44,19 +57,19 @@ class CustomerXHR extends Controller
 
             if($user) {
 
-                $this->get('user.service')->removeCustomer($user);
+                $this->userService->removeCustomer($user);
                 // Trigger customer created event
                 $event = new GenericEvent(CoreWorkflowEvents\Customer\Delete::getId(), [
                     'entity' => $user,
                 ]);
 
-                $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
 
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = $this->get('translator')->trans('Success ! Customer removed successfully.');
+                $json['alertMessage'] = $this->translator->trans('Success ! Customer removed successfully.');
             } else {
                 $json['alertClass'] =  'danger';
-                $json['alertMessage'] = $this->get('translator')->trans('Error ! Invalid customer id.');
+                $json['alertMessage'] = $this->translator->trans('Error ! Invalid customer id.');
                 $json['statusCode'] = Response::HTTP_NOT_FOUND;
             }
         }

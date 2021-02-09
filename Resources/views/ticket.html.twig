@@ -283,6 +283,28 @@
         .uv-ticket-action-bar-rt .app-glyph:last-child {
             margin-right: 0px;
         }
+
+        blockquote {
+            background: #f9f9f9;
+            border-left: 4px solid #ccc;
+            margin: 1.5em 10px;
+            padding: 0.5em 10px;
+            quotes: "\201C""\201D""\2018""\2019";
+        }
+
+        blockquote:before {
+            color: #ccc;
+            content: open-quote;
+            font-size: 3em;
+            line-height: 0.1em;
+            margin-right: 0.05em;
+            vertical-align: -0.4em;
+        }
+
+        blockquote p {
+            display: inline;
+        }
+        
     </style>
 {% endblock %}
 
@@ -462,13 +484,13 @@
                                         <label>{{ 'Status'|trans }}</label>
                                         <ul class="status" data-action="status">
                                             {% for status in ticketStatusCollection %}
-                                                <li data-index="{{ status.id }}"><a href="#">{{ status.description }}</a></li>
+                                                <li data-index="{{ status.id }}"><a href="#">{{ status.description|trans }}</a></li>
                                             {% endfor %}
                                         </ul>
                                     </div>
                                 </div>
                             {% else %}
-                                <span class="uv-aside-select-value">{{ ticket.status.description }}</span>
+                                <span class="uv-aside-select-value">{{ ticket.status.description|trans }}</span>
                             {% endif %}
                         </div>
                     </div>
@@ -1258,19 +1280,7 @@
                 </div>
             </span>
             <span class="p-relative">
-                <div class="uv-dropdown-list uv-bottom-left uv-translate-list" style="display: none">
-                    <div class="uv-dropdown-container">
-                        <ul class="uv-lang-list language" data-action="language">
-                            <label>{{ 'Language'|trans }}</label>
-                            {% for localeCode, localeName in uvdesk_service.getLocales() %}
-                                <li data-value="{{ localeCode }}">
-                                    <img class="locale-image" src='{{ asset("bundles/uvdeskcoreframework/images/country-flags/" ~ localeCode|lower|replace({" ": "-"}) ~ ".png") }}' alt="{{ localeCode }}" width="24px">
-                                    <span>{{ localeName|trans }}</span>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
+                
             </span>
             <% if (userType != 'system' && userType != 'System') { %>
                 <% if(user && user.smallThumbnail != null) { %>
@@ -1403,7 +1413,7 @@
                         required: true,
                         msg: '{{ "This field is mandatory" | trans}}'
                     },{
-                        pattern: /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/,
+                        pattern: /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
                         msg: 'Please enter a valid email'
                     }],
                     'subject' : {
@@ -1448,7 +1458,7 @@
                         required: true,
                         msg: '{{ "This field is mandatory" | trans}}'
                     },{
-                        pattern: /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/,
+                        pattern: /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
                         msg: '{{ "Email address is invalid" | trans}}'
                     }],
                     'contactNumber': function(value) {
@@ -1469,7 +1479,7 @@
                         required: true,
                         msg: '{{ "This field is mandatory" | trans}}'
                     },{
-                        pattern: /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/,
+                        pattern: /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
                         msg: '{{ "Please enter a valid email" | trans}}'
                     }]
                 },
@@ -2816,7 +2826,7 @@
             selector : '.uv-ticket-reply textarea',
             toolbar: toolbarOptions + ' | translate',
             mentions : getMentions(),
-            images_upload_url: "{{ path('helpdesk_member_thread_encoded_image_uploader', {ticketId: app.request.get('ticketId')}) }}",
+            images_upload_url: "",
             setup: function(editor) {
                 editor.on('keydown', function(e) { /** for pageup, pagedown keys **/
                     if(e.keyCode == 34 || e.keyCode == 33){

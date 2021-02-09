@@ -422,7 +422,7 @@
                         required: true,
                         msg: '{{ "This field is mandatory"|trans }}'
                     },{
-                        pattern:  /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/,
+                        pattern:  /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
                         msg: '{{ "This is not a valid email address"|trans }}'
                     }],
                     'user_form[contactNumber]': function(value) {

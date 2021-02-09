@@ -30,6 +30,11 @@ SVG;
         return 'helpdesk_member_saved_replies';
     }
 
+    public static function getRoles() : array
+    {
+        return [];
+    }
+
     public function getChildrenRoutes() : array
     {
         return [];

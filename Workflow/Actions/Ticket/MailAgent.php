@@ -72,7 +72,7 @@ class MailAgent extends WorkflowAction
                     ->orderBy('th.id', 'DESC')
                     ->setMaxResults(1);
                 
-                $inReplyTo = $queryBuilder->getQuery()->getSingleResult();
+                $inReplyTo = $queryBuilder->getQuery()->getOneOrNullResult();
 
                 if (!empty($inReplyTo)) {
                     $emailHeaders['In-Reply-To'] = $inReplyTo;

@@ -8,16 +8,42 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Form\UserAccount;
 use Webkul\UVDesk\CoreFrameworkBundle\Form\UserProfile;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
+use Webkul\UVDesk\CoreFrameworkBundle\FileSystem\FileSystem;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Translation\TranslatorInterface;
 
-class Account extends Controller
+
+class Account extends AbstractController
 {
+    private $userService;
+    private $authenticationUtils;
+    private $eventDispatcher;
+    private $translator;
+    private $passwordEncoder;
+    private $uvdeskService;
+    private $fileSystem;
+
+    public function __construct(UserService $userService, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator, UserPasswordEncoderInterface $passwordEncoder, UVDeskService $uvdeskService, FileSystem $fileSystem)
+    {
+        $this->userService = $userService;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->translator = $translator;
+        $this->passwordEncoder = $passwordEncoder;
+        $this->uvdeskService = $uvdeskService;
+        $this->fileSystem = $fileSystem;
+        
+    }
+
     private function encodePassword(User $user, $plainPassword)
     {
-        $encodedPassword = $this->container->get('security.password_encoder')->encodePassword($user, $plainPassword);
+        $encodedPassword = $this->passwordEncoder->encodePassword($user, $plainPassword);
     }
 
     public function loadDashboard(Request $request)
@@ -27,7 +53,7 @@ class Account extends Controller
 
     public function listAgents(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')){          
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')){          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -51,7 +77,7 @@ class Account extends Controller
             $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
             if(isset($dataFiles['profileImage'])){
                 if(!in_array($dataFiles['profileImage']->getMimeType(), $validMimeType)){
-                    $this->addFlash('warning', $this->get('translator')->trans('Error ! Profile image is not valid, please upload a valid format'));
+                    $this->addFlash('warning', $this->translator->trans('Error ! Profile image is not valid, please upload a valid format'));
                     return $this->redirect($this->generateUrl('helpdesk_member_profile'));
                 }
             }
@@ -75,7 +101,7 @@ class Account extends Controller
                 if ($form->isValid()) {
                     if ($data != null) {
                         $submittedPassword = $data['password']['first'];
-                        $encoder = $this->container->get('security.password_encoder');
+                        $encoder = $this->passwordEncoder;
 
                         // save previous password if password is blank or null provided
                         $encodedPassword = empty($submittedPassword) ? $password : $encoder->encodePassword($user, $submittedPassword);
@@ -83,7 +109,7 @@ class Account extends Controller
                         if (!empty($encodedPassword) ) {
                             $user->setPassword($encodedPassword);
                         } else {
-                            $this->addFlash('warning', $this->get('translator')->trans('Error! Given current password is incorrect.'));
+                            $this->addFlash('warning', $this->translator->trans('Error! Given current password is incorrect.'));
                             return $this->redirect($this->generateUrl('helpdesk_member_profile'));
                         }
                     }
@@ -98,10 +124,10 @@ class Account extends Controller
                     $em->flush();
 
                     $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(array('user' => $user->getId()));
-                    $userInstance = $this->container->get('user.service')->getUserDetailById($user->getId());
+                    $userInstance = $this->userService->getUserDetailById($user->getId());
 
                     if (isset($dataFiles['profileImage'])) {
-                        $assetDetails = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
+                        $assetDetails = $this->fileSystem->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
                         $userInstance->setProfileImagePath($assetDetails['path']);
                     }
 
@@ -110,7 +136,7 @@ class Account extends Controller
                     $em->persist($userInstance);
                     $em->flush();
 
-                    $this->addFlash('success', $this->get('translator')->trans('Success ! Profile update successfully.'));
+                    $this->addFlash('success', $this->translator->trans('Success ! Profile update successfully.'));
 
                     return $this->redirect($this->generateUrl('helpdesk_member_profile'));
                 } else {
@@ -120,7 +146,7 @@ class Account extends Controller
                     $errors = $this->getFormErrors($form);
                 }
             } else {
-                $this->addFlash('warning', $this->get('translator')->trans('Error ! User with same email is already exist.'));
+                $this->addFlash('warning', $this->translator->trans('Error ! User with same email is already exist.'));
 
                 return $this->redirect($this->generateUrl('helpdesk_member_profile'));
             }
@@ -134,7 +160,7 @@ class Account extends Controller
 
     public function editAgent($agentId)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -142,7 +168,7 @@ class Account extends Controller
         $em = $this->getDoctrine()->getManager();
         $request = $this->container->get('request_stack')->getCurrentRequest();
 
-        $activeUser = $this->get('user.service')->getSessionUser();
+        $activeUser = $this->userService->getSessionUser();
         $user = $em->getRepository('UVDeskCoreFrameworkBundle:User')->find($agentId);
         $instanceRole = $user->getAgentInstance()->getSupportRole()->getCode();
 
@@ -161,7 +187,7 @@ class Account extends Controller
                 if(isset($dataFiles['profileImage'])){
                     if(!in_array($dataFiles['profileImage']->getMimeType(), $validMimeType)){
 
-                        $this->addFlash('warning', $this->get('translator')->trans('Error ! Profile image is not valid, please upload a valid format'));
+                        $this->addFlash('warning', $this->translator->trans('Error ! Profile image is not valid, please upload a valid format'));
                         $response = $this->render('@UVDeskCoreFramework/Agents/updateSupportAgent.html.twig', [
                             'user'         => $user,
                             'instanceRole' => $instanceRole,
@@ -182,7 +208,7 @@ class Account extends Controller
                         isset($data['password']['first']) && !empty(trim($data['password']['first'])) 
                         && isset($data['password']['second'])  && !empty(trim($data['password']['second'])) 
                         && trim($data['password']['first']) == trim($data['password']['second'])) {
-                        $encodedPassword = $this->container->get('security.password_encoder')->encodePassword($user, $data['password']['first']);
+                        $encodedPassword = $this->passwordEncoder->encodePassword($user, $data['password']['first']);
                         $user->setPassword($encodedPassword);
                     }
 
@@ -211,7 +237,7 @@ class Account extends Controller
                     $userInstance->setSource('website');
 
                     if (isset($dataFiles['profileImage'])) {
-                        $assetDetails = $this->container->get('uvdesk.core.file_system.service')->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
+                        $assetDetails = $this->fileSystem->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
                         $userInstance->setProfileImagePath($assetDetails['path']);
                     }
 
@@ -220,7 +246,7 @@ class Account extends Controller
 
                     if(isset($data['userSubGroup'])){
                         foreach ($data['userSubGroup'] as $userSubGroup) {
-                            if($userSubGrp = $this->get('uvdesk.service')->getEntityManagerResult(
+                            if($userSubGrp = $this->uvdeskService->getEntityManagerResult(
                                 'UVDeskCoreFrameworkBundle:SupportTeam',
                                 'findOneBy', [
                                     'id' => $userSubGroup
@@ -242,7 +268,7 @@ class Account extends Controller
 
                     if(isset($data['groups'])){
                         foreach ($data['groups'] as $userGroup) {
-                            if($userGrp = $this->get('uvdesk.service')->getEntityManagerResult(
+                            if($userGrp = $this->uvdeskService->getEntityManagerResult(
                                 'UVDeskCoreFrameworkBundle:SupportGroup',
                                 'findOneBy', [
                                     'id' => $userGroup
@@ -265,7 +291,7 @@ class Account extends Controller
 
                     if(isset($data['agentPrivilege'])){
                         foreach ($data['agentPrivilege'] as $supportPrivilege) {
-                            if($supportPlg = $this->get('uvdesk.service')->getEntityManagerResult(
+                            if($supportPlg = $this->uvdeskService->getEntityManagerResult(
                                 'UVDeskCoreFrameworkBundle:SupportPrivilege',
                                 'findOneBy', [
                                     'id' => $supportPrivilege
@@ -295,12 +321,12 @@ class Account extends Controller
                         'entity' => $user,
                     ]);
 
-                    $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
 
-                    $this->addFlash('success', $this->get('translator')->trans('Success ! Agent updated successfully.'));
+                    $this->addFlash('success', $this->translator->trans('Success ! Agent updated successfully.'));
                     return $this->redirect($this->generateUrl('helpdesk_member_account_collection'));
                 } else {
-                    $this->addFlash('warning', $this->get('translator')->trans('Error ! User with same email is already exist.'));
+                    $this->addFlash('warning', $this->translator->trans('Error ! User with same email is already exist.'));
                 }
 
                 $response = $this->render('@UVDeskCoreFramework/Agents/updateSupportAgent.html.twig', [
@@ -324,12 +350,12 @@ class Account extends Controller
     public function createAgent(Request $request)
     {
         // @TODO: Refactor
-        if(!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')){          
+        if(!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')){          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
         $user = new User();
-        $userServiceContainer = $this->get('user.service');
+        $userServiceContainer = $this->userService;
 
         if ('POST' == $request->getMethod()) {
             $formDetails = $request->request->get('user_form');
@@ -340,7 +366,7 @@ class Account extends Controller
             $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
             if(isset($uploadedFiles['profileImage'])){
                 if(!in_array($uploadedFiles['profileImage']->getMimeType(), $validMimeType)){
-                    $this->addFlash('warning', $this->get('translator')->trans('Error ! Profile image is not valid, please upload a valid format'));
+                    $this->addFlash('warning', $this->translator->trans('Error ! Profile image is not valid, please upload a valid format'));
                     return $this->redirect($this->generateUrl('helpdesk_member_create_account'));
                 }
             }
@@ -353,7 +379,7 @@ class Account extends Controller
                     $fullname = trim(implode(' ', [$formDetails['firstName'], $formDetails['lastName']]));
                     $supportRole = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportRole')->findOneByCode($formDetails['role']);
 
-                    $user = $this->container->get('user.service')->createUserInstance($formDetails['email'], $fullname, $supportRole, [
+                    $user = $this->userService->createUserInstance($formDetails['email'], $fullname, $supportRole, [
                         'contact' => $formDetails['contactNumber'],
                         'source' => 'website',
                         'active' => !empty($formDetails['isActive']) ? true : false,
@@ -408,11 +434,11 @@ class Account extends Controller
                     $entityManager->persist($userInstance);
                     $entityManager->flush();
 
-                    $this->addFlash('success', $this->get('translator')->trans('Success ! Agent added successfully.'));
+                    $this->addFlash('success', $this->translator->trans('Success ! Agent added successfully.'));
                     return $this->redirect($this->generateUrl('helpdesk_member_account_collection'));
                 }
             } else {
-                $this->addFlash('warning', $this->get('translator')->trans('Error ! User with same email already exist.'));
+                $this->addFlash('warning', $this->translator->trans('Error ! User with same email already exist.'));
             }
         }
 

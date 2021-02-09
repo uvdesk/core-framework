@@ -4,12 +4,23 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class GroupXHR extends Controller
 {
+    private $userService;
+    private $translator;
+
+    public function __construct(UserService $userService, TranslatorInterface $translator)
+    {
+        $this->userService = $userService;
+        $this->translator = $translator;
+    }
+
     public function listGroupsXHR(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -24,7 +35,7 @@ class GroupXHR extends Controller
 
     public function deleteGroupXHR($supportGroupId)
     {
-        if(!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')) {          
+        if(!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')) {          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 

@@ -10,12 +10,26 @@ use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class AccountXHR extends Controller
 {
+    private $eventDispatcher;
+    private $translator;
+    private $userService;
+
+    public function __construct(UserService $userService, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+        $this->translator = $translator;
+        $this->userService = $userService;
+    }
+
     public function listAgentsXHR(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -45,24 +59,24 @@ class AccountXHR extends Controller
 
             if ($user) {
                 if($user->getAgentInstance()->getSupportRole() != "ROLE_SUPER_ADMIN") {
-                    $this->get('user.service')->removeAgent($user);
+                    $this->userService->removeAgent($user);
 
                     // Trigger agent delete event
                     $event = new GenericEvent(CoreWorkflowEvents\Agent\Delete::getId(), [
                         'entity' => $user,
                     ]);
 
-                    $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     $json['alertClass'] = 'success';
-                    $json['alertMessage'] = $this->get('translator')->trans('Success ! Agent removed successfully.');
+                    $json['alertMessage'] = $this->translator->trans('Success ! Agent removed successfully.');
                 } else {
                     $json['alertClass'] = 'warning';
-                    $json['alertMessage'] = $this->get('translator')->trans("Warning ! You are allowed to remove account owner's account.");
+                    $json['alertMessage'] = $this->translator->trans("Warning ! You are allowed to remove account owner's account.");
                 }
             } else {
                 $json['alertClass'] = 'danger';
-                $json['alertMessage'] = $this->get('translator')->trans('Error ! Invalid user id.');
+                $json['alertMessage'] = $this->translator->trans('Error ! Invalid user id.');
             }
         }
         $response = new Response(json_encode($json));
@@ -75,7 +89,7 @@ class AccountXHR extends Controller
         $json = array();
 
         $em = $this->getDoctrine()->getManager();
-        $user = $this->get('user.service')->getCurrentUser();
+        $user = $this->userService->getCurrentUser();
         $userData = $user->getAgentInstance();
 
         if($request->getMethod() == 'POST') {
@@ -95,7 +109,7 @@ class AccountXHR extends Controller
 
             $json['filter'] = ['id' => $filter->getId(), 'name' => $filter->getName(), 'route' => $filter->getRoute(), 'is_default' => isset($content['is_default'])];
             $json['alertClass'] = 'success';
-            $json['alertMessage'] = $this->get('translator')->trans('Success ! Filter has been saved successfully.');
+            $json['alertMessage'] = $this->translator->trans('Success ! Filter has been saved successfully.');
         } elseif($request->getMethod() == 'PUT' || $request->getMethod() == 'PATCH') {
             $content = $request->request->all();
             $filter = $em->getRepository('UVDeskCoreFrameworkBundle:SavedFilters')->find($content['id']);
@@ -113,7 +127,7 @@ class AccountXHR extends Controller
 
             $json['filter'] = ['id' => $filter->getId(), 'name' => $filter->getName(), 'route' => $filter->getRoute(), 'is_default' => isset($content['is_default']) ? 1 : 0 ];
             $json['alertClass'] = 'success';
-            $json['alertMessage'] = $this->get('translator')->trans('Success ! Filter has been updated successfully.');
+            $json['alertMessage'] = $this->translator->trans('Success ! Filter has been updated successfully.');
         } elseif($request->getMethod() == 'DELETE') {
 
             $id = $request->attributes->get('filterId');
@@ -128,7 +142,7 @@ class AccountXHR extends Controller
             // $em->flush();
 
             $json['alertClass'] = 'success';
-            $json['alertMessage'] = $this->get('translator')->trans('Success ! Filter has been removed successfully.');
+            $json['alertMessage'] = $this->translator->trans('Success ! Filter has been removed successfully.');
         }
 
         $response = new Response(json_encode($json));

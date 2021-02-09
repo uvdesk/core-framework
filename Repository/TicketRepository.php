@@ -101,7 +101,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $translatorService = $container->get('translator');
 
         foreach ($results as $key => $ticket) {
-            $ticket[0]['status']['code'] = $translatorService->trans($ticket[0]['status']['code']);
+            $ticket[0]['status']['description'] = $translatorService->trans($ticket[0]['status']['description']);
 
             $data[] = [
                 'id' => $ticket[0]['id'],
@@ -520,6 +520,50 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         ];
     }
 
+    // Get customer more ticket sidebar details
+    public function getCustomerMoreTicketsSidebar($customerId, $container) {
+        $userService = $container->get('user.service');
+        $ticketService = $container->get('ticket.service');
+
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select("DISTINCT t as ticket,s.code as statusName, supportTeam.name as teamName,supportGroup.name as groupName, p.code as priorityName, p.colorCode as priorityColor, type.code as typeName, a.id as agentId, CONCAT(a.firstName, ' ', a.lastName) AS agentName")
+                ->from($this->getEntityName(), 't')
+                ->leftJoin('t.priority', 'p')
+                ->leftJoin('t.status', 's')
+                ->leftJoin('t.agent', 'a')
+                ->leftJoin('t.type', 'type')
+                ->leftJoin('t.supportGroup', 'supportGroup')
+                ->leftJoin('t.supportTeam', 'supportTeam')
+                ->leftJoin('a.userInstance', 'ad')
+                ->andWhere('t.customer = :customerId')
+                ->andWhere('t.isTrashed != 1')
+                ->setParameter('customerId', $customerId)
+                ->andwhere("a IS NULL OR ad.supportRole != 4")
+                ->orderBy('t.id', Criteria::DESC);
+
+        // $currentUser = $this->userService->getCurrentUser();
+        // if($currentUser->getRole() == "ROLE_AGENT" && $currentUser->detail['agent']->getTicketView() != UserData::GLOBAL_ACCESS) {
+        //     $this->em->getRepository('WebkulTicketBundle:Ticket')->addPermissionFilter($qb, $this->container, false);
+        //     $qb->addSelect('gr.name as groupName');
+        // } else {
+        //     $qb->leftJoin('t.supportGroup', 'gr');
+        //     $qb->addSelect('gr.name as groupName');
+        // }
+
+        $results = $qb->getQuery()->getArrayResult();
+        foreach ($results as $key => $ticket) {
+            $results[$key] = $ticket['ticket'];
+            unset($ticket['ticket']);
+            $results[$key] = array_merge($results[$key], $ticket);
+            $results[$key]['timestamp']= $userService->convertToTimezone($results[$key]['createdAt']);
+            $results[$key]['formatedCreatedAt'] = $userService->convertToTimezone($results[$key]['createdAt']);
+            $results[$key]['totalThreads']= $ticketService->getTicketTotalThreads($results[$key]['id']);
+            
+        }
+
+        return $results;
+    }
+
     public function prepareTicketListQueryWithParams($queryBuilder, $params)
     {
         foreach ($params as $field => $fieldValue) {
@@ -583,7 +627,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 case 'after':
                     $date = \DateTime::createFromFormat('d-m-Y H:i', $fieldValue.' 23:59');
                     if ($date) {
-                       // $date = \DateTime::createFromFormat('d-m-Y H:i', $this->container->get('user.service')->convertTimezoneToServer($date, 'd-m-Y H:i'));
+                       // $date = \DateTime::createFromFormat('d-m-Y H:i', $this->userService->convertTimezoneToServer($date, 'd-m-Y H:i'));
                         $queryBuilder->andwhere('ticket.createdAt > :afterDate');
                         $queryBuilder->setParameter('afterDate', $date);
                     }
@@ -605,6 +649,10 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                     $queryBuilder->andWhere('threads.threadType = :threadType')->setParameter('threadType', 'reply')
                         ->groupBy('ticket.id')
                         ->andHaving('count(threads.id) > :threadValueGreater')->setParameter('threadValueGreater', intval($params['repliesMore']));
+                    break;
+                case 'mailbox':
+                        $queryBuilder->andwhere('ticket.mailboxEmail IN (:mailboxEmails)');
+                        $queryBuilder->setParameter('mailboxEmails', explode(',', $fieldValue));
                     break;
                 default:
                     break;

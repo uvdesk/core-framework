@@ -3,15 +3,18 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 
 use Doctrine\ORM\Query;
+use Symfony\Component\Yaml\Yaml;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
+use Webkul\UVDesk\MailboxBundle\Utils\Mailbox\Mailbox;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
+use Webkul\UVDesk\MailboxBundle\Utils\MailboxConfiguration;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -19,9 +22,12 @@ use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use UVDesk\CommunityPackages\UVDesk\FormComponent\Services\CustomFieldsService;
 use UVDesk\CommunityPackages\UVDesk\FormComponent\Services\FileUploadService;
 use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity;
+use Webkul\UVDesk\MailboxBundle\Utils\Imap\Configuration as ImapConfiguration;
 
 class TicketService
 {
+    const PATH_TO_CONFIG = '/config/packages/uvdesk_mailbox.yaml';
+
     protected $container;
 	protected $requestStack;
     protected $entityManager;
@@ -39,6 +45,69 @@ class TicketService
         $this->entityManager = $entityManager;
         $this->fileUploadService = $fileUploadService;
         $this->customFieldsService = $customFieldsService;
+    }
+
+    public function getAllMailboxes()
+    {
+        $collection = array_map(function ($mailbox) {
+            return [
+                'id' => $mailbox->getId(),
+                'name' => $mailbox->getName(),
+                'isEnabled' => $mailbox->getIsEnabled(),
+                'email'     => $mailbox->getImapConfiguration()->getUsername(),
+            ];
+        }, $this->parseMailboxConfigurations()->getMailboxes());
+
+        return $collection;
+    }
+
+    public function parseMailboxConfigurations(bool $ignoreInvalidAttributes = false) 
+    {
+        $path = $this->getPathToConfigurationFile();
+
+        if (!file_exists($path)) {
+            throw new \Exception("File '$path' not found.");
+        }
+        // Read configurations from package config.
+        $mailboxConfiguration = new MailboxConfiguration();
+        $swiftmailerService = $this->container->get('swiftmailer.service');
+        $swiftmailerConfigurations = $swiftmailerService->parseSwiftMailerConfigurations();
+
+        foreach (Yaml::parse(file_get_contents($path))['uvdesk_mailbox']['mailboxes'] ?? [] as $id => $params) {
+            // Swiftmailer Configuration
+            $swiftmailerConfiguration = null;
+            foreach ($swiftmailerConfigurations as $configuration) {
+                if ($configuration->getId() == $params['smtp_server']['mailer_id']) {
+                    $swiftmailerConfiguration = $configuration;
+                    break;
+                }
+            }
+            // IMAP Configuration
+            ($imapConfiguration = ImapConfiguration::guessTransportDefinition($params['imap_server']['host']))
+                ->setUsername($params['imap_server']['username'])
+                ->setPassword($params['imap_server']['password']);
+
+            // Mailbox Configuration
+            ($mailbox = new Mailbox($id))
+                ->setName($params['name'])
+                ->setIsEnabled($params['enabled'])
+                ->setImapConfiguration($imapConfiguration);
+            
+            if (!empty($swiftmailerConfiguration)) {
+                $mailbox->setSwiftMailerConfiguration($swiftmailerConfiguration);
+            } else if (!empty($params['smtp_server']['mailer_id']) && true === $ignoreInvalidAttributes) {
+                $mailbox->setSwiftMailerConfiguration($swiftmailerService->createConfiguration('smtp', $params['smtp_server']['mailer_id']));
+            }
+
+            $mailboxConfiguration->addMailbox($mailbox);
+        }
+
+        return $mailboxConfiguration;
+    }
+
+    public function getPathToConfigurationFile()
+    {
+        return $this->container->get('kernel')->getProjectDir() . self::PATH_TO_CONFIG;
     }
 
     public function getRandomRefrenceId($email = null)
@@ -340,7 +409,8 @@ class TicketService
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('tp.id','tp.code As name')->from('UVDeskCoreFrameworkBundle:TicketType', 'tp')
-                ->andwhere('tp.isActive = 1');
+                ->andwhere('tp.isActive = 1')
+                ->orderBy('tp.code', 'ASC');
 
         return $types = $qb->getQuery()->getArrayResult();
     }
@@ -1184,6 +1254,32 @@ class TicketService
                 ->andWhere('slu.id = :userId')
                 ->andWhere('t.id = :ticketId')
                 ->setParameter('userId', $this->getUser()->getId())
+                ->setParameter('ticketId', $ticketId);
+
+        $result = $qb->getQuery()->getResult();
+        
+        return $result ? $result : [];
+    }
+
+    public function getUserLabels()
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('sl')->from('UVDeskCoreFrameworkBundle:SupportLabel', 'sl')
+                ->leftJoin('sl.user','slu')
+                ->andWhere('slu.id = :userId')
+                ->setParameter('userId', $this->getUser()->getId());
+
+        $result = $qb->getQuery()->getResult();
+        
+        return $result ? $result : [];
+    }
+
+    public function getTicketLabelsAll($ticketId)
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('DISTINCT sl.id,sl.name,sl.colorCode')->from('UVDeskCoreFrameworkBundle:Ticket', 't')
+                ->leftJoin('t.supportLabels','sl')
+                ->andWhere('t.id = :ticketId')
                 ->setParameter('ticketId', $ticketId);
 
         $result = $qb->getQuery()->getResult();

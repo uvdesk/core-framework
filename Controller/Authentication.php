@@ -8,19 +8,36 @@ use Symfony\Component\HttpFoundation\Response;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Translation\TranslatorInterface;
 
-class Authentication extends Controller
+class Authentication extends AbstractController
 {
+    private $userService;
+    private $authenticationUtils;
+    private $eventDispatcher;
+    private $translator;
+
+    public function __construct(UserService $userService, AuthenticationUtils $authenticationUtils, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator)
+    {
+        $this->userService = $userService;
+        $this->authenticationUtils = $authenticationUtils;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->translator = $translator;
+    }
+
     public function login(Request $request)
     {
-        if (null == $this->get('user.service')->getSessionUser()) {
+        if (null == $this->userService->getSessionUser()) {
             return $this->render('@UVDeskCoreFramework//login.html.twig', [
-                'last_username' => $this->get('security.authentication_utils')->getLastUsername(),
-                'error' => $this->get('security.authentication_utils')->getLastAuthenticationError(),
+                'last_username' => $this->authenticationUtils->getLastUsername(),
+                'error' => $this->authenticationUtils->getLastAuthenticationError(),
             ]);
         }
         
@@ -55,13 +72,13 @@ class Authentication extends Controller
                         'entity' => $user,
                     ]);
                         
-                    $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
-                    $this->addFlash('success', $this->get('translator')->trans('Please check your mail for password update'));
+                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->addFlash('success', $this->translator->trans('Please check your mail for password update'));
 
                     return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
 
                 } else {
-                    $this->addFlash('warning', $this->get('translator')->trans('This email address is not registered with us'));
+                    $this->addFlash('warning', $this->translator->trans('This email address is not registered with us'));
                 }
             }
         }
@@ -75,7 +92,7 @@ class Authentication extends Controller
         $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($email);
 
         if (empty($user) || $user->getVerificationCode() != $verificationCode) {
-            $this->addFlash('success', $this->get('translator')->trans('You have already update password using this link if you wish to change password again click on forget password link here from login page'));
+            $this->addFlash('success', $this->translator->trans('You have already update password using this link if you wish to change password again click on forget password link here from login page'));
 
             return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
         }
@@ -90,11 +107,11 @@ class Authentication extends Controller
                 $entityManager->persist($user);
                 $entityManager->flush();
 
-                $this->addFlash('success', $this->get('translator')->trans('Your password has been successfully updated. Login using updated password'));
+                $this->addFlash('success', $this->translator->trans('Your password has been successfully updated. Login using updated password'));
 
                 return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
             } else {
-                $this->addFlash('success', $this->get('translator')->trans('Please try again, The passwords do not match'));
+                $this->addFlash('success', $this->translator->trans('Please try again, The passwords do not match'));
             }
         }
 
