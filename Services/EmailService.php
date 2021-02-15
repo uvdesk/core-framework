@@ -503,7 +503,8 @@ class EmailService
             ->setTo($recipient)
             ->setBcc($bcc)
             ->setCc($cc)
-            ->setBody($content, 'text/html');
+            ->setBody($content, 'text/html')
+            ->addPart(strip_tags($content), 'text/plain');
 
         foreach ($attachments as $attachment) {
             if (!empty($attachment['path']) && !empty($attachment['name'])) {
