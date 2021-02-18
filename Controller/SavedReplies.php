@@ -93,7 +93,7 @@ class SavedReplies extends Controller
             $previousTeamIds = [];
             $teams = explode(',', $request->request->get('tempTeams'));
 
-            if ($template->getSupportTeams()->toArray()) {
+            if ($template->getSupportTeams()) {
                 foreach ($template->getSupportTeams()->toArray() as $key => $team) {
                     $previousTeamIds[] = $team->getId();
                    
