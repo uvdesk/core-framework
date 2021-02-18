@@ -44,7 +44,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
     public function getAllTickets(ParameterBag $obj = null, $container, $actAsUser = null)
     {
         $currentUser = $actAsUser ? : $container->get('user.service')->getCurrentUser();
-  
+
         $json = array();
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->select('DISTINCT t,gr,pr,tp,s,a.id as agentId,c.id as customerId')->from($this->getEntityName(), 't');
@@ -208,6 +208,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         }
 
         $json['tickets'] = $data;
+
         $json['pagination'] = $paginationData;
 
         return $json;
@@ -291,7 +292,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $this->addPermissionFilter($queryBuilder, $user, $supportGroupIds, $supportTeamIds);
 
         // applyFilter according to params
-        return $this->prepareTicketListQueryWithParams($queryBuilder, $params);
+        return $this->prepareTicketListQueryWithParams($queryBuilder, $params, $user);
     }
 
     public function prepareBasePaginationTicketTypesQuery(array $params)
@@ -394,7 +395,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         // applyFilter according to permission
         $this->addPermissionFilter($queryBuilder, $user, $supportGroupIds, $supportTeamIds);
         
-        $queryBuilder = $this->prepareTicketListQueryWithParams($queryBuilder, $params);
+        $queryBuilder = $this->prepareTicketListQueryWithParams($queryBuilder, $params, $user);
         $results = $queryBuilder->getQuery()->getResult();
 
         foreach($results as $status) {
@@ -564,11 +565,18 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         return $results;
     }
 
-    public function prepareTicketListQueryWithParams($queryBuilder, $params)
+    public function prepareTicketListQueryWithParams($queryBuilder, $params, $actAsUser = null)
     {
         foreach ($params as $field => $fieldValue) {
             if (in_array($field, $this->safeFields)) {
                 continue;
+            }
+
+            if($actAsUser != null ) {
+                $userInstance = $actAsUser->getAgentInstance();
+                if (!empty($userInstance) && ('ROLE_AGENT' == $userInstance->getSupportRole()->getCode()) && $field == 'mine') {
+                    $fieldValue = $actAsUser->getId();
+                }
             }
 
             switch ($field) {
