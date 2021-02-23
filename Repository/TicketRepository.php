@@ -557,7 +557,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             unset($ticket['ticket']);
             $results[$key] = array_merge($results[$key], $ticket);
             $results[$key]['timestamp']= $userService->convertToTimezone($results[$key]['createdAt']);
-            $results[$key]['formatedCreatedAt'] = $userService->convertToTimezone($results[$key]['createdAt']);
+            $results[$key]['formatedCreatedAt'] = $results[$key]['createdAt']->format('d-m-Y H:i A');
             $results[$key]['totalThreads']= $ticketService->getTicketTotalThreads($results[$key]['id']);
             
         }
