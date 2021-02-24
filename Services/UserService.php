@@ -87,6 +87,9 @@ class UserService
         return true;
     }
 
+      
+
+
     public function getUserPrivileges($userId)
     {
         static $agentPrivilege = [];

@@ -6,6 +6,7 @@ use Twig\Environment as TwigEnvironment;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\SearchItemInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Framework\ExtendableComponentInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+
 use Symfony\Component\Translation\TranslatorInterface;
 
 
@@ -31,19 +32,32 @@ class SearchTemplate implements ExtendableComponentInterface
 		$searchCollection = [];
        
 		foreach ($this->collection as $item) {
+           
+            dump( in_array('getRoles', get_class_methods($item)));
             if (in_array('getRoles', get_class_methods($item))) {
+                // dump(in_array('getRoles', get_class_methods($item)));
                 if($item) {
                     if (null == $item::getRoles()) {
+                        
                         $searchCollection[] = $item;
                     } else {
+                         
+
+                       
+
                         foreach ($item::getRoles() as $requiredPermission) {
-                            if ($this->userService->isAccessAuthorized($requiredPermission)) {
-                                $searchCollection[] = $item;
         
+                        
+                      if ($this->userService->isAccessAuthorized($requiredPermission)) {
+                   
+                                $searchCollection[] = $item;
                                 break;
-                            }
+                            
+                          }
+                      
                         }
-                    }
+                   }
+                  
                 }
             }
 		}
@@ -51,5 +65,10 @@ class SearchTemplate implements ExtendableComponentInterface
         return $this->twig->render('@UVDeskCoreFramework/Templates/search.html.twig', [
             'collection' => $searchCollection
         ]);
-    }
+
+
+         // Sort sidebar items alphabatically
+         
+        }
+        
 }
