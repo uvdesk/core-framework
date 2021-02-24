@@ -35,6 +35,6 @@ SVG;
     }
     public static function getRoles() : array
     {
-        return ['ROLE_AGENT_MANAGE_APPS'];
+        return ['ROLE_ADMIN'];
     }
 }
