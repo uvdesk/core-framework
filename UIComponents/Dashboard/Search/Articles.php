@@ -27,7 +27,7 @@ SVG;
 
     public static function getRouteName() : string
     {
-        return 'access_token_xhr';
+        return 'helpdesk_member_knowledgebase_article_collection';
     }
 
     public static function getRoles() : array
