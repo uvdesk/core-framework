@@ -10,6 +10,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Form as CoreFrameworkBundleForms;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Component\Translation\TranslatorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
 
 class SavedReplies extends Controller
 {
@@ -18,7 +19,7 @@ class SavedReplies extends Controller
 
     private $userService;
     private $translator;
-    
+
     public function __construct(UserService $userService, TranslatorInterface $translator)
     {
         $this->userService = $userService;
@@ -54,7 +55,7 @@ class SavedReplies extends Controller
         if ($request->getMethod() == 'POST') {
             if (empty($request->request->get('message'))) {
                 $this->addFlash('warning',  $this->translator->trans('Error! Saved reply body can not be blank'));
-                
+
                 return $this->render('@UVDeskCoreFramework//savedReplyForm.html.twig', [
                     'template' => $template,
                     'errors' => json_encode($errors)
@@ -71,16 +72,16 @@ class SavedReplies extends Controller
             if ($template->getSupportGroups()) {
                 foreach ($template->getSupportGroups()->toArray() as $key => $group) {
                     $previousGroupIds[] = $group->getId();
-                    if (!in_array($group->getId(), $groups)) {
+                    if (!in_array($group->getId(), $groups) && $this->getUser()->getAgentInstance()->getDesignation() != 'agent') {
                         $template->removeSupportGroups($group);
                         $em->persist($template);
                     }
                 }
             }
 
-            foreach($groups as $key => $groupId) {
+            foreach ($groups as $key => $groupId) {
                 if ($groupId) {
-                    $group = $em->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')->findOneBy([ 'id' => $groupId ]);
+                    $group = $em->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')->findOneBy(['id' => $groupId]);
 
                     if ($group && (empty($previousGroupIds) || !in_array($groupId, $previousGroupIds))) {
                         $template->addSupportGroup($group);
@@ -96,8 +97,8 @@ class SavedReplies extends Controller
             if ($template->getSupportTeams()) {
                 foreach ($template->getSupportTeams()->toArray() as $key => $team) {
                     $previousTeamIds[] = $team->getId();
-                   
-                    if (!in_array($team->getId(), $teams)) {
+
+                    if (!in_array($team->getId(), $teams) && $this->getUser()->getAgentInstance()->getDesignation() != 'agent') {
                         $template->removeSupportTeam($team);
                         $em->persist($template);
                     }
@@ -106,7 +107,7 @@ class SavedReplies extends Controller
 
             foreach ($teams as $key => $teamId) {
                 if ($teamId) {
-                    $team = $em->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')->findOneBy([ 'id' => $teamId ]);
+                    $team = $em->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')->findOneBy(['id' => $teamId]);
 
                     if ($team && (empty($previousTeamIds) || !in_array($teamId, $previousTeamIds))) {
                         $template->addSupportTeam($team);
@@ -117,14 +118,14 @@ class SavedReplies extends Controller
 
             $template->setMessage($request->request->get('message'));
 
-            if (empty($template->getUser()))  {
+            if (empty($template->getUser())) {
                 $template->setUser($this->getUser()->getAgentInstance());
             }
-            
+
             $em->persist($template);
             $em->flush();
 
-            $this->addFlash('success', $request->attributes->get('template') ? $this->translator->trans('Success! Reply has been updated successfully.'): $this->translator->trans('Success! Reply has been added successfully.'));
+            $this->addFlash('success', $request->attributes->get('template') ? $this->translator->trans('Success! Reply has been updated successfully.') : $this->translator->trans('Success! Reply has been added successfully.'));
 
             return $this->redirectToRoute('helpdesk_member_saved_replies');
         }
