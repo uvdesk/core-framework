@@ -607,20 +607,20 @@
                             <div class="uv-filtered-tags"></div>
                         </div>
                     </div>
-
+                    {# customer #}
                     <div class="uv-element-block">
                         <label class="uv-field-label">{{ 'Customer'|trans }}</label>
                         <div class="uv-field-block" id="customer-filter">
-                            <input class="uv-field uv-dropdown-other" type="text" data-filter-type="customer" id="customer-filter-input">
+                            <input class="uv-field uv-dropdown-other preloaded" type="text" data-filter-type="customer" id="customer-filter-input">
                             <div class="uv-dropdown-list uv-bottom-left">
                                 <div class="uv-dropdown-container">
-                                    <label>{{ 'Filter With'|trans }}</label>
+                                    <label>{{'Filter With'|trans }}</label>
                                 </div>
-                                <ul class="uv-agents-list">
-                                    <li class="uv-filter-info">
-                                        {{ 'Type atleast 2 letters'|trans }}
-                                    </li>
-                                    <li class="uv-no-results" style="display: none;">
+                                  <ul class="uv-agents-list"> 
+                                  <li class="uv-filter-info">
+                                        {{ 'Type atleast 2 letters'}}
+                                </li>
+                                 <li class="uv-no-results" style="display: none;">
                                         {{ 'No result found'|trans }}
                                     </li>
                                 </ul>
@@ -628,7 +628,7 @@
                             <div class="uv-filtered-tags"></div>
                         </div>
                     </div>
-
+                   {# group #}
                     <div class="uv-element-block">
                         <label class="uv-field-label">{{ 'Group'|trans }}</label>
                         <div class="uv-field-block" id="group-filter">
@@ -654,7 +654,7 @@
                             <div class="uv-filtered-tags"></div>
                         </div>
                     </div>
-
+                     {# team #}
                     <div class="uv-element-block">
                         <label class="uv-field-label">{{ 'Team'|trans }}</label>
                         <div class="uv-field-block" id="team-filter">
@@ -680,7 +680,7 @@
                             <div class="uv-filtered-tags"></div>
                         </div>
                     </div>
-
+                     {# type #}
                     <div class="uv-element-block">
                         <label class="uv-field-label">{{ 'Type'|trans }}</label>
                         <div class="uv-field-block" id="type-filter">
@@ -2013,8 +2013,8 @@
                                     parent.find('.uv-no-results').hide();
                                     _.each(response, function(item) {
                                         if(currentElement.attr('data-filter-type') == 'customer') {
-                                            var img = item.smallThumbnail ? item.smallThumbnail : "{{ asset(default_customer_image_path) }}";
-                                            parent.find('.uv-dropdown-list ul').append("<li data-id='" + item.id + "'><img src='" + img + "'/>" + item.name + "</li>")
+                                            var img = item.smallThumbnail ? "http://localhost/helpdesk-project/public//"+item.smallThumbnail : "http://localhost/"+"{{ asset(default_customer_image_path)}}";
+                                            parent.find('.uv-dropdown-list ul').append("<li data-id='" + item.id + "'><img src='"+ img +"'/>" + item.name + "</li>")
                                         } else
                                             parent.find('.uv-dropdown-list ul').append("<li data-id='" + item.id + "'>" + item.name + "</li>")
                                     });
