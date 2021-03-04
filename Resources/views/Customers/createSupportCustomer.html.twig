@@ -163,12 +163,13 @@
                                 return '{{ "Contact number is invalid"|trans }}';
                         }
                     },
-                    'customer_form[password][first]' : function(value) {
-                        if(value != undefined && value !== '') {
-                            if(value.length < 8)
-                                return '{{ "Password must contains 8 Characters"|trans }}';
-                        }
-                    },
+                    'customer_form[password][first]': [{
+						required: true,
+						msg: '{{ "This field is mandatory"|trans }}'
+						},{
+						pattern: /^(?=.[A-Za-z])(?=.\d)(?=.[@$!%#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+						msg: '{{ "Password must contain at least eight characters contains minimum one letter, one number and one special character"|trans }}'
+					}],
                     'customer_form[password][second]': {
                         equalTo: 'customer_form[password][first]',
                         msg: '{{ "The passwords does not match"|trans }}'

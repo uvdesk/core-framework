@@ -377,12 +377,13 @@
                                 return '{{ "This field must be a number" | trans}}';
                         }
                     },
-                    'user_form[password][first]' : function(value) {
-                        if(value != undefined && value !== '') {
-                            if(value.length < 8)
-                               return '{{ "Password must contains 8 Characters" | trans}}';
-                        }
-                    },
+                    'user_form[password][first]': [{
+                        required: true,
+                        msg: '{{ "This field is mandatory"|trans }}'
+                        },{
+                        pattern: /^(?=.[A-Za-z])(?=.\d)(?=.[@$!%#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+                        msg: '{{ "Password must contain at least eight characters which contain one letter, one number and one special character"|trans }}'
+                    }],
                     'user_form[password][second]': {
                         equalTo: 'user_form[password][first]',
                         msg: 'The passwords does not match'
