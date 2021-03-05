@@ -429,13 +429,12 @@
                                 return '{{ "This field must be a number"|trans }}';
                         }
                     },
-                    'user_form[password][first]': [{
-                        required: true,
-                        msg: '{{ "This field is mandatory"|trans }}'
-                        },{
-                        pattern: /^(?=(.*[a-zA-Z].*){2,})(?=.*\d.*)(?=.*\W.*)[a-zA-Z0-9\S]{8}$/,
-                        msg: '{{ "passwords must contain maximum 8 character length, at least two letters (not case sensitive), one number, one special character(space is not allowed.)"|trans }}'
-                    }],
+                    'user_form[password][first]' : function(value) {
+                        if(value != undefined && value !== '') {
+                            if(value.length < 8)
+                               return '{{ "Password must contains 8 Characters" | trans}}';
+                        }
+                    },
                     'user_form[password][second]': {
                         equalTo: 'user_form[password][first]',
                         msg: '{{ "The passwords does not match"|trans }}'
