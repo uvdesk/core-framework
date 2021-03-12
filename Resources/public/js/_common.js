@@ -2,21 +2,21 @@ var app = app || {};
 
 $(function() {
     _.extend(Backbone.Validation.callbacks, {
-        valid : function (view, attr, selector) {
+        valid: function(view, attr, selector) {
             var $el = view.$('[name="' + attr + '"]');
-            $el = $el.length ? $el : $('[name="'+ attr + '[]' + '"]');
-            if(attr == 'user_form[groups][]' || attr == 'user_form[agentPrivilege][]' || attr == 'privilege_form[privileges][]') {
+            $el = $el.length ? $el : $('[name="' + attr + '[]' + '"]');
+            if (attr == 'user_form[groups][]' || attr == 'user_form[agentPrivilege][]' || attr == 'privilege_form[privileges][]') {
                 $el.parents('.uv-scroll-block').parent().find('.uv-field-message').remove();
-            } else if(attr == 'user_form[ticketView]' || attr == 'grant-type[]') {
+            } else if (attr == 'user_form[ticketView]' || attr == 'grant-type[]') {
                 $el.closest('.uv-element-block').parent().find('.uv-field-message').remove();
-            } else if(attr == 'g-recaptcha-response') {
+            } else if (attr == 'g-recaptcha-response') {
                 $el.parents('.g-recaptcha').find(".uv-field-message").remove();
-            } else if(attr != 'user_form[profileImage]' && attr != 'customer_form[profileImage]') {
+            } else if (attr != 'user_form[profileImage]' && attr != 'customer_form[profileImage]') {
                 $el.removeClass('uv-field-error');
-                if(!$el.parent().hasClass('uv-radio') && !$el.parent().hasClass('uv-checkbox')) {
+                if (!$el.parent().hasClass('uv-radio') && !$el.parent().hasClass('uv-checkbox')) {
                     $el.parent().find('.uv-field-error-icon').remove()
                     $el.parent().find('.uv-field-success-icon').remove()
-                    if($el.val()) {
+                    if ($el.val()) {
                         $el.after('<span class="uv-field-success-icon"></span>');
                     }
                 }
@@ -25,21 +25,21 @@ $(function() {
                 $el.parents('.uv-image-upload-wrapper').find('.uv-field-message').remove();
             }
         },
-        invalid : function (view, attr, error, selector) {
+        invalid: function(view, attr, error, selector) {
             var $el = view.$('[name="' + attr + '"]');
-            $el = $el.length ? $el : $('[name="'+ attr + '[]' + '"]');
-            if(attr == 'user_form[groups][]' || attr == 'user_form[agentPrivilege][]' || attr == 'privilege_form[privileges][]') {
+            $el = $el.length ? $el : $('[name="' + attr + '[]' + '"]');
+            if (attr == 'user_form[groups][]' || attr == 'user_form[agentPrivilege][]' || attr == 'privilege_form[privileges][]') {
                 $el.parents('.uv-scroll-block').parent().find('.uv-field-message').remove();
                 $el.parents('.uv-scroll-block').parent().append("<span class='uv-field-message'>" + error + "</span>")
-            } else if(attr == 'user_form[ticketView]' || attr == 'grant-type[]') {
+            } else if (attr == 'user_form[ticketView]' || attr == 'grant-type[]') {
                 $el.parents('label').parent().parent().find('.uv-field-message').remove();
                 $el.parents('label').parent().parent().append("<span class='uv-field-message'>" + error + "</span>")
-            } else if(attr == 'g-recaptcha-response') {
+            } else if (attr == 'g-recaptcha-response') {
                 $el.parents('.g-recaptcha').find('.uv-field-message').remove();
                 $el.parents('.g-recaptcha').append("<span class='uv-field-message' style='font-size: 15px'>" + error + "</span>")
-            } else if(attr != 'user_form[profileImage]' && attr != 'customer_form[profileImage]') {
+            } else if (attr != 'user_form[profileImage]' && attr != 'customer_form[profileImage]') {
                 $el.addClass('uv-field-error');
-                if(!$el.parent().hasClass('uv-radio') && !$el.parent().hasClass('uv-checkbox')) {
+                if (!$el.parent().hasClass('uv-radio') && !$el.parent().hasClass('uv-checkbox')) {
                     $el.parent().find('.uv-field-success-icon').remove()
                     $el.parent().find('.uv-field-error-icon').remove()
                     $el.after('<span class="uv-field-error-icon"></span>');
@@ -52,19 +52,20 @@ $(function() {
         }
     });
 
-    $.fn.serializeObject = function () {
+    $.fn.serializeObject = function() {
         "use strict";
-        var a = {}, b = function (b, c) {
-            var d = a[c.name];
-            "undefined" != typeof d && d !== null ? $.isArray(d) ? d.push(c.value) : a[c.name] = [d, c.value] : a[c.name] = c.value
-        };
+        var a = {},
+            b = function(b, c) {
+                var d = a[c.name];
+                "undefined" != typeof d && d !== null ? $.isArray(d) ? d.push(c.value) : a[c.name] = [d, c.value] : a[c.name] = c.value
+            };
         return $.each(this.serializeArray(), b), a
     };
 
     var oldBackboneSync = Backbone.sync;
-    Backbone.sync = function( method, model, options ) {
-        if ( method === 'delete' ) {
-            if ( options.data ) {
+    Backbone.sync = function(method, model, options) {
+        if (method === 'delete') {
+            if (options.data) {
                 options.data = JSON.stringify(options.data);
             }
             options.contentType = 'application/json';
@@ -73,57 +74,57 @@ $(function() {
     }
 
     AppCollection = Backbone.PageableCollection.extend({
-    	mode: "server",
-     	state: {
-     		pageSize: null,
-        	currentPage: null,
-        	totalRecords : null,
-        	sortKey: null,
-        	order : null,
-        	query: {}
-      	},
-      	filterParameters : {
-      		"search" : ""
-      	},
-      	queryParams: {
-    	    currentPage: "page",
-    	    sortKey: "sort",
-    	    order: "direction",
-    	    pageSize : "limit",
-    	    directions: {
-    	      "-1": "asc",
-    	      "1": "desc"
-    	    }
-    	},
-    	getValidParameters : function() {
-    		var self = this;
-    		var param = {};
-    		$.each(this.filterParameters, function(key, value){
-    		    if (key == 'page' || key == 'sort' || key == 'direction') {
-    		        delete self.filterParameters[key];
-    		    } else {
-    		    	if (value != "" && value != null)
-    		    		param[key] = value;
-    		    }
-    		});
-    		return param;
-    	}
+        mode: "server",
+        state: {
+            pageSize: null,
+            currentPage: null,
+            totalRecords: null,
+            sortKey: null,
+            order: null,
+            query: {}
+        },
+        filterParameters: {
+            "search": ""
+        },
+        queryParams: {
+            currentPage: "page",
+            sortKey: "sort",
+            order: "direction",
+            pageSize: "limit",
+            directions: {
+                "-1": "asc",
+                "1": "desc"
+            }
+        },
+        getValidParameters: function() {
+            var self = this;
+            var param = {};
+            $.each(this.filterParameters, function(key, value) {
+                if (key == 'page' || key == 'sort' || key == 'direction') {
+                    delete self.filterParameters[key];
+                } else {
+                    if (value != "" && value != null)
+                        param[key] = value;
+                }
+            });
+            return param;
+        }
     });
 
     app.Filter = Backbone.View.extend({
-        el : $(".uv-action-bar"),
-        events : {
-            'click .filter-by-status li' : "filterByStatus",
-            'keyup .uv-search-inline' : 'search',
+        el: $(".uv-action-bar"),
+        events: {
+            'click .filter-by-status li': "filterByStatus",
+            'keyup .uv-search-inline': 'search',
         },
-        sortCollection : function(sortField,order) {
+        sortCollection: function(sortField, order) {
             var context = {};
             context['queryString'] = app.appView.buildQuery($.param(this.collection.getValidParameters()));
-            if(typeof sortField != 'undefined' && sortField != null) {
+            if (typeof sortField != 'undefined' && sortField != null) {
                 context['page'] = this.collection.state.currentPage;
                 context['sort'] = sortField;
 
-                if(order == 'asc') {
+                if (order == 'asc') {
                     context['direction'] = 'desc';
                     order = -1;
                 } else {
@@ -132,9 +133,9 @@ $(function() {
                 }
 
                 $(".sort .uv-dropdown-list ul").html(this.template(context));
-                var selectedText = $(".sort a[data-field='"+sortField+"']").text();
+                var selectedText = $(".sort a[data-field='" + sortField + "']").text();
                 $(".sort .uv-dropdown-btn").text(this.sortText + selectedText);
-                this.collection.setSorting(sortField, order, {full: true});
+                this.collection.setSorting(sortField, order, { full: true });
             } else {
                 $(".sort .uv-dropdown-btn").text(this.defaultSortText);
                 context['page'] = this.collection.state.currentPage;
@@ -143,44 +144,44 @@ $(function() {
                 $(".sort .uv-dropdown-list ul").html(this.template(context));
             }
         },
-        filterByStatus : function(e) {
-			e.preventDefault()
+        filterByStatus: function(e) {
+            e.preventDefault()
             this.collection.reset();
             this.collection.state.currentPage = null;
-            this.collection.setSorting(null, null, {full: false});
-            this.collection.filterParameters.isActive = Backbone.$(e.currentTarget).find('a').attr('data-id');
+            this.collection.setSorting(null, null, { full: false });
+            this.collection.filterParameters.isEnabled = Backbone.$(e.currentTarget).find('a').attr('data-id');
             var queryString = app.appView.buildQuery($.param(this.collection.getValidParameters()));
-            router.navigate(queryString, {trigger: true});
+            router.navigate(queryString, { trigger: true });
         },
-        search : _.debounce(function(e) {
+        search: _.debounce(function(e) {
             this.collection.reset();
             this.collection.state.currentPage = null;
             this.collection.filterParameters.search = Backbone.$(e.target).val();
             var queryString = app.appView.buildQuery($.param(this.collection.getValidParameters()));
-            router.navigate(queryString,{trigger: true});
+            router.navigate(queryString, { trigger: true });
         }, 1000)
     });
 
     app.Paginater = Backbone.View.extend({
-    	el : $(".navigation"),
-    	template : _.template($("#pagination_tmp").html()),
+        el: $(".navigation"),
+        template: _.template($("#pagination_tmp").html()),
         paginationData: {},
-        render : function() {
-        	if(typeof this.paginationData.next == 'undefined')
-        		this.paginationData.next = 0;
-        	if(typeof this.paginationData.previous == 'undefined')
-        		this.paginationData.previous = 0;
-        	this.paginationData.current = parseInt(this.paginationData.current);
+        render: function() {
+            if (typeof this.paginationData.next == 'undefined')
+                this.paginationData.next = 0;
+            if (typeof this.paginationData.previous == 'undefined')
+                this.paginationData.previous = 0;
+            this.paginationData.current = parseInt(this.paginationData.current);
 
-        	$(".navigation").html(this.template(this.paginationData));
+            $(".navigation").html(this.template(this.paginationData));
         },
     });
 
     app.AppView = Backbone.View.extend({
-    	el: 'body',
+        el: 'body',
         targetView: null,
         functionName: null,
-        events : {
+        events: {
             'click .delete': 'actionConfirmed',
             'click .uv-open-popup': 'openModalEvent',
             'click .uv-pop-up-overlay .uv-btn.cancel, .uv-pop-up-overlay .uv-pop-up-close': 'closeModalEvent',
@@ -193,7 +194,7 @@ $(function() {
             'mouseout [data-toggle="tooltip"]': 'closeTooltip',
             'click #open-uvdesk-tour': 'openUVdeskTour'
         },
-    	fullViewLoader: _.template($('#full-view-loader').html()) ,
+        fullViewLoader: _.template($('#full-view-loader').html()),
         initialize: function() {
             setTimeout(function() {
                 $(".uv-notification.page-load").fadeOut(500, function() {
@@ -230,7 +231,7 @@ $(function() {
         openConfirmModal: function(targetView, functionName) {
             this.openModal("confirm-modal")
             this.targetView = targetView;
-            if(typeof(functionName) == "undefined") {
+            if (typeof(functionName) == "undefined") {
                 functionName = 'removeItem';
             }
             this.functionName = functionName;
@@ -241,21 +242,21 @@ $(function() {
         },
         defLoader: 1,
         removeDefLoader: function(e) {
-            if(this.defLoader) {
-            	$('.uv-loader-view').remove();            
+            if (this.defLoader) {
+                $('.uv-loader-view').remove();
             }
         },
-    	showLoader : function() {
-            if(!$('.uv-loader-view').length) {
+        showLoader: function() {
+            if (!$('.uv-loader-view').length) {
                 this.$el.prepend(this.fullViewLoader());
             } else {
                 this.defLoader = 0;
             }
         },
-        hideLoader : function() {
-        	$('.uv-loader-view').remove();
+        hideLoader: function() {
+            $('.uv-loader-view').remove();
         },
-        renderResponseAlert : function(response) {
+        renderResponseAlert: function(response) {
             var notification = new NotificationView();
             $(".uv-notifications-wrapper").prepend(notification.render(response).el);
             setTimeout(function() {
@@ -265,20 +266,20 @@ $(function() {
             }, 5000);
         },
         buildQuery: function(query) {
-            query = query.replace(/&/g,'/');
-            query = query.replace(/=/g,'/');
-            if(query.indexOf("new/1") >= 0)
-                query = query.replace('new/1','new')
-            else if(query.indexOf("unassigned/1") >= 0)
-                query = query.replace('unassigned/1','unassigned')
-            else if(query.indexOf("notreplied/1") >= 0)
-                query = query.replace('notreplied/1','notreplied')
-            else if(query.indexOf("mine/1") >= 0)
-                query = query.replace('mine/1','mine')
-            else if(query.indexOf("starred/1") >= 0)
-                query = query.replace('starred/1','starred')
-            else if(query.indexOf("trashed/1") >= 0)
-                query = query.replace('trashed/1','trashed')
+            query = query.replace(/&/g, '/');
+            query = query.replace(/=/g, '/');
+            if (query.indexOf("new/1") >= 0)
+                query = query.replace('new/1', 'new')
+            else if (query.indexOf("unassigned/1") >= 0)
+                query = query.replace('unassigned/1', 'unassigned')
+            else if (query.indexOf("notreplied/1") >= 0)
+                query = query.replace('notreplied/1', 'notreplied')
+            else if (query.indexOf("mine/1") >= 0)
+                query = query.replace('mine/1', 'mine')
+            else if (query.indexOf("starred/1") >= 0)
+                query = query.replace('starred/1', 'starred')
+            else if (query.indexOf("trashed/1") >= 0)
+                query = query.replace('trashed/1', 'trashed')
 
             return query;
         },
@@ -297,14 +298,14 @@ $(function() {
                     relativeTimeStr = Math.round(elapsed / 1000) + ' seconds ago';
                 } else if (elapsed < msPerHour) {
                     relativeTimeStr = Math.round(elapsed / msPerMinute) + ' minutes ago';
-                } else if (elapsed < msPerDay ) {
-                    relativeTimeStr = Math.round(elapsed / msPerHour ) + ' hours ago';
+                } else if (elapsed < msPerDay) {
+                    relativeTimeStr = Math.round(elapsed / msPerHour) + ' hours ago';
                 } else if (elapsed < msPerMonth) {
                     relativeTimeStr = Math.round(elapsed / msPerDay) + ' days ago';
                 } else if (elapsed < msPerYear) {
                     relativeTimeStr = Math.round(elapsed / msPerMonth) + ' months ago';
                 } else {
-                    relativeTimeStr = + Math.round(elapsed / msPerYear ) + ' years ago';
+                    relativeTimeStr = +Math.round(elapsed / msPerYear) + ' years ago';
                 }
 
                 $(this).text(relativeTimeStr)
@@ -319,28 +320,28 @@ $(function() {
         },
         htmlText: function(dirtyString) {
             var container = document.createElement('div');
-		  	var text = document.createTextNode(dirtyString);
-		  	$(container).html(dirtyString);
-		  	return $(container).text().trim();
+            var text = document.createTextNode(dirtyString);
+            $(container).html(dirtyString);
+            return $(container).text().trim();
         },
         convertToSlug: function(Text) {
             return Text
                 .toLowerCase()
-                .replace(/[^\w- ]+/g,'')
+                .replace(/[^\w- ]+/g, '')
                 .trim()
-                .replace(/ +/g,'-');
+                .replace(/ +/g, '-');
         },
         checkSpecialChras: function(Text) {
-            if(/^[a-zA-Z0-9-]*$/.test(Text) == false)
+            if (/^[a-zA-Z0-9-]*$/.test(Text) == false)
                 return true;
 
             return false;
         },
         timeToString: function(sec_num) {
             var d = parseInt(sec_num / (3600 * 24));
-	        var h = parseInt((sec_num / 3600) % 24);
-	        var m = parseInt((sec_num / 60) % 60);
-	        var s = parseInt(sec_num % 60);
+            var h = parseInt((sec_num / 3600) % 24);
+            var m = parseInt((sec_num / 60) % 60);
+            var s = parseInt(sec_num % 60);
 
             var dDisplay = d > 0 ? d + "d " : "";
             var hDisplay = h > 0 ? h + "h " : "";
@@ -348,26 +349,26 @@ $(function() {
             var sDisplay = s > 0 ? s + "s " : "";
 
             time = dDisplay + hDisplay + mDisplay;
-            if(d < 1 && h < 1) {
+            if (d < 1 && h < 1) {
                 time += sDisplay;
             }
 
             return time;
-		},
+        },
         getTextColorBasedBackground: function(hexCode) {
             hexCode = hexCode.replace('#', '');
-            if(hexCode.length == 3)
+            if (hexCode.length == 3)
                 hexCode += hexCode;
 
             var chars = hexCode.split("");
             a2fCount = 0;
-            _.each(chars, function (char, key) {
-                if(jQuery.inArray(key, [0, 2, 4]) !== -1 && jQuery.inArray(char.toUpperCase(), ['A', 'B', 'C', 'D', 'E', 'F']) !== -1) {
+            _.each(chars, function(char, key) {
+                if (jQuery.inArray(key, [0, 2, 4]) !== -1 && jQuery.inArray(char.toUpperCase(), ['A', 'B', 'C', 'D', 'E', 'F']) !== -1) {
                     a2fCount++;
                 }
             });
 
-            if(a2fCount >= 2) {
+            if (a2fCount >= 2) {
                 return '#333333';
             } else {
                 return '#FFFFFF';
@@ -384,7 +385,7 @@ $(function() {
             //     return '#FFFFFF';
             // }
         },
-		copyToClipboard: function(elem) {
+        copyToClipboard: function(elem) {
             try {
                 // create hidden text element, if it doesn't already exist
                 var targetId = "_hiddenCopyText_";
@@ -417,7 +418,7 @@ $(function() {
                 var succeed;
                 try {
                     succeed = document.execCommand("copy");
-                } catch(e) {
+                } catch (e) {
                     succeed = false;
                 }
                 // restore original focus
@@ -432,11 +433,11 @@ $(function() {
                     // clear temporary content
                     target.textContent = "";
                 }
-            } catch(e) {
+            } catch (e) {
                 succeed = false;
             }
-			return succeed;
-		},
+            return succeed;
+        },
         uploadImage: function(e) {
             var currentElement = Backbone.$(e.currentTarget);
             var reader = new FileReader();
@@ -458,7 +459,7 @@ $(function() {
         },
         dropOnImage: function(e) {
             var uvUploadBrick = Backbone.$(e.currentTarget).parents('.uv-image-upload-brick');
-            if(uvUploadBrick.hasClass("uv-on-drag")){
+            if (uvUploadBrick.hasClass("uv-on-drag")) {
                 uvUploadBrick.removeClass("uv-on-drag");
             }
             uvUploadBrick.addClass("uv-on-drop-shadow");
@@ -467,8 +468,8 @@ $(function() {
             var currentElement = Backbone.$(e.currentTarget)
             currentElement.attr('data-title', currentElement.attr('title'));
             currentElement.removeAttr('title');
-            if(currentElement.parents('.uv-sidebar').length) {
-                if(!currentElement.parents('.uv-sidebar').hasClass('uv-sidebar-active')) {
+            if (currentElement.parents('.uv-sidebar').length) {
+                if (!currentElement.parents('.uv-sidebar').hasClass('uv-sidebar-active')) {
                     return;
                 }
             }
@@ -484,30 +485,30 @@ $(function() {
             var leftOffset = currentElement.offset().left;
             var rightOffset = ($(window).width() - (leftOffset + currentElement.outerWidth()));
 
-            if(placement == 'left') {
-                if(elementHeight > tooltipHeight)
+            if (placement == 'left') {
+                if (elementHeight > tooltipHeight)
                     var top = topOffset + ((elementHeight / 2) - (tooltipHeight / 2));
                 else
                     var top = topOffset - ((elementHeight / 2) - (elementWidth / 2));
 
                 $('.uv-tooltip').css('top', top)
                 $('.uv-tooltip').css('left', leftOffset - elementWidth - tooltipWidth - 10)
-            } else if(placement == 'right') {
-                if(elementHeight > tooltipHeight)
+            } else if (placement == 'right') {
+                if (elementHeight > tooltipHeight)
                     var top = topOffset + ((elementHeight / 2) - (tooltipHeight / 2));
                 else
                     var top = topOffset - ((elementHeight / 2) - (elementWidth / 2));
 
                 $('.uv-tooltip').css('top', top)
                 $('.uv-tooltip').css('left', leftOffset + elementWidth + 10)
-            } else if(placement == 'bottom') {
+            } else if (placement == 'bottom') {
                 minus = 0;
                 temp = leftOffset + (elementWidth / 2) + (tooltipWidth / 2)
-                if(temp > $(window).outerWidth()) {
+                if (temp > $(window).outerWidth()) {
                     minus = temp - $(window).outerWidth();
                 }
 
-                if(elementWidth > tooltipWidth)
+                if (elementWidth > tooltipWidth)
                     var left = leftOffset + ((elementWidth / 2) - (tooltipWidth / 2));
                 else
                     var left = leftOffset - ((tooltipWidth / 2) - (elementWidth / 2));
@@ -517,11 +518,11 @@ $(function() {
             } else {
                 minus = 0;
                 temp = leftOffset + (elementWidth / 2) + (tooltipWidth / 2)
-                if(temp > $(window).outerWidth()) {
+                if (temp > $(window).outerWidth()) {
                     minus = temp - $(window).outerWidth();
                 }
 
-                if(elementWidth > tooltipWidth)
+                if (elementWidth > tooltipWidth)
                     var left = leftOffset + ((elementWidth / 2) - (tooltipWidth / 2));
                 else
                     var left = leftOffset - ((tooltipWidth / 2) - (elementWidth / 2));
@@ -531,9 +532,9 @@ $(function() {
             }
         },
         closeTooltip: function(e) {
-            var currentElement = Backbone.$(e.currentTarget)            
+            var currentElement = Backbone.$(e.currentTarget)
             currentElement.attr('title', currentElement.attr('data-title'));
-            currentElement.removeAttr('data-title');            
+            currentElement.removeAttr('data-title');
             $('.uv-tooltip').remove();
         },
         openUVdeskTour: function(e) {
@@ -551,12 +552,12 @@ $(function() {
     });
 
     var NotificationView = Backbone.View.extend({
-        tagName : "div",
-    	template: _.template($('#notification-template').html()),
-        events : {
+        tagName: "div",
+        template: _.template($('#notification-template').html()),
+        events: {
             'click .uv-notification-close': 'closeNotificationPopUp',
         },
-        render : function(response) {
+        render: function(response) {
             this.$el.html(this.template(response));
             return this;
         },
@@ -566,14 +567,14 @@ $(function() {
     });
 
     Backbone.$('.delete-entity').on('click', function() {
-        if(typeof(targetView) != 'undefined')
+        if (typeof(targetView) != 'undefined')
             targetView.removeItem();
 
         Backbone.$('#confirm-modal').modal('hide');
     });
 
     $('.uv-tabs li').on('click', function() {
-        if(!$(this).hasClass('uv-tab-ellipsis') && !$(this).parents('li').hasClass('uv-tab-ellipsis')) {
+        if (!$(this).hasClass('uv-tab-ellipsis') && !$(this).parents('li').hasClass('uv-tab-ellipsis')) {
             $(this).siblings('.uv-tabs li').removeClass('uv-tab-active');
             $(this).addClass('uv-tab-active');
             $(this).siblings('.uv-tab-view').removeClass('uv-tab-view-active')
@@ -615,28 +616,28 @@ $(function() {
         app.appView.relativeTime()
     }, 60 * 1000);
 
-    $('body').on('click', '[disabled="disabled"]', function(e){
+    $('body').on('click', '[disabled="disabled"]', function(e) {
         e.preventDefault();
     })
 
-    var uvHamburger =  document.querySelector(".uv-hamburger");
-	if (uvHamburger) {
-	    var uvPaper =  document.querySelector(".uv-paper");
-	    var uvSidebar =  document.querySelector(".uv-sidebar");
-        var uvWrapper =  document.querySelector(".uv-wrapper");
+    var uvHamburger = document.querySelector(".uv-hamburger");
+    if (uvHamburger) {
+        var uvPaper = document.querySelector(".uv-paper");
+        var uvSidebar = document.querySelector(".uv-sidebar");
+        var uvWrapper = document.querySelector(".uv-wrapper");
         var uvSlideIn = () => {
             if (window.innerWidth <= 768) {
                 uvSidebar.classList.add("slide-in");
             } else {
                 uvSidebar.classList.remove("slide-in");
             }
-	    }
+        }
 
-	    window.onresize = () => {
+        window.onresize = () => {
             uvSlideIn();
-	    }
-	    uvSlideIn();
-        
+        }
+        uvSlideIn();
+
         var getCookie = name => {
             var value = "; " + document.cookie;
             var parts = value.split("; " + name + "=");
@@ -655,7 +656,7 @@ $(function() {
             uvPaper.classList.remove('uv-wrapper-padding');
         }
 
-	    uvHamburger.addEventListener("click", () => {
+        uvHamburger.addEventListener("click", () => {
             uvWrapper.classList.toggle("uv-wrapper-gap");
             uvPaper.classList.toggle('uv-wrapper-padding');
             uvSidebar.classList.toggle("uv-sidebar-active");
@@ -664,5 +665,5 @@ $(function() {
             else
                 document.cookie = "uv-sidebar=0; uv-wrapper-status=0;"
         });
-	} 
+    }
 });
