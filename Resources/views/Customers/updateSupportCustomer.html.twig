@@ -105,7 +105,7 @@
 					<div class="uv-element-block">
 						<label>
 							<div class="uv-checkbox">
-								<input type="checkbox" name="customer_form[isActive]" {{ customerDetails and customerDetails.isActive ? 'checked': ''}}>
+								<input type="checkbox" name="customer_form[isActive]" {{ customerDetails and customerDetails.isEnabled ? 'checked': ''}}>
 								<span class="uv-checkbox-view"></span>
 							</div>
 							<span class="uv-checkbox-label">{{ 'Account is Active'|trans }}</span>
