@@ -162,7 +162,7 @@
 			<% } %>
         </td>
 		<td data-value="{{ 'Status'|trans }}">
-			<% if(isActive) { %>
+			<% if(isEnabled) { %>
             	<span class="uv-text-success">{{ 'Active'|trans }}</span>
             <% } else { %>
             	<span class="uv-text-danger">{{ 'Disabled'|trans }}</span>
@@ -197,7 +197,7 @@
 				url : "{{ path('helpdesk_member_manage_customer_account_collection_xhr') }}",
 				filterParameters : {
                     "starred" : "",
-					"isActive" : "",
+					"isEnabled" : "",
 					"search" : ""
 				},
 				parseRecords: function (resp, options) {
@@ -329,9 +329,9 @@
 					this.collection.setSorting(null, null, {full: false});
 					if(Backbone.$(e.currentTarget).find('a').attr('data-id') != 'starred') {
 						this.collection.filterParameters.starred = null;
-						this.collection.filterParameters.isActive = Backbone.$(e.currentTarget).find('a').attr('data-id');
+						this.collection.filterParameters.isEnabled = Backbone.$(e.currentTarget).find('a').attr('data-id');
 					} else {
-						this.collection.filterParameters.isActive = null;
+						this.collection.filterParameters.isEnabled = null;
 						this.collection.filterParameters.starred = 1;
 					}
 					var queryString = app.appView.buildQuery($.param(this.collection.getValidParameters()));
@@ -348,7 +348,7 @@
 			Router = Backbone.Router.extend({
 				routes: {
 					'page/:number(/sort/:sortField)(/direction/:order)' : 'paginate',
-					'isActive/:status(/search/:query)(/page/:number)(/sort/:sortField)(/direction/:order)' : 'filterCustomerByStatus',
+					'isEnabled/:status(/search/:query)(/page/:number)(/sort/:sortField)(/direction/:order)' : 'filterCustomerByStatus',
 					'search/:query(/page/:number)(/sort/:sortField)(/direction/:order)' : 'filterByQuery',
                     'starred(/search/:query)(/page/:number)(/sort/:sortField)(/direction/:order)' : 'filterByStarred',
 					'' : 'initializeList'
@@ -384,15 +384,16 @@
 					customerCollection.syncData();
                 },
 				resetParams : function(status, query) {
+				
 					if(query != null)
 						query = query.replace(/\+/g,' ');
                     if(status == "starred") {
                         customerCollection.filterParameters.starred = 1;
-                        customerCollection.filterParameters.isActive = null;
+                        customerCollection.filterParameters.isEnabled = null;
                         $(".filter-by-status .uv-dropdown-btn").text("{% trans %}Status:{% endtrans %} {% trans %}Starred{% endtrans %}");
                     } else {
                         customerCollection.filterParameters.starred = null;
-                        customerCollection.filterParameters.isActive = status;
+                        customerCollection.filterParameters.isEnabled = status;
                         var statusText = status ? $(".filter-by-status a[data-id='" + status + "']").text() : "{% trans %}All{% endtrans %}";
                         $(".filter-by-status .uv-dropdown-btn").text("{% trans %}Status:{% endtrans %} " + statusText);
                     }

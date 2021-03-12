@@ -28,21 +28,25 @@
 					</div>
 
 					{# Filter Agents by Status #}
-					<div class="uv-dropdown filter-by-status">
-						<div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">Status: All</div>
-						<div class="uv-dropdown-list uv-bottom-left">
+				<div class="uv-dropdown filter-by-status">
+                        <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5">
+                            {{ 'Status:'|trans }} {{ 'All'|trans }}
+                        </div>
+                        <div class="uv-dropdown-list uv-bottom-left">
 							<div class="uv-dropdown-container">
 								<label>{{ 'Status'|trans }}</label>
 								<ul>
-									<li class="uv-drop-list-active"><a href="#">All</a></li>
-									<li><a href="#" data-id="1">Active</a></li>
-									<li><a href="#" data-id="0">Disabled</a></li>
+									<li class="uv-drop-list-active"><a href="#">{{ 'All'|trans }}</a></li>
+									<li><a href="#" data-id="1">{{ 'Active'|trans }}</a></li>
+									<li><a href="#" data-id="0">{{ 'Disabled'|trans }}</a></li>
+                                    
 								</ul>
 							</div>
-						</div>
-					</div>
-				</div>
-
+                        </div>
+                    </div>
+					 </div>
+                    
+      
 				<div class="uv-action-bar-col-rt">
 					{# Search Agent #}
 					<input type="text" class="uv-search-inline uv-vertical-align uv-margin-right-15" placeholder="{{ 'Search'|trans }}">
@@ -117,7 +121,7 @@
 		<td data-value="Email"><%- email %></td>
 		<td data-value="Role"><%= role %></td>
 		<td data-value="Status">
-			<% if (isActive) { %>
+			<% if (isEnabled) { %>
 			<span class="uv-text-success">{{ 'Active'|trans }}</span>
 			<% } else { %>
 			<span class="uv-text-danger">{{ 'Disabled'|trans }}</span>
@@ -148,7 +152,7 @@
 				model : AgentModel,
 				url : "{{ path('helpdesk_member_account_collection_xhr') }}",
 				filterParameters : {
-					"isActive" : "",
+					"isEnabled" : "",
 					"search" : ""
 				},
 				parseRecords: function (resp, options) {
@@ -266,7 +270,7 @@
 			Router = Backbone.Router.extend({
 				routes: {
 					'page/:number(/sort/:sortField)(/direction/:order)' : 'paginate',
-					'isActive/:status(/search/:query)(/page/:number)(/sort/:sortField)(/direction/:order)' : 'filterAgentByStatus',
+					'isEnabled/:status(/search/:query)(/page/:number)(/sort/:sortField)(/direction/:order)' : 'filterAgentByStatus',
 					'search/:query(/page/:number)(/sort/:sortField)(/direction/:order)' : 'filterByQuery',
 					'' : 'initializeList'
 				},
@@ -297,7 +301,7 @@
 				resetParams : function(status, query) {
 					if(query != null)
 						query = query.replace(/\+/g,' ');
-					agentCollection.filterParameters.isActive = status;
+					agentCollection.filterParameters.isEnabled = status;
 					var statusText = status ? $(".filter-by-status a[data-id='" + status + "']").text() : "{% trans %}All{% endtrans %}";
 					$(".filter-by-status .uv-dropdown-btn").text("{% trans %}Status:{% endtrans %} " + statusText);
 					agentCollection.filterParameters.search = query;

@@ -215,7 +215,7 @@ class Account extends AbstractController
                     $user->setFirstName($data['firstName']);
                     $user->setLastName($data['lastName']);
                     $user->setEmail($data['email']);
-                    $user->setIsEnabled(true);
+                    $user->setIsEnabled(isset($data['isActive']));
                     
                     $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(['user' => $agentId]);
 
@@ -242,7 +242,7 @@ class Account extends AbstractController
                     }
 
                     $userInstance->setSignature($data['signature']);
-                    $userInstance->setIsActive((bool) isset($data['isActive']));
+                    // $userInstance->setIsActive((bool) isset($data['isActive']));
 
                     if(isset($data['userSubGroup'])){
                         foreach ($data['userSubGroup'] as $userSubGroup) {
