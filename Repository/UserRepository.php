@@ -41,7 +41,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
                         ->setParameter('fullName', '%' . urldecode(trim($fieldValue)) . '%')
                         ->setParameter('email', '%' . urldecode(trim($fieldValue)) . '%');
                 } else if ('isActive' == $field) {
-                    $queryBuilder->andWhere('userInstance.isActive = :isActive')->setParameter('isActive', $fieldValue);
+                    $queryBuilder->andWhere('user.isEnabled = :isEnabled')->setParameter('isEnabled', $fieldValue);
                 }
             }
         }
@@ -69,8 +69,9 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
                 return [
                     'id' => $user['id'],
                     'email' => $user['email'],
+                    'isEnabled' => $user['isEnabled'],
                     'smallThumbnail' => $user['userInstance'][0]['profileImagePath'] ?: null,
-                    'isActive' => $user['userInstance'][0]['isActive'],
+                    // 'isActive' => $user['userInstance'][0]['isActive'],
                     'name' => ucwords(trim(implode(' ', [$user['firstName'], $user['lastName']]))),
                     'role' => $user['userInstance'][0]['supportRole']['description'],
                     'roleCode' =>  $user['userInstance'][0]['supportRole']['code'],
@@ -103,7 +104,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         $data = array_reverse($data);
         foreach ($data as $key => $value) {
             if(!in_array($key,$this->safeFields)) {
-                if($key!='dateUpdated' AND $key!='dateAdded' AND $key!='search' AND $key!='starred' AND $key!='isActive') {
+                if($key!='dateUpdated' AND $key!='dateAdded' AND $key!='search' AND $key!='starred' AND $key!='isEnabled') {
                     $qb->Andwhere('a.'.$key.' = :'.$key);
                     $qb->setParameter($key, $value);
                 } else {
@@ -113,9 +114,9 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
                         $qb->setParameter('email', '%'.urldecode($value).'%');    
                     } elseif($key == 'starred') {
                         $qb->andwhere('userInstance.isStarred = 1');
-                    } else if($key == 'isActive') {
-                        $qb->andwhere('userInstance.isActive = :isActive');
-                        $qb->setParameter('isActive', $value);
+                    } else if($key == 'isEnabled') {
+                        $qb->andwhere('a.isEnabled = :isEnabled');
+                        $qb->setParameter('isEnabled', $value);
                     }
                 }
             }
@@ -151,9 +152,10 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
             $data[] = array(
                                 'id' => $customer[0]['id'],
                                 'email' => $customer[0]['email'],
+                                'isEnabled'=> $customer[0]['isEnabled'],
                                 'smallThumbnail' => $customer[0]['userInstance'][0]['profileImagePath'],
                                 'isStarred' => $customer[0]['userInstance'][0]['isStarred'],
-                                'isActive' => $customer[0]['userInstance'][0]['isActive'],
+                                // 'isActive' => $customer[0]['userInstance'][0]['isActive'],
                                 'name' => $customer[0]['firstName'].' '.$customer[0]['lastName'],
                                 'source' => $customer[0]['userInstance'][0]['source'],
                                 'count' => $this->getCustomerTicketCount($customer[0]['id']),
