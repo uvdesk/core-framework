@@ -148,7 +148,7 @@
 				model : AgentModel,
 				url : "{{ path('helpdesk_member_account_collection_xhr') }}",
 				filterParameters : {
-					"isEnabled" : "",
+					"isActive" : "",
 					"search" : ""
 				},
 				parseRecords: function (resp, options) {
@@ -266,7 +266,7 @@
 			Router = Backbone.Router.extend({
 				routes: {
 					'page/:number(/sort/:sortField)(/direction/:order)' : 'paginate',
-					'isEnabled/:status(/search/:query)(/page/:number)(/sort/:sortField)(/direction/:order)' : 'filterAgentByStatus',
+					'isActive/:status(/search/:query)(/page/:number)(/sort/:sortField)(/direction/:order)' : 'filterAgentByStatus',
 					'search/:query(/page/:number)(/sort/:sortField)(/direction/:order)' : 'filterByQuery',
 					'' : 'initializeList'
 				},
@@ -297,7 +297,7 @@
 				resetParams : function(status, query) {
 					if(query != null)
 						query = query.replace(/\+/g,' ');
-					agentCollection.filterParameters.isEnabled = status;
+					agentCollection.filterParameters.isActive  = status;
 					var statusText = status ? $(".filter-by-status a[data-id='" + status + "']").text() : "{% trans %}All{% endtrans %}";
 					$(".filter-by-status .uv-dropdown-btn").text("{% trans %}Status:{% endtrans %} " + statusText);
 					agentCollection.filterParameters.search = query;

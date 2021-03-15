@@ -242,7 +242,7 @@ class Account extends AbstractController
                     }
 
                     $userInstance->setSignature($data['signature']);
-                    $userInstance->setIsActive((bool) isset($data['isActive']));
+                    $userInstance->setIsActive(true);
 
                     if(isset($data['userSubGroup'])){
                         foreach ($data['userSubGroup'] as $userSubGroup) {
