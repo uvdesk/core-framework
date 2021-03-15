@@ -5,7 +5,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Providers;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-
+use Symfony\Component\HttpFoundation\Session\Session;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bundle\SecurityBundle\Security\FirewallMap;
@@ -19,18 +19,25 @@ class UserProvider implements UserProviderInterface
     private $container;
     private $requestStack;
     private $entityManager;
+    private $session;
 
-    public function __construct(FirewallMap $firewall, ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager)
+    public function __construct(FirewallMap $firewall, ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager, Session $session)
     {
         $this->firewall = $firewall;
         $this->container = $container;
         $this->requestStack = $requestStack; 
         $this->entityManager = $entityManager;
+        $this->session = $session;
     }
 
     public function loadUserByUsername($username)
     {
-        $queryBuilder = $this->entityManager->createQueryBuilder()
+        $request = $this->requestStack->getCurrentRequest();
+        if($request->getMethod() == 'POST' && ($request->attributes->get('_route') == 'helpdesk_member_handle_login' || $request->attributes->get('_route') == 'helpdesk_customer_login') && $this->container->get('recaptcha.service')->getReCaptchaResponse($request->request->get('g-recaptcha-response'))) {
+            $this->session->getFlashBag()->add('warning',"Warning ! Please select correct CAPTCHA or login again with correct CAPTCHA !");
+            throw new UsernameNotFoundException('Please select correct CAPTCHA for'.$username);
+        } else {
+            $queryBuilder = $this->entityManager->createQueryBuilder()
             ->select('user, userInstance')
             ->from('UVDeskCoreFrameworkBundle:User', 'user')
             ->leftJoin('UVDeskCoreFrameworkBundle:UserInstance', 'userInstance', 'WITH', 'user.id = userInstance.user')
@@ -79,6 +86,8 @@ class UserProvider implements UserProviderInterface
         }
 
         throw new UsernameNotFoundException(sprintf('Username "%s" does not exist.', $username));
+
+        }
     }
 
     public function refreshUser(UserInterface $user)
