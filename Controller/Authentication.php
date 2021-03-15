@@ -52,33 +52,38 @@ class Authentication extends AbstractController
     public function forgotPassword(Request $request)
     {   
         $entityManager = $this->getDoctrine()->getManager();
-            
+        
         if ($request->getMethod() == 'POST') {
-            $user = new User();
-            $form = $this->createFormBuilder($user,['csrf_protection' => false])
-                    ->add('email',EmailType::class)
-                    ->getForm();
+            if ($this->container->getParameter('is_google_captcha_enabled') && $this->get('recaptcha.service')->getReCaptchaResponse($request->request->get('g-recaptcha-response'))
+            ) {
+                $this->addFlash('warning', $this->get('translator')->trans("Warning ! Please select correct CAPTCHA !"));
+            } else {
+                $user = new User();
+                $form = $this->createFormBuilder($user,['csrf_protection' => false])
+                        ->add('email',EmailType::class)
+                        ->getForm();
 
-            $form->submit(['email' => $request->request->get('forgot_password_form')['email']]);
-            $form->handleRequest($request);
-            
-            if ($form->isValid()) {
-                $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:User');
-                $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($form->getData()->getEmail());
+                $form->submit(['email' => $request->request->get('forgot_password_form')['email']]);
+                $form->handleRequest($request);
+                
+                if ($form->isValid()) {
+                    $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:User');
+                    $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($form->getData()->getEmail());
 
-                if (!empty($user)) {
-                    // Trigger agent forgot password event
-                    $event = new GenericEvent(CoreWorkflowEvents\UserForgotPassword::getId(), [
-                        'entity' => $user,
-                    ]);
-                        
-                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
-                    $this->addFlash('success', $this->translator->trans('Please check your mail for password update'));
+                    if (!empty($user)) {
+                        // Trigger agent forgot password event
+                        $event = new GenericEvent(CoreWorkflowEvents\UserForgotPassword::getId(), [
+                            'entity' => $user,
+                        ]);
+                            
+                        $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+                        $this->addFlash('success', $this->translator->trans('Please check your mail for password update'));
 
-                    return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
+                        return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
 
-                } else {
-                    $this->addFlash('warning', $this->translator->trans('This email address is not registered with us'));
+                    } else {
+                        $this->addFlash('warning', $this->translator->trans('This email address is not registered with us'));
+                    }
                 }
             }
         }
