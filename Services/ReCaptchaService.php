@@ -1,7 +1,7 @@
 <?php
 namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -11,7 +11,7 @@ class ReCaptchaService {
 	protected $container;
     protected $em;
 
-	public function __construct(EntityManager $em, RequestStack $request, ContainerInterface $container)
+	public function __construct(EntityManagerInterface $em, RequestStack $request, ContainerInterface $container)
     {
         $this->em = $em;
         $this->request = $request;
