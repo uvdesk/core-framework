@@ -5,7 +5,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Providers;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bundle\SecurityBundle\Security\FirewallMap;
@@ -21,7 +21,7 @@ class UserProvider implements UserProviderInterface
     private $entityManager;
     private $session;
 
-    public function __construct(FirewallMap $firewall, ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager, Session $session)
+    public function __construct(FirewallMap $firewall, ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager, SessionInterface $session)
     {
         $this->firewall = $firewall;
         $this->container = $container;
