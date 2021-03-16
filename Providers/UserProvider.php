@@ -33,7 +33,7 @@ class UserProvider implements UserProviderInterface
     public function loadUserByUsername($username)
     {
         $request = $this->requestStack->getCurrentRequest();
-        if($request->getMethod() == 'POST' && ($request->attributes->get('_route') == 'helpdesk_member_handle_login' || $request->attributes->get('_route') == 'helpdesk_customer_login') && $this->container->get('recaptcha.service')->getReCaptchaResponse($request->request->get('g-recaptcha-response'))) {
+        if($request->getMethod() == 'POST' && $this->container->getParameter('is_google_captcha_enabled') && ($request->attributes->get('_route') == 'helpdesk_member_handle_login' || $request->attributes->get('_route') == 'helpdesk_customer_login') && $this->container->get('recaptcha.service')->getReCaptchaResponse($request->request->get('g-recaptcha-response'))) {
             $this->session->getFlashBag()->add('warning',"Warning ! Please select correct CAPTCHA or login again with correct CAPTCHA !");
             throw new UsernameNotFoundException('Please select correct CAPTCHA for'.$username);
         } else {
