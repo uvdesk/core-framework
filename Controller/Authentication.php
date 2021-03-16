@@ -14,19 +14,22 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\ReCaptchaService;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Translation\TranslatorInterface;
 
 class Authentication extends AbstractController
 {
     private $userService;
+    private $recaptchaService;
     private $authenticationUtils;
     private $eventDispatcher;
     private $translator;
 
-    public function __construct(UserService $userService, AuthenticationUtils $authenticationUtils, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator)
+    public function __construct(UserService $userService, AuthenticationUtils $authenticationUtils, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator, ReCaptchaService $recaptchaService)
     {
         $this->userService = $userService;
+        $this->recaptchaService = $recaptchaService;
         $this->authenticationUtils = $authenticationUtils;
         $this->eventDispatcher = $eventDispatcher;
         $this->translator = $translator;
@@ -52,11 +55,10 @@ class Authentication extends AbstractController
     public function forgotPassword(Request $request)
     {   
         $entityManager = $this->getDoctrine()->getManager();
-        
         if ($request->getMethod() == 'POST') {
-            if ($this->container->getParameter('is_google_captcha_enabled') && $this->get('recaptcha.service')->getReCaptchaResponse($request->request->get('g-recaptcha-response'))
+            if ($this->getParameter('is_google_captcha_enabled') && $this->recaptchaService->getReCaptchaResponse($request->request->get('g-recaptcha-response'))
             ) {
-                $this->addFlash('warning', $this->get('translator')->trans("Warning ! Please select correct CAPTCHA !"));
+                $this->addFlash('warning', $this->translator->trans("Warning ! Please select correct CAPTCHA !"));
             } else {
                 $user = new User();
                 $form = $this->createFormBuilder($user,['csrf_protection' => false])
