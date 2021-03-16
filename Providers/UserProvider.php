@@ -12,6 +12,7 @@ use Symfony\Bundle\SecurityBundle\Security\FirewallMap;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\ReCaptchaService;
 
 class UserProvider implements UserProviderInterface
 {
@@ -20,20 +21,22 @@ class UserProvider implements UserProviderInterface
     private $requestStack;
     private $entityManager;
     private $session;
+    private $recaptchaService;
 
-    public function __construct(FirewallMap $firewall, ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager, SessionInterface $session)
+    public function __construct(FirewallMap $firewall, ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager, SessionInterface $session, ReCaptchaService $recaptchaService)
     {
         $this->firewall = $firewall;
         $this->container = $container;
         $this->requestStack = $requestStack; 
         $this->entityManager = $entityManager;
         $this->session = $session;
+        $this->recaptchaService = $recaptchaService;
     }
 
     public function loadUserByUsername($username)
     {
         $request = $this->requestStack->getCurrentRequest();
-        if($request->getMethod() == 'POST' && $this->container->getParameter('is_google_captcha_enabled') && ($request->attributes->get('_route') == 'helpdesk_member_handle_login' || $request->attributes->get('_route') == 'helpdesk_customer_login') && $this->container->get('recaptcha.service')->getReCaptchaResponse($request->request->get('g-recaptcha-response'))) {
+        if($request->getMethod() == 'POST' && $this->container->getParameter('is_google_captcha_enabled') && ($request->attributes->get('_route') == 'helpdesk_member_handle_login' || $request->attributes->get('_route') == 'helpdesk_customer_login') && $this->recaptchaService->getReCaptchaResponse($request->request->get('g-recaptcha-response'))) {
             $this->session->getFlashBag()->add('warning',"Warning ! Please select correct CAPTCHA or login again with correct CAPTCHA !");
             throw new UsernameNotFoundException('Please select correct CAPTCHA for'.$username);
         } else {
