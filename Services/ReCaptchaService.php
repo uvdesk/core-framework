@@ -25,7 +25,7 @@ class ReCaptchaService {
      */
     public function getReCaptchaResponse($gRecaptchaResponse)
     {  
-        $recaptcha = new \ReCaptcha\ReCaptcha($this->container->getParameter('recaptcha_site_key'));
+        $recaptcha = new \ReCaptcha\ReCaptcha($this->container->getParameter('recaptcha_secret_key'));
         $resp = $recaptcha->verify($gRecaptchaResponse, $this->request->getCurrentRequest()->headers->get('host'));
         if ($resp->isSuccess()) {
             // verified!
