@@ -1028,7 +1028,7 @@ class TicketService
         // Apply Pagination
         $paginationResultsQuery = clone $baseQuery;
         $paginationResultsQuery->select('COUNT(supportTag.id)');
-        $paginationQuery = $baseQuery->getQuery()->setHydrationMode(Query::HYDRATE_ARRAY)->setHint('knp_paginator.count', $paginationResultsQuery->getQuery()->getResult());
+        $paginationQuery = $baseQuery->getQuery()->setHydrationMode(Query::HYDRATE_ARRAY)->setHint('knp_paginator.count', count($paginationResultsQuery->getQuery()->getResult()));
 
         $paginationOptions = ['distinct' => true];
         $pageNumber = !empty($params['page']) ? (int) $params['page'] : 1;
