@@ -506,7 +506,16 @@ class TicketService
             $dbTime = $ticket['createdAt'];
             
             $formattedTime= $this->fomatTimeByPreference($dbTime,$timeZone,$timeFormat,$agentTimeZone,$agentTimeFormat);
-              
+
+            $currentDateTime  = new \DateTime('now');
+            if($this->getLastReply($ticket['id'])) {
+                $lastRepliedTime = 
+                $this->time2string($currentDateTime->getTimeStamp() - $this->getLastReply($ticket['id'])['createdAt']->getTimeStamp());
+            } else {
+                $lastRepliedTime = 
+                $this->time2string($currentDateTime->getTimeStamp() - $ticket['createdAt']->getTimeStamp());
+            }
+
             $ticketResponse = [
                 'id' => $ticket['id'],
                 'subject' => $ticket['subject'],
@@ -523,7 +532,8 @@ class TicketService
                 'totalThreads' => $totalTicketReplies,
                 'agent' => null,
                 'customer' => null,
-                'hasAttachments' => $ticketHasAttachments
+                'hasAttachments' => $ticketHasAttachments,
+                'lastReplyTime' => $lastRepliedTime
             ];
            
             if (!empty($ticketDetails['agentId'])) {
@@ -557,7 +567,32 @@ class TicketService
           
         ];
     }
-    
+
+    // Convert Timestamp to day/hour/min
+    Public function time2string($time) {
+        $d = floor($time/86400);
+        $_d = ($d < 10 ? '0' : '').$d;
+
+        $h = floor(($time-$d*86400)/3600);
+        $_h = ($h < 10 ? '0' : '').$h;
+
+        $m = floor(($time-($d*86400+$h*3600))/60);
+        $_m = ($m < 10 ? '0' : '').$m;
+
+        $s = $time-($d*86400+$h*3600+$m*60);
+        $_s = ($s < 10 ? '0' : '').$s;
+
+        $time_str = "0 minutes";
+        if($_d != 00)
+            $time_str = $_d." ".'days';
+        elseif($_h != 00)
+            $time_str = $_h." ".'hours';
+        elseif($_m != 00)
+            $time_str = $_m." ".'minutes';
+
+        return $time_str." "."ago";
+    }
+
     public function getPredefindLabelDetails(User $currentUser, array $supportGroupIds = [], array $supportTeamIds = [], array $params = [])
     {
         $data = array();

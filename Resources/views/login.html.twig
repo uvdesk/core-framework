@@ -52,14 +52,15 @@
                                     <span class="uv-checkbox-label">{{ "Keep me logged in" |trans}}</span>
                                 </label>
                             </div>
-                           {% if is_google_captcha_enabled == true %}
-								<div class="clearfix"></div>
-								<div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
-								<div class="clearfix"></div>
-							{% else %}
-								<!-- Recaptcha will not support -->
-							{% endif %}
-
+                            <div class="uv-adjacent-element-block">
+                                {% if is_google_captcha_enabled == true %}
+                                    <div class="clearfix"></div>
+                                    <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+                                    <div class="clearfix"></div>
+                                {% else %}
+                                    <!-- Recaptcha will not support -->
+                                {% endif %}
+                            </div>
                             <button class="uv-btn">{{ 'Sign In'|trans }}</button>
                         </div>
                     </div>

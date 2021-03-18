@@ -510,6 +510,7 @@
                         <th data-index="customer-name">{{ 'Customer Name'|trans }}</th>
                         <th data-index="customer-email">{{ 'Customer Email'|trans }}</th>
                         <th data-index="timestamp">{{ 'Timestamp'|trans }}</th>
+                        <th style ="min-width:100px" data-index="lastReply">{{ "Last Reply"|trans }}</th>
                         <th data-index="group">{{ 'Group'|trans }}</th>
                         <th data-index="team">{{ 'Team'|trans }}</th>
                         <th data-index="type1">{{ 'Type'|trans }}</th>
@@ -1374,6 +1375,15 @@
             <a href="<%= path %>" class="timeago" data-timestamp="<%= timestamp %>" title="<%= formatedCreatedAt %>">
                 <%= formatedCreatedAt %>
             </a>
+        </td>
+        <td data-value="{{ 'Last Reply'|trans }}" data-index="last-reply">
+            <% if(lastReplyTime) { %>
+                <a href="<%= path %>">
+                    <%= lastReplyTime %>
+                </a>
+            <% } else { %>
+                    {{ 'N/A'|trans }}
+            <% } %>
         </td>
         <td data-value="{{ 'Group'|trans }}" data-index="group">
             <a href="<%= path %>">
