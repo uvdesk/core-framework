@@ -754,6 +754,11 @@
                                     <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(ticket.createdAt) }}</span>
                                     - {{ initialThread.user.name }} <span class="uv-ticket-strip-label">{{ 'created Ticket'|trans }}</span>
                                 </span>
+								{% if initialThread.cc != '' %}
+									<div class="uv-ticket-strip">
+										<span><span class="uv-ticket-strip-label">{{ 'CC'|trans }} -</span> {{ initialThread.cc }}</span>
+									</div>
+								{% endif %}                                
                             </div>
 
                             <div class="uv-ticket-main-lt">
