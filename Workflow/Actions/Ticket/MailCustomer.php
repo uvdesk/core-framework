@@ -77,11 +77,11 @@ class MailCustomer extends WorkflowAction
 
                     $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $headers, $entity->getMailboxEmail(), $attachments ?? []);
 
-                    if (!empty($messageId)) {
-                        $createdThread->setMessageId($messageId);
-                        $entityManager->persist($createdThread);
-                        $entityManager->flush();
-                    }
+                    // if (!empty($messageId)) {
+                    //     $createdThread->setMessageId($messageId);
+                    //     $entityManager->persist($createdThread);
+                    //     $entityManager->flush();
+                    // }
 
                     if($thread->getCc() || $thread->getBcc()) {
                         self::sendCcBccMail($container, $entity, $thread, $subject, $attachments);
