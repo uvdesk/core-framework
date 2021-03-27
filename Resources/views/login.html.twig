@@ -2,6 +2,8 @@
 
 {% block title %}Login{% endblock %}
 
+{% set recaptchaDetail = recaptcha_service.getRecaptchaDetails() %}
+
 {% block templateCSS %}
 <style>
     #loginForm h1 {
@@ -53,9 +55,9 @@
                                 </label>
                             </div>
                             <div class="uv-adjacent-element-block">
-                                {% if is_google_captcha_enabled == true %}
+                                {% if recaptchaDetail.isActive == true %}
                                     <div class="clearfix"></div>
-                                    <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+                                    <div class="g-recaptcha" data-sitekey="{{ recaptchaDetail.siteKey }}"></div>
                                     <div class="clearfix"></div>
                                 {% else %}
                                     <!-- Recaptcha will not support -->
@@ -80,10 +82,9 @@
 
 {% block footer %}
     {{ parent() }}
-    {% if is_google_captcha_enabled == true %}
-        <script src='https://www.google.com/recaptcha/api.js'></script>
-    {% endif %}
 
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+    
     <script type="text/javascript">
         $(function () {
              _.extend(Backbone.Validation.callbacks, {

@@ -5,6 +5,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Recaptcha;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Form\UserAccount;
 use Webkul\UVDesk\CoreFrameworkBundle\Form\UserProfile;
@@ -136,6 +137,33 @@ class Account extends AbstractController
                     $em->persist($userInstance);
                     $em->flush();
 
+                    // Recaptcha Setting
+                    $recaptchaSetting = $em->getRepository('UVDeskCoreFrameworkBundle:Recaptcha')->findOneBy(['id' => 1]);
+                    if($recaptchaSetting) {
+                        $recaptchaSetting->setSiteKey($data['recaptcha_site_key']);
+                        $recaptchaSetting->setSecretKey($data['recaptcha_secret_key']);
+                        if(isset($data['recaptcha_status'])) {
+                            $recaptchaSetting->setIsActive(true);
+                        } else {
+                            $recaptchaSetting->setIsActive(false);
+                        }
+
+                        $em->persist($recaptchaSetting);
+                        $em->flush();
+                    } else {
+                        $recaptchaNew = new Recaptcha;
+                        $recaptchaNew->setSiteKey($data['recaptcha_site_key']);
+                        $recaptchaNew->setSecretKey($data['recaptcha_secret_key']);
+                        if(isset($data['recaptcha_status'])) {
+                            $recaptchaNew->setIsActive(true);
+                        } else {
+                            $recaptchaNew->setIsActive(false);
+                        }
+
+                        $em->persist($recaptchaNew);
+                        $em->flush();
+                    }
+
                     $this->addFlash('success', $this->translator->trans('Success ! Profile update successfully.'));
 
                     return $this->redirect($this->generateUrl('helpdesk_member_profile'));
@@ -215,7 +243,7 @@ class Account extends AbstractController
                     $user->setFirstName($data['firstName']);
                     $user->setLastName($data['lastName']);
                     $user->setEmail($data['email']);
-                    $user->setIsEnabled(isset($data['isActive']));
+                    $user->setIsEnabled(true);
                     
                     $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(['user' => $agentId]);
 
@@ -242,7 +270,7 @@ class Account extends AbstractController
                     }
 
                     $userInstance->setSignature($data['signature']);
-                    $userInstance->setIsActive(true);
+                    $userInstance->setIsActive((bool) isset($data['isActive']));
 
                     if(isset($data['userSubGroup'])){
                         foreach ($data['userSubGroup'] as $userSubGroup) {

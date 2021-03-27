@@ -25,7 +25,7 @@ class ReCaptchaService {
      */
     public function getReCaptchaResponse($gRecaptchaResponse)
     {  
-        $recaptcha = new \ReCaptcha\ReCaptcha($this->container->getParameter('recaptcha_secret_key'));
+        $recaptcha = new \ReCaptcha\ReCaptcha($this->getSecretKeyRecaptcha());
         $resp = $recaptcha->verify($gRecaptchaResponse, $this->request->getCurrentRequest()->headers->get('host'));
         if ($resp->isSuccess()) {
             // verified!
@@ -35,9 +35,19 @@ class ReCaptchaService {
         }
     }
 
-    public function getSiteKey()
+    public function getSecretKeyRecaptcha()
     {   
-        return $this->container->getParameter('recaptcha_secret_key');
+        $recaptchaDetail = $this->getRecaptchaDetails();
+        return $recaptchaDetail->getSecretKey();
     }
 
+    public function getRecaptchaDetails()
+    {   
+        // find Recaptcha details
+        $em = $this->em;
+        $recaptchaRepo = $em->getRepository('UVDeskCoreFrameworkBundle:Recaptcha');
+        $recaptcha = $recaptchaRepo->findAll();
+
+        return $recaptcha ? $recaptcha[0] : false;
+    }
 }
