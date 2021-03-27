@@ -6,11 +6,9 @@ twig:
         max_post_size: '%max_post_size%'
         max_file_uploads: '%max_file_uploads%'
         upload_max_filesize: '%upload_max_filesize%'
-        is_google_captcha_enabled: '%is_google_captcha_enabled%'
-        recaptcha_site_key: '%recaptcha_site_key%'
-        recaptcha_secret_key: '%recaptcha_secret_key%'
         user_service: "@user.service"
         uvdesk_service: "@uvdesk.service"
+        recaptcha_service: "@recaptcha.service"
         ticket_service: "@ticket.service"
         csrf_token_generator: "@security.csrf.token_manager"
         email_service: "@email.service"

@@ -15,11 +15,6 @@ parameters:
     max_file_uploads: 20
     upload_max_filesize: 2097152
 
-    # Recaptcha site keys
-    is_google_captcha_enabled: false
-    recaptcha_site_key: 'site_key'
-    recaptcha_secret_key: 'secret_key'
-
 uvdesk:
     site_url: 'localhost:8000'
     upload_manager:
