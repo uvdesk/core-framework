@@ -16,11 +16,11 @@ class RecaptchaRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Racaptcha::class);
+        parent::__construct($registry, Recaptcha::class);
     }
 
     // /**
-    //  * @return Racaptcha[] Returns an array of Recaptcha objects
+    //  * @return Recaptcha[] Returns an array of Recaptcha objects
     //  */
     /*
     public function findByExampleField($value)

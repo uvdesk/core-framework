@@ -46,8 +46,8 @@ class ReCaptchaService {
         // find Recaptcha details
         $em = $this->em;
         $recaptchaRepo = $em->getRepository('UVDeskCoreFrameworkBundle:Recaptcha');
-        $recaptcha = $recaptchaRepo->findAll();
+        $recaptcha = $recaptchaRepo->findOneById(1);
 
-        return $recaptcha ? $recaptcha[0] : false;
+        return $recaptcha ? $recaptcha : '';
     }
 }

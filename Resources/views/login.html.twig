@@ -55,7 +55,7 @@
                                 </label>
                             </div>
                             <div class="uv-adjacent-element-block">
-                                {% if recaptchaDetail.isActive == true %}
+                                {% if recaptchaDetail and recaptchaDetail.isActive == true %}
                                     <div class="clearfix"></div>
                                     <div class="g-recaptcha" data-sitekey="{{ recaptchaDetail.siteKey }}"></div>
                                     <div class="clearfix"></div>
@@ -83,8 +83,10 @@
 {% block footer %}
     {{ parent() }}
 
-    <script src='https://www.google.com/recaptcha/api.js'></script>
-    
+    {% if recaptchaDetail and recaptchaDetail.isActive == true %}
+        <script src='https://www.google.com/recaptcha/api.js'></script>
+    {% endif %}
+
     <script type="text/javascript">
         $(function () {
              _.extend(Backbone.Validation.callbacks, {
@@ -117,7 +119,7 @@
                         minLength: 8,
                         msg: '{{"Password must contains 8 Characters"|trans }}'
                     }],
-                    {% if is_google_captcha_enabled == true %}
+                    {% if recaptchaDetail and recaptchaDetail.isActive == true %}
                         'g-recaptcha-response' : {
                             fn: function(value) {
                                 if(grecaptcha.getResponse().length > 0)
