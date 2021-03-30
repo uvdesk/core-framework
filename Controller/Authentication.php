@@ -55,8 +55,9 @@ class Authentication extends AbstractController
     public function forgotPassword(Request $request)
     {   
         $entityManager = $this->getDoctrine()->getManager();
+        $recaptchaDetails = $this->recaptchaService->getRecaptchaDetails();
         if ($request->getMethod() == 'POST') {
-            if ($this->getParameter('is_google_captcha_enabled') && $this->recaptchaService->getReCaptchaResponse($request->request->get('g-recaptcha-response'))
+            if ($recaptchaDetails && $recaptchaDetails->getIsActive() == true  && $this->recaptchaService->getReCaptchaResponse($request->request->get('g-recaptcha-response'))
             ) {
                 $this->addFlash('warning', $this->translator->trans("Warning ! Please select correct CAPTCHA !"));
             } else {
