@@ -1093,6 +1093,7 @@ class TicketService
                 'timestamp' => $initialThread->getCreatedAt()->getTimestamp(),
                 'createdAt' => $initialThread->getCreatedAt()->format('d-m-Y h:ia'),
                 'user' => $authorInstance->getPartialDetails(),
+                'cc' => is_array($initialThread->getCc()) ? implode(', ', $initialThread->getCc()) : '',
             ];
 
             $attachments = $threadDetails['attachments']->getValues();
