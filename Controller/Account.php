@@ -137,31 +137,36 @@ class Account extends AbstractController
                     $em->persist($userInstance);
                     $em->flush();
 
-                    // Recaptcha Setting
-                    $recaptchaSetting = $em->getRepository('UVDeskCoreFrameworkBundle:Recaptcha')->findOneBy(['id' => 1]);
-                    if($recaptchaSetting) {
-                        $recaptchaSetting->setSiteKey($data['recaptcha_site_key']);
-                        $recaptchaSetting->setSecretKey($data['recaptcha_secret_key']);
-                        if(isset($data['recaptcha_status'])) {
-                            $recaptchaSetting->setIsActive(true);
-                        } else {
-                            $recaptchaSetting->setIsActive(false);
-                        }
+                    $roleId = $user->getAgentInstance()->getSupportRole()->getId();
+                    
+                    if(in_array($roleId,  [1,2])) {
+                        // Recaptcha Setting
+                        $recaptchaSetting = $em->getRepository('UVDeskCoreFrameworkBundle:Recaptcha')->findOneBy(['id' => 1]);
 
-                        $em->persist($recaptchaSetting);
-                        $em->flush();
-                    } else {
-                        $recaptchaNew = new Recaptcha;
-                        $recaptchaNew->setSiteKey($data['recaptcha_site_key']);
-                        $recaptchaNew->setSecretKey($data['recaptcha_secret_key']);
-                        if(isset($data['recaptcha_status'])) {
-                            $recaptchaNew->setIsActive(true);
-                        } else {
-                            $recaptchaNew->setIsActive(false);
-                        }
+                        if($recaptchaSetting) {
+                            $recaptchaSetting->setSiteKey($data['recaptcha_site_key']);
+                            $recaptchaSetting->setSecretKey($data['recaptcha_secret_key']);
+                            if(isset($data['recaptcha_status'])) {
+                                $recaptchaSetting->setIsActive(true);
+                            } else {
+                                $recaptchaSetting->setIsActive(false);
+                            }
 
-                        $em->persist($recaptchaNew);
-                        $em->flush();
+                            $em->persist($recaptchaSetting);
+                            $em->flush();
+                        } else {
+                            $recaptchaNew = new Recaptcha;
+                            $recaptchaNew->setSiteKey($data['recaptcha_site_key']);
+                            $recaptchaNew->setSecretKey($data['recaptcha_secret_key']);
+                            if(isset($data['recaptcha_status'])) {
+                                $recaptchaNew->setIsActive(true);
+                            } else {
+                                $recaptchaNew->setIsActive(false);
+                            }
+
+                            $em->persist($recaptchaNew);
+                            $em->flush();
+                        }
                     }
 
                     $this->addFlash('success', $this->translator->trans('Success ! Profile update successfully.'));
