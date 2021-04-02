@@ -3,6 +3,44 @@ CHANGELOG for 1.0.x
 
 This changelog references any relevant changes introduced in 1.0 minor versions.
 
+* 1.0.13 (2021-04-02)
+    * **Misc. Updates:**
+        * **Last reply Field Added with ticket listing.**
+        * **reCAPTCHA setting option provided on Admin panel.**
+        * **Strong password added (for security purpose) for all places from where user create and update password.**
+        * **Current version updated in dashboard in footer so that user have idea which version he is using currently.**
+        * **Fancy style added for Blockquote https://prnt.sc/xle8c4**
+        * **Added option for automatically label assign to ticket from workflow.**
+        * **All latest version links updated for jquery, backbone and underscore js.**
+
+    * **Bug Fixes:**
+        * **Issue #313:** user.service not found exception.
+        * **Issue #317:** Exception showing when view agent list.
+        * **Issue #318:** getting exception when redirect to ticket view page.
+        * **Issue #319:** exception when creating swiftmailer.
+        * **Issue #320:** showing error while save email settings.
+        * **Issue #321:** display flash message when save branding theme.
+        * **Issue #322:** error on console when add new email template.
+        * **Issue #323:** getting exception when submitting a reply to ticket.
+        * **Issue #325:** getting error when save agent profile.
+        * **Issue #326:** ticket quick view icon is not working.
+        * **Issue #327:** customer profile image is broken in filter.
+        * **Issue #329:** all the apps are visible to agent in search even they don't have privilege to manage.
+        * **Issue #330:** Not able to remove assigned group/team from saved replies.
+        * **Issue #331:** unnecessary privilege added.
+        * **Issue #332:** getting exception when agent update customer profile.
+        * **Issue #334:** Email validation failure.
+        * **Issue #337:** Asking for ability to set color of all text on homepage..
+        * **Issue #338:** EmailService: add text/plain version of the email content.
+        * **Issue #340:** assign ticket are not visible to agent in my ticket section.
+        * **Issue #343:** saved reply is getting removed from the agent panel.
+        * **Issue #349:** duplicate customer routes are visible on search at admin panel.
+        * **Issue #350:** CC/BCC user should only receive ticket message in email notification.
+        * **Issue #352:** Update jQuery to update to 3.6.0.
+        * **Issue #354:** ReCaptcha should be mandatory on member login.
+        * **Issue #356:** Last reply option is missing Asset Visibility.
+        * **Issue #357:** getting error when view ticket which are fetched from email.
+        * **Issue #360:** Agent should not able to manage recaptcha settings.
 
 * 1.0.12 (2020-07-20)
     * **Misc. Updates:**
