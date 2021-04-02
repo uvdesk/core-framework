@@ -10,10 +10,22 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Translation\TranslatorInterface;
+
 
 class Email extends Controller
 {
     const LIMIT = 10;
+    
+    private $userService;
+    private $translator;
+
+    public function __construct(UserService $userService, TranslatorInterface $translator)
+    {
+        $this->userService = $userService;
+        $this->translator = $translator;
+    }
 
     protected function getTemplate($request)
     {
@@ -21,7 +33,7 @@ class Email extends Controller
 
         $data = $emailTemplateRepository->findOneby([
             'id' => $request->attributes->get('template'),
-            'user' => $this->container->get('user.service')->getCurrentUser()->getId()
+            'user' => $this->userService->getCurrentUser()->getId()
         ]);
 
         $default = $emailTemplateRepository->findOneby([
@@ -33,7 +45,7 @@ class Email extends Controller
 
     public function templates(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -42,7 +54,7 @@ class Email extends Controller
 
     public function templateForm(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -76,9 +88,9 @@ class Email extends Controller
             $entityManager->flush();
 
             if ($request->attributes->get('template')) {
-                $message = $this->get('translator')->trans('Success! Template has been updated successfully.');
+                $message = $this->translator->trans('Success! Template has been updated successfully.');
             } else {
-                $message = $this->get('translator')->trans('Success! Template has been added successfully.');
+                $message = $this->translator->trans('Success! Template has been added successfully.');
 
             }
 
@@ -94,7 +106,7 @@ class Email extends Controller
 
     public function templatesxhr(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -118,7 +130,7 @@ class Email extends Controller
                             $error = true;
                     } else{
                         $json['alertClass'] = 'danger';
-                        $json['alertMessage'] = $this->get('translator')->trans('Warning! resource not found.');
+                        $json['alertMessage'] = $this->translator->trans('Warning! resource not found.');
                         $json['statusCode'] = Response::HTTP_NO_FOUND;
                     }
                 }
@@ -127,7 +139,7 @@ class Email extends Controller
 
         if($error) {
             $json['alertClass'] = 'danger';
-            $json['alertMessage'] = $this->get('translator')->trans('Warning! You can not remove predefined email template which is being used in workflow(s).');
+            $json['alertMessage'] = $this->translator->trans('Warning! You can not remove predefined email template which is being used in workflow(s).');
         }
 
         $response = new Response(json_encode($json));

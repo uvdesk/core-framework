@@ -3,10 +3,18 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Translation\TranslatorInterface;
 
-class Theme extends Controller
+class Theme extends AbstractController
 {
+    private $translator;
+    
+    public function __construct(TranslatorInterface $translator)
+    {
+        $this->translator = $translator;
+    }
+
     public function updateHelpdeskTheme(Request $request)
     {
         if ($request->getMethod() == "POST") {
@@ -19,6 +27,8 @@ class Theme extends Controller
 
             $entityManager->persist($website);
             $entityManager->flush();
+
+            $this->addFlash('success', $this->translator->trans('Success ! Helpdesk details saved successfully'));
         }
 
         return $this->render('@UVDeskCoreFramework/theme.html.twig');

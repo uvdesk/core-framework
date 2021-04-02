@@ -8,15 +8,26 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Form as CoreFrameworkBundleForms;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class SavedReplies extends Controller
 {
     const LIMIT = 10;
     const ROLE_REQUIRED = 'saved_replies';
 
+    private $userService;
+    private $translator;
+    
+    public function __construct(UserService $userService, TranslatorInterface $translator)
+    {
+        $this->userService = $userService;
+        $this->translator = $translator;
+    }
+
     public function loadSavedReplies(Request $request)
     {
-        $savedReplyReferenceIds = $this->container->get('user.service')->getUserSavedReplyReferenceIds();
+        $savedReplyReferenceIds = $this->userService->getUserSavedReplyReferenceIds();
 
         return $this->render('@UVDeskCoreFramework//savedRepliesList.html.twig', [
             'savedReplyReferenceIds' => array_unique($savedReplyReferenceIds),
@@ -42,7 +53,7 @@ class SavedReplies extends Controller
         $errors = [];
         if ($request->getMethod() == 'POST') {
             if (empty($request->request->get('message'))) {
-                $this->addFlash('warning',  $this->get('translator')->trans('Error! Saved reply body can not be blank'));
+                $this->addFlash('warning',  $this->translator->trans('Error! Saved reply body can not be blank'));
                 
                 return $this->render('@UVDeskCoreFramework//savedReplyForm.html.twig', [
                     'template' => $template,
@@ -58,10 +69,9 @@ class SavedReplies extends Controller
             $groups = explode(',', $request->request->get('tempGroups'));
 
             if ($template->getSupportGroups()) {
-                foreach ($template->getSupportGroups() as $key => $group) {
+                foreach ($template->getSupportGroups()->toArray() as $key => $group) {
                     $previousGroupIds[] = $group->getId();
-                   
-                    if (!in_array($group->getId(), $groups) && !empty($groups[0])) {
+                    if (!in_array($group->getId(), $groups) && $this->getUser()->getAgentInstance()->getSupportRole()->getCode() != "ROLE_AGENT") {
                         $template->removeSupportGroups($group);
                         $em->persist($template);
                     }
@@ -84,10 +94,10 @@ class SavedReplies extends Controller
             $teams = explode(',', $request->request->get('tempTeams'));
 
             if ($template->getSupportTeams()) {
-                foreach ($template->getSupportTeams() as $key => $team) {
+                foreach ($template->getSupportTeams()->toArray() as $key => $team) {
                     $previousTeamIds[] = $team->getId();
                    
-                    if (!in_array($team->getId(), $teams) && !empty($teams[0])) {
+                    if (!in_array($team->getId(), $teams) && $this->getUser()->getAgentInstance()->getSupportRole()->getCode() != "ROLE_AGENT") {
                         $template->removeSupportTeam($team);
                         $em->persist($template);
                     }
@@ -114,7 +124,7 @@ class SavedReplies extends Controller
             $em->persist($template);
             $em->flush();
 
-            $this->addFlash('success', $request->attributes->get('template') ? $this->get('translator')->trans('Success! Reply has been updated successfully.'): $this->get('translator')->trans('Success! Reply has been added successfully.'));
+            $this->addFlash('success', $request->attributes->get('template') ? $this->translator->trans('Success! Reply has been updated successfully.'): $this->translator->trans('Success! Reply has been added successfully.'));
 
             return $this->redirectToRoute('helpdesk_member_saved_replies');
         }
@@ -154,7 +164,7 @@ class SavedReplies extends Controller
 
             $responseContent = [
                 'alertClass' => 'success',
-                'alertMessage' => $this->get('translator')->trans('Success! Saved Reply has been deleted successfully.')
+                'alertMessage' => $this->translator->trans('Success! Saved Reply has been deleted successfully.')
             ];
         }
 

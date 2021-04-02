@@ -2,6 +2,8 @@
 
 {% block title %}Login{% endblock %}
 
+{% set recaptchaDetail = recaptcha_service.getRecaptchaDetails() %}
+
 {% block templateCSS %}
 <style>
     #loginForm h1 {
@@ -52,8 +54,16 @@
                                     <span class="uv-checkbox-label">{{ "Keep me logged in" |trans}}</span>
                                 </label>
                             </div>
-
-                            <button class="uv-btn">Sign In</button>
+                            <div class="uv-adjacent-element-block">
+                                {% if recaptchaDetail and recaptchaDetail.isActive == true %}
+                                    <div class="clearfix"></div>
+                                    <div class="g-recaptcha" data-sitekey="{{ recaptchaDetail.siteKey }}"></div>
+                                    <div class="clearfix"></div>
+                                {% else %}
+                                    <!-- Recaptcha will not support -->
+                                {% endif %}
+                            </div>
+                            <button class="uv-btn">{{ 'Sign In'|trans }}</button>
                         </div>
                     </div>
                 </div>
@@ -72,6 +82,10 @@
 
 {% block footer %}
     {{ parent() }}
+
+    {% if recaptchaDetail and recaptchaDetail.isActive == true %}
+        <script src='https://www.google.com/recaptcha/api.js'></script>
+    {% endif %}
 
     <script type="text/javascript">
         $(function () {
@@ -104,7 +118,18 @@
                     },{
                         minLength: 8,
                         msg: '{{"Password must contains 8 Characters"|trans }}'
-                    }]
+                    }],
+                    {% if recaptchaDetail and recaptchaDetail.isActive == true %}
+                        'g-recaptcha-response' : {
+                            fn: function(value) {
+                                if(grecaptcha.getResponse().length > 0)
+                                    return false;
+                                else
+                                    return true;
+                            },
+                            msg : '{{ "Please select CAPTCHA"|trans }}'
+                        }
+				    {% endif %}
                 }
             });
 

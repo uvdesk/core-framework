@@ -30,6 +30,11 @@ SVG;
         return 'helpdesk_member_support_group_collection';
     }
 
+    public static function getRoles() : array
+    {
+        return ['ROLE_AGENT_MANAGE_GROUP'];
+    }
+
     public function getChildrenRoutes() : array
     {
         return [];

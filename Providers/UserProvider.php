@@ -5,13 +5,14 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Providers;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bundle\SecurityBundle\Security\FirewallMap;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\ReCaptchaService;
 
 class UserProvider implements UserProviderInterface
 {
@@ -19,18 +20,29 @@ class UserProvider implements UserProviderInterface
     private $container;
     private $requestStack;
     private $entityManager;
+    private $session;
+    private $recaptchaService;
 
-    public function __construct(FirewallMap $firewall, ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager)
+    public function __construct(FirewallMap $firewall, ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager, SessionInterface $session, ReCaptchaService $recaptchaService)
     {
         $this->firewall = $firewall;
         $this->container = $container;
         $this->requestStack = $requestStack; 
         $this->entityManager = $entityManager;
+        $this->session = $session;
+        $this->recaptchaService = $recaptchaService;
     }
 
     public function loadUserByUsername($username)
     {
-        $queryBuilder = $this->entityManager->createQueryBuilder()
+        $request = $this->requestStack->getCurrentRequest();
+        $recaptchaDetails = $this->recaptchaService->getRecaptchaDetails();
+        if($request->getMethod() == 'POST' &&  $recaptchaDetails && $recaptchaDetails->getIsActive() == true 
+        && ($request->attributes->get('_route') == 'helpdesk_member_handle_login' || $request->attributes->get('_route') == 'helpdesk_customer_login') && $this->recaptchaService->getReCaptchaResponse($request->request->get('g-recaptcha-response'))) {
+            $this->session->getFlashBag()->add('warning',"Warning ! Please select correct CAPTCHA or login again with correct CAPTCHA !");
+            throw new UsernameNotFoundException('Please select correct CAPTCHA for'.$username);
+        } else {
+            $queryBuilder = $this->entityManager->createQueryBuilder()
             ->select('user, userInstance')
             ->from('UVDeskCoreFrameworkBundle:User', 'user')
             ->leftJoin('UVDeskCoreFrameworkBundle:UserInstance', 'userInstance', 'WITH', 'user.id = userInstance.user')
@@ -79,6 +91,8 @@ class UserProvider implements UserProviderInterface
         }
 
         throw new UsernameNotFoundException(sprintf('Username "%s" does not exist.', $username));
+
+        }
     }
 
     public function refreshUser(UserInterface $user)

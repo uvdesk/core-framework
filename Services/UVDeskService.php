@@ -201,15 +201,7 @@ class UVDeskService
                 'ROLE_AGENT_DELETE_THREAD_NOTE' => $translator->trans('Can delete thread/notes'),
                 'ROLE_AGENT_APPLY_WORKFLOW' => $translator->trans('Can apply prepared response on ticket'),
                 'ROLE_AGENT_ADD_TAG' => $translator->trans('Can add ticket tags'),
-                'ROLE_AGENT_DELETE_TAG' => $translator->trans('Can delete ticket tags'),
-                'ROLE_AGENT_AGENT_KICK' => $translator->trans('Can kick other ticket users')
-            ],
-            'task' => [
-                'ROLE_AGENT_EDIT_TASK' => $translator->trans('Can edit task'),
-                'ROLE_AGENT_CREATE_TASK' => $translator->trans('Can create task'),
-                'ROLE_AGENT_DELETE_TASK' => $translator->trans('Can delete task'),
-                'ROLE_AGENT_ADD_MEMBER_TO_TASK' => $translator->trans('Can add member to task'),
-                'ROLE_AGENT_DELETE_MEMBER_FROM_TASK' => $translator->trans('Can remove member from task')
+                'ROLE_AGENT_DELETE_TAG' => $translator->trans('Can delete ticket tags')
             ],
             'advanced' => [
                 'ROLE_AGENT_MANAGE_EMAIL_TEMPLATE' => $translator->trans('Can manage email templates'),

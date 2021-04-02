@@ -44,7 +44,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
     public function getAllTickets(ParameterBag $obj = null, $container, $actAsUser = null)
     {
         $currentUser = $actAsUser ? : $container->get('user.service')->getCurrentUser();
-  
+
         $json = array();
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->select('DISTINCT t,gr,pr,tp,s,a.id as agentId,c.id as customerId')->from($this->getEntityName(), 't');
@@ -101,7 +101,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $translatorService = $container->get('translator');
 
         foreach ($results as $key => $ticket) {
-            $ticket[0]['status']['code'] = $translatorService->trans($ticket[0]['status']['code']);
+            $ticket[0]['status']['description'] = $translatorService->trans($ticket[0]['status']['description']);
 
             $data[] = [
                 'id' => $ticket[0]['id'],
@@ -208,6 +208,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         }
 
         $json['tickets'] = $data;
+
         $json['pagination'] = $paginationData;
 
         return $json;
@@ -291,7 +292,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $this->addPermissionFilter($queryBuilder, $user, $supportGroupIds, $supportTeamIds);
 
         // applyFilter according to params
-        return $this->prepareTicketListQueryWithParams($queryBuilder, $params);
+        return $this->prepareTicketListQueryWithParams($queryBuilder, $params, $user);
     }
 
     public function prepareBasePaginationTicketTypesQuery(array $params)
@@ -394,7 +395,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         // applyFilter according to permission
         $this->addPermissionFilter($queryBuilder, $user, $supportGroupIds, $supportTeamIds);
         
-        $queryBuilder = $this->prepareTicketListQueryWithParams($queryBuilder, $params);
+        $queryBuilder = $this->prepareTicketListQueryWithParams($queryBuilder, $params, $user);
         $results = $queryBuilder->getQuery()->getResult();
 
         foreach($results as $status) {
@@ -541,7 +542,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 ->andwhere("a IS NULL OR ad.supportRole != 4")
                 ->orderBy('t.id', Criteria::DESC);
 
-        // $currentUser = $this->container->get('user.service')->getCurrentUser();
+        // $currentUser = $this->userService->getCurrentUser();
         // if($currentUser->getRole() == "ROLE_AGENT" && $currentUser->detail['agent']->getTicketView() != UserData::GLOBAL_ACCESS) {
         //     $this->em->getRepository('WebkulTicketBundle:Ticket')->addPermissionFilter($qb, $this->container, false);
         //     $qb->addSelect('gr.name as groupName');
@@ -556,7 +557,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             unset($ticket['ticket']);
             $results[$key] = array_merge($results[$key], $ticket);
             $results[$key]['timestamp']= $userService->convertToTimezone($results[$key]['createdAt']);
-            $results[$key]['formatedCreatedAt'] = $userService->convertToTimezone($results[$key]['createdAt']);
+            $results[$key]['formatedCreatedAt'] = $results[$key]['createdAt']->format('d-m-Y H:i A');
             $results[$key]['totalThreads']= $ticketService->getTicketTotalThreads($results[$key]['id']);
             
         }
@@ -564,11 +565,18 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         return $results;
     }
 
-    public function prepareTicketListQueryWithParams($queryBuilder, $params)
+    public function prepareTicketListQueryWithParams($queryBuilder, $params, $actAsUser = null)
     {
         foreach ($params as $field => $fieldValue) {
             if (in_array($field, $this->safeFields)) {
                 continue;
+            }
+
+            if($actAsUser != null ) {
+                $userInstance = $actAsUser->getAgentInstance();
+                if (!empty($userInstance) && ('ROLE_AGENT' == $userInstance->getSupportRole()->getCode()) && $field == 'mine') {
+                    $fieldValue = $actAsUser->getId();
+                }
             }
 
             switch ($field) {
@@ -627,7 +635,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 case 'after':
                     $date = \DateTime::createFromFormat('d-m-Y H:i', $fieldValue.' 23:59');
                     if ($date) {
-                       // $date = \DateTime::createFromFormat('d-m-Y H:i', $this->container->get('user.service')->convertTimezoneToServer($date, 'd-m-Y H:i'));
+                       // $date = \DateTime::createFromFormat('d-m-Y H:i', $this->userService->convertTimezoneToServer($date, 'd-m-Y H:i'));
                         $queryBuilder->andwhere('ticket.createdAt > :afterDate');
                         $queryBuilder->setParameter('afterDate', $date);
                     }

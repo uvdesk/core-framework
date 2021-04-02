@@ -174,6 +174,10 @@ class UserService
     {
         $user = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($email) ?: new User();
         
+        $website = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'knowledgebase']);
+        $timeZone = $website->getTimezone();
+        $timeFormat = $website->getTimeformat();
+
         if (null == $user->getId()) {
             $name = explode(' ', trim($name));
             
@@ -181,6 +185,8 @@ class UserService
             $user->setFirstName(isset($extras['firstName']) ? $extras['firstName'] : array_shift($name));
             $user->setLastName(trim(implode(' ', $name)));
             $user->setIsEnabled(true);
+            $user->setTimeZone($timeZone);
+            $user->setTimeFormat($timeFormat);
 
             $this->entityManager->persist($user);
             $this->entityManager->flush();
@@ -280,7 +286,7 @@ class UserService
     public function getAgentDetailById($agentId) {
         if(!$agentId) return;
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("DISTINCT u.id,u.email,CONCAT(u.firstName,' ', COALESCE(u.lastName,'')) AS name,u.firstName,u.lastName,userInstance.profileImagePath,userInstance.profileImagePath as smallThumbnail,userInstance.isActive, userInstance.isVerified, userInstance.designation, userInstance.contactNumber,userInstance.signature,userInstance.ticketAccessLevel")
+        $qb->select("DISTINCT u.id,u.email,CONCAT(u.firstName,' ', COALESCE(u.lastName,'')) AS name,u.firstName,u.lastName,u.isEnabled,userInstance.profileImagePath,userInstance.profileImagePath as smallThumbnail,userInstance.isActive, userInstance.isVerified, userInstance.designation, userInstance.contactNumber,userInstance.signature,userInstance.ticketAccessLevel")
             ->from('UVDeskCoreFrameworkBundle:User', 'u')
             ->leftJoin('u.userInstance', 'userInstance')
             ->andwhere('userInstance.supportRole != :roles')
@@ -329,7 +335,7 @@ class UserService
     public function getCustomerDetailsById($customerId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("user.id,user.email,CONCAT(user.firstName,' ', COALESCE(user.lastName,'')) AS name,user.firstName,user.lastName,userInstance.contactNumber,userInstance.profileImagePath,userInstance.profileImagePath as smallThumbnail,userInstance.isActive, userInstance.isVerified")->from('UVDeskCoreFrameworkBundle:User', 'user')
+        $qb->select("user.id,user.email,CONCAT(user.firstName,' ', COALESCE(user.lastName,'')) AS name,user.firstName,user.lastName,user.isEnabled,userInstance.contactNumber,userInstance.profileImagePath,userInstance.profileImagePath as smallThumbnail,userInstance.isActive, userInstance.isVerified")->from('UVDeskCoreFrameworkBundle:User', 'user')
                 ->leftJoin('user.userInstance', 'userInstance')
                 ->andwhere('userInstance.supportRole = :roles')
                 ->andwhere('user.id = :customerId')

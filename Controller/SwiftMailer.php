@@ -8,12 +8,26 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\Event\ConfigurationUpdatedEvent;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Translation\TranslatorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer as SwiftMailerService;
 
 class SwiftMailer extends Controller
 {
+    private $userService;
+    private $translator;
+    private $swiftMailer;
+    
+    public function __construct(UserService $userService, TranslatorInterface $translator,SwiftMailerService $swiftMailer)
+    {
+        $this->userService = $userService;
+        $this->translator = $translator;
+        $this->swiftMailer = $swiftMailer;
+    }
+
     public function loadMailers()
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_ADMIN')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_ADMIN')) {
             throw new AccessDeniedException("Insufficient account privileges");
         }
 
@@ -24,7 +38,7 @@ class SwiftMailer extends Controller
     {
         if ($request->getMethod() == 'POST') {
             $params = $request->request->all();
-            $swiftmailer = $this->get('swiftmailer.service');
+            $swiftmailer = $this->swiftMailer;
 
             $swiftmailerConfiguration = $swiftmailer->createConfiguration($params['transport'], $params['id']);
             
@@ -36,7 +50,7 @@ class SwiftMailer extends Controller
                 
                 try {
                     $swiftmailer->writeSwiftMailerConfigurations($configurations);
-                    $this->addFlash('success', $this->get('translator')->trans('SwiftMailer configuration created successfully.'));
+                    $this->addFlash('success', $this->translator->trans('SwiftMailer configuration created successfully.'));
                     return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_settings'));
                 } catch (\Exception $e) {
                     $this->addFlash('warning', $e->getMessage());
@@ -49,7 +63,7 @@ class SwiftMailer extends Controller
 
     public function updateMailerConfiguration($id, Request $request)
     {
-        $swiftmailerService = $this->get('swiftmailer.service');
+        $swiftmailerService = $this->swiftMailer;;
         $swiftmailerConfigurations = $swiftmailerService->parseSwiftMailerConfigurations();
         
         foreach ($swiftmailerConfigurations as $index => $configuration) {
@@ -71,13 +85,14 @@ class SwiftMailer extends Controller
               
             // Dispatch swiftmailer configuration updated event
             $event = new ConfigurationUpdatedEvent($swiftmailerConfiguration, $existingSwiftmailerConfiguration);
-            $this->get('uvdesk.core.event_dispatcher')->dispatch(ConfigurationUpdatedEvent::NAME, $event);
+            
+            $this->get('uvdesk.core.event_dispatcher')->dispatch($event,ConfigurationUpdatedEvent::NAME);
 
             // Updated swiftmailer configuration file
             $swiftmailerConfigurations[$index] = $swiftmailerConfiguration;            
             $swiftmailerService->writeSwiftMailerConfigurations($swiftmailerConfigurations);
             
-            $this->addFlash('success', $this->get('translator')->trans('SwiftMailer configuration updated successfully.'));
+            $this->addFlash('success', $this->translator->trans('SwiftMailer configuration updated successfully.'));
             return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_settings'));
         }
 

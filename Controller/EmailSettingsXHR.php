@@ -5,16 +5,33 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Translation\TranslatorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer;
+use Symfony\Component\HttpKernel\KernelInterface;
 
-class EmailSettingsXHR extends Controller
+class EmailSettingsXHR extends AbstractController
 {
+    private $userService;
+    private $translator;
+    private $swiftMailer;
+    private $kernel;
+
+    public function __construct(UserService $userService, TranslatorInterface $translator,SwiftMailer $swiftMailer, KernelInterface $kernel)
+    {
+        $this->userService = $userService;
+        $this->translator = $translator;
+        $this->swiftMailer = $swiftMailer;
+        $this->kernel = $kernel;
+    }
+
     public function updateSettingsXHR(Request $request)
     {
-        $filePath = $this->get('kernel')->getProjectDir() . '/config/packages/uvdesk.yaml';
+        $filePath = $this->kernel->getProjectDir() . '/config/packages/uvdesk.yaml';
 
-        $memberPrefix = $this->container->getParameter('uvdesk_site_path.member_prefix') ?? 'member';
-        $customerPrefix = $this->container->getParameter('uvdesk_site_path.knowledgebase_customer_prefix') ?? 'customer';
+        $memberPrefix = $this->getParameter('uvdesk_site_path.member_prefix') ?? 'member';
+        $customerPrefix = $this->getParameter('uvdesk_site_path.knowledgebase_customer_prefix') ?? 'customer';
 
         $app_locales = 'en|fr|it'; //default app_locales values
 
@@ -33,7 +50,7 @@ class EmailSettingsXHR extends Controller
             '{{ SUPPORT_EMAIL_ID }}' => $supportEmailConfiguration['id'],
             '{{ SUPPORT_EMAIL_NAME }}' => $supportEmailConfiguration['name'],
             '{{ SUPPORT_EMAIL_MAILER_ID }}' => $mailer_id,
-            '{{ SITE_URL }}' => $this->container->getParameter('uvdesk.site_url'),
+            '{{ SITE_URL }}' => $this->getParameter('uvdesk.site_url'),
             '{{ APP_LOCALES }}' => $app_locales,
             '{{ MEMBER_PANEL_PREFIX }}' => $memberPrefix,
             '{{ CUSTOMER_PANEL_PREFIX }}' => $customerPrefix,
@@ -49,7 +66,7 @@ class EmailSettingsXHR extends Controller
                 'name' => $supportEmailConfiguration['name'],
                 'mailer_id' => $supportEmailConfiguration['mailer_id'],
             ],
-            'alertMessage' => $this->get('translator')->trans('Success ! Email settings are updated successfully.'),
+            'alertMessage' => $this->translator->trans('Success ! Email settings are updated successfully.'),
         ];
 
         return new Response(json_encode($result), 200, ['Content-Type' => 'application/json']);

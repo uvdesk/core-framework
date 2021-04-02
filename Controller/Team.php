@@ -2,30 +2,30 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
-use Symfony\Component\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Form;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Translation\TranslatorInterface;
 
-class Team extends Controller
+class Team extends AbstractController
 {
-    /**
-     * @var TranslatorInterface
-     */
+    private $userService;
     private $translator;
-
-    public function __construct(TranslatorInterface $translator)
+    
+    public function __construct(UserService $userService, TranslatorInterface $translator)
     {
+        $this->userService = $userService;
         $this->translator = $translator;
     }
 
     public function listTeams(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -34,7 +34,7 @@ class Team extends Controller
 
     public function createTeam(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -93,7 +93,7 @@ class Team extends Controller
             $em->persist($supportTeam);
             $em->flush();
 
-            $this->addFlash('success', $this->get('translator')->trans('Success ! Team information saved successfully.'));
+            $this->addFlash('success', $this->translator->trans('Success ! Team information saved successfully.'));
 
             return $this->redirect($this->generateUrl('helpdesk_member_support_team_collection'));
         }
@@ -106,7 +106,7 @@ class Team extends Controller
 
     public function editTeam(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 

@@ -13,7 +13,7 @@ use Symfony\Component\Translation\TranslatorInterface;
 class NavigationTemplate implements ExtendableComponentInterface
 {
 	CONST TEMPLATE = '<ul class="uv-menubar">[[ COLLECTION ]]</ul>';
-	CONST TEMPLATE_ITEM = '<li title = "[[ NAME ]]" class = "[[ ATTRIBUTES ]]" data-toggle = "tooltip" data-placement = "right"><a href="[[ URL ]]"><span class="uv-icon">[[ SVG ]]</span><span class="uv-menu-item">[[ NAME ]]</span></a></li>';
+	CONST TEMPLATE_ITEM = '<li title = "[[ NAME ]]" class = "[[ ATTRIBUTES ]]" data-toggle = "tooltip" data-placement = "right"><a class="[[ isActive ]]" href="[[ URL ]]"><span class="uv-icon">[[ SVG ]]</span><span class="uv-menu-item">[[ NAME ]]</span></a></li>';
 	
 	private $segments = [];
 
@@ -36,9 +36,10 @@ class NavigationTemplate implements ExtendableComponentInterface
 		$router = $this->router;
 		$request = $this->requestStack->getCurrentRequest();
 
+		
+		$route = $this->requestStack->getCurrentRequest()->get('_route');
 		// Compile accessible segments by end-user
 		$accessibleSegments = [];
-
 		foreach ($this->segments as $item) {
 			if (null == $item::getRoles()) {
 				$accessibleSegments[] = $item;
@@ -54,11 +55,17 @@ class NavigationTemplate implements ExtendableComponentInterface
 		}
 
 		// Reduce the accessible segments into injectible html snippet
-		$html = array_reduce($accessibleSegments, function($html, $segment) use ($router, $request) {
+		$html = array_reduce($accessibleSegments, function($html, $segment) use ($router, $request, $route) {
+			$isActive = '';
+			if($segment::getRouteName() == $route) {
+				$isActive = "uv-item-active";
+			}
+
 			$html .= strtr(self::TEMPLATE_ITEM, [
 				'[[ SVG ]]' => $segment::getIcon(),
 				'[[ NAME ]]' => $this->translator->trans($segment::getTitle()),
 				'[[ URL ]]' => $router->generate($segment::getRouteName()),
+				'[[ isActive ]]' => $isActive,
 			]);
 
 			return $html;

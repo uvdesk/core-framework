@@ -30,6 +30,11 @@ SVG;
         return 'helpdesk_member_privilege_collection';
     }
 
+    public static function getRoles() : array
+    {
+        return ['ROLE_AGENT_MANAGE_AGENT_PRIVILEGE'];
+    }
+
     public function getChildrenRoutes() : array
     {
         return [];

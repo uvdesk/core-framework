@@ -12,9 +12,33 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\DataProxies as CoreFrameworkBundleDataProxies;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Tickets\QuickActionButtonCollection;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Translation\TranslatorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\EmailService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class Ticket extends Controller
 {
+    private $userService;
+    private $translator;
+    private $eventDispatcher;
+    private $ticketService;
+    private $emailService;
+    private $kernel;
+
+    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcherInterface $eventDispatcher, KernelInterface $kernel)
+    {
+        $this->userService = $userService;
+        $this->emailService = $emailService;
+        $this->translator = $translator;
+        $this->ticketService = $ticketService;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->kernel = $kernel;
+    }
+
     public function listTicketCollection(Request $request)
     {
         $entityManager = $this->getDoctrine()->getManager();
@@ -38,10 +62,10 @@ class Ticket extends Controller
             throw new \Exception('Page not found');
         }
         
-        $user = $this->get('user.service')->getSessionUser();
+        $user = $this->userService->getSessionUser();
         
         // Proceed only if user has access to the resource
-        if (false == $this->get('ticket.service')->isTicketAccessGranted($ticket, $user)) {
+        if (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) {
             throw new \Exception('Access Denied', 403);
         }
 
@@ -62,7 +86,7 @@ class Ticket extends Controller
             'ticket' => $ticket,
             'totalReplies' => $ticketRepository->countTicketTotalThreads($ticket->getId()),
             'totalCustomerTickets' => ($ticketRepository->countCustomerTotalTickets($customer) - 1),
-            'initialThread' => $this->get('ticket.service')->getTicketInitialThreadDetails($ticket),
+            'initialThread' => $this->ticketService->getTicketInitialThreadDetails($ticket),
             'ticketAgent' => !empty($agent) ? $agent->getAgentInstance()->getPartialDetails() : null,
             'customer' => $customer->getCustomerInstance()->getPartialDetails(),
             'currentUserDetails' => $user->getAgentInstance()->getPartialDetails(),
@@ -82,7 +106,7 @@ class Ticket extends Controller
         $entityManager = $this->getDoctrine()->getManager();
         $response = $this->redirect($this->generateUrl('helpdesk_member_ticket_collection'));
 
-        if ($request->getMethod() != 'POST' || false == $this->get('user.service')->isAccessAuthorized('ROLE_AGENT_CREATE_TICKET')) {
+        if ($request->getMethod() != 'POST' || false == $this->userService->isAccessAuthorized('ROLE_AGENT_CREATE_TICKET')) {
             return $response;
         }
 
@@ -134,7 +158,7 @@ class Ticket extends Controller
                 $role = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportRole')->findOneByCode('ROLE_CUSTOMER');
 
                 // Create User Instance
-                $customer = $this->get('user.service')->createUserInstance($ticketProxy->getFrom(), $ticketProxy->getName(), $role, [
+                $customer = $this->userService->createUserInstance($ticketProxy->getFrom(), $ticketProxy->getName(), $role, [
                     'source' => 'website',
                     'active' => true
                 ]);
@@ -161,7 +185,7 @@ class Ticket extends Controller
             'attachments' => $request->files->get('attachments'),
         ];
 
-        $thread = $this->get('ticket.service')->createTicketBase($ticketData);
+        $thread = $this->ticketService->createTicketBase($ticketData);
 
         // Trigger ticket created event
         try {
@@ -169,7 +193,7 @@ class Ticket extends Controller
                 'entity' =>  $thread->getTicket(),
             ]);
 
-            $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+            $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
         } catch (\Exception $e) {
             // Skip Automation
         }
@@ -178,11 +202,11 @@ class Ticket extends Controller
             $ticket = $thread->getTicket();
             $request->getSession()->getFlashBag()->set('success', sprintf('Success! Ticket #%s has been created successfully.', $ticket->getId()));
 
-            if ($this->get('user.service')->isAccessAuthorized('ROLE_ADMIN')) {
+            if ($this->userService->isAccessAuthorized('ROLE_ADMIN')) {
                 return $this->redirect($this->generateUrl('helpdesk_member_ticket', ['ticketId' => $ticket->getId()]));
             }
         } else {
-            $this->addFlash('warning', $this->get('translator')->trans('Could not create ticket, invalid details.'));
+            $this->addFlash('warning', $this->translator->trans('Could not create ticket, invalid details.'));
         }
 
         return $this->redirect(!empty($referralURL) ? $referralURL : $this->generateUrl('helpdesk_member_ticket_collection'));
@@ -190,7 +214,7 @@ class Ticket extends Controller
 
     public function listTicketTypeCollection(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -199,7 +223,7 @@ class Ticket extends Controller
 
     public function ticketType(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -230,9 +254,9 @@ class Ticket extends Controller
                 $em->flush();
 
                 if (!$request->attributes->get('ticketTypeId')) {
-                    $this->addFlash('success', $this->get('translator')->trans('Success! Ticket type saved successfully.'));
+                    $this->addFlash('success', $this->translator->trans('Success! Ticket type saved successfully.'));
                 } else {
-                    $this->addFlash('success', $this->get('translator')->trans('Success! Ticket type updated successfully.'));
+                    $this->addFlash('success', $this->translator->trans('Success! Ticket type updated successfully.'));
                 }
 
                 return $this->redirect($this->generateUrl('helpdesk_member_ticket_type_collection'));
@@ -247,7 +271,7 @@ class Ticket extends Controller
 
     public function listTagCollection(Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_TAG')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_TAG')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -260,7 +284,7 @@ class Ticket extends Controller
 
     public function removeTicketTagXHR($tagId, Request $request)
     {
-        if (!$this->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_TAG')) {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_TAG')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -272,7 +296,7 @@ class Ticket extends Controller
                 $em->remove($tag);
                 $em->flush();
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = $this->get('translator')->trans('Success ! Tag removed successfully.');
+                $json['alertMessage'] = $this->translator->trans('Success ! Tag removed successfully.');
             }
         }
 
@@ -303,8 +327,27 @@ class Ticket extends Controller
             'entity' => $ticket,
         ]);
 
-        $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
-        $this->addFlash('success', $this->get('translator')->trans('Success ! Ticket moved to trash successfully.'));
+        $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+        $this->addFlash('success', $this->translator->trans('Success ! Ticket moved to trash successfully.'));
+
+        return $this->redirectToRoute('helpdesk_member_ticket_collection');
+    }
+
+    // Delete a ticket ticket permanently
+    public function deleteTicket(Request $request)
+    {
+        $ticketId = $request->attributes->get('ticketId');
+        $entityManager = $this->getDoctrine()->getManager();
+        $ticket = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->find($ticketId);
+
+        if (!$ticket) {
+            $this->noResultFound();
+        }
+
+        $entityManager->remove($ticket);
+        $entityManager->flush();
+
+        $this->addFlash('success', $this->get('translator')->trans('Success ! Success ! Ticket Id #'. $ticketId .' has been deleted successfully.'));
 
         return $this->redirectToRoute('helpdesk_member_ticket_collection');
     }
@@ -353,7 +396,7 @@ class Ticket extends Controller
             $this->noResultFound();
         }
 
-        $path = $this->get('kernel')->getProjectDir() . "/public/". $attachment->getPath();
+        $path = $this->kernel->getProjectDir() . "/public/". $attachment->getPath();
 
         $response = new Response();
         $response->setStatusCode(200);

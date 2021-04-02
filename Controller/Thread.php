@@ -6,15 +6,35 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread as TicketThread;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Symfony\Component\Translation\TranslatorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\EmailService;
 
 class Thread extends Controller
 {
+    private $userService;
+    private $translator;
+    private $eventDispatcher;
+    private $ticketService;
+    private $emailService;
+
+    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcherInterface $eventDispatcher)
+    {
+        $this->userService = $userService;
+        $this->emailService = $emailService;
+        $this->translator = $translator;
+        $this->ticketService = $ticketService;
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
     public function saveThread($ticketId, Request $request)
     {
         $params = $request->request->all();
@@ -30,7 +50,7 @@ class Thread extends Controller
 
         if (empty($params)) {
             return $this->redirect($request->headers->get('referer') ?: $this->generateUrl('helpdesk_member_ticket_collection'));
-        } else if ('note' == $params['threadType'] && false == $this->get('user.service')->isAccessAuthorized('ROLE_AGENT_ADD_NOTE')) {
+        } else if ('note' == $params['threadType'] && false == $this->userService->isAccessAuthorized('ROLE_AGENT_ADD_NOTE')) {
             // Insufficient user privilege to create a note
             throw new \Exception('Insufficient Permisions', 400);
         }
@@ -44,7 +64,7 @@ class Thread extends Controller
         $parsedMessage = str_replace(' ', '', $parsedMessage);
 
         if (null == $parsedMessage) {
-            $this->addFlash('warning', $this->get('translator')->trans('Reply content cannot be left blank.'));
+            $this->addFlash('warning', $this->translator->trans('Reply content cannot be left blank.'));
         }
 
         // @TODO: Validate file attachments
@@ -82,7 +102,7 @@ class Thread extends Controller
         }
 
         // Create Thread
-        $thread = $this->get('ticket.service')->createThread($ticket, $threadDetails);
+        $thread = $this->ticketService->createThread($ticket, $threadDetails);
         // $this->addFlash('success', ucwords($params['threadType']) . " added successfully.");
 
         // @TODO: Remove Agent Draft Thread
@@ -97,10 +117,10 @@ class Thread extends Controller
                     'thread' =>  $thread
                 ]);
 
-                $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
 
                 // @TODO: Render response on the basis of event response (if propogation was stopped or not)
-                $this->addFlash('success', $this->get('translator')->trans('Note added to ticket successfully.'));
+                $this->addFlash('success', $this->translator->trans('Note added to ticket successfully.'));
                 break;
             case 'reply':
                 $event = new GenericEvent(CoreWorkflowEvents\Ticket\AgentReply::getId(), [
@@ -108,10 +128,10 @@ class Thread extends Controller
                     'thread' =>  $thread
                 ]);
 
-                $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
 
                 // @TODO: Render response on the basis of event response (if propogation was stopped or not)
-                $this->addFlash('success', $this->get('translator')->trans('Reply added to ticket successfully.'));
+                $this->addFlash('success', $this->get('translator')->trans('Success ! Reply added successfully.'));
                 break;
             case 'forward':
                 // Prepare headers
@@ -124,14 +144,14 @@ class Thread extends Controller
                 // Prepare attachments
                 $attachments = $entityManager->getRepository(Attachment::class)->findByThread($thread);
 
-                $projectDir = $this->get('kernel')->getProjectDir();
+                $projectDir = $this->kernel->getProjectDir();
                 $attachments = array_map(function($attachment) use ($projectDir) {
                 return str_replace('//', '/', $projectDir . "/public" . $attachment->getPath());
                 }, $attachments);
 
                 // Forward thread to users
                 try {
-                    $messageId = $this->get('email.service')->sendMail($params['subject'] ?? ("Forward: " . $ticket->getSubject()), $thread->getMessage(), $thread->getReplyTo(), $headers, $ticket->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
+                    $messageId = $this->emailService->sendMail($params['subject'] ?? ("Forward: " . $ticket->getSubject()), $thread->getMessage(), $thread->getReplyTo(), $headers, $ticket->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
     
                     if (!empty($messageId)) {
                         $thread->setMessageId($messageId);
@@ -145,7 +165,7 @@ class Thread extends Controller
                 }
 
                 // @TODO: Render response on the basis of event response (if propogation was stopped or not)
-                $this->addFlash('success', $this->get('translator')->trans('Reply added to the ticket and forwarded successfully.'));
+                $this->addFlash('success', $this->translator->trans('Reply added to the ticket and forwarded successfully.'));
                 break;
             default:
                 break;
@@ -154,7 +174,7 @@ class Thread extends Controller
         // Check if ticket status needs to be updated
         $updateTicketToStatus = !empty($params['status']) ? (trim($params['status']) ?: null) : null;
 
-        if (!empty($updateTicketToStatus) && $this->get('user.service')->isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS')) {
+        if (!empty($updateTicketToStatus) && $this->userService->isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS')) {
             $ticketStatus = $entityManager->getRepository(TicketStatus::class)->findOneById($updateTicketToStatus);
 
             if (!empty($ticketStatus) && $ticketStatus->getId() === $ticket->getStatus()->getId()) {
@@ -197,12 +217,12 @@ class Thread extends Controller
                     'entity' =>  $ticket,
                 ]);
 
-                $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
 
-                $json['alertMessage'] = $this->get('translator')->trans('Success ! Thread updated successfully.');
+                $json['alertMessage'] = $this->translator->trans('Success ! Thread updated successfully.');
                 $json['alertClass'] = 'success';
             } else {
-                $json['alertMessage'] = $this->get('translator')->trans('Error ! Reply field can not be blank.');
+                $json['alertMessage'] = $this->translator->trans('Error ! Reply field can not be blank.');
                 $json['alertClass'] = 'error';
             }
         }
@@ -224,15 +244,15 @@ class Thread extends Controller
                 //  $event = new GenericEvent(CoreWorkflowEvents\Ticket\ThreadUpdate::getId(), [
                 //     'entity' =>  $ticket,
                 // ]);
-                // $this->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                // $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
 
                 $em->remove($thread);
                 $em->flush();
                 $json['alertClass'] = 'success';
-                $json['alertMessage'] = $this->get('translator')->trans('Success ! Thread removed successfully.');
+                $json['alertMessage'] = $this->translator->trans('Success ! Thread removed successfully.');
             } else {
                 $json['alertClass'] = 'danger';
-                $json['alertMessage'] = $this->get('translator')->trans('Error ! Invalid thread.');
+                $json['alertMessage'] = $this->translator->trans('Error ! Invalid thread.');
             }
         } elseif ($request->getMethod() == "PATCH") {
             $thread = $em->getRepository(TicketThread::class)->findOneBy(array('id' => $request->attributes->get('threadId'), 'ticket' => $content['ticketId']));
@@ -243,19 +263,19 @@ class Thread extends Controller
                     $em->persist($thread);
                     $em->flush();
 
-                    $json['alertMessage'] = $this->get('translator')->trans($content['isLocked'] ? 'Success ! Thread locked successfully.' : 'Success ! Thread unlocked successfully.');
+                    $json['alertMessage'] = $this->translator->trans($content['isLocked'] ? 'Success ! Thread locked successfully.' : 'Success ! Thread unlocked successfully.');
                     $json['alertClass'] = 'success';
                 } elseif ($content['updateType'] == 'bookmark') {
                     $thread->setIsBookmarked($content['bookmark']);
                     $em->persist($thread);
                     $em->flush();
 
-                    $json['alertMessage'] = $this->get('translator')->trans($content['bookmark'] ? 'Success ! Thread pinned successfully.' : 'Success ! unpinned removed successfully.');
+                    $json['alertMessage'] = $this->translator->trans($content['bookmark'] ? 'Success ! Thread pinned successfully.' : 'Success ! unpinned removed successfully.');
                     $json['alertClass'] = 'success';
                 }
             } else {
                 $json['alertClass'] = 'danger';
-                $json['alertMessage'] = $this->get('translator')->trans('Error ! Invalid thread.');
+                $json['alertMessage'] = $this->translator->trans('Error ! Invalid thread.');
             }
         }
 

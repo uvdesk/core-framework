@@ -105,7 +105,7 @@
 					<div class="uv-element-block">
 						<label>
 							<div class="uv-checkbox">
-								<input type="checkbox" name="customer_form[isActive]" {{ customerDetails and customerDetails.isActive ? 'checked': ''}}>
+								<input type="checkbox" name="customer_form[isActive]" {{ customerDetails and customerDetails.isEnabled ? 'checked': ''}}>
 								<span class="uv-checkbox-view"></span>
 							</div>
 							<span class="uv-checkbox-label">{{ 'Account is Active'|trans }}</span>
@@ -157,7 +157,7 @@
                         required: true,
                         msg: '{{ "This field is mandatory"|trans }}'
                     },{
-                        pattern: /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/,
+                        pattern: /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
                         msg: '{{ "Email address is invalid"|trans }}'
                     }],
                     'customer_form[contactNumber]': function(value) {
@@ -169,7 +169,7 @@
                     'customer_form[password][first]' : function(value) {
                         if(value != undefined && value !== '') {
                             if(value.length < 8)
-                                return '{{ "Password must contains 8 Characters"|trans }}';
+                               return '{{ "Password must contains 8 Characters" | trans}}';
                         }
                     },
                     'customer_form[password][second]': {

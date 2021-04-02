@@ -2,7 +2,7 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\Event;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\SwiftMailer\BaseConfiguration;
 
 /**
