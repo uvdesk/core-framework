@@ -50,7 +50,7 @@ class EmailSettingsXHR extends AbstractController
             '{{ SUPPORT_EMAIL_ID }}' => $supportEmailConfiguration['id'],
             '{{ SUPPORT_EMAIL_NAME }}' => $supportEmailConfiguration['name'],
             '{{ SUPPORT_EMAIL_MAILER_ID }}' => $mailer_id,
-            '{{ SITE_URL }}' => $this->getParameter('uvdesk.site_url'),
+            '{{ SITE_URL }}' => $request->getHttpHost() . $request->getBasePath(),
             '{{ APP_LOCALES }}' => $app_locales,
             '{{ MEMBER_PANEL_PREFIX }}' => $memberPrefix,
             '{{ CUSTOMER_PANEL_PREFIX }}' => $customerPrefix,
