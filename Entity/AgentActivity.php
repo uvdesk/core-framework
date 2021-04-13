@@ -23,13 +23,13 @@ class AgentActivity
      * @ORM\ManyToOne(targetEntity="Webkul\UVDesk\CoreFrameworkBundle\Entity\User")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $agentId;
+    private $agent;
 
     /**
      * @ORM\ManyToOne(targetEntity="Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $ticketId;
+    private $ticket;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -56,26 +56,26 @@ class AgentActivity
         return $this->id;
     }
 
-    public function getAgentId(): ?User
+    public function getAgent(): ?User
     {
-        return $this->agentId;
+        return $this->agent;
     }
 
-    public function setAgentId(?User $agentId): self
+    public function setAgent(?User $agent): self
     {
-        $this->agentId = $agentId;
+        $this->agent = $agent;
 
         return $this;
     }
 
-    public function getTicketId(): ?Ticket
+    public function getTicket(): ?Ticket
     {
-        return $this->ticketId;
+        return $this->ticket;
     }
 
-    public function setTicketId(?Ticket $ticketId): self
+    public function setTicket(?Ticket $ticket): self
     {
-        $this->ticketId = $ticketId;
+        $this->ticket = $ticket;
 
         return $this;
     }

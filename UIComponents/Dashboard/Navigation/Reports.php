@@ -27,7 +27,7 @@ SVG;
 
     public static function getRouteName() : string
     {
-        return 'helpdesk_member_reports';
+        return 'helpdesk_member_agent_activity';
     }
 
     public static function getRoles() : array

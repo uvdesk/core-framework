@@ -398,3 +398,12 @@ helpdesk_member_remove_customer_account_xhr:
 helpdesk_member_create_customer_account:
     path:     /create/customer
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Customer::createCustomer
+
+# Report section Resources
+helpdesk_member_agent_activity:
+    path:     /agent/activity/list
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Report::listAgentActivity
+
+helpdesk_member_agent_activity_xhr:
+    path:     /agent/activity/xhr
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Report::agentActivityXHR

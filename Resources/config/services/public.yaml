@@ -22,6 +22,9 @@ services:
     
     recaptcha.service:
         alias: Webkul\UVDesk\CoreFrameworkBundle\Services\ReCaptchaService
+
+    report.service:
+        alias: Webkul\UVDesk\CoreFrameworkBundle\Services\ReportService
     
     uvdesk.core.file_system.service:
         alias: Webkul\UVDesk\CoreFrameworkBundle\FileSystem\FileSystem
