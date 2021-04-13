@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\AgentActivity;
 use Webkul\UVDesk\MailboxBundle\Utils\Mailbox\Mailbox;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
@@ -275,6 +276,16 @@ class TicketService
                 // Ticket has been updated by support agents, mark as agent replied | customer view pending
                 $ticket->setIsCustomerViewed(false);
                 $ticket->setIsReplied(true);
+
+                $agentActivity = new AgentActivity();
+                $agentActivity->setThreadType('reply');
+                $agentActivity->setTicket($ticket);
+                $agentActivity->setAgent($thread->getUser());
+                $agentActivity->setCustomerName('customer');
+                $agentActivity->setAgentName('agent');
+                $agentActivity->setCreatedAt(new \DateTime());
+
+                $this->entityManager->persist($agentActivity);
             } else {
                 // Ticket has been updated by customer, mark as agent view | reply pending
                 $ticket->setIsAgentViewed(false);
@@ -285,6 +296,16 @@ class TicketService
         } else if ('create' === $threadData['threadType']) {
             $ticket->setIsReplied(false);
             $this->entityManager->persist($ticket);
+
+            $agentActivity = new AgentActivity();
+            $agentActivity->setThreadType('create');
+            $agentActivity->setTicket($ticket);
+            $agentActivity->setAgent($thread->getUser());
+            $agentActivity->setCustomerName('customer');
+            $agentActivity->setAgentName('agent');
+            $agentActivity->setCreatedAt(new \DateTime());
+
+            $this->entityManager->persist($agentActivity);
         }
         
         $ticket->currentThread = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Thread')->getTicketCurrentThread($ticket);
