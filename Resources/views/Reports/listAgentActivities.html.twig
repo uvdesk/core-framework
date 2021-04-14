@@ -56,6 +56,23 @@
 			float: right;
 			width: unset;
 		}
+        .uv-action-bar .uv-field-block.date {
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .uv-action-bar label {
+            font-size: 16px;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        .uv-inner-section .uv-action-bar label{
+            font-size: 15px;
+        }
+        @media screen and (min-width: 1100px) and (max-width: 1260px) {
+            .uv-inner-section .uv-action-bar .uv-action-bar-col-lt, .uv-inner-section .uv-action-bar .uv-action-bar-col-rt {
+                width: 55% !important;
+            } 
+        }
 	</style>
 	<div class="uv-inner-section">
 		{% set asideTemplate = 'Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\AsideTemplate' %}
@@ -158,7 +175,7 @@
                     <td data-value="">
                         <%= '<span class="uv-list-ticket-priority" style="background:' + item.color + '"></span>' %>
                     </td>
-                    <td data-value="{{ 'Id'|trans }}"><a href="<%- item.ticketURL %>">#<%- item.incrementId %></a></td>
+                    <td data-value="{{ 'Id'|trans }}"><a href="<%- item.ticketURL %>">#<%- item.ticketId %></a></td>
                     <td data-value="{{ 'Subject'|trans }}"><%- item.subject %></td>
                     <td data-value="{{ 'Customer Name'|trans }}"><%- item.customerName %></td>
                     <td data-value="{{ 'Total Reply'|trans }}"><%- item.totalReply %></td>
@@ -238,7 +255,7 @@
                               self.activityView.renderRecords();
                           }
                       },
-                      error: function (collection, response, options) {
+                      error: function (collection, xhr, options) {
                         console.log('sync failed:', collection, response, options);
                         if (url = xhr.getResponseHeader('Location')) {
                           window.location = url;

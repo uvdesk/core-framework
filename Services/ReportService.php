@@ -25,10 +25,9 @@ class ReportService {
         $this->container = $container;
     }
 
-    public function getAgentActivity(array $agents)
+    public function getAgentActivity(array $agents, $from = null, $to = null)
     {
         $agentClause = array_map(function($id) { return "AgentActivity.agent = $id"; }, $agents);
-
         $activityQuery = $this->em->createQueryBuilder()
                         ->select('
                             AgentActivity.customerName,
@@ -55,12 +54,11 @@ class ReportService {
 
                      $activityQuery->andWhere('AgentActivity.threadType =:threadType')
                         ->setParameter('threadType', 'reply')
-                        ->setParameter('startDate', $this->startDate)
-                        ->setParameter('endDate', $this->endDate)
+                        ->setParameter('startDate', $from)
+                        ->setParameter('endDate', $to)
                         ->orderBy('AgentActivity.createdAt', 'DESC');
 
         return $activityQuery;
-
     }
 
     public function addPermissionFilter($qb, $container, $haveJoin = true)
@@ -97,7 +95,7 @@ class ReportService {
         return $qb;
     }
 
-    public function getTotalReplies($ticketIds, array $agents)
+    public function getTotalReplies($ticketIds, array $agents, $from, $to)
     {
             $agentClause = array_map(function($id) { return "thread.user = $id"; }, $agents);
             $qb = $this->em->createQueryBuilder()
@@ -111,8 +109,8 @@ class ReportService {
 
                 $qb->setParameter('threadType', 'reply')
                     ->setParameter('ticket', $ticketIds)
-                    ->setParameter('startDate', $this->startDate)
-                    ->setParameter('endDate', $this->endDate)
+                    ->setParameter('startDate', $from)
+                    ->setParameter('endDate', $to)
                     ->groupBy('thread.ticket');
 
         $threadDetails = $qb->getQuery()->getScalarResult();
