@@ -277,11 +277,13 @@ class TicketService
                 $ticket->setIsCustomerViewed(false);
                 $ticket->setIsReplied(true);
 
+                $customerName = $ticket->getCustomer()->getFirstName().' '.$ticket->getCustomer()->getLastName();
+
                 $agentActivity = new AgentActivity();
                 $agentActivity->setThreadType('reply');
                 $agentActivity->setTicket($ticket);
                 $agentActivity->setAgent($thread->getUser());
-                $agentActivity->setCustomerName('customer');
+                $agentActivity->setCustomerName($customerName);
                 $agentActivity->setAgentName('agent');
                 $agentActivity->setCreatedAt(new \DateTime());
 
@@ -297,11 +299,13 @@ class TicketService
             $ticket->setIsReplied(false);
             $this->entityManager->persist($ticket);
 
+            $customerName = $ticket->getCustomer()->getFirstName().' '.$ticket->getCustomer()->getLastName();
+
             $agentActivity = new AgentActivity();
             $agentActivity->setThreadType('create');
             $agentActivity->setTicket($ticket);
             $agentActivity->setAgent($thread->getUser());
-            $agentActivity->setCustomerName('customer');
+            $agentActivity->setCustomerName($customerName );
             $agentActivity->setAgentName('agent');
             $agentActivity->setCreatedAt(new \DateTime());
 

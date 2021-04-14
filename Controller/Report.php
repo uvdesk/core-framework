@@ -17,6 +17,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\ReportService;
 use Symfony\Component\Translation\TranslatorInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Doctrine\ORM\Query;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class Report extends AbstractController
 {
@@ -64,16 +65,16 @@ class Report extends AbstractController
         $reportService->parameters = $request->query->all();
         $startDate = $reportService->parameters['after'];
         $endDate = $reportService->parameters['before'];
+
         $agentIds = [];
         if(isset($reportService->parameters['agent']))
             $agentIds = explode(',', $reportService->parameters['agent']);
 
         $userService = $this->userService;
-        $reportService->startDate = $userService->convertToTimezone(new \DateTime($startDate." 00:00:01"), 'Y-m-d H:i:s');
-        $reportService->endDate = $userService->convertToTimezone(new \DateTime($endDate." 23:59:59"), 'Y-m-d H:i:s');
+        $from = $startDate." 00:00:01";
+        $to = $endDate." 23:59:59";
         $reportService->parameters = $request->query->all();
-
-        $qb = $reportService->getAgentActivity($agentIds);
+        $qb = $reportService->getAgentActivity($agentIds, $from, $to);
         $paginator  = $this->paginator;
 
         $newQb = clone $qb;
@@ -100,7 +101,7 @@ class Report extends AbstractController
             $difference = $currentDateTime->getTimeStamp() - $activityDateTime->getTimeStamp();
             $lastReply = $reportService->time2string($difference);
 
-            $ticketViewURL = $this->get('router')->generate('view_ticket', ['id' => $activity['incrementId']], UrlGeneratorInterface::ABSOLUTE_URL);
+            $ticketViewURL = $this->get('router')->generate('helpdesk_member_ticket', ['ticketId' => $activity['ticketId']], UrlGeneratorInterface::ABSOLUTE_URL);
 
             $data[] =   [
                 'id' => $activity['id'],
@@ -118,7 +119,7 @@ class Report extends AbstractController
             array_push($agentIds, $activity['agentId']);
         }
 
-        $threadDetails = $reportService->getTotalReplies(array_unique($ticketIds), $agentIds);
+        $threadDetails = $reportService->getTotalReplies(array_unique($ticketIds), $agentIds, $from, $to);
 
         foreach ($data as $index => $ticketDetail) {
             foreach ($threadDetails as $detail) {
