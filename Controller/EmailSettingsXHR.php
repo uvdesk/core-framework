@@ -30,8 +30,8 @@ class EmailSettingsXHR extends AbstractController
     {
         $filePath = $this->kernel->getProjectDir() . '/config/packages/uvdesk.yaml';
 
-        $memberPrefix = $this->getParameter('uvdesk_site_path.member_prefix') ?? 'member';
-        $customerPrefix = $this->getParameter('uvdesk_site_path.knowledgebase_customer_prefix') ?? 'customer';
+        $memberPrefix = "$this->getParameter('uvdesk_site_path.member_prefix')" ?? 'member';
+        $customerPrefix = "$this->getParameter('uvdesk_site_path.knowledgebase_customer_prefix')" ?? 'customer';
 
         $app_locales = 'en|fr|it'; //default app_locales values
 
