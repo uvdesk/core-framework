@@ -102,7 +102,7 @@
                                         {% if agent.smallThumbnail != null %}
                                             <img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}{{ agent.smallThumbnail }}"/>
                                         {% else %}
-                                            {# <img src="{{ asset(default_agent_image_path) }}"/> #}
+                                            <img src="{{ asset(default_agent_image_path) }}"/> 
                                         {% endif %}
                                         {{agent.name}}
                                     </li>
