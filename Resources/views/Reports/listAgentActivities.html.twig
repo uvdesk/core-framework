@@ -100,9 +100,9 @@
                                     {% set options = options|merge([{'id': agent.id, 'name': agent.name}]) %}
                                     <li data-id="{{agent.id}}" class="agentId">
                                         {% if agent.smallThumbnail != null %}
-                                            <img src="{{ agent.smallThumbnail }}"/>
+                                            <img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}{{ agent.smallThumbnail }}"/>
                                         {% else %}
-                                            {# <img src="{{ agentAsset }}"/> #}
+                                            {# <img src="{{ asset(default_agent_image_path) }}"/> #}
                                         {% endif %}
                                         {{agent.name}}
                                     </li>
