@@ -24,7 +24,7 @@ class AgentActivity implements PanelSidebarItemInterface
 
     public static function getRoles() : array
     {
-        return ['ROLE_ADMIN'];
+        return ['ROLE_AGENT_MANAGE_AGENT_ACTIVITY'];
     }
 
     public static function getSidebarReferenceId() : string

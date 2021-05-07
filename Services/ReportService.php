@@ -7,6 +7,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ReportService {
 
+    const LIMIT = 15;
+    const TICKET_GLOBAL_ACCESS = 1;
+    const TICKET_GROUP_ACCESS = 2;
+    const TICKET_TEAM_ACCESS  = 3;
+    const DEFAULT_PAGINATION_LIMIT = 15;
+
 	private $request;
 	protected $container;
     protected $em;
@@ -64,6 +70,8 @@ class ReportService {
     public function addPermissionFilter($qb, $container, $haveJoin = true)
     {
         $activeUser = $this->container->get('user.service')->getSessionUser();
+        $supportGroupReferences = $this->em->getRepository('UVDeskCoreFrameworkBundle:User')->getUserSupportGroupReferences($activeUser);
+        $supportTeamReferences  = $this->em->getRepository('UVDeskCoreFrameworkBundle:User')->getUserSupportTeamReferences($activeUser);
         $userInstance = $activeUser->getAgentInstance();
 
         if (!empty($userInstance) && ('ROLE_AGENT' == $userInstance->getSupportRole()->getCode() && $userInstance->getTicketAccesslevel() != self::TICKET_GLOBAL_ACCESS)) {
@@ -73,21 +81,21 @@ class ReportService {
             switch ($userInstance->getTicketAccesslevel()) {
                 case self::TICKET_GROUP_ACCESS:
                     $qb
-                        ->andWhere("ticket.agent = :agentId OR supportGroup.id IN(:supportGroupIds) OR supportTeam.id IN(:supportTeamIds)")
-                        ->setParameter('agentId', $user->getId())
+                        ->andWhere("t.agent = :agentId OR supportGroup.id IN(:supportGroupIds) OR supportTeam.id IN(:supportTeamIds)")
+                        ->setParameter('agentId', $activeUser->getId())
                         ->setParameter('supportGroupIds', $qualifiedGroups)
                         ->setParameter('supportTeamIds', $qualifiedTeams);
                     break;
                 case self::TICKET_TEAM_ACCESS:
                     $qb
-                        ->andWhere("ticket.agent = :agentId OR supportTeam.id IN(:supportTeamIds)")
-                        ->setParameter('agentId', $user->getId())
+                        ->andWhere("t.agent = :agentId OR supportTeam.id IN(:supportTeamIds)")
+                        ->setParameter('agentId', $activeUser->getId())
                         ->setParameter('supportTeamIds', $qualifiedTeams);
                     break;
                 default:
                     $qb
-                        ->andWhere("ticket.agent = :agentId")
-                        ->setParameter('agentId', $user->getId());
+                        ->andWhere("t.agent = :agentId")
+                        ->setParameter('agentId', $activeUser->getId());
                     break;
             }
         }
