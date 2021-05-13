@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\AgentActivity;
 use Webkul\UVDesk\MailboxBundle\Utils\Mailbox\Mailbox;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
@@ -296,6 +297,18 @@ class TicketService
                 // Ticket has been updated by support agents, mark as agent replied | customer view pending
                 $ticket->setIsCustomerViewed(false);
                 $ticket->setIsReplied(true);
+
+                $customerName = $ticket->getCustomer()->getFirstName().' '.$ticket->getCustomer()->getLastName();
+
+                $agentActivity = new AgentActivity();
+                $agentActivity->setThreadType('reply');
+                $agentActivity->setTicket($ticket);
+                $agentActivity->setAgent($thread->getUser());
+                $agentActivity->setCustomerName($customerName);
+                $agentActivity->setAgentName('agent');
+                $agentActivity->setCreatedAt(new \DateTime());
+
+                $this->entityManager->persist($agentActivity);
             } else {
                 // Ticket has been updated by customer, mark as agent view | reply pending
                 $ticket->setIsAgentViewed(false);
@@ -306,6 +319,18 @@ class TicketService
         } else if ('create' === $threadData['threadType']) {
             $ticket->setIsReplied(false);
             $this->entityManager->persist($ticket);
+
+            $customerName = $ticket->getCustomer()->getFirstName().' '.$ticket->getCustomer()->getLastName();
+
+            $agentActivity = new AgentActivity();
+            $agentActivity->setThreadType('create');
+            $agentActivity->setTicket($ticket);
+            $agentActivity->setAgent($thread->getUser());
+            $agentActivity->setCustomerName($customerName );
+            $agentActivity->setAgentName('agent');
+            $agentActivity->setCreatedAt(new \DateTime());
+
+            $this->entityManager->persist($agentActivity);
         }
         
         $ticket->currentThread = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Thread')->getTicketCurrentThread($ticket);
@@ -527,7 +552,16 @@ class TicketService
             $dbTime = $ticket['createdAt'];
             
             $formattedTime= $this->fomatTimeByPreference($dbTime,$timeZone,$timeFormat,$agentTimeZone,$agentTimeFormat);
-              
+
+            $currentDateTime  = new \DateTime('now');
+            if($this->getLastReply($ticket['id'])) {
+                $lastRepliedTime = 
+                $this->time2string($currentDateTime->getTimeStamp() - $this->getLastReply($ticket['id'])['createdAt']->getTimeStamp());
+            } else {
+                $lastRepliedTime = 
+                $this->time2string($currentDateTime->getTimeStamp() - $ticket['createdAt']->getTimeStamp());
+            }
+
             $ticketResponse = [
                 'id' => $ticket['id'],
                 'subject' => $ticket['subject'],
@@ -544,7 +578,8 @@ class TicketService
                 'totalThreads' => $totalTicketReplies,
                 'agent' => null,
                 'customer' => null,
-                'hasAttachments' => $ticketHasAttachments
+                'hasAttachments' => $ticketHasAttachments,
+                'lastReplyTime' => $lastRepliedTime
             ];
            
             if (!empty($ticketDetails['agentId'])) {
@@ -578,7 +613,32 @@ class TicketService
           
         ];
     }
-    
+
+    // Convert Timestamp to day/hour/min
+    Public function time2string($time) {
+        $d = floor($time/86400);
+        $_d = ($d < 10 ? '0' : '').$d;
+
+        $h = floor(($time-$d*86400)/3600);
+        $_h = ($h < 10 ? '0' : '').$h;
+
+        $m = floor(($time-($d*86400+$h*3600))/60);
+        $_m = ($m < 10 ? '0' : '').$m;
+
+        $s = $time-($d*86400+$h*3600+$m*60);
+        $_s = ($s < 10 ? '0' : '').$s;
+
+        $time_str = "0 minutes";
+        if($_d != 00)
+            $time_str = $_d." ".'days';
+        elseif($_h != 00)
+            $time_str = $_h." ".'hours';
+        elseif($_m != 00)
+            $time_str = $_m." ".'minutes';
+
+        return $time_str." "."ago";
+    }
+
     public function getPredefindLabelDetails(User $currentUser, array $supportGroupIds = [], array $supportTeamIds = [], array $params = [])
     {
         $data = array();
@@ -1014,7 +1074,7 @@ class TicketService
         // Apply Pagination
         $paginationResultsQuery = clone $baseQuery;
         $paginationResultsQuery->select('COUNT(supportTag.id)');
-        $paginationQuery = $baseQuery->getQuery()->setHydrationMode(Query::HYDRATE_ARRAY)->setHint('knp_paginator.count', $paginationResultsQuery->getQuery()->getResult());
+        $paginationQuery = $baseQuery->getQuery()->setHydrationMode(Query::HYDRATE_ARRAY)->setHint('knp_paginator.count', count($paginationResultsQuery->getQuery()->getResult()));
 
         $paginationOptions = ['distinct' => true];
         $pageNumber = !empty($params['page']) ? (int) $params['page'] : 1;
@@ -1079,6 +1139,7 @@ class TicketService
                 'timestamp' => $initialThread->getCreatedAt()->getTimestamp(),
                 'createdAt' => $initialThread->getCreatedAt()->format('d-m-Y h:ia'),
                 'user' => $authorInstance->getPartialDetails(),
+                'cc' => is_array($initialThread->getCc()) ? implode(', ', $initialThread->getCc()) : '',
             ];
 
             $attachments = $threadDetails['attachments']->getValues();

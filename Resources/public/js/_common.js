@@ -148,7 +148,7 @@ $(function() {
             this.collection.reset();
             this.collection.state.currentPage = null;
             this.collection.setSorting(null, null, {full: false});
-            this.collection.filterParameters.isActive = Backbone.$(e.currentTarget).find('a').attr('data-id');
+            this.collection.filterParameters.isActive  = Backbone.$(e.currentTarget).find('a').attr('data-id');
             var queryString = app.appView.buildQuery($.param(this.collection.getValidParameters()));
             router.navigate(queryString, {trigger: true});
         },

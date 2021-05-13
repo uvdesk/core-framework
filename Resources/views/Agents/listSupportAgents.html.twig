@@ -117,7 +117,7 @@
 		<td data-value="Email"><%- email %></td>
 		<td data-value="Role"><%= role %></td>
 		<td data-value="Status">
-			<% if (isActive) { %>
+			<% if (isEnabled) { %>
 			<span class="uv-text-success">{{ 'Active'|trans }}</span>
 			<% } else { %>
 			<span class="uv-text-danger">{{ 'Disabled'|trans }}</span>
@@ -297,7 +297,7 @@
 				resetParams : function(status, query) {
 					if(query != null)
 						query = query.replace(/\+/g,' ');
-					agentCollection.filterParameters.isActive = status;
+					agentCollection.filterParameters.isActive  = status;
 					var statusText = status ? $(".filter-by-status a[data-id='" + status + "']").text() : "{% trans %}All{% endtrans %}";
 					$(".filter-by-status .uv-dropdown-btn").text("{% trans %}Status:{% endtrans %} " + statusText);
 					agentCollection.filterParameters.search = query;

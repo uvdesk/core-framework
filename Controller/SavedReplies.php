@@ -71,7 +71,7 @@ class SavedReplies extends Controller
             if ($template->getSupportGroups()) {
                 foreach ($template->getSupportGroups()->toArray() as $key => $group) {
                     $previousGroupIds[] = $group->getId();
-                    if (!in_array($group->getId(), $groups)) {
+                    if (!in_array($group->getId(), $groups) && $this->getUser()->getAgentInstance()->getSupportRole()->getCode() != "ROLE_AGENT") {
                         $template->removeSupportGroups($group);
                         $em->persist($template);
                     }
@@ -93,11 +93,11 @@ class SavedReplies extends Controller
             $previousTeamIds = [];
             $teams = explode(',', $request->request->get('tempTeams'));
 
-            if ($template->getSupportTeams()->toArray()) {
+            if ($template->getSupportTeams()) {
                 foreach ($template->getSupportTeams()->toArray() as $key => $team) {
                     $previousTeamIds[] = $team->getId();
                    
-                    if (!in_array($team->getId(), $teams)) {
+                    if (!in_array($team->getId(), $teams) && $this->getUser()->getAgentInstance()->getSupportRole()->getCode() != "ROLE_AGENT") {
                         $template->removeSupportTeam($team);
                         $em->persist($template);
                     }

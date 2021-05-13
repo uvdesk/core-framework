@@ -8,6 +8,7 @@ twig:
         upload_max_filesize: '%upload_max_filesize%'
         user_service: "@user.service"
         uvdesk_service: "@uvdesk.service"
+        recaptcha_service: "@recaptcha.service"
         ticket_service: "@ticket.service"
         csrf_token_generator: "@security.csrf.token_manager"
         email_service: "@email.service"

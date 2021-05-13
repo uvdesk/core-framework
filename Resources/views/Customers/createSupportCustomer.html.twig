@@ -163,10 +163,10 @@
                                 return '{{ "Contact number is invalid"|trans }}';
                         }
                     },
-                    'customer_form[password][first]' : function(value) {
+					'customer_form[password][first]' : function(value) {
                         if(value != undefined && value !== '') {
                             if(value.length < 8)
-                                return '{{ "Password must contains 8 Characters"|trans }}';
+                               return '{{ "Password must contains 8 Characters" | trans}}';
                         }
                     },
                     'customer_form[password][second]': {

@@ -75,13 +75,18 @@ class MailCustomer extends WorkflowAction
                         $headers['In-Reply-To'] = $currentThread->getMessageId();
                     }
 
-                    $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $headers, $entity->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
+                    $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $headers, $entity->getMailboxEmail(), $attachments ?? []);
 
-                    if (!empty($messageId)) {
-                        $createdThread->setMessageId($messageId);
-                        $entityManager->persist($createdThread);
-                        $entityManager->flush();
+                    // if (!empty($messageId)) {
+                    //     $createdThread->setMessageId($messageId);
+                    //     $entityManager->persist($createdThread);
+                    //     $entityManager->flush();
+                    // }
+
+                    if($thread->getCc() || $thread->getBcc()) {
+                        self::sendCcBccMail($container, $entity, $thread, $subject, $attachments);
                     }
+                    
                 } else {
                     $message = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail());
                 }
@@ -89,5 +94,12 @@ class MailCustomer extends WorkflowAction
             default:
                 break;
         }
+    }
+
+    public static function sendCcBccMail($container, $entity, $thread, $subject, $attachments)
+    {
+        $message = '<html><body style="background-image: none"><p>Hello</p><br/><p>'.$thread->getMessage().'</p></body></html>';
+
+        $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
     }
 }
