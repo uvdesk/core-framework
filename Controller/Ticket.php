@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\DataProxies as CoreFrameworkBundleDataProxies;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Tickets\QuickActionButtonCollection;
-use UVDesk\CommunityPackages\UVDesk\FormComponent\Services\CustomFieldsService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\CustomFieldsService;
 use Webkul\UVDesk\CoreFrameworkBundle\Repository\TicketRepository;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Component\Translation\TranslatorInterface;
