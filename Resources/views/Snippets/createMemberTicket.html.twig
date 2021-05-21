@@ -167,7 +167,7 @@
 {% if not(app.request.attributes.get('_route') in ['helpdesk_member_ticket']) %}
     {{ include('@UVDeskCoreFramework\\Templates\\attachment.html.twig') }}
 {% endif %}
-{{ include('@_uvdesk_extension_uvdesk_form_component/CustomFields/customFieldValidation.html.twig') }}
+{# {{ include('@_uvdesk_extension_uvdesk_form_component/CustomFields/customFieldValidation.html.twig') }} #}
 
 <script type="text/javascript">
     $(function () {

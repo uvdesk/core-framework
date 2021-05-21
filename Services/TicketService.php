@@ -21,7 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\CustomFieldsService;
-use UVDesk\CommunityPackages\UVDesk\FormComponent\Services\FileUploadService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
 use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity;
 use Webkul\UVDesk\MailboxBundle\Utils\Imap\Configuration as ImapConfiguration;
 
@@ -167,10 +167,17 @@ class TicketService
         $twigTemplatingEngine = $this->container->get('twig');
         $ticketTypeCollection = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findByIsActive(true);
         
-        $headerCustomFields = $this->customFieldsService->getCustomFieldsArray('user');
+        
+        $dir = __DIR__;
+        $dirSplit = explode('vendor',$dir);
+        $file = str_replace("\\",'/',$dirSplit[0].'apps/uvdesk/formComponent');
+        if(is_dir($file)){
+            $headerCustomFields = $this->customFieldsService->getCustomFieldsArray('user');
+        }
+
         return $twigTemplatingEngine->render('@UVDeskCoreFramework/Snippets/createMemberTicket.html.twig', [
             'ticketTypeCollection' => $ticketTypeCollection,
-            'headerCustomFields' => $headerCustomFields,
+            'headerCustomFields' => $headerCustomFields ?? null,
         ]);
     }
 
