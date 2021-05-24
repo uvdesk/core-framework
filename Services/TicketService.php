@@ -167,11 +167,10 @@ class TicketService
         $twigTemplatingEngine = $this->container->get('twig');
         $ticketTypeCollection = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findByIsActive(true);
         
-        
         $dir = __DIR__;
-        $dirSplit = explode('vendor',$dir);
-        $file = str_replace("\\",'/',$dirSplit[0].'apps/uvdesk/formComponent');
-        if(is_dir($file)){
+        $dirSplit = explode('vendor', $dir);
+        $file = str_replace("\\",'/', $dirSplit[0].'apps/uvdesk/form-component');
+        if (is_dir($file)) {
             $headerCustomFields = $this->customFieldsService->getCustomFieldsArray('user');
         }
 
@@ -183,10 +182,15 @@ class TicketService
 
     public function getCustomerCreateTicketCustomFieldSnippet()
     {   
-        $customFields = $this->customFieldsService->getCustomFieldsArray('customer');
+        $dir = __DIR__;
+        $dirSplit = explode('vendor',$dir);
+        $file = str_replace("\\",'/',$dirSplit[0].'apps/uvdesk/form-component');
 
-        return $customFields;
-        
+        if (is_dir($file)) { 
+            $customFields = $this->customFieldsService->getCustomFieldsArray('customer');
+        }
+
+        return $customFields ?? null;
     }
 
     public function createTicket(array $params = [])
