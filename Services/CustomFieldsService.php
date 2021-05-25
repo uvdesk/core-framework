@@ -43,7 +43,10 @@ class CustomFieldsService {
         $errorFlashMessage = null;
 
         $data = $request->request->all() ? : json_decode($request->getContent(), true);
-        
+        $dir = __DIR__;
+        $dirSplit = explode('vendor', $dir);
+        $file = str_replace("\\",'/', $dirSplit[0].'apps/uvdesk/form-component');
+        if (is_dir($file)) { 
         if(!$this->validateAttachmentsSize($request->files->get('customFields')) || !$this->validateAttachmentsSize($request->files->get('attachments'))) {
             $errorMain = true;
             $errorFlashMessage =  $this->translator->trans("Warning ! Files size can not exceed %size% MB", [
@@ -83,7 +86,7 @@ class CustomFieldsService {
                 }
             }
         }
-        
+    }    
 
         return ['errorMain' => $errorMain, 'formErrors' => $formErrors, 'errorFlashMessage' => $errorFlashMessage];
     }
