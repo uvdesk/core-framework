@@ -22,6 +22,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\CustomFieldsService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity;
 use Webkul\UVDesk\MailboxBundle\Utils\Imap\Configuration as ImapConfiguration;
 
@@ -33,19 +34,22 @@ class TicketService
 	protected $requestStack;
     protected $entityManager;
     protected $fileUploadService;
+    protected $userService;
     
     public function __construct(
         ContainerInterface $container, 
         RequestStack $requestStack, 
         EntityManagerInterface $entityManager, 
         FileUploadService $fileUploadService,
-        CustomFieldsService $customFieldsService)
+        CustomFieldsService $customFieldsService,
+        UserService $userService)
     {
         $this->container = $container;
 		$this->requestStack = $requestStack;
         $this->entityManager = $entityManager;
         $this->fileUploadService = $fileUploadService;
         $this->customFieldsService = $customFieldsService;
+        $this->userService = $userService;
     }
 
     public function getAllMailboxes()
@@ -167,10 +171,8 @@ class TicketService
         $twigTemplatingEngine = $this->container->get('twig');
         $ticketTypeCollection = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findByIsActive(true);
         
-        $dir = __DIR__;
-        $dirSplit = explode('vendor', $dir);
-        $file = str_replace("\\",'/', $dirSplit[0].'apps/uvdesk/form-component');
-        if (is_dir($file)) {
+        $isFolderExist  =  $this->userService->isfileExists('apps/uvdesk/form-component');
+        if ($isFolderExist) {
             $headerCustomFields = $this->customFieldsService->getCustomFieldsArray('user');
         }
 
@@ -182,11 +184,8 @@ class TicketService
 
     public function getCustomerCreateTicketCustomFieldSnippet()
     {   
-        $dir = __DIR__;
-        $dirSplit = explode('vendor',$dir);
-        $file = str_replace("\\",'/',$dirSplit[0].'apps/uvdesk/form-component');
-
-        if (is_dir($file)) { 
+        $isFolderExist  =  $this->userService->isfileExists('apps/uvdesk/form-component');
+        if ($isFolderExist) { 
             $customFields = $this->customFieldsService->getCustomFieldsArray('customer');
         }
 

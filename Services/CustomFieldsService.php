@@ -7,6 +7,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\ValidationService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 
 class CustomFieldsService {
@@ -15,17 +16,20 @@ class CustomFieldsService {
     private $container = null;
     private $validationService = null;
     private $translatorService = null;
+    private $userService;
 
     public function __construct(
         EntityManagerInterface $entityManager, 
         ContainerInterface $container, 
         ValidationService $validationService,
-        TranslatorInterface $translatorService)
+        TranslatorInterface $translatorService,
+        UserService $userService)
     {
         $this->entityManager = $entityManager;
         $this->container = $container;
         $this->validationService = $validationService;
         $this->translatorService = $translatorService;
+        $this->userService = $userService;
     }
 
     /**
@@ -43,50 +47,49 @@ class CustomFieldsService {
         $errorFlashMessage = null;
 
         $data = $request->request->all() ? : json_decode($request->getContent(), true);
-        $dir = __DIR__;
-        $dirSplit = explode('vendor', $dir);
-        $file = str_replace("\\",'/', $dirSplit[0].'apps/uvdesk/form-component');
-        if (is_dir($file)) { 
-        if(!$this->validateAttachmentsSize($request->files->get('customFields')) || !$this->validateAttachmentsSize($request->files->get('attachments'))) {
-            $errorMain = true;
-            $errorFlashMessage =  $this->translator->trans("Warning ! Files size can not exceed %size% MB", [
-                                        "%size%" => $this->container->getParameter('max_upload_size')
-                                    ]);
-        } elseif($companyCustomFields = $this->getCustomFieldsArray($userType)) {
-            foreach ($companyCustomFields as $customField) {
-                if('file' == $customField['fieldType']) {
-                    $fileCf = $request->files->get('customFields');
-                    $customFieldValue = isset($fileCf[$customField['id']]) ? $fileCf[$customField['id']] : null;
-                } else {
-                    $customFieldValue = isset($data['customFields'][$customField['id']]) ? $data['customFields'][$customField['id']] : null;
-                }
-                $customField['validation']['required'] = $customField['required'];
-                $customField['validation']['fieldtype'] = $customField['fieldType'] ? : $customField['validation']['fieldtype'] ;
-                if(count($customField['customFieldsDependency'])) {
-                    $ticketType = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findOneById(isset($data['type']) ? $data['type'] : '' );
-                    if($ticketType) {
-                        $typeId = $ticketType->getId();
-                        $flag = 0;
-                        foreach($customField['customFieldsDependency'] as $dependency) {
-                            if($dependency['id'] == $typeId) {
-                                $flag = 1; break;
+        
+        $isFolderExist  =  $this->userService->isfileExists('apps/uvdesk/form-component');
+        if ($isFolderExist) { 
+            if(!$this->validateAttachmentsSize($request->files->get('customFields')) || !$this->validateAttachmentsSize($request->files->get('attachments'))) {
+                $errorMain = true;
+                $errorFlashMessage =  $this->translator->trans("Warning ! Files size can not exceed %size% MB", [
+                                            "%size%" => $this->container->getParameter('max_upload_size')
+                                        ]);
+            } elseif($companyCustomFields = $this->getCustomFieldsArray($userType)) {
+                foreach ($companyCustomFields as $customField) {
+                    if('file' == $customField['fieldType']) {
+                        $fileCf = $request->files->get('customFields');
+                        $customFieldValue = isset($fileCf[$customField['id']]) ? $fileCf[$customField['id']] : null;
+                    } else {
+                        $customFieldValue = isset($data['customFields'][$customField['id']]) ? $data['customFields'][$customField['id']] : null;
+                    }
+                    $customField['validation']['required'] = $customField['required'];
+                    $customField['validation']['fieldtype'] = $customField['fieldType'] ? : $customField['validation']['fieldtype'] ;
+                    if(count($customField['customFieldsDependency'])) {
+                        $ticketType = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findOneById(isset($data['type']) ? $data['type'] : '' );
+                        if($ticketType) {
+                            $typeId = $ticketType->getId();
+                            $flag = 0;
+                            foreach($customField['customFieldsDependency'] as $dependency) {
+                                if($dependency['id'] == $typeId) {
+                                    $flag = 1; break;
+                                }
                             }
                         }
-                    }
-                    if(empty($flag)) {
+                        if(empty($flag)) {
+                            continue;
+                        }
+                    } elseif(in_array($customField['fieldType'], ['checkbox', 'radio', 'select']) && empty($customField['customFieldValues'])) {
                         continue;
                     }
-                } elseif(in_array($customField['fieldType'], ['checkbox', 'radio', 'select']) && empty($customField['customFieldValues'])) {
-                    continue;
-                }
 
-                $errorMessage = $this->validationService->messageValidate($customField['validation'], $customFieldValue);
-                if($errorMessage) {
-                    $formErrors["customFields[".$customField['id']."]"] = $errorMessage;
+                    $errorMessage = $this->validationService->messageValidate($customField['validation'], $customFieldValue);
+                    if($errorMessage) {
+                        $formErrors["customFields[".$customField['id']."]"] = $errorMessage;
+                    }
                 }
             }
-        }
-    }    
+        }    
 
         return ['errorMain' => $errorMain, 'formErrors' => $formErrors, 'errorFlashMessage' => $errorFlashMessage];
     }
@@ -450,7 +453,7 @@ class CustomFieldsService {
 		];
 	}
 
-	public function getCustomerCustomFieldSnippet(): array
+	public function getCustomerCustomFieldSnippet(Ticket $ticket): array
 	{   
         $customFieldCollection = $this->getCustomFieldsArray('customer');
 		$ticketCustomFieldArrayCollection = [];
