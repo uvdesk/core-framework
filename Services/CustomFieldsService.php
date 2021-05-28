@@ -134,7 +134,7 @@ class CustomFieldsService {
                     continue;
                 }
 
-                $errorMessage = $this->validatorService->messageValidate($customField['validation'],  $customFieldValue);
+                $errorMessage = $this->validationService->messageValidate($customField['validation'],  $customFieldValue);
                 if($errorMessage) {
                     $formErrors["customFields[".$customField['id']."]"] = $errorMessage;
                 }
