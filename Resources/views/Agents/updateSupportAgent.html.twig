@@ -160,17 +160,15 @@
                     {% endif %}
 
                     <!-- Field -->
-                    {% if user.email !== app.user.email %}
-                        <div class="uv-element-block">
-                            <label>
-                                <div class="uv-checkbox">
-                                    <input type="checkbox" name="user_form[isActive]" value="{{ userDetails and userDetails.isEnabled ? 1 : 0 }}" {{ userDetails and userDetails.isEnabled ? 'checked' : '' }}>
-                                    <span class="uv-checkbox-view"></span>
-                                </div>
-                                <span class="uv-checkbox-label">{{ 'Account is Active'|trans }}</span>
-                            </label>
-                        </div>
-                    {% endif %}
+                    <div class="uv-element-block">
+                        <label>
+                            <div class="uv-checkbox">
+                                <input type="checkbox" name="user_form[isActive]" value="{{ userDetails and userDetails.isEnabled ? 1 : 0 }}" {{ userDetails and userDetails.isEnabled ? 'checked' : '' }}>
+                                <span class="uv-checkbox-view"></span>
+                            </div>
+                            <span class="uv-checkbox-label">{{ 'Account is Active'|trans }}</span>
+                        </label>
+                    </div>
                     <!-- //Field -->
                     
                 </div>
