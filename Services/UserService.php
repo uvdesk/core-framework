@@ -539,7 +539,7 @@ class UserService
 
         $scheduleDate->setTimeZone(new \DateTimeZone('Asia/Kolkata'));
 
-        return $scheduleDate->format('Asia/Kolkata');
+        return $scheduleDate->format('Y-m-d H:ia');
     }
 
     public function convertToDatetimeTimezoneTimestamp($date, $format = "d-m-Y h:ia")
@@ -778,5 +778,18 @@ class UserService
         }
         
         return $timestamp->format($format);
+    }
+
+    public function isfileExists($filePath)
+    {
+        $dir = __DIR__;
+        $dirSplit = explode('vendor', $dir);
+        $file = str_replace("\\",'/', $dirSplit[0].$filePath);
+
+        if (is_dir($file)) { 
+            return true;
+        }
+        
+        return false;
     }
 }
