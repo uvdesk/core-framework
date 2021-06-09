@@ -71,6 +71,35 @@ class AsideTemplate implements ExtendableComponentInterface
                     }
                 }
             }
+        } else {
+            $sidebar['title'] = $sidebarReference::getTitle();
+            $route = $this->requestStack->getCurrentRequest()->get('_route');
+
+            foreach ($this->panelSidebarItems as $itemReference => $item) {
+                if ($item::getSidebarReferenceId() == $sidebarReference) {
+                    $supportedRoutes = array_unique(array_merge((array) $item::getRouteName(), $item::getSupportedRoutes()));
+
+                    if (null == $item::getRoles()) {
+                        $sidebar['collection'][] = [
+                            'title' => $item::getTitle(),
+                            'routeName' => $item::getRouteName(),
+                            'isActive' => in_array($route, $supportedRoutes),
+                        ];
+                    } else {
+                        foreach ($item::getRoles() as $requiredPermission) {
+                            if ($this->userService->isAccessAuthorized($requiredPermission)) {
+                                $sidebar['collection'][] = [
+                                    'title' => $item::getTitle(),
+                                    'routeName' => $item::getRouteName(),
+                                    'isActive' => in_array($route, $supportedRoutes),
+                                ];
+    
+                                break;
+                            }
+                        }
+                    }
+                }
+            } 
         }
 
         // Sort sidebar items alphabatically
