@@ -184,7 +184,7 @@ class UserService
             $user->setEmail($email);
             $user->setFirstName(isset($extras['firstName']) ? $extras['firstName'] : array_shift($name));
             $user->setLastName(trim(implode(' ', $name)));
-            $user->setIsEnabled(true);
+            $user->setIsEnabled($extras['active']);
             $user->setTimeZone($timeZone);
             $user->setTimeFormat($timeFormat);
 
