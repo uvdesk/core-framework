@@ -48,8 +48,8 @@
                                     <li data-id="{{agent.id}}">
                                         {% if agent.smallThumbnail != null %}
                                             <img src="{{ agent.smallThumbnail }}"/>
-                                        {# {% else %}
-                                            <img src="{{ agentAsset }}"/> #}
+                                        {% else %}
+                                            <img src="{{ asset(default_agent_image_path) }}" alt=""/>
                                         {% endif %}
                                         {{agent.name}}
                                     </li>
