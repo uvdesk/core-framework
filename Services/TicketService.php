@@ -1624,6 +1624,7 @@ class TicketService
 
         $customer = $this->container->get('user.service')->getCustomerPartialDetailById($ticket->getCustomer()->getId());
         $variables['ticket.customerName'] = $customer['name'];
+        $variables['ticket.customerEmail'] = $customer['email'];
         $userService = $this->container->get('user.service');
       
         $variables['ticket.agentName'] = '';
