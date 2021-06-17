@@ -15,18 +15,31 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Translation\Loader\YamlFileLoader;
+use Twig\Environment as TwigEnvironment;
 
 class UserService
 {
     protected $container;
 	protected $requestStack;
     protected $entityManager;
+    protected $twig;
 
-    public function __construct(ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager)
+    public function __construct(ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager, TwigEnvironment $twig)
     {
         $this->container = $container;
 		$this->requestStack = $requestStack;
         $this->entityManager = $entityManager;
+        $this->twig = $twig;
+    }
+
+    public function getCustomFieldTemplateCustomer()
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        //get the ticket
+        $ticket = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($request->attributes->get('id'));
+
+        return $this->twig->render('@_uvdesk_extension_uvdesk_form_component/widgets/CustomFields/customFieldSnippetCustomer.html.twig', 
+                $this->container->get('custom.field.service')->getCustomerCustomFieldSnippet($ticket));
     }
 
     public function isGranted($role) {
