@@ -71,6 +71,92 @@
                 </label>
             </div>
 
+            {# CustomFields #}
+            {% set removeMe = [] %}
+            {% if headerCustomFields %}
+                <div class="custom-fields clearfix">
+                    {% for key, customField in headerCustomFields %}
+                        <div class="uv-element-block input-group {{ customField.customFieldsDependency|length ? 'dependent' : '' }} {% for customFieldCustomFieldsDependency in customField.customFieldsDependency %} dependency{{customFieldCustomFieldsDependency.id}}{% endfor %}" style="position: relative; {{ customField.customFieldsDependency|length ? 'display: none;' : '' }}">
+                            <label class="uv-field-label" for="for{{customField.name~customField.id}}">{{ customField.name }}</label>
+                            {% if customField.fieldType == 'text' %}
+                                <div class="uv-field-block">
+                                    <input type="{{ customField['validation']['fieldtype'] is defined ? customField['validation']['fieldtype'] :'text' }}" name="customFields[{{customField.id}}]" class="uv-field create-ticket" value="" {{ customField.required ? "required" : "" }} id="for{{customField.name~customField.id}}" placeholder="{{customField.value}}">
+                                </div>
+
+                            {% elseif customField.fieldType in ['date', 'time', 'datetime'] %}
+                                <div class="uv-field-block">
+                                    <input class="uv-field form-control create-ticket uv-date-picker {% if customField.fieldType == 'time' %}time{% else %}calendar{% endif %} uv-header-{{ customField.fieldType }}" type="text" name="customFields[{{customField.id}}]" {{ customField.required ? "required" : "" }} id="for{{customField.name~customField.id}}" value="">
+                                </div>
+                            {% elseif customField.fieldType == 'textarea' %}
+                                <div class="uv-field-block">
+                                    <textarea name="customFields[{{customField.id}}]" class="uv-field create-ticket" {{ customField.required ? "required" : "" }} id="for{{customField.name~customField.id}}"></textarea>
+                                </div>
+
+                            {% elseif customField.fieldType in ['file'] %}
+                                <div class="uv-field-block">
+                                    <input type="file" name="customFields[{{customField.id}}]" class="uv-field create-ticket" {{ customField.required ? "required" : "" }} id="for{{customField.name~customField.id}}">
+                                </div>
+
+                            {% elseif customField.fieldType in ['select'] %}
+                                {% if customField.customFieldValues is not empty %}
+                                    <div class="uv-field-block">
+                                        <select name="customFields[{{customField.id}}]" class="uv-select create-ticket" id="for{{customField.name~customField.id}}" {{ customField.required ? "required" : "" }}>
+                                            <option value="">{{ 'Select option' }}</option>
+                                            {% for customFieldValues in customField.customFieldValues %}
+                                                <option value="{{customFieldValues.id}}">{{customFieldValues.name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                {% else %}
+                                    <!--Hide this beacause choices aren't available-->
+                                    {% set removeMe = removeMe|merge(["for"~customField.name~customField.id]) %}
+                                {% endif %}
+
+                            {% elseif customField.fieldType in ['checkbox'] %}
+                                {% if customField.customFieldValues is not empty %}
+                                    {% for customFieldValues in customField.customFieldValues %}
+                                        <div class="uv-split-field">
+                                            <label>
+                                                <div class="uv-checkbox">
+                                                    <input type="checkbox" name="customFields[{{customField.id}}][]" value="{{customFieldValues.id}}" id="for{{customFieldValues.name~customFieldValues.id}}" class="create-ticket"/>
+                                                    <span class="uv-checkbox-view"></span>
+                                                </div>
+                                                <span class="uv-radio-label" for="for{{customFieldValues.name~customFieldValues.id}}">{{ customFieldValues.name }}</span>
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <!--Hide this beacause choices aren't available-->
+                                    {% set removeMe = removeMe|merge(["for"~customField.name~customField.id]) %}
+                                {% endif %}
+
+                            {% elseif customField.fieldType in ['radio'] %}
+                                {% if customField.customFieldValues is not empty %}
+                                    {% for customFieldValues in customField.customFieldValues %}
+                                        <div class="uv-split-field">
+                                            <label>
+                                                <div class="uv-radio">
+                                                    <input type="radio" name="customFields[{{customField.id}}]" value="{{customFieldValues.id}}" id="for{{customFieldValues.name~customFieldValues.id}}" class="create-ticket"/>
+                                                    <span class="uv-radio-view"></span>
+                                                </div>
+                                                <span class="uv-radio-label" for="for{{customFieldValues.name~customFieldValues.id}}">{{ customFieldValues.name }}</span>
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <!--Hide this beacause choices aren't available-->
+                                    {% set removeMe = removeMe|merge(["for"~customField.name~customField.id]) %}
+                                {% endif %}
+
+                            {% endif %}
+                            {% if formErrors['customFields['~customField.id~']'] is defined %}
+                                <div class="text-danger">{{formErrors['customFields['~customField.id~']']}}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             <div class="uv-element-block">
                 <button type="submit" id="create-ticket-btn" class="uv-btn">{{ 'Create Ticket'|trans }}</button>
             </div>
@@ -82,8 +168,15 @@
     {{ include('@UVDeskCoreFramework\\Templates\\attachment.html.twig') }}
 {% endif %}
 
+{% if user_service.isfileExists('apps/uvdesk/form-component') %}
+    {{ include('@_uvdesk_extension_uvdesk_form_component/CustomFields/customFieldValidation.html.twig') }} 
+{% endif %}
+
 <script type="text/javascript">
     $(function () {
+        if (typeof(customFieldValidation) == 'undefined') {
+            customFieldValidation = {};
+        }
         {% if(removeMe is defined) %}
             $.each({{ removeMe | json_encode |raw }}, function(key, value){
                 $('label[for="' + value + '"]').parent().hide();
@@ -105,13 +198,13 @@
             defaults : {
                 path : "",
             },
-            validation: {
+            validation: _.extend(customFieldValidation, {
                 {% if not isTicketViewPage %}
                     'name' : {
                         required : true,
                         msg : "{{ 'This field is mandatory'|trans }}"
                     },
-                    'from' : 
+                    'from' :
                     [{
                         required : true,
                         msg : "{{ 'This field is mandatory'|trans }}"
@@ -132,7 +225,7 @@
                     required : true,
                     msg : "{{ 'This field is mandatory'|trans }}"
                 },
-            },
+            }),
             urlRoot : "{{ path('helpdesk_member_create_ticket') }}"
         });
 
@@ -148,6 +241,7 @@
             },
             events : {
                 'click #create-ticket-btn': "saveTicket",
+                'change #type': "updateCustomFields",
                 'blur input.create-ticket:not(input[type=file]), textarea.create-ticket, select.create-ticket, checkbox.create-ticket': 'formChanegd',
                 'change input[type=file].create-ticket': 'formChanegd',
             },
@@ -167,9 +261,14 @@
                     $('#create-ticket-form').submit();
                     $('form').find('#create-ticket-btn').attr('disabled', 'disabled');
                 }
+            },
+            updateCustomFields: function (e) {
+                const dependentFields = e.currentTarget.value;
+                this.$('.dependent').hide();
+                this.$('.dependency' + dependentFields).show();
             }
         });
 
         new CreateTicketForm();
-    });	
+    });
 </script>

@@ -22,7 +22,16 @@ services:
     
     recaptcha.service:
         alias: Webkul\UVDesk\CoreFrameworkBundle\Services\ReCaptchaService
-    
+
+    report.service:
+        alias: Webkul\UVDesk\CoreFrameworkBundle\Services\ReportService
+
+    validation.service:
+        alias: Webkul\UVDesk\CoreFrameworkBundle\Services\ValidationService
+
+    custom.field.service:
+        alias: Webkul\UVDesk\CoreFrameworkBundle\Services\CustomFieldsService
+
     uvdesk.core.file_system.service:
         alias: Webkul\UVDesk\CoreFrameworkBundle\FileSystem\FileSystem
     

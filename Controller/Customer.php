@@ -12,6 +12,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Webkul\UVDesk\CoreFrameworkBundle\FileSystem\FileSystem;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
 class Customer extends AbstractController
@@ -20,13 +21,15 @@ class Customer extends AbstractController
     private $eventDispatcher;
     private $translator;
     private $fileSystem;
+    private $passwordEncoder;
 
-    public function __construct(UserService $userService, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator, FileSystem $fileSystem)
+    public function __construct(UserService $userService, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator, FileSystem $fileSystem, UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->userService = $userService;
         $this->eventDispatcher = $eventDispatcher;
         $this->translator = $translator;
         $this->fileSystem = $fileSystem;
+        $this->passwordEncoder = $passwordEncoder;
     }
 
     public function listCustomers(Request $request)
@@ -125,7 +128,14 @@ class Customer extends AbstractController
                 }
 
                 if(!$errorFlag && 'hello@uvdesk.com' !== $user->getEmail()) {
-                    $password = $user->getPassword();
+                    if (
+                        isset($data['password']['first']) && !empty(trim($data['password']['first'])) 
+                        && isset($data['password']['second'])  && !empty(trim($data['password']['second'])) 
+                        && trim($data['password']['first']) == trim($data['password']['second'])) {
+                        $encodedPassword = $this->passwordEncoder->encodePassword($user, $data['password']['first']);
+                        $user->setPassword($encodedPassword);
+                    }
+
                     $email = $user->getEmail();
                     $user->setFirstName($data['firstName']);
                     $user->setLastName($data['lastName']);

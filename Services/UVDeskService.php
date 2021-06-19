@@ -216,6 +216,8 @@ class UVDeskService
                 'ROLE_AGENT_MANAGE_TAG' => $translator->trans('Can manage tags'),
                 'ROLE_AGENT_MANAGE_KNOWLEDGEBASE' => $translator->trans('Can manage knowledgebase'),
                 'ROLE_AGENT_MANAGE_GROUP_SAVED_REPLY' => $translator->trans("Can manage Group's Saved Reply"),
+                'ROLE_AGENT_MANAGE_AGENT_ACTIVITY'  => $translator->trans("Can manage agent activity"),
+                'ROLE_AGENT_MANAGE_MARKETING_ANNOUNCEMENT' => $translator->trans("Can manage marketing announcement"),
             ]
         ];
     }
@@ -315,23 +317,6 @@ class UVDeskService
 
         // flush updated content in file
         file_put_contents($filePath, $updatedFileContent);
-
-        $templateFilePath = $this->container->get('kernel')->getProjectDir() . '/vendor/uvdesk/core-framework/Templates/uvdesk.php';
-        $templateFile = file($templateFilePath);
-        foreach ($templateFile as $key => $value) {
-            if (false !== strpos($value, 'uvdesk_site_path.member_prefix')) {
-                list($temp_member_key, $temp_member_prefix) = array($key, $value);
-            }
-
-            if (false !== strpos($value, 'uvdesk_site_path.knowledgebase_customer_prefix')) {
-                list($temp_customer_key, $temp_customer_prefix) = array($key, $value);
-            }
-        }
-        
-        $templateFile[$temp_member_key] = $updatedPrefixForMember;
-        $templateFile[$temp_customer_key] = $updatedPrefixForCustomer;
-     
-        file_put_contents($templateFilePath, $templateFile);
 
         $router = $this->container->get('router');
         $knowledgebaseURL = $router->generate('helpdesk_knowledgebase');

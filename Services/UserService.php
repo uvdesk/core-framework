@@ -15,18 +15,31 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Translation\Loader\YamlFileLoader;
+use Twig\Environment as TwigEnvironment;
 
 class UserService
 {
     protected $container;
 	protected $requestStack;
     protected $entityManager;
+    protected $twig;
 
-    public function __construct(ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager)
+    public function __construct(ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager, TwigEnvironment $twig)
     {
         $this->container = $container;
 		$this->requestStack = $requestStack;
         $this->entityManager = $entityManager;
+        $this->twig = $twig;
+    }
+
+    public function getCustomFieldTemplateCustomer()
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        //get the ticket
+        $ticket = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($request->attributes->get('id'));
+
+        return $this->twig->render('@_uvdesk_extension_uvdesk_form_component/widgets/CustomFields/customFieldSnippetCustomer.html.twig', 
+                $this->container->get('custom.field.service')->getCustomerCustomFieldSnippet($ticket));
     }
 
     public function isGranted($role) {
@@ -184,7 +197,7 @@ class UserService
             $user->setEmail($email);
             $user->setFirstName(isset($extras['firstName']) ? $extras['firstName'] : array_shift($name));
             $user->setLastName(trim(implode(' ', $name)));
-            $user->setIsEnabled(true);
+            $user->setIsEnabled($extras['active']);
             $user->setTimeZone($timeZone);
             $user->setTimeFormat($timeFormat);
 
@@ -539,7 +552,7 @@ class UserService
 
         $scheduleDate->setTimeZone(new \DateTimeZone('Asia/Kolkata'));
 
-        return $scheduleDate->format('Asia/Kolkata');
+        return $scheduleDate->format('Y-m-d H:ia');
     }
 
     public function convertToDatetimeTimezoneTimestamp($date, $format = "d-m-Y h:ia")
@@ -778,5 +791,18 @@ class UserService
         }
         
         return $timestamp->format($format);
+    }
+
+    public function isfileExists($filePath)
+    {
+        $dir = __DIR__;
+        $dirSplit = explode('vendor', $dir);
+        $file = str_replace("\\",'/', $dirSplit[0].$filePath);
+
+        if (is_dir($file)) { 
+            return true;
+        }
+        
+        return false;
     }
 }
