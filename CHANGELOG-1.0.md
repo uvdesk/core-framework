@@ -3,6 +3,24 @@ CHANGELOG for 1.0.x
 
 This changelog references any relevant changes introduced in 1.0 minor versions.
 
+* 1.0.14 (2020-06-19)
+    * **Misc. Updates:**
+        * **Add new feature under report section Agent Activity.**
+        * **Attachment download issues for some extension like docx.**
+        * **Italian language translation corrections.**
+
+    * **Bug Fixes:**
+        * **Issue #374:** {%ticket.customerEmail%} placeholder is not working with saved replies when apply on ticket.
+        * **Issue #373:** admin name is not coming in agent list drop down.
+        * **Issue #372:** Getting 404 on ticket view at agent panel if group is not added in ticket.
+        * **Issue #371:** getting exception when edit agent profile.
+        * **Issue #370:** Creating a new agent without activating creates zombie agent.
+        * **Issue #369:** exception when agent view activity section.
+        * **Issue #368:** member prefix or customer prefix value should be saved in database.
+        * **Issue #365:** broken agent images in report filter search bar.
+        * **Issue #363:** not able to filter group based on status.
+        * **Issue #362:** An exception has been thrown during the rendering of a template ("Class "1\BaseController" does not exist in C:\Program Files\Xampp\htdocs\uvdesk-community-v1.0.13\config/routes\../../src/Controller/ (which is being imported from "C:\Program Files\Xampp\htdocs\uvdesk-community-v1.0.13\config/routes/annotations.yaml"). Make sure annotations are installed and enabled.").
+
 * 1.0.13 (2021-04-02)
     * **Misc. Updates:**
         * **Last reply Field Added with ticket listing.**
