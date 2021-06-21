@@ -262,7 +262,7 @@ class Ticket extends Controller
             if($request->request->get('customFields') || $request->files->get('customFields')) {
                 $this->get('ticket.service')->addTicketCustomFields($ticket, $request->request->get('customFields'), $request->files->get('customFields'));                        
             }
-            $request->getSession()->getFlashBag()->set('success', sprintf('Success! Ticket #%s has been created successfully.', $ticket->getId()));
+            $this->addFlash('success', $this->translator->trans('Success ! Ticket has been created successfully.'));
 
             if ($this->userService->isAccessAuthorized('ROLE_ADMIN')) {
                 return $this->redirect($this->generateUrl('helpdesk_member_ticket', ['ticketId' => $ticket->getId()]));
