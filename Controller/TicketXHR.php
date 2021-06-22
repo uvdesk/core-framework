@@ -139,6 +139,12 @@ class TicketXHR extends Controller
         if (!$ticket)
             $this->noResultFound();
 
+        $user = $this->userService->getSessionUser();
+        // Proceed only if user has access to the resource
+        if (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) {
+            throw new \Exception('Access Denied', 403);
+        }
+
         $error = false;
         $message = '';
         if ($request->request->get('subject') == '') {
@@ -176,6 +182,12 @@ class TicketXHR extends Controller
         $requestContent = $request->request->all() ?: json_decode($request->getContent(), true);
         $ticketId =  $ticketId != 0 ? $ticketId : $requestContent['ticketId'];
         $ticket = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($ticketId);
+
+        $user = $this->userService->getSessionUser();
+        // Proceed only if user has access to the resource
+        if (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) {
+            throw new \Exception('Access Denied', 403);
+        }
 
         // Validate request integrity
         if (empty($ticket)) {
