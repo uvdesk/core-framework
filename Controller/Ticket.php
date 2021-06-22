@@ -425,6 +425,14 @@ class Ticket extends Controller
             $this->noResultFound();
         }
 
+        $ticket = $attachment->getThread()->getTicket();
+        $user = $this->userService->getSessionUser();
+        
+        // Proceed only if user has access to the resource
+        if (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) {
+            throw new \Exception('Access Denied', 403);
+        }
+
         $zipname = 'attachments/' .$threadId.'.zip';
         $zip = new \ZipArchive;
 
@@ -456,6 +464,14 @@ class Ticket extends Controller
 
         if (!$attachment) {
             $this->noResultFound();
+        }
+
+        $ticket = $attachment->getThread()->getTicket();
+        $user = $this->userService->getSessionUser();
+        
+        // Proceed only if user has access to the resource
+        if (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) {
+            throw new \Exception('Access Denied', 403);
         }
 
         $path = $this->kernel->getProjectDir() . "/public/". $attachment->getPath();
