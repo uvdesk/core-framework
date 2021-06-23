@@ -148,10 +148,7 @@ class Customer extends AbstractController
                     $userInstance->setUser($user);
                     // $userInstance->setIsActive(isset($data['isActive']) ? 1 : 0);
                     $userInstance->setIsVerified(0);
-                    if(isset($data['source']))
-                        $userInstance->setSource($data['source']);
-                    else
-                        $userInstance->setSource('website');
+                    
                     if(isset($data['contactNumber'])) {
                         $userInstance->setContactNumber($data['contactNumber']);
                     }
