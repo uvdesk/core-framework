@@ -16,9 +16,11 @@ use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
 use Webkul\UVDesk\CoreFrameworkBundle\FileSystem\FileSystem;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Translation\TranslatorInterface;
+
 
 
 class Account extends AbstractController
@@ -30,8 +32,9 @@ class Account extends AbstractController
     private $passwordEncoder;
     private $uvdeskService;
     private $fileSystem;
+    private $fileUploadService;
 
-    public function __construct(UserService $userService, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator, UserPasswordEncoderInterface $passwordEncoder, UVDeskService $uvdeskService, FileSystem $fileSystem)
+    public function __construct(UserService $userService, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator, UserPasswordEncoderInterface $passwordEncoder, UVDeskService $uvdeskService, FileSystem $fileSystem, FileUploadService $fileUploadService)
     {
         $this->userService = $userService;
         $this->eventDispatcher = $eventDispatcher;
@@ -39,9 +42,10 @@ class Account extends AbstractController
         $this->passwordEncoder = $passwordEncoder;
         $this->uvdeskService = $uvdeskService;
         $this->fileSystem = $fileSystem;
+        $this->fileUploadService = $fileUploadService;
         
     }
-
+    
     private function encodePassword(User $user, $plainPassword)
     {
         $encodedPassword = $this->passwordEncoder->encodePassword($user, $plainPassword);
@@ -128,8 +132,13 @@ class Account extends AbstractController
                     $userInstance = $this->userService->getUserDetailById($user->getId());
 
                     if (isset($dataFiles['profileImage'])) {
-                        $assetDetails = $this->fileSystem->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
-                        $userInstance->setProfileImagePath($assetDetails['path']);
+                        $previousImage = $userInstance->getProfileImagePath();
+                        if($previousImage != null){
+                            $image = str_replace("\\","/",$this->getParameter('kernel.project_dir').'/public'.$previousImage);
+                            $check = $this->fileUploadService->fileRemoveFromFolder($image); 
+                        }
+                            $assetDetails = $this->fileSystem->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
+                            $userInstance->setProfileImagePath($assetDetails['path']);
                     }
 
                     $userInstance  = $userInstance->setContactNumber($data['contactNumber']);
