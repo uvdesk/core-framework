@@ -4179,7 +4179,7 @@ kbd {
 .uv-filter-view .uv-filter-paper {
   padding-left: 20px;
   padding-bottom: 20px;
-  /* position: absolute; */
+  position: absolute;
   top: 113px;
   right: 0px;
   left: 0px;
