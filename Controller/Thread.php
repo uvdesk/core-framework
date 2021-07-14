@@ -200,16 +200,23 @@ class Thread extends Controller
         $json = [];
         $em = $this->getDoctrine()->getManager();
         $content = json_decode($request->getContent(), true);
+        $thread = $em->getRepository(TicketThread::class)->find($request->attributes->get('threadId'));
+        $ticket = $thread->getTicket();
+        $user = $this->userService->getSessionUser();
+
+        // Proceed only if user has access to the resource
+        if ( (!$this->userService->getSessionUser()) || (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) ) 
+        {
+            throw new \Exception('Access Denied', 403);
+        }
 
         if ($request->getMethod() == "PUT") {
             // $this->isAuthorized('ROLE_AGENT_EDIT_THREAD_NOTE');
             if (str_replace(' ','',str_replace('&nbsp;','',trim(strip_tags($content['reply'], '<img>')))) != "") {
-                $thread = $em->getRepository(TicketThread::class)->find($request->attributes->get('threadId'));
                 $thread->setMessage($content['reply']);
                 $em->persist($thread);
                 $em->flush();
 
-                $ticket = $thread->getTicket();
                 $ticket->currentThread = $thread;
 
                 // Trigger agent reply event
@@ -235,6 +242,15 @@ class Thread extends Controller
         $json = array();
         $content = json_decode($request->getContent(), true);
         $em = $this->getDoctrine()->getManager();
+
+        $ticket = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($content['ticketId']);	    
+        $user = $this->userService->getSessionUser();   
+
+        // Proceed only if user has access to the resource
+        if ( (!$this->userService->getSessionUser()) || (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) ) 
+        {
+            throw new \Exception('Access Denied', 403);
+        }
 
         if ($request->getMethod() == "DELETE") {
             $thread = $em->getRepository(TicketThread::class)->findOneBy(array('id' => $request->attributes->get('threadId'), 'ticket' => $content['ticketId']));
