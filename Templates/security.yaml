@@ -8,6 +8,11 @@ security:
     providers:
         user_provider:
             id: user.provider
+        ldap_user_provider:
+            id: user.provider.ldap
+        chained_user_provider:
+            chain:
+                providers: ['ldap_user_provider', 'user_provider']
     
     encoders:
         Webkul\UVDesk\CoreFrameworkBundle\Entity\User: auto
@@ -15,7 +20,7 @@ security:
     firewalls:
         back_support:
             pattern: /%uvdesk_site_path.member_prefix%
-            provider: user_provider
+            provider: chained_user_provider
             anonymous: ~
             form_login:
                 use_referer: true

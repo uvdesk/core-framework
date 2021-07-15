@@ -41,8 +41,42 @@ class BundleConfiguration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->append($this->getLdapNode())
             ->end();
 
         return $treeBuilder;
+    }
+
+    public function getLdapNode() {
+        $treeBuilder = new TreeBuilder('ldap');
+        $rootNode = method_exists(TreeBuilder::class, 'getRootNode') ? $treeBuilder->getRootNode() : $treeBuilder->root('ldap');
+        
+        $rootNode->
+            children()
+                ->node('connection', 'array')
+                    ->children()
+                        ->node('host', 'scalar')->defaultValue('127.0.0.1')->end()
+                        ->node('port', 'scalar')->defaultValue(389)->end()
+                        ->node('encryption', 'enum')
+                            ->values(['tls', 'ssl', 'none'])
+                            ->defaultValue('none')
+                        ->end()
+                        ->node('options', 'array')
+                            ->children()
+                                ->node('protocol_version', 'scalar')->defaultValue(3)->end()
+                                ->node('referrals', 'scalar')->defaultValue(false)->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->node('base_dn', 'scalar')->defaultValue(null)->end()
+                ->node('search_dn', 'scalar')->defaultValue(null)->end()
+                ->node('search_password', 'scalar')->defaultValue(null)->end()
+                ->node('username_attribute', 'scalar')->defaultValue('mail')->end()
+                ->node('password_attribute', 'scalar')->defaultValue('userPassword')->end()
+            ->end()
+        ;
+
+        return $rootNode;
     }
 }

@@ -16,7 +16,8 @@
         "doctrine/doctrine-fixtures-bundle": "^3.2",
         "doctrine/doctrine-migrations-bundle": "^2.0",
         "symfony/framework-bundle": "4.3.*",
-        "knplabs/knp-paginator-bundle": "^4.0"
+        "knplabs/knp-paginator-bundle": "^4.0",
+        "symfony/ldap": "^4.3"
     },
     "suggest": {
         "uvdesk/automation-bundle": "Automate operations within your UVDesk Community Helpdesk System based on pre-defined events triggered from your application",

@@ -10,6 +10,9 @@ services:
     
     user.provider:
         alias: Webkul\UVDesk\CoreFrameworkBundle\Providers\UserProvider
+    
+    user.provider.ldap:
+        alias: Webkul\UVDesk\CoreFrameworkBundle\Providers\LdapUserProvider
 
     user.service:
         alias: Webkul\UVDesk\CoreFrameworkBundle\Services\UserService

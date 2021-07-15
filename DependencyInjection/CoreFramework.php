@@ -72,6 +72,20 @@ class CoreFramework extends Extension
                         }
                     }
                     break;
+                case 'ldap':
+                    foreach ($value as $ldapItem => $ldapItemValue) {
+                        switch ($ldapItem) {
+                            case 'connection':
+                                foreach ($ldapItemValue as $connectionItem => $connectionItemValue) {
+                                    $container->setParameter("uvdesk.ldap.connection.$connectionItem", $connectionItemValue);
+                                }
+                                break;
+                            default:
+                                $container->setParameter("uvdesk.ldap.$ldapItem", $ldapItemValue);
+                                break;
+                        }
+                    }
+                    break;
                 default:
                     $container->setParameter("uvdesk.$param", $value);
                     break;

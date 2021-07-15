@@ -38,6 +38,22 @@ uvdesk:
         templates:
             email: mail.html.twig
 
+    #Ldap Configuration
+    ldap:
+        connection:
+            host: 192.168.1.73
+            port: 389
+            encryption: none
+            options: 
+                protocol_version: 3
+                referrals: false
+        base_dn: 'dc=webkultest,dc=com'
+        search_dn: 'cn=admin,dc=webkultest,dc=com' 
+        search_password: 'ldap@567#'
+        search_password: 'ldap@567#'
+        username_attribute: mail
+        password_attribute: userPassword
+
 STRING;
-   
+
 ?>

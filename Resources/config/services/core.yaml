@@ -15,6 +15,9 @@ services:
     
     Webkul\UVDesk\CoreFrameworkBundle\Providers\UserProvider:
         arguments: ['@security.firewall.map']
+        
+    Webkul\UVDesk\CoreFrameworkBundle\Providers\LdapUserProvider:
+        arguments: ['@security.firewall.map']
     
     Webkul\UVDesk\CoreFrameworkBundle\Fixtures\:
         resource: '../../../Fixtures/*'
