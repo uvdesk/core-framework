@@ -77,7 +77,7 @@ class Thread extends Controller
             'createdBy' => 'agent',
             'source' => 'website',
             'threadType' => strtolower($params['threadType']),
-            'message' => str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', $params['reply']),
+            'message' => str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', htmlspecialchars($params['reply'])),
             'attachments' => $request->files->get('attachments')
         ];
 
