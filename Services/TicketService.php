@@ -837,10 +837,15 @@ class TicketService
 
         foreach ($params['ids'] as $ticketId) {
             $ticket = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->find($ticketId);
+
+            if (false == $this->isTicketAccessGranted($ticket)) {
+		        throw new \Exception('Access Denied', 403);
+	        }
             
             if (empty($ticket)) {
                 continue;
             }
+
 
             switch ($params['actionType']) {
                 case 'trashed':
