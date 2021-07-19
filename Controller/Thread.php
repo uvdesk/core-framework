@@ -42,6 +42,11 @@ class Thread extends Controller
 
         $ticket = $entityManager->getRepository(Ticket::class)->findOneById($ticketId);
 
+        // Proceed only if user has access to the resource
+        if (false == $this->ticketService->isTicketAccessGranted($ticket)) {
+            throw new \Exception('Access Denied', 403);
+        }
+
         if (empty($ticket)) {
             throw new \Exception('Ticket not found', 404);
         } else if ('POST' !== $request->getMethod()) {
