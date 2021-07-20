@@ -414,6 +414,17 @@ class UserService
         return $qb->getQuery()->getSingleScalarResult();
     }
 
+    public function getCustomersCountForKudos($container)
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select($qb->expr()->countDistinct('c.id')."as customerCount")->from('UVDeskCoreFrameworkBundle:Ticket', 't')
+                ->leftJoin('t.customer', 'c');
+
+        $container->get('report.service')->addPermissionFilter($qb, $this->container, false);
+
+        return $qb->getQuery()->getSingleScalarResult();
+    }
+
     public function getUserSubGroupIds($userId) {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('supportTeams.id')->from('UVDeskCoreFrameworkBundle:User', 'user')
@@ -552,7 +563,7 @@ class UserService
 
         $scheduleDate->setTimeZone(new \DateTimeZone('Asia/Kolkata'));
 
-        return $scheduleDate->format('Y-m-d H:ia');
+        return $scheduleDate->format($format);
     }
 
     public function convertToDatetimeTimezoneTimestamp($date, $format = "d-m-Y h:ia")

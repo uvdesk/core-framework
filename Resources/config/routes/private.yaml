@@ -407,3 +407,11 @@ helpdesk_member_agent_activity:
 helpdesk_member_agent_activity_xhr:
     path:     /agent/activity/xhr
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Report::agentActivityXHR
+
+helpdesk_report_achievements_insight_action:
+    path:     /reports/achievements
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Report::achievementInsightsAction
+
+helpdesk_report_achievements_data_xhr:
+    path:     /reports/achievements-data
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Report::getAchievementsXhr
