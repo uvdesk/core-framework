@@ -235,7 +235,7 @@ class Customer extends AbstractController
 
     public function bookmarkCustomer(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {
+        if ( !$this->userService->getSessionUser() && !$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER') ) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
