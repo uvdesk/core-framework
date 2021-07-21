@@ -60,6 +60,10 @@ class Report extends AbstractController
 
     public function agentActivityData(Request $request)
     {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_ACTIVITY')){
+            throw new \Exception('Access Denied', 403);
+        }
+        
         $data = [];
         $reportService = $this->reportService;
         $reportService->parameters = $request->query->all();
