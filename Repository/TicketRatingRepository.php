@@ -2,6 +2,16 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Repository;
 
+use Doctrine\ORM\Query;
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\Common\Collections\Criteria;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
+use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Doctrine\ORM\EntityManagerInterface;
+
 /**
  * TicketRatingRepository
  *
@@ -10,4 +20,201 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Repository;
  */
 class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
 {
+    public $safeFields = array('page','limit','sort','order','direction');
+    const LIMIT = 10;
+
+    public function getRatedTicketList(\Symfony\Component\HttpFoundation\ParameterBag $obj = null, $container) {
+    	$data = array_reverse($obj->all());
+    	$userService = $container->get('user.service');
+    	$startDate = $userService->convertToTimezone(new \DateTime($data['start']),'Y-m-d');
+        $endDate = $userService->convertToTimezone(new \DateTime($data['end']),'Y-m-d');
+
+        $json = array();
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('r,c.id as customerId,c.email,cd.profileImagePath as smallThumbnail,t.id as ticketId')->from($this->getEntityName(), 'r')
+        		->leftJoin('r.ticket', 't')
+                ->leftJoin('t.agent', 'a')
+                ->leftJoin('t.customer', 'tc')
+                ->leftJoin('t.supportGroup', 'supportGroup')
+                ->leftJoin('t.priority', 'pr')
+                ->leftJoin('t.type', 'tp')
+                ->leftJoin('r.customer', 'c')
+                ->leftJoin('c.userInstance', 'cd')
+                ->addSelect("CONCAT(c.firstName,' ', c.lastName) AS name")
+                ->where('r.createdAt BETWEEN :startDate AND :endDate')
+                ->setParameter('startDate', $startDate." 00:00:01")
+                ->setParameter('endDate', $endDate." 23:59:59")
+                ->andwhere('cd.supportRole = 4');
+
+        $container->get('report.service')->addPermissionFilter($qb, $container);
+
+        if(isset($data['priority'])) { 
+            $qb->andwhere('pr.id IN (:priorityIds)');
+            $qb->setParameter('priorityIds', explode(',', $data['priority']));
+        } 
+        if(isset($data['type'])) { 
+            $qb->andwhere('tp.id IN (:typeIds)');
+            $qb->setParameter('typeIds', explode(',', $data['type']));
+        } 
+        if(isset($data['agent'])) { 
+            $qb->andwhere('a.id IN (:agentIds)');
+            $qb->setParameter('agentIds', explode(',', $data['agent']));
+        } 
+        if(isset($data['customer'])) { 
+            $qb->andwhere('tc.id IN (:customerIds)');
+            $qb->setParameter('customerIds', explode(',', $data['customer']));
+        } 
+        if(isset($data['group'])) { 
+            $qb->andwhere('gr.id IN (:groupIds)');
+            $qb->setParameter('groupIds', explode(',', $data['group']));
+        }
+
+        if(!isset($data['sort'])){
+            $qb->orderBy('r.createdAt',Criteria::DESC);
+        }
+
+        $paginator  = $container->get('knp_paginator');
+        $newQb = clone $qb;
+        $newQb->select('DISTINCT r.id');
+        $results = $paginator->paginate(
+            $qb->getQuery()->setHydrationMode(Query::HYDRATE_ARRAY)->setHint('knp_paginator.count', count($newQb->getQuery()->getResult())),
+            isset($data['page']) ? $data['page'] : 1,
+            self::LIMIT,
+            array('distinct' => true)
+        );
+
+        $paginationData = $results->getPaginationData();
+        $queryParameters = $results->getParams();
+        $data = [];
+        foreach ($results as $rating) {
+        	$customer = array(
+								'id' => $rating['customerId'],
+								'name' => $rating['name'],
+								'email' => $rating['email'],
+								'smallThumbnail' => $rating['smallThumbnail']
+							);
+        	$data[] = array(
+        				'id' => $rating[0]['id'],
+        				'ticketId' => $rating['ticketId'],
+        				'customer' => $customer,
+        				'count' => $rating[0]['stars'],
+        				'formatedRatedAt' => $userService->convertToTimezone($rating[0]['createdAt']),
+
+        			);
+        }
+
+        $paginationData['url'] = '#'.$container->get('report.service')->symfony_http_build_query($queryParameters);
+        $json['ratedTickets'] = $data;
+        $json['pagination'] = $paginationData;
+       
+        return $json;
+    }
+
+    public function getRatingData(\Symfony\Component\HttpFoundation\ParameterBag $obj = null, $container)
+    {
+        $data_time = array_reverse($obj->all());
+    	$userService = $container->get('user.service');
+    	$startDate = $userService->convertToTimezone(new \DateTime($data_time['start']),'Y-m-d');
+        $endDate = $userService->convertToTimezone(new \DateTime($data_time['end']),'Y-m-d');
+
+        $data = array();
+
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('avg(r.stars) as avgCount, count(r.customer) as totalRatedCustomer')->from('UVDeskCoreFrameworkBundle:TicketRating', 'r')
+                ->leftJoin('r.ticket', 't')
+                ->andwhere('r.createdAt BETWEEN :startDate AND :endDate')
+                ->andwhere('t.isTrashed != 1')
+                ->andwhere('t.status != 5')
+                ->groupBy('r.ticket')
+                ->setParameter('startDate', $startDate." 00:00:01")
+                ->setParameter('endDate', $endDate." 23:59:59");
+
+        $container->get('report.service')->addPermissionFilter($qb, $this->container);
+
+        $qb = $this->filterQuerySlim($qb);
+        $result = $qb->getQuery()->getResult();
+
+        $ratedCustomerCount = 0;
+        $rateTotal = 0;
+        foreach ($result as $rating) {
+            $rateTotal += $rating['avgCount'];
+            $ratedCustomerCount += $rating['totalRatedCustomer'];
+        }
+        $ratePercent = $rateTotal ? ($rateTotal / ( count($result) * 5 )) : 0;
+
+        $data['rating'] = $ratePercent;
+        $data['ratedCustomer'] = $ratedCustomerCount;
+        $data['totalCustomer'] = $container->get('user.service')->getCustomersCountForKudos($container);
+        return $data;
+    }
+
+    public function filterQuerySlim($qb, $filterAgent = true)
+    {
+        if(isset($this->parameters['priority'])) {
+            $qb->leftJoin('t.priority', 'pr')
+                ->andwhere('pr.id IN (:priorityIds)')
+                ->setParameter('priorityIds', explode(',', $this->parameters['priority']));
+        }
+
+        if(isset($this->parameters['type'])) {
+            $qb->leftJoin('t.type', 'tp')
+                ->andwhere('tp.id IN (:typeIds)')
+                ->setParameter('typeIds', explode(',', $this->parameters['type']));
+        }
+
+        if($filterAgent && isset($this->parameters['agent'])) {
+            $qb->leftJoin('t.agent', 'a')
+                ->andwhere('a.id IN (:agentIds)')
+                ->setParameter('agentIds', explode(',', $this->parameters['agent']));
+        }
+
+        if(isset($this->parameters['customer'])) {
+            $qb->leftJoin('t.customer', 'c')
+                ->andwhere('c.id IN (:customerIds)')
+                ->setParameter('customerIds', explode(',', $this->parameters['customer']));
+        }
+
+        if(isset($this->parameters['group'])) {
+            $qb->leftJoin('t.group', 'gr')
+                ->andwhere('gr.id IN (:groupIds)')
+                ->setParameter('groupIds', explode(',', $this->parameters['group']));
+        }
+
+        if(isset($this->parameters['team'])) {
+            $qb->leftJoin('t.subgroup', 'tSub')
+                ->andwhere('tSub.id IN (:subGroupIds)')
+                ->setParameter('subGroupIds', explode(',', $this->parameters['team']));
+        }
+
+
+
+        return $qb;
+    }
+
+    public function getRatingByStarCount(\Symfony\Component\HttpFoundation\ParameterBag $obj = null, $rateId, $container)
+    {
+        $data_time = array_reverse($obj->all());
+    	$userService = $container->get('user.service');
+    	$startDate = $userService->convertToTimezone(new \DateTime($data_time['start']),'Y-m-d');
+        $endDate = $userService->convertToTimezone(new \DateTime($data_time['end']),'Y-m-d');
+
+        $data = array();
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('COUNT(r.id)')->from('UVDeskCoreFrameworkBundle:TicketRating', 'r')
+                ->leftJoin('r.ticket', 't')
+                ->andwhere('r.createdAt BETWEEN :startDate AND :endDate')
+                ->andwhere('t.isTrashed != 1')
+                ->andwhere('t.status != 5')
+                ->andwhere('r.stars = :count')
+                ->setParameter('startDate', $startDate." 00:00:01")
+                ->setParameter('endDate', $endDate." 23:59:59")
+                ->setParameter('count', $rateId);
+
+                $container->get('report.service')->addPermissionFilter($qb, $this->container);
+
+        $qb = $this->filterQuerySlim($qb);
+
+        return $qb->getQuery()->getSingleScalarResult();
+    }
+
 }

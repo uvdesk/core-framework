@@ -150,4 +150,39 @@ class ReportService {
 
         return $time_str." "."ago";
     }
+
+    /**
+     * symfony_http_build_query Return query strinf
+     * @param  Array $query Query parameters
+     * @return String Query String
+     */
+    public function symfony_http_build_query(array $query) {
+        $query['page'] = "replacePage";
+        $params = array();
+        if(isset($query['_locale']))
+            unset($query['_locale']);
+        if(isset($query['domain']))
+            unset($query['domain']);
+        foreach ($query as $key => $value) {
+            if (!isset($value)) {
+                $params[] = $key;
+            } else {
+                $params[] = $key . '/' . str_replace('%2F', '/', rawurlencode($value));
+            }
+        }
+        $str = implode('/', $params);
+        if(isset($query['new']))
+            $str = str_replace("new/1","new",$str);
+        elseif(isset($query['unassigned']))
+            $str = str_replace("unassigned/1","unassigned",$str);
+        elseif(isset($query['notreplied']))
+            $str = str_replace("notreplied/1","notreplied",$str);
+        elseif(isset($query['mine']))
+            $str = str_replace("mine/1","mine",$str);
+        elseif(isset($query['starred']))
+            $str = str_replace("starred/1","starred",$str);
+        elseif(isset($query['trashed']))
+            $str = str_replace("trashed/1","trashed",$str);
+        return $str;
+    }
 }
