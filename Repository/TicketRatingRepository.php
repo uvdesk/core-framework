@@ -22,6 +22,7 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
 {
     public $safeFields = array('page','limit','sort','order','direction');
     const LIMIT = 10;
+    private $container;
 
     public function getRatedTicketList(\Symfony\Component\HttpFoundation\ParameterBag $obj = null, $container) {
     	$data = array_reverse($obj->all());
