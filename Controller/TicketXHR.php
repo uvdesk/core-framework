@@ -640,10 +640,10 @@ class TicketXHR extends Controller
                     $filtersResponse = $this->userService->getCustomersPartial($request);
                     break;
                 case 'group':
-                    $filtersResponse = $this->userService->getGroups($request);
+                    $filtersResponse = $this->userService->getSupportGroups($request);
                     break;
                 case 'team':
-                    $filtersResponse = $this->userService->getSubGroups($request);
+                    $filtersResponse = $this->userService->getSupportTeams($request);
                     break;
                 case 'tag':
                     $filtersResponse = $this->ticketService->getTicketTags($request);
