@@ -584,7 +584,7 @@
         <td data-value="{{ 'Customer Name'|trans }}">
         	<a href="{{path('helpdesk_member_manage_customer_account')}}/<%= customer.id %>">
                 <% if(customer.smallThumbnail != null) { %>
-                    <img src="<%= customer.smallThumbnail %>" alt=""/>
+                    <img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%= customer.smallThumbnail %>" alt=""/>
                 <% } else { %>
                     <img src="{{ asset(default_customer_image_path) }}" alt=""/>
                 <% } %>
