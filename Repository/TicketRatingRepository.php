@@ -36,7 +36,7 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
         		->leftJoin('r.ticket', 't')
                 ->leftJoin('t.agent', 'a')
                 ->leftJoin('t.customer', 'tc')
-                ->leftJoin('t.supportGroup', 'supportGroup')
+                ->leftJoin('t.supportGroup', 'gr')
                 ->leftJoin('t.priority', 'pr')
                 ->leftJoin('t.type', 'tp')
                 ->leftJoin('r.customer', 'c')
@@ -176,18 +176,16 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
         }
 
         if(isset($this->parameters['group'])) {
-            $qb->leftJoin('t.group', 'gr')
+            $qb->leftJoin('t.supportGroup', 'gr')
                 ->andwhere('gr.id IN (:groupIds)')
                 ->setParameter('groupIds', explode(',', $this->parameters['group']));
         }
 
         if(isset($this->parameters['team'])) {
-            $qb->leftJoin('t.subgroup', 'tSub')
+            $qb->leftJoin('t.supportTeam', 'tSub')
                 ->andwhere('tSub.id IN (:subGroupIds)')
                 ->setParameter('subGroupIds', explode(',', $this->parameters['team']));
         }
-
-
 
         return $qb;
     }
