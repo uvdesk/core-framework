@@ -17,6 +17,7 @@ use Symfony\Component\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\EmailService;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class Thread extends Controller
 {
@@ -25,9 +26,11 @@ class Thread extends Controller
     private $eventDispatcher;
     private $ticketService;
     private $emailService;
+    private $kernel;
 
-    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcherInterface $eventDispatcher)
+    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcherInterface $eventDispatcher, KernelInterface $kernel)
     {
+        $this->kernel = $kernel;
         $this->userService = $userService;
         $this->emailService = $emailService;
         $this->translator = $translator;
