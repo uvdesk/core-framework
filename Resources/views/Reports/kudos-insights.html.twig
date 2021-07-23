@@ -873,7 +873,7 @@
                                     parent.find('.uv-no-results').hide();
                                     _.each(response, function(item) {
                                         if(currentElement.attr('data-filter-type') == 'customer' || currentElement.attr('data-filter-type') == 'agent') {
-                                            var img = item.smallThumbnail ? item.smallThumbnail : (currentElement.attr('data-filter-type') == 'customer' ? "{{ asset(default_customer_image_path) }}" : "{{ asset(default_agent_image_path) }}");
+                                            var img = item.smallThumbnail ? "{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}" + item.smallThumbnail : (currentElement.attr('data-filter-type') == 'customer' ? "{{ asset(default_customer_image_path) }}" : "{{ asset(default_agent_image_path) }}");
                                             parent.find('.uv-dropdown-list ul').append("<li data-id='" + item.id + "'><img src='" + img + "'/>" + item.name + "</li>")
                                         } else
                                             parent.find('.uv-dropdown-list ul').append("<li data-id='" + item.id + "'>" + item.name + "</li>")
