@@ -640,10 +640,10 @@ class TicketXHR extends Controller
                     $filtersResponse = $this->userService->getCustomersPartial($request);
                     break;
                 case 'group':
-                    $filtersResponse = $this->userService->getGroups($request);
+                    $filtersResponse = $this->userService->getSupportGroups($request);
                     break;
                 case 'team':
-                    $filtersResponse = $this->userService->getSubGroups($request);
+                    $filtersResponse = $this->userService->getSupportTeams($request);
                     break;
                 case 'tag':
                     $filtersResponse = $this->ticketService->getTicketTags($request);
@@ -680,9 +680,9 @@ class TicketXHR extends Controller
             } elseif ($request->query->get('type') == 'customer') {
                 $json = $this->userService->getCustomersPartial($request);
             } elseif ($request->query->get('type') == 'group') {
-                $json = $this->userService->getGroups($request);
+                $json = $this->userService->getSupportGroups($request);
             } elseif ($request->query->get('type') == 'team') {
-                $json = $this->userService->getSubGroups($request);
+                $json = $this->userService->getSupportTeams($request);
             } elseif ($request->query->get('type') == 'tag') {
                 $json = $this->ticketService->getTicketTags($request);
             } elseif ($request->query->get('type') == 'label') {
