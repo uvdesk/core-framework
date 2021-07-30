@@ -98,8 +98,15 @@ class MailCustomer extends WorkflowAction
 
     public static function sendCcBccMail($container, $entity, $thread, $subject, $attachments)
     {
+    	$entityManager = $container->get('doctrine.orm.entity_manager');
         $message = '<html><body style="background-image: none"><p>Hello</p><br/><p>'.$thread->getMessage().'</p></body></html>';
 
         $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
+        if (!empty($messageId)) {
+         	$createdThread = isset($entity->createdThread) ? $entity->createdThread : '';
+                $createdThread->setMessageId($messageId);		 
+                $entityManager->persist($createdThread);
+                $entityManager->flush();
+         }
     }
 }
