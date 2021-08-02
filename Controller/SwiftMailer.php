@@ -38,6 +38,7 @@ class SwiftMailer extends Controller
     {
         if ($request->getMethod() == 'POST') {
             $params = $request->request->all();
+            $params['password'] = base64_encode($params['password']);
             $swiftmailer = $this->swiftMailer;
 
             $swiftmailerConfiguration = $swiftmailer->createConfiguration($params['transport'], $params['id']);
@@ -78,7 +79,8 @@ class SwiftMailer extends Controller
         }
 
         if ($request->getMethod() == 'POST') {
-            $params = $request->request->all();   
+            $params = $request->request->all(); 
+            $params['password'] = base64_encode($params['password']);  
             $existingSwiftmailerConfiguration = clone $swiftmailerConfiguration;
             $swiftmailerConfiguration = $swiftmailerService->createConfiguration($params['transport'], $params['id']);
             $swiftmailerConfiguration->initializeParams($params);
