@@ -492,6 +492,7 @@ class EmailService
         // Retrieve mailer to be used for sending emails
         try {
             $mailer = $this->container->get('swiftmailer.mailer' . (('default' == $mailerID) ? '' : ".$mailerID"));
+            $mailer->getTransport()->setPassword(base64_decode($mailer->getTransport()->getPassword()));
         } catch (\Exception $e) {
             // @TODO: Log exception - Mailer not found
             return;
