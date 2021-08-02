@@ -79,7 +79,9 @@ class Thread extends Controller
         // if (true !== $this->get('file.service')->validateAttachments($request->files->get('attachments'))) {
         //     $this->addFlash('warning', "Invalid attachments.");
         // }
-	$adminReply =  str_replace(['<p>','</p>'],'',$params['reply']);
+        
+	    $adminReply =  str_replace(['<p>','</p>'],"",$params['reply']);
+
         $threadDetails = [
             'user' => $this->getUser(),
             'createdBy' => 'agent',
