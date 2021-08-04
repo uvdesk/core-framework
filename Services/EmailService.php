@@ -9,18 +9,21 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\EmailTemplates;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class EmailService
 {
     private $request;
     private $container;
     private $entityManager;
+    private $session;
 
-    public function __construct(ContainerInterface $container, RequestStack $request, EntityManagerInterface $entityManager)
+    public function __construct(ContainerInterface $container, RequestStack $request, EntityManagerInterface $entityManager, SessionInterface $session)
     {
         $this->request = $request;
         $this->container = $container;
         $this->entityManager = $entityManager;
+        $this->session = $session;
     }
 
     public function trans($text)
@@ -460,6 +463,7 @@ class EmailService
 
     public function sendMail($subject, $content, $recipient, array $headers = [], $mailboxEmail = null, array $attachments = [], $cc = [], $bcc = [])
     {
+        $error_check = false;
         if (empty($mailboxEmail)) {
             // Send email on behalf of support helpdesk
             $supportEmail = $this->container->getParameter('uvdesk.support_email.id');
@@ -483,6 +487,7 @@ class EmailService
                         return;
                     }
                 } catch (\Exception $e) {
+                    $error_check = true;
                     // @TODO: Log exception - Mailbox not found
                     return;
                 }
@@ -494,6 +499,7 @@ class EmailService
             $mailer = $this->container->get('swiftmailer.mailer' . (('default' == $mailerID) ? '' : ".$mailerID"));
             $mailer->getTransport()->setPassword(base64_decode($mailer->getTransport()->getPassword()));
         } catch (\Exception $e) {
+            $error_check = true;
             // @TODO: Log exception - Mailer not found
             return;
         }
@@ -531,7 +537,12 @@ class EmailService
             
             return "<$messageId>";
         } catch (\Exception $e) {
+            $error_check = true;
             // @TODO: Log exception
+        }
+
+        if ($error_check == true) {
+            $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans('Warning ! Swiftmailer not working'));   
         }
 
         return null;
