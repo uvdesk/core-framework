@@ -115,7 +115,15 @@
 			<%- name %>
 		</td>
 		<td data-value="Email"><%- email %></td>
-		<td data-value="Role"><%= role %></td>
+		<td data-value="Role">
+		   <% if(role == "Agent") { %>
+        		{% trans %}Agent {% endtrans %}
+         	   <% } else if(role=="Account Owner"){ %>
+			{% trans %}Account Owner {% endtrans %}
+		   <%}else if(role=="Administrator"){ %>
+			{% trans %} Administrator {% endtrans%}
+		   <% } %>
+		</td>
 		<td data-value="Status">
 			<% if (isEnabled) { %>
 			<span class="uv-text-success">{{ 'Active'|trans }}</span>

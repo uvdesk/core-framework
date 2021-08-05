@@ -229,8 +229,8 @@
                             <label class="uv-field-label">{{ 'Role'|trans }}</label>
                             <div class="uv-field-block">
                                 <select name="user_form[role]" class="uv-select" id="user_form_role" {% if user and user.id == app.user.id %}disabled="disabled"{% endif %}>
-                                    <option value="ROLE_ADMIN" {% if "ROLE_ADMIN" in user.roles %}selected{% endif %}>{{ 'Administrator'|trans }}</option>
-                                    <option value="ROLE_AGENT" {% if "ROLE_AGENT" in user.roles %}selected{% endif %}>{{ 'Agent'|trans }}</option>
+                                    <option value="ROLE_ADMIN" {% if "ROLE_ADMIN" in user.roles %}selected{% endif %}>{% trans %} Administrator {% endtrans%}</option>
+                                    <option value="ROLE_AGENT" {% if "ROLE_AGENT" in user.roles %}selected{% endif %}>{% trans %} Agent {% endtrans%}</option>
                                 </select>
                             </div>
                             <span class="uv-field-info">{{ "Select agent role"|trans }}</span>
