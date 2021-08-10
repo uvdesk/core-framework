@@ -253,12 +253,10 @@ class Thread extends Controller
         $content = json_decode($request->getContent(), true);
         $em = $this->getDoctrine()->getManager();
 
-        $ticket = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($content['ticketId']);	    
-        $user = $this->userService->getSessionUser();   
+        $ticket = $em->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($content['ticketId']); 
 
         // Proceed only if user has access to the resource
-        if ( (!$this->userService->getSessionUser()) || (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) ) 
-        {
+        if (false == $this->ticketService->isTicketAccessGranted($ticket)){
             throw new \Exception('Access Denied', 403);
         }
 
