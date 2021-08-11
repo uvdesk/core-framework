@@ -64,6 +64,19 @@ class Account extends AbstractController
 
         return $this->render('@UVDeskCoreFramework/Agents/listSupportAgents.html.twig');
     }
+    public function removeProfilePic(Request $request)
+    {
+        //$userId = $request->get('id')
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->getUser();
+        $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(array('user' => $user->getId()));
+        $userInstance = $this->userService->getUserDetailById($user->getId());
+        $userInstance  = $userInstance->setProfileImagePath('');
+        $em->persist($userInstance);
+        $em->flush();
+        return $this->redirect($this->generateUrl('helpdesk_member_profile'));
+               
+    }
     
     public function loadProfile(Request $request)
     {

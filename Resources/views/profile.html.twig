@@ -45,10 +45,16 @@
         .mar-right-5 {
             margin-right: 5px;
         }
+        .cls{
+            margin-left:1px;
+            margin-top:-50px;
+            color:#992617;
+        }
     </style>  
 {% endblock %}
 
 {% block pageContent %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <div class="uv-inner-section">
         {# Append Panel Aside #}
 		{% set asideTemplate = 'Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\AsideTemplate' %}
@@ -96,7 +102,13 @@
                             <img id="dynamic-image-upload" {% if isHaveImage %}src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}{{ agentDetails.profileImagePath }}"{% endif %}>
                         </div>
                         <div class="uv-image-info-brick">
-                            <span class="uv-field-info">{{ 'Upload a Profile Image (100px x 100px)<br> in PNG or JPG Format'|trans|raw }}</span>
+                            <span class="uv-field-info">
+                            {% if isHaveImage %}						
+						        <p class="btn btn-danger" style="color:red" onclick="removeProfile('{{ user.id }}', '{{ path('helpdesk_remove_admin_picture', {'id': user.id}) }}')">{{ "remove picture"|trans }} <i class="fa fa-times cls" aria-hidden="true"></i></p>
+						    {% else %}
+							    {{ 'Upload a Profile Image (100px x 100px)<br> in PNG or JPG Format'|trans|raw }}
+						    {% endif %}
+                            </span>
                         </div>
                     </div>
 
@@ -240,7 +252,22 @@
 {% endblock %}
 {% block footer %}
 	{{ parent() }}
+	 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 	<script type="text/javascript">
+        function removeProfile(id, url)
+        {
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: {adminId:id},
+                success: function (data)
+                {
+                    location.reload()
+                    swal("User Updated!", "User image removed successfully!", "success");
+
+                }
+            })
+        }
 		$(function () {
 			var UserModel = Backbone.Model.extend({
 				validation: {

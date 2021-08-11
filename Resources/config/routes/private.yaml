@@ -16,6 +16,10 @@ helpdesk_member_profile:
     path:     /profile
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Account::loadProfile
 
+helpdesk_remove_admin_picture:
+    path: /removeadminPicture
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Account::removeProfilePic
+
 helpdesk_member_account_xhr:
     path:     /agent/xhr/{agentId}
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\AccountXHR::deleteAgent
