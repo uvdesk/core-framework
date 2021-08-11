@@ -389,6 +389,10 @@ helpdesk_member_manage_customer_account:
     path:     /customer/{customerId}
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Customer::editCustomer
     defaults: { customerId: 0 }
+    
+helpdesk_remove_customer_image:
+    path: /removeCustomerProfile
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Customer::removeProfilePic
 
 helpdesk_member_remove_customer_account_xhr:
     path:     /customer/xhr/{customerId}

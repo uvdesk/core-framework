@@ -91,6 +91,37 @@ class Customer extends AbstractController
         ]);
     }
 
+    public function removeProfilePic(Request $request)
+    {
+       //echo "sanju i am ajax"; die();
+     
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {
+            return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
+        }
+        $em = $this->getDoctrine()->getManager();
+        $repository = $em->getRepository('UVDeskCoreFrameworkBundle:User');
+  
+        if($userId = $request->get('id')) {
+            $user = $repository->findOneBy(['id' =>  $userId]);
+            if(!$user)
+                $this->noResultFound();
+        }
+
+        $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(array('user' => $user->getId()));
+        $userInstance->setProfileImagePath('');
+        $em->persist($userInstance);
+        $em->flush();
+        $event = new GenericEvent(CoreWorkflowEvents\Customer\Update::getId(), [
+            'entity' => $user,
+        ]);
+
+        $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+
+        $this->addFlash('success', $this->translator->trans('Success ! Customer information updated successfully.'));
+        return $this->redirect($this->generateUrl('helpdesk_member_manage_customer_account_collection'));
+    
+    }
+    
     public function editCustomer(Request $request)
     {
         if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {
