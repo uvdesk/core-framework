@@ -102,7 +102,7 @@ class MailCustomer extends WorkflowAction
 
         foreach($thread->getCc() as $EmailCC){
             if($entityManager->getRepository(Ticket::class)->isTicketCollaborator($thread->getTicket(), $EmailCC) == false){
-                $message = '<html><body style="background-image: none"><p>Hello</p><br/><p>'.$thread->getMessage().'</p></body></html>';
+                $message = '<html><body style="background-image: none"><p>Hello</p><br/><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
             }
             $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $EmailCC ?: [], $thread->getBcc() ?: []);
             if (!empty($messageId)) {
