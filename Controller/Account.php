@@ -141,11 +141,6 @@ class Account extends AbstractController
                             $userInstance->setProfileImagePath($assetDetails['path']);
                     }
                     
-                    if($request->get('removeimage')=='on')
-                    {
-                       $userInstance = $userInstance->setProfileImagePath('');
-                    }
-
                     $userInstance  = $userInstance->setContactNumber($data['contactNumber']);
                     $userInstance  = $userInstance->setSignature($data['signature']);
                     $em->persist($userInstance);
