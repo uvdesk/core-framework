@@ -740,8 +740,10 @@ class TicketService
         $entityManager = $this->entityManager;
         $activeUser = $this->container->get('user.service')->getSessionUser();
 
-        $agentTimeZone = $activeUser->getTimezone();
-        $agentTimeFormat = $activeUser->getTimeformat();
+        $timeData = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'knowledgebase']);
+        $agentTimeZone = !empty($timeData) ? $timeData->getTimezone() : null;
+        $agentTimeFormat = !empty($timeData) ? $timeData->getTimeformat() : null;
+        
         
         $threadRepository = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Thread');
         $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
