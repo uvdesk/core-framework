@@ -504,6 +504,10 @@ class TicketService
         $activeUser = $this->container->get('user.service')->getSessionUser();
         $agentTimeZone = $activeUser->getTimezone();
         $agentTimeFormat = $activeUser->getTimeformat();
+        $dataWeb = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'Knowledgebase']);
+        $timeZoneAgent= $dataWeb->getTimeZone();
+        $timeFormatAgent= $dataWeb->getTimeformat();
+       
 
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket');
 
@@ -559,9 +563,9 @@ class TicketService
 
             $totalTicketReplies = (int) $ticketThreadCountQuery->getQuery()->getSingleScalarResult();
             $ticketHasAttachments = false;
-            $dbTime = $ticket['createdAt'];
+            $dbTime = $ticket['createdAt']; 
             
-            $formattedTime= $this->fomatTimeByPreference($dbTime,$timeZone,$timeFormat,$agentTimeZone,$agentTimeFormat);
+            $formattedTime= $this->fomatTimeByPreference($dbTime,$timeZone,$timeFormat,$timeZoneAgent,$timeFormatAgent);
 
             $currentDateTime  = new \DateTime('now');
             if($this->getLastReply($ticket['id'])) {
