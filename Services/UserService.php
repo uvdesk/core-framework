@@ -787,7 +787,9 @@ class UserService
     {
         if (!empty($user) && $user != 'anon.' && $user->getTimezone() != null) {
             $timestamp = clone $timestamp;
-            $timestamp->setTimeZone(new \DateTimeZone($user->getTimezone()));
+            $dataWeb = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'Knowledgebase']);
+            $timestamp->setTimeZone(new \DateTimeZone($dataWeb->getTimeZone()));
+            $format = $dataWeb->getTimeFormat();
         }
         
         return $timestamp->format($format);
