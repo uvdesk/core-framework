@@ -1288,7 +1288,7 @@
                 
             </span>
             <% if (userType != 'system' && userType != 'System') { %>
-                <% if(user && user.smallThumbnail != null) { %>
+                <% if(user && user.smallThumbnail != null && user.smallThumbnail !='') { %>
                     <img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%- user.smallThumbnail %>" />
                 <% } else { %>
                     <img src="<% if(userType == 'agent') { %> {{ asset(default_agent_image_path) }} <% } else { %> {{ asset(default_customer_image_path) }} <% } %>" />
