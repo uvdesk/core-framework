@@ -1709,8 +1709,10 @@ class TicketService
         $timeFormat = $website->getTimeformat();
 
         $activeUser = $this->container->get('user.service')->getSessionUser();
-        $agentTimeZone = !empty($activeUser) ? $activeUser->getTimezone() : null;
-        $agentTimeFormat = !empty($activeUser) ? $activeUser->getTimeformat() : null;
+        $timeData = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'knowledgebase']);
+        $agentTimeZone = !empty($timeData) ? $timeData->getTimezone() : null;
+        $agentTimeFormat = !empty($timeData) ? $timeData->getTimeformat() : null;
+
 
         $parameterType = gettype($dateFlag);
         if($parameterType == 'string'){
