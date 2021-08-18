@@ -503,8 +503,8 @@ class TicketService
         $params = $request->query->all();
         $activeUser = $this->container->get('user.service')->getSessionUser();
         $activeUserTimeZone = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'Knowledgebase']);
-        $agentTimeZone = $activeUserTimeZone->getTimezone();
-        $agentTimeFormat = $activeUserTimeZone->getTimeformat();
+        $agentTimeZone = !empty($activeUser->getTimezone()) ? $activeUser->getTimezone() : $activeUserTimeZone->getTimezone();
+        $agentTimeFormat = !empty($activeUser->getTimeformat()) ? $activeUser->getTimeformat() : $activeUserTimeZone->getTimeformat();
 
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket');
 
@@ -738,8 +738,8 @@ class TicketService
         $activeUser = $this->container->get('user.service')->getSessionUser();
 
         $activeUserTimeZone = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'Knowledgebase']);
-        $agentTimeZone = $activeUserTimeZone->getTimezone();
-        $agentTimeFormat = $activeUserTimeZone->getTimeformat();
+        $agentTimeZone = !empty($activeUser->getTimezone()) ? $activeUser->getTimezone() : $activeUserTimeZone->getTimezone();
+        $agentTimeFormat = !empty($activeUser->getTimeformat()) ? $activeUser->getTimeformat() : $activeUserTimeZone->getTimeformat();
         
         $threadRepository = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Thread');
         $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
