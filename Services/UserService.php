@@ -785,9 +785,12 @@ class UserService
     // Return formatted time on user preference basis
     public function getLocalizedFormattedTime($user = null, \DateTime $timestamp, $format = 'm-d-y h:i A')
     {
-        if (!empty($user) && $user != 'anon.' && $user->getTimezone() != null) {
+        $activeUserTimeZone = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'Knowledgebase']);
+        if (!empty($user) && $user != 'anon.' && $activeUserTimeZone->getTimezone() != null) {
             $timestamp = clone $timestamp;
-            $timestamp->setTimeZone(new \DateTimeZone($user->getTimezone()));
+            
+            $timestamp->setTimeZone(new \DateTimeZone($activeUserTimeZone->getTimeZone()));
+            $format = $activeUserTimeZone->getTimeFormat();
         }
         
         return $timestamp->format($format);
