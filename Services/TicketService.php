@@ -502,8 +502,9 @@ class TicketService
     {
         $params = $request->query->all();
         $activeUser = $this->container->get('user.service')->getSessionUser();
-        $agentTimeZone = $activeUser->getTimezone();
-        $agentTimeFormat = $activeUser->getTimeformat();
+        $activeUserTimeZone = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'Knowledgebase']);
+        $agentTimeZone = !empty($activeUser->getTimezone()) ? $activeUser->getTimezone() : $activeUserTimeZone->getTimezone();
+        $agentTimeFormat = !empty($activeUser->getTimeformat()) ? $activeUser->getTimeformat() : $activeUserTimeZone->getTimeformat();
 
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket');
 
@@ -736,8 +737,9 @@ class TicketService
         $entityManager = $this->entityManager;
         $activeUser = $this->container->get('user.service')->getSessionUser();
 
-        $agentTimeZone = $activeUser->getTimezone();
-        $agentTimeFormat = $activeUser->getTimeformat();
+        $activeUserTimeZone = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'Knowledgebase']);
+        $agentTimeZone = !empty($activeUser->getTimezone()) ? $activeUser->getTimezone() : $activeUserTimeZone->getTimezone();
+        $agentTimeFormat = !empty($activeUser->getTimeformat()) ? $activeUser->getTimeformat() : $activeUserTimeZone->getTimeformat();
         
         $threadRepository = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Thread');
         $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
@@ -1700,7 +1702,7 @@ class TicketService
 
     public function timeZoneConverter($dateFlag)
     {
-        $website = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'helpdesk']);
+        $website = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'Knowledgebase']);
         $timeZone = $website->getTimezone();
         $timeFormat = $website->getTimeformat();
 
