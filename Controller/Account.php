@@ -142,7 +142,7 @@ class Account extends AbstractController
                     }
 
                     if ($request->get('removeImage') == 'on') {
-                        $userInstance = $userInstance->setProfileImagePath('');
+                        $userInstance = $userInstance->setProfileImagePath(null);
                     }
 
                     $userInstance  = $userInstance->setContactNumber($data['contactNumber']);
