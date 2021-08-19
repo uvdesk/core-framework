@@ -906,6 +906,13 @@ span.uv-sorting:hover.ascend {
   width: 150px;
   cursor: pointer;
 }
+.uv-cal-icon{
+
+  background-image: url(./../images/icon-date-picker.svg);
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+ 
+}
 textarea.uv-field {
   height: 100px;
   padding: 10px;
