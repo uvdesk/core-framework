@@ -56,7 +56,7 @@ class MailAgent extends WorkflowAction
         ];
     }
 
-    public static function applyAction(ContainerInterface $container, $entity, $value = null)
+    public static function applyAction(ContainerInterface $container, $entity, $value = null, $thread = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
 
@@ -84,19 +84,20 @@ class MailAgent extends WorkflowAction
 
                 // Only process attachments if required in the message body
                 // @TODO: Revist -> Maybe we should always include attachments if they are provided??
-                if (!empty($entity->createdThread) && strpos($emailTemplate->getMessage(), '{%ticket.attachments%}') !== false || strpos($emailTemplate->getMessage(), '{% ticket.attachments %}') !== false) {
+                 $createdThread = isset($entity->createdThread) ? $entity->createdThread : '';
+                $attachments = [];
+                if (!empty($createdThread) && (strpos($emailTemplate->getMessage(), '{%ticket.attachments%}') !== false || strpos($emailTemplate->getMessage(), '{% ticket.attachments %}') !== false)) {
                     $attachments = array_map(function($attachment) use ($container) { 
-                        return [
-                            'name' => $attachment['name'],
-                            'path' => str_replace('//', '/', $container->get('kernel')->getProjectDir() . "/public" . $attachment['relativePath']),
-                        ];
-                    }, $entity->createdThread->getAttachments()->toArray());
+                        return str_replace('//', '/', $container->get('kernel')->getProjectDir() . "/public" . $attachment->getPath());
+                    }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:Attachment')->findByThread($createdThread));
                 }
-
                 $placeHolderValues = $container->get('email.service')->getTicketPlaceholderValues($entity, 'agent');
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $placeHolderValues);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $placeHolderValues);
-                
+                $thread = ($thread != null) ? $thread : $entity->createdThread;
+                if($thread->getCc() || $thread->getBcc()) {
+                    self::sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message);
+                }
                 foreach ($emails as $email) {
                     $messageId = $container->get('email.service')->sendMail($subject, $message, $email, $emailHeaders, null, $attachments ?? []);
                 }
@@ -143,5 +144,23 @@ class MailAgent extends WorkflowAction
         }
 
         return array_filter($agentMails);
+    }
+    
+    public static function sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message = null)
+    {
+    	$entityManager = $container->get('doctrine.orm.entity_manager');
+
+        foreach($thread->getCc() as $EmailCC){
+            if($entityManager->getRepository(Ticket::class)->isTicketCollaborator($thread->getTicket(), $EmailCC) == false){
+                $message = '<html><body style="background-image: none"><p>Hello</p><br/><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
+            }
+            $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $EmailCC ?: [], $thread->getBcc() ?: []);
+            if (!empty($messageId)) {
+                 $createdThread = isset($entity->createdThread) ? $entity->createdThread : '';
+                    $createdThread->setMessageId($messageId);		 
+                    $entityManager->persist($createdThread);
+                    $entityManager->flush();
+            }
+        }
     }
 }
