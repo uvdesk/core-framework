@@ -2,8 +2,29 @@ CHANGELOG for 1.0.x
 ===================
 
 This changelog references any relevant changes introduced in 1.0 minor versions.
+* 1.0.15 (2021-08-21)
+    * **Misc. Updates:**
+        * **Flash Mesaage with a warning if swiftmailer is not setup or working with ticket create process**
+        * **Save password with encryption in swiftmailer.yaml for security**
+        * **Time stamp format correction for agent as well as for customer.**
 
-* 1.0.14 (2020-06-19)
+    * **Bug Fixes:**
+        * **Issue #383:** getting exception when filter kudos based on customer group
+        * **Issue #384:** broken image on kudos customer filter.
+        * **Issue #385:** customer image should be visible along with customer name in kudos grid.
+        * **Issue #386:** Collaborator name is coming wrong on ticket thread at agent ticket view.   
+        * **Issue #387:** Collaborator on email is coming wrong format.
+        * **Issue #388:** Users Image not displaying properly in Group and Team Section.
+        * **Issue #392:** Gmail Replies from admin gmail is not added in ticket thread of admin panel.
+        * **Issue #393:** Email format is not properly showing in CC and BCC Email.
+        * **Issue #394:** In Customer and Collaborator dashboard image not displaying of Admin Image.
+        * **Issue #396:** Agent Activity is not working properly from agent side.
+        * **Issue #397:** Translation is not showing properly in it(italian) language admin website and agent side view.
+        * **Issue #399:** Reply from collaborator gmail so collaborator name is not showing.
+        * **Issue #403:** Remove from customer side image so default image not showing in Tickets thread.
+        * **Issue #405:** Reply from Customer Side also added CC and BCC mails So Not going to mail CC and BCC mail id's.
+
+* 1.0.14 (2021-06-19)
     * **Misc. Updates:**
         * **Add new feature under report section Agent Activity.**
         * **Attachment download issues for some extension like docx.**
