@@ -84,7 +84,7 @@ class MailCustomer extends WorkflowAction
                     // }
 
                     if($thread->getCc() || $thread->getBcc()) {
-                        self::sendCcBccMail($container, $entity, $thread, $subject, $attachments);
+                        self::sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message);
                     }
                     
                 } else {
@@ -96,10 +96,21 @@ class MailCustomer extends WorkflowAction
         }
     }
 
-    public static function sendCcBccMail($container, $entity, $thread, $subject, $attachments)
+    public static function sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message = null)
     {
-        $message = '<html><body style="background-image: none"><p>Hello</p><br/><p>'.$thread->getMessage().'</p></body></html>';
+    	$entityManager = $container->get('doctrine.orm.entity_manager');
 
-        $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
+        foreach($thread->getCc() as $EmailCC){
+            if($entityManager->getRepository(Ticket::class)->isTicketCollaborator($thread->getTicket(), $EmailCC) == false){
+                $message = '<html><body style="background-image: none"><p>Hello</p><br/><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
+            }
+            $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $EmailCC ?: [], $thread->getBcc() ?: []);
+            if (!empty($messageId)) {
+                 $createdThread = isset($entity->createdThread) ? $entity->createdThread : '';
+                    $createdThread->setMessageId($messageId);		 
+                    $entityManager->persist($createdThread);
+                    $entityManager->flush();
+            }
+        }
     }
 }

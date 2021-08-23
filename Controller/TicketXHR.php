@@ -50,6 +50,11 @@ class TicketXHR extends Controller
         $requestContent = json_decode($request->getContent(), true);
         $ticket = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($requestContent['id']);
 
+        // Process only if user have ticket access
+        if (false == $this->ticketService->isTicketAccessGranted($ticket)) {
+            throw new \Exception('Access Denied', 403);
+        }
+
         if (!empty($ticket)) {
             $ticket->setIsStarred(!$ticket->getIsStarred());
 
@@ -139,6 +144,11 @@ class TicketXHR extends Controller
         if (!$ticket)
             $this->noResultFound();
 
+        // Proceed only if user has access to the resource
+        if (false == $this->ticketService->isTicketAccessGranted($ticket)) {
+            throw new \Exception('Access Denied', 403);
+        }
+
         $error = false;
         $message = '';
         if ($request->request->get('subject') == '') {
@@ -176,6 +186,11 @@ class TicketXHR extends Controller
         $requestContent = $request->request->all() ?: json_decode($request->getContent(), true);
         $ticketId =  $ticketId != 0 ? $ticketId : $requestContent['ticketId'];
         $ticket = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($ticketId);
+
+        // Proceed only if user has access to the resource
+        if (false == $this->ticketService->isTicketAccessGranted($ticket)) {
+            throw new \Exception('Access Denied', 403);
+        }
 
         // Validate request integrity
         if (empty($ticket)) {
@@ -519,6 +534,11 @@ class TicketXHR extends Controller
         $requestContent = json_decode($request->getContent(), true);
         $ticket = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($requestContent['ticketId']);
 
+        // Process only if user have ticket access
+        if (false == $this->ticketService->isTicketAccessGranted($ticket)) {
+            throw new \Exception('Access Denied', 403);
+        }
+
         if ('POST' == $request->getMethod()) {
             $responseContent = [];
             $user = $this->userService->getSessionUser();
@@ -620,10 +640,10 @@ class TicketXHR extends Controller
                     $filtersResponse = $this->userService->getCustomersPartial($request);
                     break;
                 case 'group':
-                    $filtersResponse = $this->userService->getGroups($request);
+                    $filtersResponse = $this->userService->getSupportGroups($request);
                     break;
                 case 'team':
-                    $filtersResponse = $this->userService->getSubGroups($request);
+                    $filtersResponse = $this->userService->getSupportTeams($request);
                     break;
                 case 'tag':
                     $filtersResponse = $this->ticketService->getTicketTags($request);
@@ -660,9 +680,9 @@ class TicketXHR extends Controller
             } elseif ($request->query->get('type') == 'customer') {
                 $json = $this->userService->getCustomersPartial($request);
             } elseif ($request->query->get('type') == 'group') {
-                $json = $this->userService->getGroups($request);
+                $json = $this->userService->getSupportGroups($request);
             } elseif ($request->query->get('type') == 'team') {
-                $json = $this->userService->getSubGroups($request);
+                $json = $this->userService->getSupportTeams($request);
             } elseif ($request->query->get('type') == 'tag') {
                 $json = $this->ticketService->getTicketTags($request);
             } elseif ($request->query->get('type') == 'label') {
@@ -738,6 +758,11 @@ class TicketXHR extends Controller
         $ticketId = $request->attributes->get('ticketId');
         $ticket = $this->getDoctrine()->getManager()->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($ticketId);
 
+        // Process only if user have ticket access
+        if (false == $this->ticketService->isTicketAccessGranted($ticket)) {
+            return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
+        }
+
         $event = new GenericEvent($id, [
             'entity' =>  $ticket
         ]);
@@ -768,6 +793,12 @@ class TicketXHR extends Controller
 
         $em = $this->getDoctrine()->getManager();
         $ticket = $em->getRepository('UVDeskCoreFrameworkBundle:Ticket')->find($content['ticketId']);
+
+        // Process only if user have ticket access
+        if (false == $this->ticketService->isTicketAccessGranted($ticket)) {
+            throw new \Exception('Access Denied', 403);
+        }
+
         if($request->getMethod() == "POST") {
             $tag = new CoreFrameworkBundleEntities\Tag();
             if ($content['name'] != "") {
@@ -846,6 +877,12 @@ class TicketXHR extends Controller
         $content = json_decode($request->getContent(), true);
         $em = $this->getDoctrine()->getManager();
         $ticket = $em->getRepository('UVDeskCoreFrameworkBundle:Ticket')->find($content['ticketId']);
+
+        // Process only if user have ticket access
+        if (false == $this->ticketService->isTicketAccessGranted($ticket)) {
+            throw new \Exception('Access Denied', 403);
+        }
+
         if($request->getMethod() == "POST") {
             if($content['email'] == $ticket->getCustomer()->getEmail()) {
                 $json['alertClass'] = 'danger';

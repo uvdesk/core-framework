@@ -502,8 +502,9 @@ class TicketService
     {
         $params = $request->query->all();
         $activeUser = $this->container->get('user.service')->getSessionUser();
-        $agentTimeZone = $activeUser->getTimezone();
-        $agentTimeFormat = $activeUser->getTimeformat();
+        $activeUserTimeZone = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'Knowledgebase']);
+        $agentTimeZone = !empty($activeUser->getTimezone()) ? $activeUser->getTimezone() : $activeUserTimeZone->getTimezone();
+        $agentTimeFormat = !empty($activeUser->getTimeformat()) ? $activeUser->getTimeformat() : $activeUserTimeZone->getTimeformat();
 
         $ticketRepository = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket');
 
@@ -736,8 +737,9 @@ class TicketService
         $entityManager = $this->entityManager;
         $activeUser = $this->container->get('user.service')->getSessionUser();
 
-        $agentTimeZone = $activeUser->getTimezone();
-        $agentTimeFormat = $activeUser->getTimeformat();
+        $activeUserTimeZone = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'Knowledgebase']);
+        $agentTimeZone = !empty($activeUser->getTimezone()) ? $activeUser->getTimezone() : $activeUserTimeZone->getTimezone();
+        $agentTimeFormat = !empty($activeUser->getTimeformat()) ? $activeUser->getTimeformat() : $activeUserTimeZone->getTimeformat();
         
         $threadRepository = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Thread');
         $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
@@ -837,10 +839,15 @@ class TicketService
 
         foreach ($params['ids'] as $ticketId) {
             $ticket = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->find($ticketId);
+
+            if (false == $this->isTicketAccessGranted($ticket)) {
+		        throw new \Exception('Access Denied', 403);
+	        }
             
             if (empty($ticket)) {
                 continue;
             }
+
 
             switch ($params['actionType']) {
                 case 'trashed':
@@ -1695,7 +1702,7 @@ class TicketService
 
     public function timeZoneConverter($dateFlag)
     {
-        $website = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'helpdesk']);
+        $website = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'Knowledgebase']);
         $timeZone = $website->getTimezone();
         $timeFormat = $website->getTimeformat();
 
@@ -1855,5 +1862,20 @@ class TicketService
                 }
             }
         }
+    }
+
+    /**
+    * return ticket todo ticket increment Id
+    */
+    public function getTicketTodoById($ticketId) {
+        $currentUser = $this->container->get('user.service')->getCurrentUser();
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('td')->from('UVDeskTodoListPackage:Todo', 'td')
+                ->andwhere('td.ticket = :ticketId')
+                ->andwhere('td.agent = :userId')
+                ->setParameter('ticketId', $ticketId)
+                ->setParameter('userId', $currentUser->getId());
+
+        return $qb->getQuery()->getArrayResult();
     }
 }

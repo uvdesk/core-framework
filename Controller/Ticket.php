@@ -262,7 +262,7 @@ class Ticket extends Controller
             if($request->request->get('customFields') || $request->files->get('customFields')) {
                 $this->get('ticket.service')->addTicketCustomFields($ticket, $request->request->get('customFields'), $request->files->get('customFields'));                        
             }
-            $request->getSession()->getFlashBag()->set('success', sprintf('Success! Ticket #%s has been created successfully.', $ticket->getId()));
+            $this->addFlash('success', $this->translator->trans('Success ! Ticket has been created successfully.'));
 
             if ($this->userService->isAccessAuthorized('ROLE_ADMIN')) {
                 return $this->redirect($this->generateUrl('helpdesk_member_ticket', ['ticketId' => $ticket->getId()]));
@@ -377,6 +377,12 @@ class Ticket extends Controller
             $this->noResultFound();
         }
 
+        $user = $this->userService->getSessionUser();
+        // Proceed only if user has access to the resource
+        if (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) {
+            throw new \Exception('Access Denied', 403);
+        }
+
         if (!$ticket->getIsTrashed()) {
             $ticket->setIsTrashed(1);
 
@@ -406,6 +412,12 @@ class Ticket extends Controller
             $this->noResultFound();
         }
 
+        $user = $this->userService->getSessionUser();
+        // Proceed only if user has access to the resource
+        if (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) {
+            throw new \Exception('Access Denied', 403);
+        }
+
         $entityManager->remove($ticket);
         $entityManager->flush();
 
@@ -423,6 +435,14 @@ class Ticket extends Controller
 
         if (!$attachment) {
             $this->noResultFound();
+        }
+
+        $ticket = $attachment->getThread()->getTicket();
+        $user = $this->userService->getSessionUser();
+        
+        // Proceed only if user has access to the resource
+        if (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) {
+            throw new \Exception('Access Denied', 403);
         }
 
         $zipname = 'attachments/' .$threadId.'.zip';
@@ -456,6 +476,14 @@ class Ticket extends Controller
 
         if (!$attachment) {
             $this->noResultFound();
+        }
+
+        $ticket = $attachment->getThread()->getTicket();
+        $user = $this->userService->getSessionUser();
+        
+        // Proceed only if user has access to the resource
+        if (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) {
+            throw new \Exception('Access Denied', 403);
         }
 
         $path = $this->kernel->getProjectDir() . "/public/". $attachment->getPath();

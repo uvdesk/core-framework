@@ -17,6 +17,7 @@ use Symfony\Component\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\EmailService;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class Thread extends Controller
 {
@@ -25,9 +26,11 @@ class Thread extends Controller
     private $eventDispatcher;
     private $ticketService;
     private $emailService;
+    private $kernel;
 
-    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcherInterface $eventDispatcher)
+    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcherInterface $eventDispatcher, KernelInterface $kernel)
     {
+        $this->kernel = $kernel;
         $this->userService = $userService;
         $this->emailService = $emailService;
         $this->translator = $translator;
@@ -41,6 +44,11 @@ class Thread extends Controller
         $entityManager = $this->getDoctrine()->getManager();
 
         $ticket = $entityManager->getRepository(Ticket::class)->findOneById($ticketId);
+
+        // Proceed only if user has access to the resource
+        if (false == $this->ticketService->isTicketAccessGranted($ticket)) {
+            throw new \Exception('Access Denied', 403);
+        }
 
         if (empty($ticket)) {
             throw new \Exception('Ticket not found', 404);
@@ -71,13 +79,15 @@ class Thread extends Controller
         // if (true !== $this->get('file.service')->validateAttachments($request->files->get('attachments'))) {
         //     $this->addFlash('warning', "Invalid attachments.");
         // }
+        
+	    $adminReply =  str_replace(['<p>','</p>'],"",$params['reply']);
 
         $threadDetails = [
             'user' => $this->getUser(),
             'createdBy' => 'agent',
             'source' => 'website',
             'threadType' => strtolower($params['threadType']),
-            'message' => str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', $params['reply']),
+            'message' => str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', htmlspecialchars($adminReply)),
             'attachments' => $request->files->get('attachments')
         ];
 
@@ -200,16 +210,23 @@ class Thread extends Controller
         $json = [];
         $em = $this->getDoctrine()->getManager();
         $content = json_decode($request->getContent(), true);
+        $thread = $em->getRepository(TicketThread::class)->find($request->attributes->get('threadId'));
+        $ticket = $thread->getTicket();
+        $user = $this->userService->getSessionUser();
+
+        // Proceed only if user has access to the resource
+        if ( (!$this->userService->getSessionUser()) || (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) ) 
+        {
+            throw new \Exception('Access Denied', 403);
+        }
 
         if ($request->getMethod() == "PUT") {
             // $this->isAuthorized('ROLE_AGENT_EDIT_THREAD_NOTE');
             if (str_replace(' ','',str_replace('&nbsp;','',trim(strip_tags($content['reply'], '<img>')))) != "") {
-                $thread = $em->getRepository(TicketThread::class)->find($request->attributes->get('threadId'));
                 $thread->setMessage($content['reply']);
                 $em->persist($thread);
                 $em->flush();
 
-                $ticket = $thread->getTicket();
                 $ticket->currentThread = $thread;
 
                 // Trigger agent reply event
@@ -235,6 +252,13 @@ class Thread extends Controller
         $json = array();
         $content = json_decode($request->getContent(), true);
         $em = $this->getDoctrine()->getManager();
+
+        $ticket = $em->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($content['ticketId']); 
+
+        // Proceed only if user has access to the resource
+        if (false == $this->ticketService->isTicketAccessGranted($ticket)){
+            throw new \Exception('Access Denied', 403);
+        }
 
         if ($request->getMethod() == "DELETE") {
             $thread = $em->getRepository(TicketThread::class)->findOneBy(array('id' => $request->attributes->get('threadId'), 'ticket' => $content['ticketId']));

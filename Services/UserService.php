@@ -540,7 +540,7 @@ class UserService
         return $website ? $website : false;
     }
 
-    public function convertToTimezone($date, $format = "d-m-Y h:ia")
+    public function convertToTimezone($date, $format = "d-m-Y H:ia")
     {
         if(!$date)
             return "N/A";
@@ -552,7 +552,7 @@ class UserService
 
         $scheduleDate->setTimeZone(new \DateTimeZone('Asia/Kolkata'));
 
-        return $scheduleDate->format('Y-m-d H:ia');
+        return $scheduleDate->format($format);
     }
 
     public function convertToDatetimeTimezoneTimestamp($date, $format = "d-m-Y h:ia")
@@ -785,9 +785,17 @@ class UserService
     // Return formatted time on user preference basis
     public function getLocalizedFormattedTime($user = null, \DateTime $timestamp, $format = 'm-d-y h:i A')
     {
+        $activeUserTimeZone = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'Knowledgebase']);
         if (!empty($user) && $user != 'anon.' && $user->getTimezone() != null) {
             $timestamp = clone $timestamp;
-            $timestamp->setTimeZone(new \DateTimeZone($user->getTimezone()));
+            
+            $timestamp->setTimeZone(new \DateTimeZone($user->getTimeZone()));
+            $format = $user->getTimeFormat();
+        }else{
+            $timestamp = clone $timestamp;
+            
+            $timestamp->setTimeZone(new \DateTimeZone($activeUserTimeZone->getTimeZone()));
+            $format = $activeUserTimeZone->getTimeFormat();
         }
         
         return $timestamp->format($format);
@@ -804,5 +812,16 @@ class UserService
         }
         
         return false;
+    }
+
+    public function getCustomersCountForKudos($container)
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select($qb->expr()->countDistinct('c.id')."as customerCount")->from('UVDeskCoreFrameworkBundle:Ticket', 't')
+                ->leftJoin('t.customer', 'c');
+
+        $container->get('report.service')->addPermissionFilter($qb, $this->container, false);
+
+        return $qb->getQuery()->getSingleScalarResult();
     }
 }
