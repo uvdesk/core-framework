@@ -791,7 +791,7 @@ class UserService
             
             $timestamp->setTimeZone(new \DateTimeZone($user->getTimeZone()));
             $format = $user->getTimeFormat();
-        }else{
+        }elseif (!empty($activeUserTimeZone) && $activeUserTimeZone != 'anon.' && $activeUserTimeZone->getTimezone() != null) {
             $timestamp = clone $timestamp;
             
             $timestamp->setTimeZone(new \DateTimeZone($activeUserTimeZone->getTimeZone()));

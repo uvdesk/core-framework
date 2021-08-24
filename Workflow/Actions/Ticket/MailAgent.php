@@ -64,7 +64,7 @@ class MailAgent extends WorkflowAction
             $emailTemplate = $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findOneById($value['value']);
             $emails = self::getAgentMails($value['for'], (($ticketAgent = $entity->getAgent()) ? $ticketAgent->getEmail() : ''), $container);
             
-            if ($emails && $emailTemplate) {
+            if ($emails || $emailTemplate) {
                 $queryBuilder = $entityManager->createQueryBuilder()
                     ->select('th.messageId as messageId')
                     ->from('UVDeskCoreFrameworkBundle:Thread', 'th')
@@ -84,7 +84,7 @@ class MailAgent extends WorkflowAction
 
                 // Only process attachments if required in the message body
                 // @TODO: Revist -> Maybe we should always include attachments if they are provided??
-                 $createdThread = isset($entity->createdThread) ? $entity->createdThread : '';
+                $createdThread = isset($entity->createdThread) ? $entity->createdThread : '';
                 $attachments = [];
                 if (!empty($createdThread) && (strpos($emailTemplate->getMessage(), '{%ticket.attachments%}') !== false || strpos($emailTemplate->getMessage(), '{% ticket.attachments %}') !== false)) {
                     $attachments = array_map(function($attachment) use ($container) { 
@@ -94,12 +94,16 @@ class MailAgent extends WorkflowAction
                 $placeHolderValues = $container->get('email.service')->getTicketPlaceholderValues($entity, 'agent');
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $placeHolderValues);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $placeHolderValues);
-                $thread = ($thread != null) ? $thread : $entity->createdThread;
-                if($thread->getCc() || $thread->getBcc()) {
-                    self::sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message);
+                $thread = ($thread != null) ? $thread : $createdThread;
+                
+                if(!empty($emails) && $emails != null){
+                    foreach ($emails as $email) {
+                        $messageId = $container->get('email.service')->sendMail($subject, $message, $email, $emailHeaders, null, $attachments ?? []);
+                    }
                 }
-                foreach ($emails as $email) {
-                    $messageId = $container->get('email.service')->sendMail($subject, $message, $email, $emailHeaders, null, $attachments ?? []);
+                
+                if(!empty($thread) && ($thread->getCc() || $thread->getBcc())) {
+                    self::sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message);
                 }
             } else {
                 // Email Template/Emails Not Found. Disable Workflow/Prepared Response
