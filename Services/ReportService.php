@@ -81,14 +81,14 @@ class ReportService {
             switch ($userInstance->getTicketAccesslevel()) {
                 case self::TICKET_GROUP_ACCESS:
                     $qb
-                        ->andWhere("t.agent = :agentId OR supportGroup.id IN(:supportGroupIds) OR supportTeam.id IN(:supportTeamIds)")
+                        ->andWhere("t.agent = :agentId OR gr.id IN(:supportGroupIds) OR tSub.id IN(:supportTeamIds)")
                         ->setParameter('agentId', $activeUser->getId())
                         ->setParameter('supportGroupIds', $qualifiedGroups)
                         ->setParameter('supportTeamIds', $qualifiedTeams);
                     break;
                 case self::TICKET_TEAM_ACCESS:
                     $qb
-                        ->andWhere("t.agent = :agentId OR supportTeam.id IN(:supportTeamIds)")
+                        ->andWhere("t.agent = :agentId OR tSub.id IN(:supportTeamIds)")
                         ->setParameter('agentId', $activeUser->getId())
                         ->setParameter('supportTeamIds', $qualifiedTeams);
                     break;
