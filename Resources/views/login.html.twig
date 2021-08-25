@@ -141,7 +141,7 @@
                 initialize: function () {
                     Backbone.Validation.bind(this);
                     {% if error.messageKey is defined %}
-                        app.appView.renderResponseAlert({'alertClass': 'danger', 'alertMessage': "{{ error.messageKey }}"})
+                        app.appView.renderResponseAlert({'alertClass': 'danger', 'alertMessage': '{{ error.messageKey|trans}}'})
                     {% endif %}
                 },
                 formChanegd: function(e) {
