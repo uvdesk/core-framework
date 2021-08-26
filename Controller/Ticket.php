@@ -84,7 +84,10 @@ class Ticket extends Controller
             $entityManager->persist($ticket);
             $entityManager->flush();
         }
-	
+	if($agent<>null){
+            $currentAgent = $ticket->getAgent()->getId();
+            $loginUser = $user->getId(); 
+        } 
         // Ticket Authorization
         $supportRole = $user->getCurrentInstance()->getSupportRole()->getCode(); 
         switch($supportRole) {
@@ -111,14 +114,14 @@ class Ticket extends Controller
                                 break;
                             }
                         }
-                        if (!$isAccessableGroupFound) {
+                       if (!$isAccessableGroupFound && ($currentAgent<>$loginUser)) {
                             throw new \Exception('Page not found');
                         }
                         break;
                     case TicketRepository::TICKET_TEAM_ACCESS:
                         $supportTeams = array_map(function($supportTeam) { return $supportTeam->getId(); }, $user->getCurrentInstance()->getSupportTeams()->getValues());                         
                         $supportTeam = $ticket->getSupportTeam();
-                        if (!($supportTeam && in_array($supportTeam->getId(), $supportTeams))) {
+                         if (!($supportTeam && in_array($supportTeam->getId(), $supportTeams))&& ($currentAgent<>$loginUser)) {
                             throw new \Exception('Page not found');
                         }
                         break;
