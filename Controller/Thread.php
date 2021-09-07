@@ -80,14 +80,14 @@ class Thread extends Controller
         //     $this->addFlash('warning', "Invalid attachments.");
         // }
         
-	    $adminReply =  str_replace(['<p>','</p>'],"",$params['reply']);
+	    // $adminReply =  str_replace(['<p>','</p>'],"",$params['reply']);
 
         $threadDetails = [
             'user' => $this->getUser(),
             'createdBy' => 'agent',
             'source' => 'website',
             'threadType' => strtolower($params['threadType']),
-            'message' => str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', htmlspecialchars($adminReply)),
+            'message' => str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', htmlspecialchars($params['reply'])),
             'attachments' => $request->files->get('attachments')
         ];
 
