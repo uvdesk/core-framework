@@ -100,17 +100,30 @@ class MailCustomer extends WorkflowAction
     {
     	$entityManager = $container->get('doctrine.orm.entity_manager');
 
-        foreach($thread->getCc() as $EmailCC){
-            if($entityManager->getRepository(Ticket::class)->isTicketCollaborator($thread->getTicket(), $EmailCC) == false){
-                $message = '<html><body style="background-image: none"><p>Hello</p><br/><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
-            }
-            $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $EmailCC ?: [], $thread->getBcc() ?: []);
-            if (!empty($messageId)) {
-                 $createdThread = isset($entity->createdThread) ? $entity->createdThread : '';
-                    $createdThread->setMessageId($messageId);		 
-                    $entityManager->persist($createdThread);
-                    $entityManager->flush();
-            }
+        if($thread->getCc() != null){
+            foreach($thread->getCc() as $EmailCC){
+                if($entityManager->getRepository(Ticket::class)->isTicketCollaborator($thread->getTicket(), $EmailCC) != false){
+                    $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $EmailCC ?? [], []); 
+                    if (!empty($messageId)) {
+                        $createdThread = isset($entity->createdThread) ? $entity->createdThread : '';
+                           $createdThread->setMessageId($messageId);		 
+                           $entityManager->persist($createdThread);
+                           $entityManager->flush();
+                   }  
+                if($thread->getBcc() != null && count($thread->getCc()) == 1){
+                    $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
+                    $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], [], $thread->getBcc() ?? []);    
+                }
+                }else{
+                    $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
+                    $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $EmailCC ?? [], $thread->getBcc() ?? []);    
+                }
+           }   
+        }
+
+        if($thread->getBcc() != null && $thread->getCc() == null){
+            $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
+            $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?? [], $thread->getBcc() ?? []);  
         }
     }
 }
