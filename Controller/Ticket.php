@@ -76,8 +76,11 @@ class Ticket extends Controller
 
         $agent = $ticket->getAgent();
         $customer = $ticket->getCustomer();
+	 
+	if($agent != null && !empty($agent)){	
         $ticketAssignAgent = $agent->getId();
         $currentUser = $user->getId();
+	}
         
         // Mark as viewed by agents
         if (false == $ticket->getIsAgentViewed()) {
