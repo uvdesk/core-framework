@@ -76,6 +76,11 @@ class Ticket extends Controller
 
         $agent = $ticket->getAgent();
         $customer = $ticket->getCustomer();
+	 
+	if($agent != null && !empty($agent)){	
+        $ticketAssignAgent = $agent->getId();
+        $currentUser = $user->getId();
+	}
         
         // Mark as viewed by agents
         if (false == $ticket->getIsAgentViewed()) {
@@ -99,7 +104,7 @@ class Ticket extends Controller
                     case TicketRepository::TICKET_GROUP_ACCESS:
                         $supportGroups = array_map(function($supportGroup) { return $supportGroup->getId(); }, $user->getCurrentInstance()->getSupportGroups()->getValues());                       
                         $ticketAccessableGroups = $ticket->getSupportGroup() ? [$ticket->getSupportGroup()->getId()] : [];
-                        
+ 
                         if ($ticket->getSupportTeam()) {
                             $ticketSupportTeamGroups = array_map(function($supportGroup) { return $supportGroup->getId(); }, $ticket->getSupportTeam()->getSupportGroups()->getValues());
                             $ticketAccessableGroups = array_merge($ticketAccessableGroups, $ticketSupportTeamGroups);
@@ -111,14 +116,14 @@ class Ticket extends Controller
                                 break;
                             }
                         }
-                        if (!$isAccessableGroupFound) {
+                        if (!$isAccessableGroupFound && !($ticketAssignAgent == $currentUser)) {
                             throw new \Exception('Page not found');
                         }
                         break;
                     case TicketRepository::TICKET_TEAM_ACCESS:
                         $supportTeams = array_map(function($supportTeam) { return $supportTeam->getId(); }, $user->getCurrentInstance()->getSupportTeams()->getValues());                         
                         $supportTeam = $ticket->getSupportTeam();
-                        if (!($supportTeam && in_array($supportTeam->getId(), $supportTeams))) {
+                        if (!($supportTeam && in_array($supportTeam->getId(), $supportTeams)) && !($ticketAssignAgent == $currentUser)) {
                             throw new \Exception('Page not found');
                         }
                         break;
