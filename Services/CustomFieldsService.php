@@ -332,7 +332,7 @@ class CustomFieldsService {
         return $results;
     }
 
-    private function validateAttachmentsSize($attachments)
+    public function validateAttachmentsSize($attachments)
     {
         $filesize = 0;
         if($attachments) {
@@ -349,7 +349,7 @@ class CustomFieldsService {
         return $filesize > $this->container->getParameter('max_upload_size') ? false : true;
     }
 
-    public function addFilesEntryToAttachmentTable($fileNames)
+    public function addFilesEntryToAttachmentTable($fileNames, $thread = null)
     {
         $newFilesNames = [];
         foreach ($fileNames as $file) {
@@ -358,6 +358,7 @@ class CustomFieldsService {
             $attachment->setPath($file['path']);
             $attachment->setContentType($file['content-type']);
             $attachment->setSize($file['size']);
+            $attachment->setThread($thread);
             if(isset($file['contentId']))
                 $attachment->setContentId($file['contentId']);
             
