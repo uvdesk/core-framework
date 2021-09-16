@@ -1807,8 +1807,9 @@ class TicketService
         return true;
     }
 
-    public function addTicketCustomFields($ticket, $requestCustomFields = [], $filesCustomFields = [])
+    public function addTicketCustomFields($thread, $requestCustomFields = [], $filesCustomFields = [])
     {
+        $ticket = $thread->getTicket();
         $skipFileUpload = false;
         $customFieldsCollection = $this->entityManager->getRepository('UVDeskFormComponentPackage:CustomFields')->findAll();
         foreach ($customFieldsCollection as $customFields) {
@@ -1849,7 +1850,7 @@ class TicketService
 
                 if(!empty($fileNames)) {
                     //save files entry to attachment table
-                    $newFilesNames = $this->customFieldsService->addFilesEntryToAttachmentTable([$fileNames]);
+                    $newFilesNames = $this->customFieldsService->addFilesEntryToAttachmentTable([$fileNames], $thread);
                     foreach ($newFilesNames as $value) {
                         $ticketCustomField = new Entity\TicketCustomFieldsValues();
                         $ticketCustomField->setTicket($ticket);
