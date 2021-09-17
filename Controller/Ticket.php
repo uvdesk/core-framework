@@ -435,6 +435,9 @@ class Ticket extends Controller
     {
         $threadId = $request->attributes->get('threadId');
         $attachmentRepository = $this->getDoctrine()->getManager()->getRepository('UVDeskCoreFrameworkBundle:Attachment');
+        $threadRepository = $this->getDoctrine()->getManager()->getRepository('UVDeskCoreFrameworkBundle:Thread');
+
+        $thread = $threadRepository->findOneById($threadId);
 
         $attachment = $attachmentRepository->findByThread($threadId);
 
@@ -442,7 +445,7 @@ class Ticket extends Controller
             $this->noResultFound();
         }
 
-        $ticket = $attachment->getThread()->getTicket();
+        $ticket = $thread->getTicket();
         $user = $this->userService->getSessionUser();
         
         // Proceed only if user has access to the resource
