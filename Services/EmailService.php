@@ -424,8 +424,8 @@ class EmailService
             'ticket.agentName' => !empty($agentPartialDetails) ? $agentPartialDetails['name'] : '',
             'ticket.agentEmail' => !empty($agentPartialDetails) ? $agentPartialDetails['email'] : '',
             'ticket.attachments' => '',
-            'ticket.collaboratorName' => '',
-            'ticket.collaboratorEmail' => '',
+            'ticket.collaboratorName' => $this->getCollaboratorName($ticket),
+            'ticket.collaboratorEmail' => $this->getCollaboratorEmail($ticket),
             'ticket.agentLink' => sprintf("<a href='%s'>#%s</a>", $viewTicketURLAgent, $ticket->getId()),
             'ticket.ticketGenerateUrlAgent' => sprintf("<a href='%s'>click here</a>", $generateTicketURLAgent),
             'ticket.customerLink' => sprintf("<a href='%s'>#%s</a>", $viewTicketURL, $ticket->getId()),
@@ -546,5 +546,36 @@ class EmailService
         }
 
         return null;
+    }
+
+    public function getCollaboratorName($ticket)
+    {
+        if(count($ticket->getCollaborators()) > 0) {
+            try {
+                $ticket->lastCollaborator = $ticket->getCollaborators()[ -1 + count($ticket->getCollaborators()) ];
+            } catch(\Exception $e) {
+            }
+        }
+        if($ticket->lastCollaborator) {
+            $name =  $ticket->lastCollaborator->getFirstName()." ".$ticket->lastCollaborator->getLastName();
+        }
+        
+        return $name;
+        
+    }
+
+    public function getCollaboratorEmail($ticket)
+    {
+        if(count($ticket->getCollaborators()) > 0) {
+            try {
+                $ticket->lastCollaborator = $ticket->getCollaborators()[ -1 + count($ticket->getCollaborators()) ];
+            } catch(\Exception $e) {
+            }
+        }
+        if($ticket->lastCollaborator) {
+            $email = $ticket->lastCollaborator->getEmail();
+        }
+        
+        return $email;
     }
 }
