@@ -159,9 +159,10 @@ class Thread extends Controller
                 return str_replace('//', '/', $projectDir . "/public" . $attachment->getPath());
                 }, $attachments);
 
+                $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
                 // Forward thread to users
                 try {
-                    $messageId = $this->emailService->sendMail($params['subject'] ?? ("Forward: " . $ticket->getSubject()), $thread->getMessage(), $thread->getReplyTo(), $headers, $ticket->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
+                    $messageId = $this->emailService->sendMail($params['subject'] ?? ("Forward: " . $ticket->getSubject()), $message, $thread->getReplyTo(), $headers, $ticket->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
     
                     if (!empty($messageId)) {
                         $thread->setMessageId($messageId);
