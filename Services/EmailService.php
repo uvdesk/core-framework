@@ -411,7 +411,7 @@ class EmailService
         $placeholderParams = [
             'ticket.id' => $ticket->getId(),
             'ticket.subject' => $ticket->getSubject(),
-            'ticket.message' =>  (isset($ticket->createdThread)) ? $ticket->createdThread->getMessage() : '',
+            'ticket.message' =>  (isset($ticket->createdThread) && $ticket->createdThread->getThreadType() != "note") ? $ticket->createdThread->getMessage() : $ticket->currentThread->getMessage(),
             'ticket.threadMessage' => (isset($ticket->createdThread) && $ticket->createdThread->getThreadType() != "note") ? $ticket->createdThread->getMessage() : $ticket->currentThread->getMessage(),
             'ticket.tags' => implode(',', $supportTags),
             'ticket.source' => ucfirst($ticket->getSource()),
