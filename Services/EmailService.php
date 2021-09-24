@@ -412,7 +412,7 @@ class EmailService
             'ticket.id' => $ticket->getId(),
             'ticket.subject' => $ticket->getSubject(),
             'ticket.message' =>  (isset($ticket->createdThread)) ? $ticket->createdThread->getMessage() : '',
-            'ticket.threadMessage' => (isset($ticket->createdThread) && $ticket->createdThread->getThreadType() != "note") ? $ticket->createdThread->getMessage() : (isset($ticket->currentThread)) ? $ticket->currentThread->getMessage() : '',
+            'ticket.threadMessage' => (isset($ticket->createdThread) && $ticket->createdThread->getThreadType() != "note") ? $ticket->createdThread->getMessage() : ((isset($ticket->currentThread)) ? $ticket->currentThread->getMessage() : ''),
             'ticket.tags' => implode(',', $supportTags),
             'ticket.source' => ucfirst($ticket->getSource()),
             'ticket.status' => $ticket->getStatus()->getDescription(),
@@ -550,32 +550,36 @@ class EmailService
 
     public function getCollaboratorName($ticket)
     {
-        if(count($ticket->getCollaborators()) > 0) {
+        $ticket->lastCollaborator = null;
+        $name = null;
+        if($ticket->getCollaborators() != null && count($ticket->getCollaborators()) > 0) {
             try {
                 $ticket->lastCollaborator = $ticket->getCollaborators()[ -1 + count($ticket->getCollaborators()) ];
             } catch(\Exception $e) {
             }
         }
-        if($ticket->lastCollaborator) {
+        if($ticket->lastCollaborator != null) {
             $name =  $ticket->lastCollaborator->getFirstName()." ".$ticket->lastCollaborator->getLastName();
         }
         
-        return $name;
+        return $name != null ? $name : '';
         
     }
 
     public function getCollaboratorEmail($ticket)
     {
-        if(count($ticket->getCollaborators()) > 0) {
+        $ticket->lastCollaborator = null;
+        $email = null;
+        if($ticket->getCollaborators() != null && count($ticket->getCollaborators()) > 0) {
             try {
                 $ticket->lastCollaborator = $ticket->getCollaborators()[ -1 + count($ticket->getCollaborators()) ];
             } catch(\Exception $e) {
             }
         }
-        if($ticket->lastCollaborator) {
+        if($ticket->lastCollaborator != null) {
             $email = $ticket->lastCollaborator->getEmail();
         }
         
-        return $email;
+        return $email != null ? $email : '';;
     }
 }

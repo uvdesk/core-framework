@@ -1203,6 +1203,24 @@
         <div class="uv-no-threads">{{ 'Nothing interesting here...'|trans }}</div>
     </script>
 
+    <script> 
+        $(document).ready(function() {
+            $("#filterSavedreplies").on("keyup", function() {
+                if (this.value.length && this.value.length != '') {
+                    var that = this;
+                    $("#listSavedReplies li").hide().filter(function() {
+                        return $(this).html().toLowerCase().indexOf(that.value.toLowerCase()) !== -1;
+                    }).show();
+                } else {
+                    $("#listSavedReplies li").show()
+                }
+            });
+                $(".uv-dropdown-btn").click(function() {
+                    $(".uv-search-inline").focus();
+                });
+        });
+    </script>
+
     <script id="thread_list_item_tmp" type="text/template">
         <div class="uv-ticket-strip">
             <span>
