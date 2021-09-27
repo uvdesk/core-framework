@@ -63,7 +63,7 @@ class MailAgent extends WorkflowAction
         if ($entity instanceof Ticket) {
             $emailTemplate = $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findOneById($value['value']);
             $emails = self::getAgentMails($value['for'], (($ticketAgent = $entity->getAgent()) ? $ticketAgent->getEmail() : ''), $container);
-            
+            $messageId = null;
             if ($emails || $emailTemplate) {
                 $queryBuilder = $entityManager->createQueryBuilder()
                     ->select('th.messageId as messageId')
@@ -104,6 +104,13 @@ class MailAgent extends WorkflowAction
                 
                 if(!empty($thread) && ($thread->getCc() || $thread->getBcc())) {
                     self::sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message);
+                } else {
+                    if (!empty($messageId) & $messageId != null) {
+                        $createdThread = isset($entity->createdThread) ? $entity->createdThread : '';
+                           $createdThread->setMessageId($messageId);		 
+                           $entityManager->persist($createdThread);
+                           $entityManager->flush();
+                   }
                 }
             } else {
                 // Email Template/Emails Not Found. Disable Workflow/Prepared Response

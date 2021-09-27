@@ -47,7 +47,7 @@ class MailCustomer extends WorkflowAction
             case $entity instanceof CoreEntities\Ticket:
                 $currentThread = isset($entity->currentThread) ? $entity->currentThread : '';
                 $createdThread = isset($entity->createdThread) ? $entity->createdThread : '';
-                
+                $messageId = null;
                 $emailTemplate = $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findOneById($value);
 
                 if (empty($emailTemplate)) {
@@ -85,6 +85,13 @@ class MailCustomer extends WorkflowAction
 
                     if($thread->getCc() || $thread->getBcc()) {
                         self::sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message);
+                    } else {
+                            if (!empty($messageId) & $messageId != null) {
+                                $createdThread = isset($entity->createdThread) ? $entity->createdThread : '';
+                                   $createdThread->setMessageId($messageId);		 
+                                   $entityManager->persist($createdThread);
+                                   $entityManager->flush();
+                           }
                     }
                     
                 } else {
