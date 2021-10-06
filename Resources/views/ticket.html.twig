@@ -304,6 +304,59 @@
         blockquote p {
             display: inline;
         }
+
+        .uv-dropdown-list ul li {
+            padding : 8px 0px !important;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+        }
+        ::-webkit-scrollbar-thumb {
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+        }
+
+        .uv-aside-select.search .uv-dropdown-list.uv-bottom-left, .uv-aside-select .uv-dropdown-list.uv-bottom-right {
+            top: 25px;
+            width: 100%;
+        }
+
+        .uv-aside-select.search .uv-dropdown-list ul{
+            padding: 0px 10px;
+        }
+
+        .uv-aside-select.search .uv-dropdown-container {
+            padding: 8px 10px 4px;
+            overflow-y: auto;
+            max-height: 280px;
+            border-bottom: solid 1px #D3D3D3;
+        }
+
+        .uv-aside-select.search .uv-dropdown-list ul.uv-agents-list li {
+            border-bottom: solid 1px #D3D3D3;
+            border-top:0px;
+        }
+
+        .uv-search-inline{
+            width: 100%;
+        }
+
+        .uv-dropdown-list ul.uv-search-list li:first-child {
+            border-top: none;
+        }
+
+        .uv-search-sm input.uv-search-field { 
+           border: solid 1px #B1B1AE;
+           border-radius: 3px;
+           color: #333333;
+           font-size: 15px;
+           box-sizing: border-box;
+           padding: 7px 10px 9px 33px;
+           width: 100%;
+        }
         
     </style>
 {% endblock %}
@@ -420,7 +473,7 @@
             <div class="uv-aside-brick">
                 <div class="uv-aside-ticket-actions">
                     {# Update Ticket Agent #}
-                    <div class="uv-aside-select">
+                    <div class="uv-aside-select search">
                         <label class="uv-aside-select-label">{{ 'Agent'|trans }}</label>
                         <div>
                             {% set agentName = ticketAgent ? ticketAgent.name : 'Not Assigned'|trans %}
@@ -430,7 +483,7 @@
                                     <div class="uv-dropdown-container">
                                         <label>{{ 'Agent'|trans }}</label>
                                         <div class="uv-search-sm">
-                                            <input type="text" class="uv-search-field" placeholder="{{ 'Search'|trans }}">
+                                            <input type="text" class="uv-search-inline" placeholder="{{ 'Search'|trans }}">
                                         </div>
                                     </div>
 
@@ -449,7 +502,7 @@
                     </div>
 
                     {# Update Ticket Priority #}
-                    <div class="uv-aside-select">
+                    <div class="uv-aside-select search">
                         <label class="uv-aside-select-label">{{ 'Priority'|trans }}</label>
                         <div>
                             <span class="uv-list-ticket-priority" style="background: {{ ticket.priority.colorCode }}"></span>
@@ -474,7 +527,7 @@
                     </div>
 
                     {# Update Ticket Status #}
-                    <div class="uv-aside-select">
+                    <div class="uv-aside-select search">
                         <label class="uv-aside-select-label">{{ 'Status'|trans }}</label>
                         <div>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}
@@ -496,7 +549,7 @@
                     </div>
 
                     {# Update Ticket Type #}
-                    <div class="uv-aside-select">
+                    <div class="uv-aside-select search">
                         <label class="uv-aside-select-label">{{ 'Type'|trans }}</label>
                         <div>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_TYPE') %}
@@ -505,7 +558,7 @@
                                     <div class="uv-dropdown-container">
                                         <label>{{ 'Type'|trans }}</label>
                                         <div class="uv-search-sm">
-                                            <input type="text" class="uv-search-field" placeholder="{{ 'Search'|trans }}">
+                                            <input type="text" class="uv-search-inline" placeholder="{{ 'Search'|trans }}">
                                         </div>
                                     </div>
 
@@ -524,7 +577,7 @@
                     </div>
 
                     {# Update Ticket Support Group #}
-                    <div class="uv-aside-select">
+                    <div class="uv-aside-select search">
                         <label class="uv-aside-select-label">{{ 'Group'|trans }}</label>
                         <div>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_ASSIGN_TICKET_GROUP') %}
@@ -535,7 +588,7 @@
                                     <div class="uv-dropdown-container">
                                         <label>{{ 'Group'|trans }}</label>
                                         <div class="uv-search-sm">
-                                            <input type="text" class="uv-search-field" placeholder="{{ 'Search'|trans }}">
+                                            <input type="text" class="uv-search-inline" placeholder="{{ 'Search'|trans }}">
                                         </div>
                                     </div>
                                     <ul class="uv-search-list group" data-action="group">
@@ -555,7 +608,7 @@
                     </div>
 
                     {# Update Ticket Support Team #}
-                    <div class="uv-aside-select">
+                    <div class="uv-aside-select search">
                         <label class="uv-aside-select-label">{{ 'Team'|trans }}</label>
                         <div>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_ASSIGN_TICKET_GROUP') %}
@@ -566,7 +619,7 @@
                                     <div class="uv-dropdown-container">
                                         <label>{{ 'Team'|trans }}</label>
                                         <div class="uv-search-sm">
-                                            <input type="text" class="uv-search-field" placeholder="{{ 'Search'|trans }}">
+                                            <input type="text" class="uv-search-inline" placeholder="{{ 'Search'|trans }}">
                                         </div>
                                     </div>
                                     <ul class="uv-search-list team" data-action="team">
@@ -587,7 +640,7 @@
             </div>
 
             {# Ticket Labels #}
-            <div class="uv-aside-brick">
+            <div class="uv-aside-brick search">
                 <div class="uv-aside-ticket-labels label-list-block">
                     <div class="uv-element-block">
                         <label class="uv-field-label">{{ 'Labels'|trans }}</label>
