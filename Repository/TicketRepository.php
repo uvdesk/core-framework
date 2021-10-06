@@ -77,6 +77,10 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             $qb->orderBy('t.id',Criteria::DESC);
         }
 
+        if(isset($data['sort']) && $data['sort'] == "t.updatedAt") {
+            $qb->orderBy('t.updatedAt',Criteria::DESC);
+        }
+
         $paginator = $container->get('knp_paginator');
 
         $newQb = clone $qb;
