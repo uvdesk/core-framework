@@ -502,7 +502,7 @@
                     </div>
 
                     {# Update Ticket Priority #}
-                    <div class="uv-aside-select search">
+                    <div class="uv-aside-select">
                         <label class="uv-aside-select-label">{{ 'Priority'|trans }}</label>
                         <div>
                             <span class="uv-list-ticket-priority" style="background: {{ ticket.priority.colorCode }}"></span>
@@ -527,7 +527,7 @@
                     </div>
 
                     {# Update Ticket Status #}
-                    <div class="uv-aside-select search">
+                    <div class="uv-aside-select">
                         <label class="uv-aside-select-label">{{ 'Status'|trans }}</label>
                         <div>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') %}
