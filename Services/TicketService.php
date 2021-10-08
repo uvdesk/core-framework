@@ -1525,7 +1525,7 @@ class TicketService
 
     public function getTicketLastThread($ticketId)
     {
-        $qb = $this->em->createQueryBuilder();
+        $qb = $this->entityManager->createQueryBuilder();
         $qb->select("th")->from('UVDeskCoreFrameworkBundle:Thread', 'th')
                 ->leftJoin('th.ticket','t')
                 ->andWhere('t.id = :ticketId')
