@@ -84,7 +84,7 @@ class MailAgent extends WorkflowAction
 
                 // Only process attachments if required in the message body
                 // @TODO: Revist -> Maybe we should always include attachments if they are provided??
-                $createdThread = isset($entity->createdThread) ? $entity->createdThread : '';
+                $createdThread = isset($entity->createdThread) && $entity->createdThread->getThreadType() != "note" ? $entity->createdThread : (isset($entity->currentThread) ? $entity->currentThread : "") ;
                 $attachments = [];
                 if (!empty($createdThread) && (strpos($emailTemplate->getMessage(), '{%ticket.attachments%}') !== false || strpos($emailTemplate->getMessage(), '{% ticket.attachments %}') !== false)) {
                     $attachments = array_map(function($attachment) use ($container) { 
