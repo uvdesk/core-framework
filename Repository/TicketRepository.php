@@ -578,7 +578,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
             if($actAsUser != null ) {
                 $userInstance = $actAsUser->getAgentInstance();
-                if (!empty($userInstance) && ('ROLE_AGENT' == $userInstance->getSupportRole()->getCode()) || ('ROLE_ADMIN' == $userInstance->getSupportRole()->getCode()) && $field == 'mine') {
+                if (!empty($userInstance) && ('ROLE_AGENT' == $userInstance->getSupportRole()->getCode() && $field == 'mine') || ('ROLE_ADMIN' == $userInstance->getSupportRole()->getCode()) && $field == 'mine') {
                     $fieldValue = $actAsUser->getId();
                 }
             } 
