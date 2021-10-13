@@ -469,7 +469,7 @@ class Account extends AbstractController
                         $supportPrivilegeRepository = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportPrivilege');
 
                         foreach($formDetails['agentPrivilege'] as $supportPrivilegeId) {
-                            $supportPrivilege = $supportPrivilegeRepository->findOneById($supportGroupId);
+                            $supportPrivilege = $supportPrivilegeRepository->findOneById($supportPrivilegeId);
 
                             if (!empty($supportPrivilege)) {
                                 $userInstance->addSupportPrivilege($supportPrivilege);

@@ -99,7 +99,7 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
         				'ticketId' => $rating['ticketId'],
         				'customer' => $customer,
         				'count' => $rating[0]['stars'],
-        				'formatedRatedAt' => $userService->convertToTimezone($rating[0]['createdAt']),
+        				'formatedRatedAt' => $rating[0]['createdAt']->format('d-m-Y H:i A'),
 
         			);
         }
