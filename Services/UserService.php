@@ -803,9 +803,9 @@ class UserService
 
     public function isfileExists($filePath)
     {
-        $dir = __DIR__;
-        $dirSplit = explode('vendor', $dir);
-        $file = str_replace("\\",'/', $dirSplit[0].$filePath);
+        $dir = $this->container->get('kernel')->getProjectDir();
+        // $dirSplit = explode('vendor', $dir);
+        $file = str_replace("\\",'/', $dir."/".$filePath);
 
         if (is_dir($file)) { 
             return true;
