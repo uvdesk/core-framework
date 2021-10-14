@@ -104,6 +104,8 @@ class FileSystem
                     break;
                 case '.java':
                     $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/java.png';
+                case '.xlsx':
+                    $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/xlsx.svg';
                     break;
                 default:
                     break;
