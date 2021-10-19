@@ -4,7 +4,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Templates\Email\Resources\Collaborat
 
 use Webkul\UVDesk\CoreFrameworkBundle\Templates\Email\UVDeskEmailTemplateInterface;
 
-abstract class AccountCreated implements UVDeskEmailTemplateInterface
+abstract class AccountAdded implements UVDeskEmailTemplateInterface
 {
     private static $type = "user";
     private static $name = 'Collaborator added to ticket';
