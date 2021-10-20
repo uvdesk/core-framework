@@ -19,7 +19,8 @@ class EmailTemplates extends DoctrineFixture
         CoreEmailTemplates\Customer\TicketCreated::class,
         CoreEmailTemplates\Customer\AccountCreated::class,
         CoreEmailTemplates\Collaborator\AccountAdded::class,
-        CoreEmailTemplates\Collaborator\TicketReply::class,
+        CoreEmailTemplates\Collaborator\TicketReplyAgent::class,
+        CoreEmailTemplates\Collaborator\TicketReplyCustomer::class,
     ];
 
     public function load(ObjectManager $entityManager)
