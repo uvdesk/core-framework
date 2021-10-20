@@ -25,6 +25,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity;
 use Webkul\UVDesk\MailboxBundle\Utils\Imap\Configuration as ImapConfiguration;
+use Symfony\Component\Filesystem\Filesystem;
 
 class TicketService
 {
@@ -860,6 +861,17 @@ class TicketService
 
                     break;
                 case 'delete':
+
+                    $threads = $ticket->getThreads();
+                    $fileService = new Filesystem();
+                    if (count($threads) > 0) {
+                        foreach($threads as $thread) {
+                            if (!empty($thread)) {
+                                $fileService->remove($this->container->getParameter('kernel.project_dir').'/public/assets/threads/'.$thread->getId());
+                            }
+                        }
+                    }
+
                     $this->entityManager->remove($ticket);
                     $this->entityManager->flush();
 
