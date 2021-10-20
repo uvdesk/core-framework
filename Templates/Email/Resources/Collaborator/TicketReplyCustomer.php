@@ -4,7 +4,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Templates\Email\Resources\Collaborat
 
 use Webkul\UVDesk\CoreFrameworkBundle\Templates\Email\UVDeskEmailTemplateInterface;
 
-abstract class TicketReply implements UVDeskEmailTemplateInterface
+abstract class TicketReplyCustomer implements UVDeskEmailTemplateInterface
 {
     private static $type = "ticket";
     private static $name = 'Collaborator Reply To The Ticket';
@@ -18,7 +18,7 @@ abstract class TicketReply implements UVDeskEmailTemplateInterface
     <p style="text-align: center;"><strong> <span style="font-size: 18px;"> <br /> </span> </strong></p>
     <p>Hello {%ticket.agentName%},</p>
     <p>&nbsp;</p>
-    <p>Collaborator of the ticket #{%ticket.id%} has added a reply. You can check the ticket from here&nbsp;{%ticket.link%}.</p>
+    <p>Collaborator of the ticket #{%ticket.id%} has added a reply. You can check the ticket from here&nbsp;{%ticket.customerLink%}.</p>
     <p>&nbsp;</p>
     <p>Here go the message:</p>
     <p>{%ticket.threadMessage%}</p>

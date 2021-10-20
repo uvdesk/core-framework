@@ -4,31 +4,27 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Templates\Email\Resources\Collaborat
 
 use Webkul\UVDesk\CoreFrameworkBundle\Templates\Email\UVDeskEmailTemplateInterface;
 
-abstract class AccountAdded implements UVDeskEmailTemplateInterface
+abstract class TicketReplyAgent implements UVDeskEmailTemplateInterface
 {
     private static $type = "ticket";
-    private static $name = 'Collaborator added to ticket';
-    private static $subject = 'A new Collaborator have been added';
+    private static $name = 'Collaborator Reply To The Ticket';
+    private static $subject = 'Collaborator Reply Ticket #{% ticket.id %}';
     private static $message = <<<MESSAGE
-    <p>&nbsp;</p>
     <p>&nbsp;</p>
     <p>&nbsp;</p>
     <p style="text-align: center;">{%global.companyLogo%}</p>
     <p style="text-align: center;">&nbsp;</p>
-    <p style="text-align: center;"><span style="font-size: 18px;"> <strong>Thank you for joining!!</strong> </span></p>
-    <p style="text-align: center;"><em> <br /> </em></p>
-    <p style="margin-bottom: 0cm; line-height: 100%;" align="left">Hello {%ticket.collaboratorName%},</p>
-    <p style="margin-bottom: 0cm; line-height: 100%;" align="left">&nbsp;</p>
+    <p style="text-align: center;"><strong> <span style="font-size: 18px;">New Response!!</span> </strong></p>
+    <p style="text-align: center;"><strong> <span style="font-size: 18px;"> <br /> </span> </strong></p>
+    <p>Hello {%ticket.agentName%},</p>
     <p>&nbsp;</p>
-    <p>Collaborator of the ticket #{%ticket.id%} has added a reply. You can check the ticket from here {%ticket.customerLink%}</p>
+    <p>Collaborator of the ticket #{%ticket.id%} has added a reply. You can check the ticket from here&nbsp;{%ticket.agentLink%}.</p>
     <p>&nbsp;</p>
     <p>Here go the message:</p>
     <p>{%ticket.threadMessage%}</p>
     <p>&nbsp;</p>
     <p>Thanks and Regards</p>
     <p>{%global.companyName%}</p>
-    <p>&nbsp;</p>
-    <p>&nbsp;</p>
     <p>&nbsp;</p>
 MESSAGE;
 
