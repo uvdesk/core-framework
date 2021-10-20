@@ -7,7 +7,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Templates\Email\UVDeskEmailTemplateInterfa
 abstract class TicketReplyAgent implements UVDeskEmailTemplateInterface
 {
     private static $type = "ticket";
-    private static $name = 'Collaborator Reply To The Ticket';
+    private static $name = 'Collaborator Reply To The Agent';
     private static $subject = 'Collaborator Reply Ticket #{% ticket.id %}';
     private static $message = <<<MESSAGE
     <p>&nbsp;</p>
