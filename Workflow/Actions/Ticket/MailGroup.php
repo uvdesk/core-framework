@@ -64,6 +64,15 @@ class MailGroup extends WorkflowAction
                 $createThread = $container->get('ticket.service')->getCreateReply($entity->getId(),false);
                 $mailData['references'] = $createThread['messageId'];
             }
+
+            $createdThread = isset($entity->createdThread) && $entity->createdThread->getThreadType() != "note" ? $entity->createdThread : (isset($entity->currentThread) ? $entity->currentThread : "") ;
+            $attachments = [];
+            if (!empty($createdThread) && (strpos($emailTemplate->getMessage(), '{%ticket.attachments%}') !== false || strpos($emailTemplate->getMessage(), '{% ticket.attachments %}') !== false)) {
+                $attachments = array_map(function($attachment) use ($container) { 
+                    return str_replace('//', '/', $container->get('kernel')->getProjectDir() . "/public" . $attachment->getPath());
+                }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:Attachment')->findByThread($createdThread));
+            }
+            
             $to = array();
             foreach ($value['for'] as $grp) {
                 foreach ($container->get('user.service')->getUsersByGroupId( (($grp == 'assignedGroup' && $entity->getSupportGroup()) ? $entity->getSupportGroup()->getId() : $grp)) as $agent) {
@@ -77,7 +86,7 @@ class MailGroup extends WorkflowAction
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(),$placeHolderValues);
 
                 foreach($mailData['email'] as $email){
-                    $messageId = $container->get('email.service')->sendMail($subject, $message, $email);
+                    $messageId = $container->get('email.service')->sendMail($subject, $message, $email, [], null, $attachments ?? []);
                 }
             }
         } else {
