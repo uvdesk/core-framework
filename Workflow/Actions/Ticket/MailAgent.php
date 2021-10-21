@@ -95,15 +95,16 @@ class MailAgent extends WorkflowAction
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $placeHolderValues);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $placeHolderValues);
                 $thread = ($thread != null) ? $thread : $createdThread;
-                
+                $ticketCollaborators = (($thread != null) && !empty($thread->getTicket()) && $thread != "" ) ? $thread->getTicket()->getCollaborators() : [];
+
                 if(!empty($emails) && $emails != null){
                     foreach ($emails as $email) {
                         $messageId = $container->get('email.service')->sendMail($subject, $message, $email, $emailHeaders, null, $attachments ?? []);
                     }
                 }
                 
-                if(!empty($thread) && ($thread->getCc() || $thread->getBcc())) {
-                    self::sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message);
+                if(!empty($thread) && ($thread->getCc() || $thread->getBcc()) || $ticketCollaborators != null && count($ticketCollaborators) > 0) {
+                    self::sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message, $ticketCollaborators);
                 }
             } else {
                 // Email Template/Emails Not Found. Disable Workflow/Prepared Response
@@ -150,9 +151,9 @@ class MailAgent extends WorkflowAction
         return array_filter($agentMails);
     }
     
-    public static function sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message = null)
+    public static function sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message = null, $ticketCollaborators)
     {
-    	$entityManager = $container->get('doctrine.orm.entity_manager');
+        $entityManager = $container->get('doctrine.orm.entity_manager');
         $collabrator = array();
         $cc = array();
 
@@ -166,16 +167,26 @@ class MailAgent extends WorkflowAction
            }   
         }
 
-        if($collabrator != null && !empty($collabrator)){
+        $emailOfcollabrator = !empty($thread) && $thread->getCreatedBy() == "collaborator" ? $thread->getUser()->getEmail() : null;
+
+        if ($collabrator != null && !empty($collabrator) || $ticketCollaborators != null && !empty($ticketCollaborators)) {
+            if (count($collabrator) == 0 && count($ticketCollaborators) > 0 && !empty($ticketCollaborators) && empty($collabrator)) {
+                foreach ($ticketCollaborators as $collaborator) {
+                    if (!empty($collaborator->getEmail()) && $collaborator->getEmail() != $emailOfcollabrator) {
+                        $collabrator[] = $collaborator->getEmail();
+                    }
+                }
+            }
+
             $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $collabrator ?? [], []); 
             if (!empty($messageId)) {
                 $createdThread = isset($entity->createdThread) ? $entity->createdThread : '';
-                   $createdThread->setMessageId($messageId);		 
+                   $createdThread->setMessageId($messageId);         
                    $entityManager->persist($createdThread);
                    $entityManager->flush();
            }
 
-           if(count($thread->getCc()) == count($collabrator) && $thread->getBcc() != null){
+           if($thread->getCc() != null && count($thread->getCc()) == count($collabrator) && $thread->getBcc() != null){
             $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
             $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], [], $thread->getBcc() ?? []);  
            }
