@@ -103,7 +103,7 @@ class MailAgent extends WorkflowAction
                     }
                 }
                 
-                if(!empty($thread) && ($thread->getCc() || $thread->getBcc()) || $count($ticketCollaborators) > 0) {
+                if(!empty($thread) && ($thread->getCc() || $thread->getBcc()) || count($ticketCollaborators) > 0) {
                     self::sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message, $ticketCollaborators);
                 }
             } else {
