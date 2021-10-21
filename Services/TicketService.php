@@ -859,6 +859,13 @@ class TicketService
                         $this->entityManager->flush();
                     }
 
+                    // Trigger ticket delete event
+                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Delete::getId(), [
+                        'entity' => $ticket,
+                    ]);
+
+                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+
                     break;
                 case 'delete':
 
