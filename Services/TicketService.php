@@ -864,7 +864,7 @@ class TicketService
                         'entity' => $ticket,
                     ]);
 
-                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
 
                     break;
                 case 'delete':
