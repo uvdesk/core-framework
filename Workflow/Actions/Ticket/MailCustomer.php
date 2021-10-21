@@ -68,6 +68,8 @@ class MailCustomer extends WorkflowAction
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $ticketPlaceholders);
                 
                 $thread = ($thread != null) ? $thread : $createdThread;
+                $ticketCollaborators = !empty($thread->getTicket()) ? $thread->getTicket()->getCollaborators() : null;
+
                 if (!empty($thread)) {
                     $headers = ['References' => $entity->getReferenceIds()];
                 
@@ -83,8 +85,8 @@ class MailCustomer extends WorkflowAction
                     //     $entityManager->flush();
                     // }
 
-                    if($thread->getCc() || $thread->getBcc()) {
-                        self::sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message);
+                    if($thread->getCc() || $thread->getBcc() || count($ticketCollaborators) > 0) {
+                        self::sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message, $ticketCollaborators);
                     }
                     
                 } else {
@@ -96,7 +98,7 @@ class MailCustomer extends WorkflowAction
         }
     }
 
-    public static function sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message = null)
+    public static function sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message = null, $ticketCollaborators)
     {
     	$entityManager = $container->get('doctrine.orm.entity_manager');
         $collabrator = array();
@@ -112,7 +114,15 @@ class MailCustomer extends WorkflowAction
            }   
         }
 
-        if($collabrator != null && !empty($collabrator)){
+        if ($collabrator != null && !empty($collabrator) || $ticketCollaborators != null && !empty($ticketCollaborators)) {
+            if (count($collabrator) == 0 && count($ticketCollaborators) > 0 && !empty($ticketCollaborators) && empty($collabrator)) {
+                foreach ($ticketCollaborators as $collaborator) {
+                    if (!empty($collaborator->getEmail())) {
+                        $collabrator[] = $collaborator->getEmail();
+                    }
+                }
+            }
+
             $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $collabrator ?? [], []); 
             if (!empty($messageId)) {
                 $createdThread = isset($entity->createdThread) ? $entity->createdThread : '';
