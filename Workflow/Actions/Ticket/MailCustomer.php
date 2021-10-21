@@ -68,7 +68,7 @@ class MailCustomer extends WorkflowAction
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $ticketPlaceholders);
                 
                 $thread = ($thread != null) ? $thread : $createdThread;
-                $ticketCollaborators = !empty($thread->getTicket()) ? $thread->getTicket()->getCollaborators() : null;
+                $ticketCollaborators = (($thread != null) && !empty($thread->getTicket()) && $thread != "" ) ? $thread->getTicket()->getCollaborators() : null;
 
                 if (!empty($thread)) {
                     $headers = ['References' => $entity->getReferenceIds()];

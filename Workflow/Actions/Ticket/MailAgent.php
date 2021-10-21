@@ -95,7 +95,7 @@ class MailAgent extends WorkflowAction
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $placeHolderValues);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $placeHolderValues);
                 $thread = ($thread != null) ? $thread : $createdThread;
-                $ticketCollaborators = !empty($thread->getTicket()) ? $thread->getTicket()->getCollaborators() : null;
+                $ticketCollaborators = (($thread != null) && !empty($thread->getTicket()) && $thread != "" ) ? $thread->getTicket()->getCollaborators() : null;
 
                 if(!empty($emails) && $emails != null){
                     foreach ($emails as $email) {
