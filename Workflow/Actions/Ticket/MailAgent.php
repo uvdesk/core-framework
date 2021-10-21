@@ -95,7 +95,7 @@ class MailAgent extends WorkflowAction
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $placeHolderValues);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $placeHolderValues);
                 $thread = ($thread != null) ? $thread : $createdThread;
-                $ticketCollaborators = (($thread != null) && !empty($thread->getTicket()) && $thread != "" ) ? $thread->getTicket()->getCollaborators() : null;
+                $ticketCollaborators = (($thread != null) && !empty($thread->getTicket()) && $thread != "" ) ? $thread->getTicket()->getCollaborators() : [];
 
                 if(!empty($emails) && $emails != null){
                     foreach ($emails as $email) {
@@ -103,7 +103,7 @@ class MailAgent extends WorkflowAction
                     }
                 }
                 
-                if(!empty($thread) && ($thread->getCc() || $thread->getBcc()) || count($ticketCollaborators) > 0) {
+                if(!empty($thread) && ($thread->getCc() || $thread->getBcc()) || $count($ticketCollaborators) > 0) {
                     self::sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message, $ticketCollaborators);
                 }
             } else {
