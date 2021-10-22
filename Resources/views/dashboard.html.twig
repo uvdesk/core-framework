@@ -203,9 +203,12 @@
 		.uv-mob-aside {
 			display: none;
 		}
-    {# .uv-copyright {
-        text-align: center;
-    } #}
+		#btndisclaimer {
+  			position: fixed;
+  			right: 25px;
+  			bottom: 10px;
+			background: url("");
+		}
 	</style>
 {% endblock %}
 
@@ -216,7 +219,27 @@
         <div class="uv-copyright">
             <span class="uv-credit-text">{{ 'Powered by'|trans }} <a href="https://www.uvdesk.com" target="_blank">UVdesk</a></span> | <span class="uv-credit-text">V -1.0.16</span>
         </div>
+		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+    		<button type="submit" class="btn btn-primary btn-md" id="btndisclaimer" title="clear cache"><img src="https://api.iconify.design/mdi:delete-restore.svg?height=24" aria-hidden="true"></button>
+  		</div>
     </div>
+
+<script>
+	$('#btndisclaimer').click(function(e){
+
+    	$.ajax({
+        	url : "{{ path('helpdesk_member_cache_clear') }}",
+        	method: 'POST',
+        	data: "",
+        	success : function(response) {
+				app.appView.renderResponseAlert(response);
+        	},
+        	error: function (xhr) {
+            	app.appView.renderResponseAlert(xhr);
+        	}
+    	});
+    });
+</script>
 {% endblock %}
 
 {% block footer %}

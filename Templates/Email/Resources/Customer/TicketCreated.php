@@ -49,7 +49,7 @@ abstract class TicketCreated implements UVDeskEmailTemplateInterface
 <p>
     <span style="line-height: 1.42857143;">
         <br />
-    </span>
+    </span>{%ticket.threadMessage%}{%ticket.attachments%}
 </p>
 <p>Thanks and Regards</p>
 <p>{%global.companyName%}
