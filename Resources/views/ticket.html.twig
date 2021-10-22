@@ -1268,9 +1268,12 @@
                     $("#listSavedReplies li").show()
                 }
             });
-                $(".uv-dropdown-btn").click(function() {
+
+            $(".uv-dropdown-btn").click(function(event) {
+                setTimeout(function() {
                     $(".uv-search-inline").focus();
-                });
+                }, 100);
+            });
         });
     </script>
 
