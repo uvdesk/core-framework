@@ -21,7 +21,7 @@ abstract class TicketReplyCustomer implements UVDeskEmailTemplateInterface
     <p>Collaborator of the ticket #{%ticket.id%} has added a reply. You can check the ticket from here&nbsp;{%ticket.customerLink%}.</p>
     <p>&nbsp;</p>
     <p>Here go the message:</p>
-    <p>{%ticket.threadMessage%}</p>
+    <p>{%ticket.threadMessage%}{%ticket.attachments%}</p>
     <p>&nbsp;</p>
     <p>Thanks and Regards</p>
     <p>{%global.companyName%}</p>

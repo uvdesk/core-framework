@@ -17,6 +17,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\ReCaptchaService;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class Authentication extends AbstractController
 {
@@ -25,14 +26,39 @@ class Authentication extends AbstractController
     private $authenticationUtils;
     private $eventDispatcher;
     private $translator;
+    private $kernel;
 
-    public function __construct(UserService $userService, AuthenticationUtils $authenticationUtils, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator, ReCaptchaService $recaptchaService)
+    public function __construct(UserService $userService, AuthenticationUtils $authenticationUtils, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator, ReCaptchaService $recaptchaService, KernelInterface $kernel)
     {
         $this->userService = $userService;
         $this->recaptchaService = $recaptchaService;
         $this->authenticationUtils = $authenticationUtils;
         $this->eventDispatcher = $eventDispatcher;
         $this->translator = $translator;
+        $this->kernel = $kernel;
+    }
+
+    public function clearProjectCache(Request $request)
+    {
+        if (true === $request->isXmlHttpRequest()) {
+            $output = array();
+            $projectDir = $this->kernel->getProjectDir();
+            $output = shell_exec('php '.$projectDir.'/bin/console cache:clear');
+            $processId = (int) $output[0];
+
+            $responseContent = [
+                'alertClass' => 'success',
+                'alertMessage' => $this->translator->trans('Success ! Project cache cleared successfully.')
+            ];
+            return new Response(json_encode($responseContent), 200, ['Content-Type' => 'application/json']);
+        }
+
+        $responseContent = [
+            'alertClass' => 'warning',
+            'alertMessage' => $this->translator->trans('Error! Something went wrong.')
+        ];
+
+        return new Response(json_encode($responseContent), 404, ['Content-Type' => 'application/json']);
     }
 
     public function login(Request $request)

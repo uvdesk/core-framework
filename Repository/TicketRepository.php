@@ -673,4 +673,14 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
         return $queryBuilder;
     }
+
+    public function getAgentTickets($agentId,$container) {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('t')->from("UVDeskCoreFrameworkBundle:Ticket", 't');
+
+        $qb->andwhere('t.agent = :agentId');
+        $qb->setParameter('agentId',$agentId);
+
+        return $qb->getQuery()->getResult();
+    }
 }
