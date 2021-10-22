@@ -415,3 +415,8 @@ helpdesk_report_achievements_insight_action:
 helpdesk_report_achievements_data_xhr:
     path:     /reports/achievements-data
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Report::getAchievementsXhr
+
+#project cache clear
+helpdesk_member_cache_clear:
+    path:     /cache-clear
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Authentication::clearProjectCache
