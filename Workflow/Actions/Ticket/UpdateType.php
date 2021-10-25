@@ -33,7 +33,7 @@ class UpdateType extends WorkflowAction
                 'id' => $ticketType->getId(),
                 'name' => $ticketType->getDescription(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findAll());
+        }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findByIsActive(1));
     }
 
     public static function applyAction(ContainerInterface $container, $entity, $value = null)

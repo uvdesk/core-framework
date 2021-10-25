@@ -137,13 +137,16 @@ class MailAgent extends WorkflowAction
                 }
             } else if((int)$agent) {
                 $qb = $entityManager->createQueryBuilder();
-                $email = $qb->select('u.email')->from('UVDeskCoreFrameworkBundle:User', 'u')
+                $emails = $qb->select('u.email')->from('UVDeskCoreFrameworkBundle:User', 'u')
                     ->andwhere("u.id = :userId")
                     ->setParameter('userId', $agent)
                     ->getQuery()->getResult();
                 
-                if (isset($email[0]['email'])) {
-                    $agentMails[] = $email[0]['email'];
+                foreach ($emails as $email) {
+                    $agent = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy($email);
+                    if ($agent != null && $agent->getAgentInstance() != null) {
+                            $agentMails[] = $email;
+                    }
                 }
             }
         }
