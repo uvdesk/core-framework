@@ -2427,7 +2427,7 @@
             var CollaboratorItem = Backbone.View.extend({
                 tagName : "a",
                 className: 'uv-btn-tag',
-                template : _.template("<span class='uv-tag'>{% if user_service.isAccessAuthorized('ROLE_AGENT_DELETE_COLLABORATOR_FROM_TICKET') %}<span class='uv-icon-remove-dark-before'></span>{% endif %}<%- name %></span>"),
+                template : _.template("{% if user_service.isAccessAuthorized('ROLE_AGENT_DELETE_COLLABORATOR_FROM_TICKET') %}<span class='uv-tag'><span class='uv-icon-remove-dark-before'></span><%- name %></span>{% else %}<span class='uv-tag-delete'><%- name %></span>{% endif %}"),
                 events : {
                     'click .uv-tag' : 'confirmRemove'
                 },

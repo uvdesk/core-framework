@@ -132,7 +132,7 @@ class MailCustomer extends WorkflowAction
                    $entityManager->flush();
            }
 
-           if($collabrator != null && count($thread->getCc()) == count($collabrator) && $thread->getBcc() != null){
+           if($collabrator != null && $thread->getCc()!= null && count($thread->getCc()) == count($collabrator) && $thread->getBcc() != null){
             $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
             $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], [], $thread->getBcc() ?? []);  
            }
