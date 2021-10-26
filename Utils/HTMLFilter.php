@@ -348,7 +348,8 @@ class HTMLFilter
                     }
                     //intentional fall-through
                 case '>':
-                    $attary{$attname} = '"yes"';
+                    //$attary{$attname} = '"yes"';
+                    $attary[$attname] = '"yes"';
                     return array($tagname, $attary, $tagtype, $lt, $pos);
                     break;
                 default:
@@ -382,7 +383,8 @@ class HTMLFilter
                             }
                             list($pos, $attval, $match) = $regary;
                             $pos++;
-                            $attary{$attname} = '\'' . $attval . '\'';
+                            //$attary{$attname} = '\'' . $attval . '\'';
+                            $attary[$attname] = '\'' . $attval . '\'';
                         } else {
                             if ($quot == '"') {
                                 $regary = $this->tln_findnxreg($body, $pos + 1, '\"');
@@ -391,7 +393,8 @@ class HTMLFilter
                                 }
                                 list($pos, $attval, $match) = $regary;
                                 $pos++;
-                                $attary{$attname} = '"' . $attval . '"';
+                                //$attary{$attname} = '"' . $attval . '"';
+                                $attary[$attname] = '"' . $attval . '"';
                             } else {
                                 /**
                                  * These are hateful. Look for \s, or >.
@@ -405,7 +408,8 @@ class HTMLFilter
                                  * If it's ">" it will be caught at the top.
                                  */
                                 $attval = preg_replace('/\"/s', '&quot;', $attval);
-                                $attary{$attname} = '"' . $attval . '"';
+                                //$attary{$attname} = '"' . $attval . '"';
+                                $attary[$attname] = '"' . $attval . '"';
                             }
                         }
                     } else {
@@ -413,7 +417,8 @@ class HTMLFilter
                             /**
                              * That was attribute type 4.
                              */
-                            $attary{$attname} = '"yes"';
+                            //$attary{$attname} = '"yes"';
+                            $attary[$attname]= '"yes"';
                         } else {
                             /**
                              * An illegal character. Find next '>' and return.
@@ -448,7 +453,8 @@ class HTMLFilter
                 if ($hex) {
                     $numval = hexdec($numval);
                 }
-                $repl{$matches[0][$i]} = chr($numval);
+                //$repl{$matches[0][$i]} = chr($numval);
+                $repl[$matches[0][$i]] = chr($numval);
             }
             $attvalue = strtr($attvalue, $repl);
             return true;
@@ -526,7 +532,8 @@ class HTMLFilter
                 if (preg_match($matchtag, $tagname)) {
                     foreach ($matchattrs as $matchattr) {
                         if (preg_match($matchattr, $attname)) {
-                            unset($attary{$attname});
+                            //unset($attary{$attname});
+                            unset($attary[$attname]);
                             continue;
                         }
                     }
@@ -556,7 +563,8 @@ class HTMLFilter
                             list($valmatch, $valrepl) = $valary;
                             $newvalue = preg_replace($valmatch, $valrepl, $attvalue);
                             if ($newvalue != $attvalue) {
-                                $attary{$attname} = $newvalue;
+                                //$attary{$attname} = $newvalue;
+                                $attary[$attname] = $newvalue;
                             }
                         }
                     }
@@ -634,10 +642,10 @@ class HTMLFilter
                         $skip_content = false;
                     } else {
                         if ($skip_content == false) {
-                            if (isset($open_tags{$tagname}) &&
-                                $open_tags{$tagname} > 0
+                            if (isset($open_tags[$tagname]) &&
+                                $open_tags[$tagname] > 0
                             ) {
-                                $open_tags{$tagname}--;
+                                $open_tags[tagname]--;
                             } else {
                                 $tagname = false;
                             }
@@ -675,10 +683,10 @@ class HTMLFilter
                                 $tagname = false;
                             } else {
                                 if ($tagtype == 1) {
-                                    if (isset($open_tags{$tagname})) {
-                                        $open_tags{$tagname}++;
+                                    if (isset($open_tags[$tagname])) {
+                                        $open_tags[$tagname]++;
                                     } else {
-                                        $open_tags{$tagname} = 1;
+                                        $open_tags[$tagname] = 1;
                                     }
                                 }
                                 /**

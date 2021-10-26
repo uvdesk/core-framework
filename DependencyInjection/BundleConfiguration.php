@@ -9,8 +9,8 @@ class BundleConfiguration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $treeBuilder->root('uvdesk')
+        $treeBuilder = new TreeBuilder('knp_doctrine_behaviors');
+        $treeBuilder->getRootNode('uvdesk_extensions')
             ->children()
                 ->node('site_url', 'scalar')->defaultValue('127.0.0.1')->end()
                 ->node('upload_manager', 'array')

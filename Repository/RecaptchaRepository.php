@@ -4,7 +4,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Repository;
 
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Recaptcha;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Recaptcha|null find($id, $lockMode = null, $lockVersion = null)
