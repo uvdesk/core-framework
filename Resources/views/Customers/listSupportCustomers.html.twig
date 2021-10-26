@@ -124,7 +124,7 @@
 	<script id="customer_list_item_tmp" type="text/template">
 		 <td data-value="{{ 'Name'|trans }}">
 			<% if(smallThumbnail != null) { %>
-				<img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%= smallThumbnail %>" alt=""/>
+				<img src="{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}<%= smallThumbnail.slice(1) %>" alt=""/>
 			<% } else { %>
 				<img src="{{ asset(default_customer_image_path) }}" alt=""/>
 			<% } %>
