@@ -411,8 +411,8 @@ class EmailService
         $placeholderParams = [
             'ticket.id' => $ticket->getId(),
             'ticket.subject' => $ticket->getSubject(),
-            'ticket.message' =>  (isset($ticket->createdThread)) ? $ticket->createdThread->getMessage() : '',
-            'ticket.threadMessage' => (isset($ticket->createdThread)) ? $ticket->createdThread->getMessage() : '',
+            'ticket.message' => count($ticket->getThreads()) > 0 ? $ticket->getThreads()->get(0)->getMessage() : '',
+            'ticket.threadMessage' => (isset($ticket->createdThread) && $ticket->createdThread->getThreadType() != "note") ? $ticket->createdThread->getMessage() : ((isset($ticket->currentThread)) ? $ticket->currentThread->getMessage() : $ticket->getThreads()->get(0)->getMessage()),
             'ticket.tags' => implode(',', $supportTags),
             'ticket.source' => ucfirst($ticket->getSource()),
             'ticket.status' => $ticket->getStatus()->getDescription(),
@@ -424,8 +424,8 @@ class EmailService
             'ticket.agentName' => !empty($agentPartialDetails) ? $agentPartialDetails['name'] : '',
             'ticket.agentEmail' => !empty($agentPartialDetails) ? $agentPartialDetails['email'] : '',
             'ticket.attachments' => '',
-            'ticket.collaboratorName' => '',
-            'ticket.collaboratorEmail' => '',
+            'ticket.collaboratorName' => $this->getCollaboratorName($ticket),
+            'ticket.collaboratorEmail' => $this->getCollaboratorEmail($ticket),
             'ticket.agentLink' => sprintf("<a href='%s'>#%s</a>", $viewTicketURLAgent, $ticket->getId()),
             'ticket.ticketGenerateUrlAgent' => sprintf("<a href='%s'>click here</a>", $generateTicketURLAgent),
             'ticket.customerLink' => sprintf("<a href='%s'>#%s</a>", $viewTicketURL, $ticket->getId()),
@@ -546,5 +546,40 @@ class EmailService
         }
 
         return null;
+    }
+
+    public function getCollaboratorName($ticket)
+    {
+        $ticket->lastCollaborator = null;
+        $name = null;
+        if($ticket->getCollaborators() != null && count($ticket->getCollaborators()) > 0) {
+            try {
+                $ticket->lastCollaborator = $ticket->getCollaborators()[ -1 + count($ticket->getCollaborators()) ];
+            } catch(\Exception $e) {
+            }
+        }
+        if($ticket->lastCollaborator != null) {
+            $name =  $ticket->lastCollaborator->getFirstName()." ".$ticket->lastCollaborator->getLastName();
+        }
+        
+        return $name != null ? $name : '';
+        
+    }
+
+    public function getCollaboratorEmail($ticket)
+    {
+        $ticket->lastCollaborator = null;
+        $email = null;
+        if($ticket->getCollaborators() != null && count($ticket->getCollaborators()) > 0) {
+            try {
+                $ticket->lastCollaborator = $ticket->getCollaborators()[ -1 + count($ticket->getCollaborators()) ];
+            } catch(\Exception $e) {
+            }
+        }
+        if($ticket->lastCollaborator != null) {
+            $email = $ticket->lastCollaborator->getEmail();
+        }
+        
+        return $email != null ? $email : '';;
     }
 }

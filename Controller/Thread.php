@@ -18,6 +18,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\EmailService;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
 
 class Thread extends Controller
 {
@@ -27,8 +28,9 @@ class Thread extends Controller
     private $ticketService;
     private $emailService;
     private $kernel;
+    private $fileUploadService;
 
-    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcherInterface $eventDispatcher, KernelInterface $kernel)
+    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcherInterface $eventDispatcher, KernelInterface $kernel, FileUploadService $fileUploadService)
     {
         $this->kernel = $kernel;
         $this->userService = $userService;
@@ -36,6 +38,7 @@ class Thread extends Controller
         $this->translator = $translator;
         $this->ticketService = $ticketService;
         $this->eventDispatcher = $eventDispatcher;
+        $this->fileUploadService = $fileUploadService;
     }
 
     public function saveThread($ticketId, Request $request)
@@ -80,14 +83,14 @@ class Thread extends Controller
         //     $this->addFlash('warning', "Invalid attachments.");
         // }
         
-	    $adminReply =  str_replace(['<p>','</p>'],"",$params['reply']);
+	    // $adminReply =  str_replace(['<p>','</p>'],"",$params['reply']);
 
         $threadDetails = [
             'user' => $this->getUser(),
             'createdBy' => 'agent',
             'source' => 'website',
             'threadType' => strtolower($params['threadType']),
-            'message' => str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', htmlspecialchars($adminReply)),
+            'message' => str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', htmlspecialchars($params['reply'])),
             'attachments' => $request->files->get('attachments')
         ];
 
@@ -159,9 +162,10 @@ class Thread extends Controller
                 return str_replace('//', '/', $projectDir . "/public" . $attachment->getPath());
                 }, $attachments);
 
+                $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
                 // Forward thread to users
                 try {
-                    $messageId = $this->emailService->sendMail($params['subject'] ?? ("Forward: " . $ticket->getSubject()), $thread->getMessage(), $thread->getReplyTo(), $headers, $ticket->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
+                    $messageId = $this->emailService->sendMail($params['subject'] ?? ("Forward: " . $ticket->getSubject()), $message, $thread->getReplyTo(), $headers, $ticket->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
     
                     if (!empty($messageId)) {
                         $thread->setMessageId($messageId);
@@ -259,11 +263,15 @@ class Thread extends Controller
         if (false == $this->ticketService->isTicketAccessGranted($ticket)){
             throw new \Exception('Access Denied', 403);
         }
+        
+        $threadId = $request->attributes->get('threadId');
 
         if ($request->getMethod() == "DELETE") {
-            $thread = $em->getRepository(TicketThread::class)->findOneBy(array('id' => $request->attributes->get('threadId'), 'ticket' => $content['ticketId']));
-
+            $thread = $em->getRepository(TicketThread::class)->findOneBy(array('id' => $threadId, 'ticket' => $content['ticketId']));
+            $projectDir = $this->kernel->getProjectDir();
+            
             if ($thread) {
+                $this->fileUploadService->fileRemoveFromFolder($projectDir."/public/assets/threads/".$threadId);
                 // Trigger thread deleted event
                 //  $event = new GenericEvent(CoreWorkflowEvents\Ticket\ThreadUpdate::getId(), [
                 //     'entity' =>  $ticket,

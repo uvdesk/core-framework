@@ -17,6 +17,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\ReCaptchaService;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class Authentication extends AbstractController
 {
@@ -25,14 +26,39 @@ class Authentication extends AbstractController
     private $authenticationUtils;
     private $eventDispatcher;
     private $translator;
+    private $kernel;
 
-    public function __construct(UserService $userService, AuthenticationUtils $authenticationUtils, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator, ReCaptchaService $recaptchaService)
+    public function __construct(UserService $userService, AuthenticationUtils $authenticationUtils, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator, ReCaptchaService $recaptchaService, KernelInterface $kernel)
     {
         $this->userService = $userService;
         $this->recaptchaService = $recaptchaService;
         $this->authenticationUtils = $authenticationUtils;
         $this->eventDispatcher = $eventDispatcher;
         $this->translator = $translator;
+        $this->kernel = $kernel;
+    }
+
+    public function clearProjectCache(Request $request)
+    {
+        if (true === $request->isXmlHttpRequest()) {
+            $output = array();
+            $projectDir = $this->kernel->getProjectDir();
+            $output = shell_exec('php '.$projectDir.'/bin/console cache:clear');
+            $processId = (int) $output[0];
+
+            $responseContent = [
+                'alertClass' => 'success',
+                'alertMessage' => $this->translator->trans('Success ! Project cache cleared successfully.')
+            ];
+            return new Response(json_encode($responseContent), 200, ['Content-Type' => 'application/json']);
+        }
+
+        $responseContent = [
+            'alertClass' => 'warning',
+            'alertMessage' => $this->translator->trans('Error! Something went wrong.')
+        ];
+
+        return new Response(json_encode($responseContent), 404, ['Content-Type' => 'application/json']);
     }
 
     public function login(Request $request)
@@ -98,13 +124,14 @@ class Authentication extends AbstractController
     {
         $entityManager = $this->getDoctrine()->getManager();
         $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($email);
-
+        $lastupdatedInstance = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->LastupdatedRole($user);
+        
         if (empty($user) || $user->getVerificationCode() != $verificationCode) {
             $this->addFlash('success', $this->translator->trans('You have already update password using this link if you wish to change password again click on forget password link here from login page'));
 
             return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
         }
-        
+
         if ($request->getMethod() == 'POST') {
             $updatedCredentials = $request->request->all();
 
@@ -116,8 +143,12 @@ class Authentication extends AbstractController
                 $entityManager->flush();
 
                 $this->addFlash('success', $this->translator->trans('Your password has been successfully updated. Login using updated password'));
-
-                return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
+              
+                if($lastupdatedInstance[0]->getSupportRole()->getId() != 4){
+                    return $this->redirect($this->generateUrl('helpdesk_member_handle_login'));
+                }else{
+                    return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
+                }
             } else {
                 $this->addFlash('success', $this->translator->trans('Please try again, The passwords do not match'));
             }

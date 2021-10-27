@@ -76,6 +76,11 @@ class Ticket extends Controller
 
         $agent = $ticket->getAgent();
         $customer = $ticket->getCustomer();
+	 
+	if($agent != null && !empty($agent)){	
+        $ticketAssignAgent = $agent->getId();
+        $currentUser = $user->getId();
+	}
         
         // Mark as viewed by agents
         if (false == $ticket->getIsAgentViewed()) {
@@ -99,7 +104,7 @@ class Ticket extends Controller
                     case TicketRepository::TICKET_GROUP_ACCESS:
                         $supportGroups = array_map(function($supportGroup) { return $supportGroup->getId(); }, $user->getCurrentInstance()->getSupportGroups()->getValues());                       
                         $ticketAccessableGroups = $ticket->getSupportGroup() ? [$ticket->getSupportGroup()->getId()] : [];
-                        
+ 
                         if ($ticket->getSupportTeam()) {
                             $ticketSupportTeamGroups = array_map(function($supportGroup) { return $supportGroup->getId(); }, $ticket->getSupportTeam()->getSupportGroups()->getValues());
                             $ticketAccessableGroups = array_merge($ticketAccessableGroups, $ticketSupportTeamGroups);
@@ -111,14 +116,14 @@ class Ticket extends Controller
                                 break;
                             }
                         }
-                        if (!$isAccessableGroupFound) {
+                        if (!$isAccessableGroupFound && !($ticketAssignAgent == $currentUser)) {
                             throw new \Exception('Page not found');
                         }
                         break;
                     case TicketRepository::TICKET_TEAM_ACCESS:
                         $supportTeams = array_map(function($supportTeam) { return $supportTeam->getId(); }, $user->getCurrentInstance()->getSupportTeams()->getValues());                         
                         $supportTeam = $ticket->getSupportTeam();
-                        if (!($supportTeam && in_array($supportTeam->getId(), $supportTeams))) {
+                        if (!($supportTeam && in_array($supportTeam->getId(), $supportTeams)) && !($ticketAssignAgent == $currentUser)) {
                             throw new \Exception('Page not found');
                         }
                         break;
@@ -260,7 +265,7 @@ class Ticket extends Controller
         if (!empty($thread)) {
             $ticket = $thread->getTicket();
             if($request->request->get('customFields') || $request->files->get('customFields')) {
-                $this->get('ticket.service')->addTicketCustomFields($ticket, $request->request->get('customFields'), $request->files->get('customFields'));                        
+                $this->get('ticket.service')->addTicketCustomFields($thread, $request->request->get('customFields'), $request->files->get('customFields'));                        
             }
             $this->addFlash('success', $this->translator->trans('Success ! Ticket has been created successfully.'));
 
@@ -430,6 +435,9 @@ class Ticket extends Controller
     {
         $threadId = $request->attributes->get('threadId');
         $attachmentRepository = $this->getDoctrine()->getManager()->getRepository('UVDeskCoreFrameworkBundle:Attachment');
+        $threadRepository = $this->getDoctrine()->getManager()->getRepository('UVDeskCoreFrameworkBundle:Thread');
+
+        $thread = $threadRepository->findOneById($threadId);
 
         $attachment = $attachmentRepository->findByThread($threadId);
 
@@ -437,7 +445,7 @@ class Ticket extends Controller
             $this->noResultFound();
         }
 
-        $ticket = $attachment->getThread()->getTicket();
+        $ticket = $thread->getTicket();
         $user = $this->userService->getSessionUser();
         
         // Proceed only if user has access to the resource

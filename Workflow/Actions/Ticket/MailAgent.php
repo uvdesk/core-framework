@@ -63,8 +63,9 @@ class MailAgent extends WorkflowAction
         if ($entity instanceof Ticket) {
             $emailTemplate = $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findOneById($value['value']);
             $emails = self::getAgentMails($value['for'], (($ticketAgent = $entity->getAgent()) ? $ticketAgent->getEmail() : ''), $container);
+            $ticketCollaborators = []; 
             
-            if ($emails && $emailTemplate) {
+            if ($emails || $emailTemplate) {
                 $queryBuilder = $entityManager->createQueryBuilder()
                     ->select('th.messageId as messageId')
                     ->from('UVDeskCoreFrameworkBundle:Thread', 'th')
@@ -84,7 +85,7 @@ class MailAgent extends WorkflowAction
 
                 // Only process attachments if required in the message body
                 // @TODO: Revist -> Maybe we should always include attachments if they are provided??
-                 $createdThread = isset($entity->createdThread) ? $entity->createdThread : '';
+                $createdThread = isset($entity->createdThread) && $entity->createdThread->getThreadType() != "note" ? $entity->createdThread : (isset($entity->currentThread) ? $entity->currentThread : "") ;
                 $attachments = [];
                 if (!empty($createdThread) && (strpos($emailTemplate->getMessage(), '{%ticket.attachments%}') !== false || strpos($emailTemplate->getMessage(), '{% ticket.attachments %}') !== false)) {
                     $attachments = array_map(function($attachment) use ($container) { 
@@ -94,12 +95,19 @@ class MailAgent extends WorkflowAction
                 $placeHolderValues = $container->get('email.service')->getTicketPlaceholderValues($entity, 'agent');
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $placeHolderValues);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $placeHolderValues);
-                $thread = ($thread != null) ? $thread : $entity->createdThread;
-                if($thread->getCc() || $thread->getBcc()) {
-                    self::sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message);
+                $thread = ($thread != null) ? $thread : $createdThread;
+                if ($thread != null && $thread->getThreadType() == "reply" && $thread->getCreatedBy() != "collaborator") {
+                    $ticketCollaborators = (($thread != null) && !empty($thread->getTicket()) && $thread != "" ) ? $thread->getTicket()->getCollaborators() : [];
                 }
-                foreach ($emails as $email) {
-                    $messageId = $container->get('email.service')->sendMail($subject, $message, $email, $emailHeaders, null, $attachments ?? []);
+
+                if(!empty($emails) && $emails != null){
+                    foreach ($emails as $email) {
+                        $messageId = $container->get('email.service')->sendMail($subject, $message, $email, $emailHeaders, null, $attachments ?? []);
+                    }
+                }
+                
+                if(!empty($thread) && ($thread->getCc() || $thread->getBcc()) || $ticketCollaborators != null && count($ticketCollaborators) > 0) {
+                    self::sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message, $ticketCollaborators);
                 }
             } else {
                 // Email Template/Emails Not Found. Disable Workflow/Prepared Response
@@ -132,13 +140,16 @@ class MailAgent extends WorkflowAction
                 }
             } else if((int)$agent) {
                 $qb = $entityManager->createQueryBuilder();
-                $email = $qb->select('u.email')->from('UVDeskCoreFrameworkBundle:User', 'u')
+                $emails = $qb->select('u.email')->from('UVDeskCoreFrameworkBundle:User', 'u')
                     ->andwhere("u.id = :userId")
                     ->setParameter('userId', $agent)
                     ->getQuery()->getResult();
                 
-                if (isset($email[0]['email'])) {
-                    $agentMails[] = $email[0]['email'];
+                foreach ($emails as $email) {
+                    $agent = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy($email);
+                    if ($agent != null && $agent->getAgentInstance() != null) {
+                            $agentMails[] = $email;
+                    }
                 }
             }
         }
@@ -146,21 +157,55 @@ class MailAgent extends WorkflowAction
         return array_filter($agentMails);
     }
     
-    public static function sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message = null)
+    public static function sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message = null, $ticketCollaborators)
     {
-    	$entityManager = $container->get('doctrine.orm.entity_manager');
+        $entityManager = $container->get('doctrine.orm.entity_manager');
+        $collabrator = array();
+        $cc = array();
 
-        foreach($thread->getCc() as $EmailCC){
-            if($entityManager->getRepository(Ticket::class)->isTicketCollaborator($thread->getTicket(), $EmailCC) == false){
-                $message = '<html><body style="background-image: none"><p>Hello</p><br/><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
+        if($thread->getCc() != null){
+            foreach($thread->getCc() as $EmailCC){
+                if($entityManager->getRepository(Ticket::class)->isTicketCollaborator($thread->getTicket(), $EmailCC) != false){
+                    $collabrator[] = $EmailCC;
+                }else{
+                    $cc[] = $EmailCC;
+                }
+           }   
+        }
+
+        $emailOfcollabrator = !empty($thread) && $thread->getCreatedBy() == "collaborator" ? $thread->getUser()->getEmail() : null;
+
+        if ($collabrator != null && !empty($collabrator) || $ticketCollaborators != null && !empty($ticketCollaborators)) {
+            if (count($collabrator) == 0 && count($ticketCollaborators) > 0 && !empty($ticketCollaborators) && empty($collabrator)) {
+                foreach ($ticketCollaborators as $collaborator) {
+                    if (!empty($collaborator->getEmail()) && $collaborator->getEmail() != $emailOfcollabrator) {
+                        $collabrator[] = $collaborator->getEmail();
+                    }
+                }
             }
-            $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $EmailCC ?: [], $thread->getBcc() ?: []);
+
+            $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $collabrator ?? [], []); 
             if (!empty($messageId)) {
-                 $createdThread = isset($entity->createdThread) ? $entity->createdThread : '';
-                    $createdThread->setMessageId($messageId);		 
-                    $entityManager->persist($createdThread);
-                    $entityManager->flush();
-            }
+                $createdThread = isset($entity->createdThread) ? $entity->createdThread : '';
+                   $createdThread->setMessageId($messageId);         
+                   $entityManager->persist($createdThread);
+                   $entityManager->flush();
+           }
+
+           if($thread->getCc() != null && count($thread->getCc()) == count($collabrator) && $thread->getBcc() != null){
+            $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
+            $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], [], $thread->getBcc() ?? []);  
+           }
+        }
+
+        if($cc != null && !empty($cc)){
+            $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
+            $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $cc ?? [], $thread->getBcc() ?? []);    
+        }
+           
+        if($thread->getBcc() != null && $thread->getCc() == null){
+            $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
+            $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?? [], $thread->getBcc() ?? []);  
         }
     }
 }

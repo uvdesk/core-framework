@@ -31,7 +31,8 @@ abstract class TicketCreated implements UVDeskEmailTemplateInterface
     <br />
 </p>
 <p>Here goes the ticket message:</p>
-<p>{%ticket.message%}
+<p>{%ticket.threadMessage%}
+   {%ticket.attachments%}
     <br />
 </p>
 <p>

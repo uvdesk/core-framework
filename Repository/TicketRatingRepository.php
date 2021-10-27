@@ -37,6 +37,7 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
                 ->leftJoin('t.agent', 'a')
                 ->leftJoin('t.customer', 'tc')
                 ->leftJoin('t.supportGroup', 'gr')
+                ->leftJoin('t.supportTeam', 'te')
                 ->leftJoin('t.priority', 'pr')
                 ->leftJoin('t.type', 'tp')
                 ->leftJoin('r.customer', 'c')
@@ -69,6 +70,14 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
             $qb->andwhere('gr.id IN (:groupIds)');
             $qb->setParameter('groupIds', explode(',', $data['group']));
         }
+        if(isset($data['team'])) { 
+            $qb->andwhere('te.id IN (:teamIds)');
+            $qb->setParameter('teamIds', explode(',', $data['team']));
+        }
+        if(isset($data['source'])) { 
+            $qb->andwhere('t.source IN (:sources)');
+            $qb->setParameter('sources', explode(',', $data['source']));
+        }
 
         if(!isset($data['sort'])){
             $qb->orderBy('r.createdAt',Criteria::DESC);
@@ -99,7 +108,7 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
         				'ticketId' => $rating['ticketId'],
         				'customer' => $customer,
         				'count' => $rating[0]['stars'],
-        				'formatedRatedAt' => $userService->convertToTimezone($rating[0]['createdAt']),
+        				'formatedRatedAt' => $rating[0]['createdAt']->format('d-m-Y H:i A'),
 
         			);
         }
@@ -132,7 +141,7 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
 
         $container->get('report.service')->addPermissionFilter($qb, $this->container);
 
-        $qb = $this->filterQuerySlim($qb);
+        $qb = $this->filterQuerySlim($qb, $data_time);
         $result = $qb->getQuery()->getResult();
 
         $ratedCustomerCount = 0;
@@ -149,42 +158,42 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
         return $data;
     }
 
-    public function filterQuerySlim($qb, $filterAgent = true)
+    public function filterQuerySlim($qb, $data_time, $filterAgent = true)
     {
-        if(isset($this->parameters['priority'])) {
+        if(isset($data_time['priority'])) {
             $qb->leftJoin('t.priority', 'pr')
                 ->andwhere('pr.id IN (:priorityIds)')
-                ->setParameter('priorityIds', explode(',', $this->parameters['priority']));
+                ->setParameter('priorityIds', explode(',', $data_time['priority']));
         }
 
-        if(isset($this->parameters['type'])) {
+        if(isset($data_time['type'])) {
             $qb->leftJoin('t.type', 'tp')
                 ->andwhere('tp.id IN (:typeIds)')
-                ->setParameter('typeIds', explode(',', $this->parameters['type']));
+                ->setParameter('typeIds', explode(',', $data_time['type']));
         }
 
-        if($filterAgent && isset($this->parameters['agent'])) {
+        if($filterAgent && isset($data_time['agent'])) {
             $qb->leftJoin('t.agent', 'a')
                 ->andwhere('a.id IN (:agentIds)')
-                ->setParameter('agentIds', explode(',', $this->parameters['agent']));
+                ->setParameter('agentIds', explode(',', $data_time['agent']));
         }
 
-        if(isset($this->parameters['customer'])) {
+        if(isset($data_time['customer'])) {
             $qb->leftJoin('t.customer', 'c')
                 ->andwhere('c.id IN (:customerIds)')
-                ->setParameter('customerIds', explode(',', $this->parameters['customer']));
+                ->setParameter('customerIds', explode(',', $data_time['customer']));
         }
 
-        if(isset($this->parameters['group'])) {
+        if(isset($data_time['group'])) {
             $qb->leftJoin('t.supportGroup', 'gr')
                 ->andwhere('gr.id IN (:groupIds)')
-                ->setParameter('groupIds', explode(',', $this->parameters['group']));
+                ->setParameter('groupIds', explode(',', $data_time['group']));
         }
 
-        if(isset($this->parameters['team'])) {
+        if(isset($data_time['team'])) {
             $qb->leftJoin('t.supportTeam', 'tSub')
                 ->andwhere('tSub.id IN (:subGroupIds)')
-                ->setParameter('subGroupIds', explode(',', $this->parameters['team']));
+                ->setParameter('subGroupIds', explode(',', $data_time['team']));
         }
 
         return $qb;
@@ -211,7 +220,7 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
 
                 $container->get('report.service')->addPermissionFilter($qb, $this->container);
 
-        $qb = $this->filterQuerySlim($qb);
+        $qb = $this->filterQuerySlim($qb, $data_time);
 
         return $qb->getQuery()->getSingleScalarResult();
     }

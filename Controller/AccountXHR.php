@@ -59,7 +59,6 @@ class AccountXHR extends Controller
 
             if ($user) {
                 if($user->getAgentInstance()->getSupportRole() != "ROLE_SUPER_ADMIN") {
-                    $this->userService->removeAgent($user);
 
                     // Trigger agent delete event
                     $event = new GenericEvent(CoreWorkflowEvents\Agent\Delete::getId(), [
@@ -67,6 +66,9 @@ class AccountXHR extends Controller
                     ]);
 
                     $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+                    
+                    $this->userService->removeAgent($user);
+
 
                     $json['alertClass'] = 'success';
                     $json['alertMessage'] = $this->translator->trans('Success ! Agent removed successfully.');

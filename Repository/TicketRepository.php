@@ -77,6 +77,10 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             $qb->orderBy('t.id',Criteria::DESC);
         }
 
+        if(isset($data['sort']) && $data['sort'] == "t.updatedAt") {
+            $qb->orderBy('t.updatedAt',Criteria::DESC);
+        }
+
         $paginator = $container->get('knp_paginator');
 
         $newQb = clone $qb;
@@ -574,7 +578,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
             if($actAsUser != null ) {
                 $userInstance = $actAsUser->getAgentInstance();
-                if (!empty($userInstance) && ('ROLE_AGENT' == $userInstance->getSupportRole()->getCode()) || ('ROLE_ADMIN' == $userInstance->getSupportRole()->getCode()) && $field == 'mine') {
+                if (!empty($userInstance) && ('ROLE_AGENT' == $userInstance->getSupportRole()->getCode() && $field == 'mine') || ('ROLE_ADMIN' == $userInstance->getSupportRole()->getCode()) && $field == 'mine') {
                     $fieldValue = $actAsUser->getId();
                 }
             } 
@@ -668,5 +672,15 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         }
 
         return $queryBuilder;
+    }
+
+    public function getAgentTickets($agentId,$container) {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('t')->from("UVDeskCoreFrameworkBundle:Ticket", 't');
+
+        $qb->andwhere('t.agent = :agentId');
+        $qb->setParameter('agentId',$agentId);
+
+        return $qb->getQuery()->getResult();
     }
 }

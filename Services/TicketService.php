@@ -25,6 +25,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity;
 use Webkul\UVDesk\MailboxBundle\Utils\Imap\Configuration as ImapConfiguration;
+use Symfony\Component\Filesystem\Filesystem;
 
 class TicketService
 {
@@ -723,7 +724,7 @@ class TicketService
         // for trashed tickets count
         $trashedQb = clone $queryBuilder;
         $trashedQb->where('ticket.isTrashed = 1');
-        if ($currentUser->getRoles()[0] != 'ROLE_SUPER_ADMIN') {
+        if ($currentUser->getRoles()[0] != 'ROLE_SUPER_ADMIN' && $userInstance->getTicketAccesslevel() != 1) {
             $trashedQb->andwhere('ticket.agent = ' . $currentUser->getId());
         }
         $data['trashed'] = $trashedQb->getQuery()->getSingleScalarResult();
@@ -858,8 +859,26 @@ class TicketService
                         $this->entityManager->flush();
                     }
 
+                    // Trigger ticket delete event
+                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Delete::getId(), [
+                        'entity' => $ticket,
+                    ]);
+
+                    $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+
                     break;
                 case 'delete':
+
+                    $threads = $ticket->getThreads();
+                    $fileService = new Filesystem();
+                    if (count($threads) > 0) {
+                        foreach($threads as $thread) {
+                            if (!empty($thread)) {
+                                $fileService->remove($this->container->getParameter('kernel.project_dir').'/public/assets/threads/'.$thread->getId());
+                            }
+                        }
+                    }
+
                     $this->entityManager->remove($ticket);
                     $this->entityManager->flush();
 
@@ -1525,7 +1544,7 @@ class TicketService
 
     public function getTicketLastThread($ticketId)
     {
-        $qb = $this->em->createQueryBuilder();
+        $qb = $this->entityManager->createQueryBuilder();
         $qb->select("th")->from('UVDeskCoreFrameworkBundle:Thread', 'th')
                 ->leftJoin('th.ticket','t')
                 ->andWhere('t.id = :ticketId')
@@ -1807,8 +1826,9 @@ class TicketService
         return true;
     }
 
-    public function addTicketCustomFields($ticket, $requestCustomFields = [], $filesCustomFields = [])
+    public function addTicketCustomFields($thread, $requestCustomFields = [], $filesCustomFields = [])
     {
+        $ticket = $thread->getTicket();
         $skipFileUpload = false;
         $customFieldsCollection = $this->entityManager->getRepository('UVDeskFormComponentPackage:CustomFields')->findAll();
         foreach ($customFieldsCollection as $customFields) {
@@ -1849,7 +1869,7 @@ class TicketService
 
                 if(!empty($fileNames)) {
                     //save files entry to attachment table
-                    $newFilesNames = $this->customFieldsService->addFilesEntryToAttachmentTable([$fileNames]);
+                    $newFilesNames = $this->customFieldsService->addFilesEntryToAttachmentTable([$fileNames], $thread);
                     foreach ($newFilesNames as $value) {
                         $ticketCustomField = new Entity\TicketCustomFieldsValues();
                         $ticketCustomField->setTicket($ticket);
