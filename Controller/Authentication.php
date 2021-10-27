@@ -124,13 +124,14 @@ class Authentication extends AbstractController
     {
         $entityManager = $this->getDoctrine()->getManager();
         $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($email);
-
+        $lastupdatedInstance = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->LastupdatedRole($user);
+        
         if (empty($user) || $user->getVerificationCode() != $verificationCode) {
             $this->addFlash('success', $this->translator->trans('You have already update password using this link if you wish to change password again click on forget password link here from login page'));
 
             return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
         }
-        
+
         if ($request->getMethod() == 'POST') {
             $updatedCredentials = $request->request->all();
 
@@ -142,8 +143,12 @@ class Authentication extends AbstractController
                 $entityManager->flush();
 
                 $this->addFlash('success', $this->translator->trans('Your password has been successfully updated. Login using updated password'));
-
-                return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
+              
+                if($lastupdatedInstance[0]->getSupportRole()->getId() != 4){
+                    return $this->redirect($this->generateUrl('helpdesk_member_handle_login'));
+                }else{
+                    return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
+                }
             } else {
                 $this->addFlash('success', $this->translator->trans('Please try again, The passwords do not match'));
             }
