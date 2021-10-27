@@ -75,7 +75,7 @@ class Localhost implements FileUploadServiceInterface
         return array($relativePathToAsset, $absolutePathToAsset);
     }
 
-    public function uploadFile(UploadedFile $temporaryFile, $prefix = null, bool $renameFile = true)
+    public function uploadFile(UploadedFile $temporaryFile, $prefix = null, bool $renameFile = false)
     {
         $fileName = $temporaryFile->getClientOriginalName();
 
@@ -98,7 +98,7 @@ class Localhost implements FileUploadServiceInterface
         ];
     }
 
-    public function uploadEmailAttachment(Attachment $attachmentStream, $prefix = null, bool $renameFile = true)
+    public function uploadEmailAttachment(Attachment $attachmentStream, $prefix = null, bool $renameFile = false)
     {
         $fileName = $attachmentStream->getFilename();
 
