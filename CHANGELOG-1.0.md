@@ -3,6 +3,33 @@ CHANGELOG for 1.0.x
 
 This changelog references any relevant changes introduced in 1.0 minor versions.
 
+* 1.0.17 (2021-10-27)
+    * **Misc. Updates:**
+        * **Compatibility with PHP 8.**
+        * **Background color of note updated to yellow for reply box.**
+        * **Saved reply search filter added and focus on search added.**
+        * **Added some default email templates.**
+        * **Ticket transfer functionality using workflow.**
+        * **Delete attachment from physical path.**
+
+    * **Bug Fixes:**
+        * **Issue #423:** When Choose format option in H1,h2 headings from customer and admin side so in admin and customer panel format is not showing properly bug
+        * **Issue #424:** When Set Status from admin side so customer side not showing bug.
+        * **Issue #425:** When Forward message from admin and agent side so mail format is not showing properly.
+        * **Issue #426:** In kudos is not able to team and source fields filter. 
+        * **Issue #428:** When I make manually template from workflow and email templates so collaborators name and email not showing in collaborator mail.
+        * **Issue #429:** when create workflow for new ticket generate so automatically assigned to agent bug.
+        * **Issue #430:** When create new agent with select new create set privileges and group so showing error bug Fixed.
+        * **Issue #432:** When I make manually template from workflow and email templates so manually templates create new ticket when coll. reply from mail side bug Fixed
+        * **Issue #433:** When create Note for customer reply so agent mail side showing note message instead of reply message.
+        * **Issue #435:** when collaborator reply from web and mail side so not going to mail to agent mail id regarding customer added a reply bug.
+        * **Issue #441:** when we use add a note for customer reply so not going to attachment in mail side of agent and collaborator side bug Fixed.
+        * **Issue #442:** When go to workflow and choose option Set Type As so here showing is Disabled Ticket Type bug
+        * **Issue #443:** When Ticket Assign to agent so not showing to these placeholders {%ticket.message%} {%ticket.threadMessage%} bug Fixed.
+        * **Issue #451:** When Unchecked Website status in branding section so showing frontend page from customer side instead of removing frontend page bug.
+        * **Issue #451:** When Unchecked Website status in branding section so showing frontend page from customer side instead of removing frontend page bug.
+        * **Issue #458:** When Unchecked Website status in branding section so showing frontend page from customer side instead of removing frontend page bug.
+
 * 1.0.16 (2021-08-23)
     * **Misc. Updates:**
         * **Flash Mesaage with a warning if swiftmailer is not setup or working with ticket create process**
