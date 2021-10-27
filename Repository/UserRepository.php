@@ -269,4 +269,17 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
 
         return array_map('current', $query->getQuery()->getResult());
     }
+
+    public function LastupdatedRole($user)
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('us')->from("UVDeskCoreFrameworkBundle:UserInstance", 'us');
+
+        $qb->andwhere('us.user = :userId');
+        $qb->setParameter('userId',$user->getId());
+        $qb->setMaxResults(1);
+        $qb->orderBy('us.createdAt', Criteria::DESC);
+
+        return $qb->getQuery()->getResult();
+    }
 }
