@@ -80,7 +80,7 @@
                             <label class="uv-field-label" for="for{{customField.name~customField.id}}">{{ customField.name }}</label>
                             {% if customField.fieldType == 'text' %}
                                 <div class="uv-field-block">
-                                    <input type="{{ customField['validation']['fieldtype'] is defined ? customField['validation']['fieldtype'] :'text' }}" name="customFields[{{customField.id}}]" class="uv-field create-ticket" value="" {{ customField.required ? "required" : "" }} id="for{{customField.name~customField.id}}" placeholder="{{customField.value}}">
+                                    <input type="{{ customField['validation']['fieldtype'] is defined ? customField['validation']['fieldtype'] :'text' }}" name="customFields[{{customField.id}}]" class="uv-field create-ticket" value="" {{ customField.required ? "required" : "" }} id="for{{customField.name~customField.id}}" placeholder="{{customField.placeholder}}">
                                 </div>
 
                             {% elseif customField.fieldType in ['date', 'time', 'datetime'] %}
