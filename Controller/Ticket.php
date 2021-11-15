@@ -145,7 +145,7 @@ class Ticket extends Controller
         return $this->render('@UVDeskCoreFramework//ticket.html.twig', [
             'ticket' => $ticket,
             'totalReplies' => $ticketRepository->countTicketTotalThreads($ticket->getId()),
-            'totalCustomerTickets' => ($ticketRepository->countCustomerTotalTickets($customer) - 1),
+            'totalCustomerTickets' => ($ticketRepository->countCustomerTotalTickets($customer, $this->container) - 1),
             'initialThread' => $this->ticketService->getTicketInitialThreadDetails($ticket),
             'ticketAgent' => !empty($agent) ? $agent->getAgentInstance()->getPartialDetails() : null,
             'customer' => $customer->getCustomerInstance()->getPartialDetails(),

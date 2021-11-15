@@ -441,13 +441,31 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         return $nextPrevPage;
     }
 
-    public function countCustomerTotalTickets(User $user)
+    public function countCustomerTotalTickets(User $user, $container)
     {
+        $userService = $container->get('user.service');
+
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select('COUNT(ticket.id) as tickets')
             ->from('UVDeskCoreFrameworkBundle:Ticket', 'ticket')
-            ->where('ticket.customer = :user')->setParameter('user', $user)
-            ->andWhere('ticket.isTrashed != :isTrashed')->setParameter('isTrashed', true);
+            ->leftJoin('ticket.priority', 'p')
+            ->leftJoin('ticket.status', 's')
+            ->leftJoin('ticket.agent', 'a')
+            ->leftJoin('ticket.type', 'type')
+            ->leftJoin('ticket.supportGroup', 'supportGroup')
+            ->leftJoin('ticket.supportTeam', 'supportTeam')
+            ->leftJoin('a.userInstance', 'ad')
+            ->andWhere('ticket.customer = :customerId')
+            ->andWhere('ticket.isTrashed != 1')
+            ->setParameter('customerId', $user->getId())
+            ->andwhere("a IS NULL OR ad.supportRole != 4")
+            ->orderBy('ticket.id', Criteria::DESC);
+
+        $agent = $userService->getCurrentUser();
+        $supportGroupReference = $this->getEntityManager()->getRepository('UVDeskCoreFrameworkBundle:User')->getUserSupportGroupReferences($agent);
+        $supportTeamReference  = $this->getEntityManager()->getRepository('UVDeskCoreFrameworkBundle:User')->getUserSupportTeamReferences($agent);
+        
+        $this->addPermissionFilter($queryBuilder, $agent, $supportGroupReference, $supportTeamReference);
 
         return (int) $queryBuilder->getQuery()->getSingleScalarResult();
     }
@@ -526,27 +544,30 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
     }
 
     // Get customer more ticket sidebar details
-    public function getCustomerMoreTicketsSidebar($customerId, $container) {
+    public function getCustomerMoreTicketsSidebar($customerId, $container, $request) {
         $userService = $container->get('user.service');
         $ticketService = $container->get('ticket.service');
 
         $qb = $this->getEntityManager()->createQueryBuilder();
-        $qb->select("DISTINCT t as ticket,s.code as statusName, supportTeam.name as teamName,supportGroup.name as groupName, p.code as priorityName, p.colorCode as priorityColor, type.code as typeName, a.id as agentId, CONCAT(a.firstName, ' ', a.lastName) AS agentName")
-                ->from($this->getEntityName(), 't')
-                ->leftJoin('t.priority', 'p')
-                ->leftJoin('t.status', 's')
-                ->leftJoin('t.agent', 'a')
-                ->leftJoin('t.type', 'type')
-                ->leftJoin('t.supportGroup', 'supportGroup')
-                ->leftJoin('t.supportTeam', 'supportTeam')
+        $qb->select("DISTINCT ticket as tickets,s.code as statusName, supportTeam.name as teamName,supportGroup.name as groupName, p.code as priorityName, p.colorCode as priorityColor, type.code as typeName, a.id as agentId, CONCAT(a.firstName, ' ', a.lastName) AS agentName")
+                ->from($this->getEntityName(), 'ticket')
+                ->leftJoin('ticket.priority', 'p')
+                ->leftJoin('ticket.status', 's')
+                ->leftJoin('ticket.agent', 'a')
+                ->leftJoin('ticket.type', 'type')
+                ->leftJoin('ticket.supportGroup', 'supportGroup')
+                ->leftJoin('ticket.supportTeam', 'supportTeam')
                 ->leftJoin('a.userInstance', 'ad')
-                ->andWhere('t.customer = :customerId')
-                ->andWhere('t.isTrashed != 1')
+                ->andWhere('ticket.customer = :customerId')
+                ->andWhere('ticket.isTrashed != 1')
                 ->setParameter('customerId', $customerId)
                 ->andwhere("a IS NULL OR ad.supportRole != 4")
-                ->orderBy('t.id', Criteria::DESC);
+                ->orderBy('ticket.id', Criteria::DESC);
 
-        // $currentUser = $this->userService->getCurrentUser();
+        $user = $userService->getCurrentUser();
+        $supportGroupReference = $this->getEntityManager()->getRepository('UVDeskCoreFrameworkBundle:User')->getUserSupportGroupReferences($user);
+        $supportTeamReference  = $this->getEntityManager()->getRepository('UVDeskCoreFrameworkBundle:User')->getUserSupportTeamReferences($user);
+
         // if($currentUser->getRole() == "ROLE_AGENT" && $currentUser->detail['agent']->getTicketView() != UserData::GLOBAL_ACCESS) {
         //     $this->em->getRepository('WebkulTicketBundle:Ticket')->addPermissionFilter($qb, $this->container, false);
         //     $qb->addSelect('gr.name as groupName');
@@ -555,10 +576,12 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         //     $qb->addSelect('gr.name as groupName');
         // }
 
+        $this->addPermissionFilter($qb, $user, $supportGroupReference, $supportTeamReference);
+       
         $results = $qb->getQuery()->getArrayResult();
         foreach ($results as $key => $ticket) {
-            $results[$key] = $ticket['ticket'];
-            unset($ticket['ticket']);
+            $results[$key] = $ticket['tickets'];
+            unset($ticket['tickets']);
             $results[$key] = array_merge($results[$key], $ticket);
             $results[$key]['timestamp']= $userService->convertToTimezone($results[$key]['createdAt']);
             $results[$key]['formatedCreatedAt'] = $results[$key]['createdAt']->format('d-m-Y H:i A');
