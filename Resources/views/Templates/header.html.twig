@@ -280,11 +280,6 @@
         border-top: unset;
     }
 
-    {# .uv-main-logo {
-        position: absolute;
-        padding: 10px 0 0px 30px;
-    } #}
-
     .dropdown-divider {
         border-top: 1px solid #e1e4e8;
         display: block;
@@ -305,6 +300,26 @@
     {{ uvdesk_extensibles.getRegisteredComponent('Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\SearchTemplate').render() | raw }}
 
     <div class="uv-actions">
+        <!-- Google Translation -->
+        <div id="google_translate_element"></div>
+            <script type="text/javascript">
+                function googleTranslateElementInit() {
+                    new google.translate.TranslateElement({layout: google.translate.TranslateElement.InlineLayout.SIMPLE, autoDisplay: false}, 'google_translate_element');
+                    $(document).click(function(e) {
+                        if($('.goog-te-menu-frame.skiptranslate').is(':visible') ) {
+                            $('.skiptranslate.goog-te-gadget').addClass('uv-no-pointer-events');
+                        } else {
+                            $('.skiptranslate.goog-te-gadget').removeClass('uv-no-pointer-events');
+                        }
+                    });
+                    $($('.goog-te-menu-frame.skiptranslate').contents()[0], window).find('body').bind("focusout", function(e) {
+                            $('.skiptranslate.goog-te-gadget').removeClass('uv-no-pointer-events');
+                    });
+                }
+            </script>
+            <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async="async"></script>
+        <!-- Google Translation  -->
+
         <!-- Profile Navigations -->
         <span style="position: relative" class="">
             <div class="uv-profile uv-dropdown-other">
