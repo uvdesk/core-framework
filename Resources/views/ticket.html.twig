@@ -417,10 +417,8 @@
                             <h3>{{ 'Channel'|trans }}</h3>
                             {% if ticket.source == 'email' %}
                                 <span class="uv-icon-channel uv-channel-email"></span> <span>{{ 'Email'|trans }}</span>
-                            {% elseif ticket.source == 'formbuilder' %}
-                                <span class="uv-icon-channel uv-channel-form"></span> <span>{{ 'Formbuilder'|trans }}</span>
                             {% else %}
-                            <span class="uv-icon-channel uv-channel-web"></span> <span>{{ 'Website'|trans }}</span>
+                                <span class="uv-icon-channel uv-channel-web"></span> <span>{{ 'Website'|trans }}</span>
                             {% endif %}
                         </div>
                     </div>
