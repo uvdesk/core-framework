@@ -39,7 +39,7 @@ class UserService
         $ticket = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($request->attributes->get('id'));
         $getCustomerCustomFieldSnippet = $this->container->get('custom.field.service')->getCustomerCustomFieldSnippet($ticket);
 
-        if (sizeof($getCustomerCustomFieldSnippet["ticketCustomFieldCollection"]) > 0 && sizeof($getCustomerCustomFieldSnippet["customFieldCollection"]) > 0 ) {
+        if (sizeof($getCustomerCustomFieldSnippet["customFieldCollection"]) > 0 ) {
             return $this->twig->render('@_uvdesk_extension_uvdesk_form_component/widgets/CustomFields/customFieldSnippetCustomer.html.twig', 
                 $getCustomerCustomFieldSnippet);
         }
