@@ -542,7 +542,7 @@ class EmailService
         }
 
         if ($error_check == true) {
-            $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans('Warning ! Swiftmailer not working'));   
+            $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans('Warning ! Swiftmailer not working. An error has occurred while sending emails!'));   
         }
 
         return null;
