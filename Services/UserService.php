@@ -582,11 +582,11 @@ class UserService
         $count = count($userData);
         $ticketData = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findBy(array('customer' => $customer->getId()));
 
+        $fileService = new Fileservice();
         // Delete all tickets attachments.
         if($ticketData) {
             foreach($ticketData as $ticket) {
                 $threads = $ticket->getThreads();
-                $fileService = new Fileservice();
                 if (count($threads) > 0) {
                     foreach($threads as $thread) {
                         if (!empty($thread)) {
@@ -594,14 +594,14 @@ class UserService
 
                         }
                     }
-                    
-                    // Remove profile.
-                    foreach($userData as $user) {
-                        if($user->getProfileImagePath()) {
-                            $fileService->remove($this->container->getParameter('kernel.project_dir').'/public'.$user->getProfileImagePath());
-                        }
-                    }
                 }
+            }
+        }
+
+        // Remove profile.
+        foreach($userData as $user) {
+            if($user->getProfileImagePath()) {
+                $fileService->remove($this->container->getParameter('kernel.project_dir').'/public'.$user->getProfileImagePath());
             }
         }
 
