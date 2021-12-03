@@ -20,7 +20,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
 use Webkul\UVDesk\CoreFrameworkBundle\FileSystem\FileSystem;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Translation\TranslatorInterface;
-
+use Symfony\Component\Filesystem\Filesystem as Fileservice;
 
 
 class Account extends AbstractController
@@ -141,7 +141,13 @@ class Account extends AbstractController
                             $userInstance->setProfileImagePath($assetDetails['path']);
                     }
 
+                    // Removed profile image from database and path
+                    $fileService = new Fileservice;
                     if ($request->get('removeImage') == 'on') {
+                        if ($userInstance->getProfileImagePath()) {
+                            $fileService->remove($this->getParameter('kernel.project_dir').'/public'.$userInstance->getProfileImagePath());
+                        }
+                        
                         $userInstance = $userInstance->setProfileImagePath(null);
                     }
 
