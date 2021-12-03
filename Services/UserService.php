@@ -577,8 +577,33 @@ class UserService
 
     public function removeCustomer($customer)
     {
-        $userData = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findBy(array('user' => $customer->getId()));
+        $userData = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findBy(array('user' => $customer->getId(), 'supportRole' => 4));
+
         $count = count($userData);
+        $ticketData = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findBy(array('customer' => $customer->getId()));
+
+        $fileService = new Fileservice();
+        // Delete all tickets attachments.
+        if($ticketData) {
+            foreach($ticketData as $ticket) {
+                $threads = $ticket->getThreads();
+                if (count($threads) > 0) {
+                    foreach($threads as $thread) {
+                        if (!empty($thread)) {
+                            $fileService->remove($this->container->getParameter('kernel.project_dir').'/public/assets/threads/'.$thread->getId());
+
+                        }
+                    }
+                }
+            }
+        }
+
+        // Remove profile.
+        foreach($userData as $user) {
+            if($user->getProfileImagePath()) {
+                $fileService->remove($this->container->getParameter('kernel.project_dir').'/public'.$user->getProfileImagePath());
+            }
+        }
 
         // getCustomerTickets
         $qb = $this->entityManager->createQueryBuilder();
