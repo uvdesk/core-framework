@@ -13,6 +13,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\Filesystem\Filesystem as Fileservice;
 
 class AccountXHR extends Controller
 {
@@ -66,9 +67,14 @@ class AccountXHR extends Controller
                     ]);
 
                     $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
-                    
-                    $this->userService->removeAgent($user);
 
+                    // Removing profile image from physical path
+                    $fileService = new Fileservice;
+                    if ($user->getAgentInstance()->getProfileImagePath()) {
+                        $fileService->remove($this->getParameter('kernel.project_dir').'/public'.$user->getAgentInstance()->getProfileImagePath());
+                    }
+
+                    $this->userService->removeAgent($user);
 
                     $json['alertClass'] = 'success';
                     $json['alertMessage'] = $this->translator->trans('Success ! Agent removed successfully.');
