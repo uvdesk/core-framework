@@ -69,8 +69,8 @@ class MailAgent extends PreparedResponseAction
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $ticketPlaceholders);
 
                 $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), [
-                    'In-Reply-To' => $object->getUniqueReplyTo(),
-                    'References' => $object->getReferenceIds(),
+                    'In-Reply-To' => $entity->getUniqueReplyTo(),
+                    'References' => $entity->getReferenceIds(),
                 ]);
 
                 if (!empty($messageId)) {
@@ -81,7 +81,7 @@ class MailAgent extends PreparedResponseAction
                     $entityManager->flush();
                 }
 
-                $emailTemplate = $container->get('email.service')->getEmailTemplate($action['value']['value'], $object->getCompany()->getId());
+                $emailTemplate = $container->get('email.service')->getEmailTemplate($action['value']['value'], $entity->getCompany()->getId());
 
                 // $emails = $this->getAgentMails($action['value']['for'], (($ticketAgent = $object->getAgent()) ? $ticketAgent->getEmail() : ''));
 
