@@ -288,7 +288,15 @@ class Account extends AbstractController
                     $userInstance->setContactNumber($data['contactNumber']);
                     $userInstance->setSource('website');
 
+                    
+
                     if (isset($dataFiles['profileImage'])) {
+                        // Removed profile image from database and path
+                        $fileService = new Fileservice;
+                        if ($userInstance->getProfileImagePath()) {
+                            $fileService->remove($this->getParameter('kernel.project_dir').'/public'.$userInstance->getProfileImagePath());
+                        }
+                        
                         $assetDetails = $this->fileSystem->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
                         $userInstance->setProfileImagePath($assetDetails['path']);
                     }
