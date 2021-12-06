@@ -95,6 +95,7 @@ class MailAgent extends WorkflowAction
                 $placeHolderValues = $container->get('email.service')->getTicketPlaceholderValues($entity, 'agent');
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $placeHolderValues);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $placeHolderValues);
+                $message = preg_replace("/<img[^>]+\>/i", "(image) ", $message);
                 $thread = ($thread != null) ? $thread : $createdThread;
                 if ($thread != null && $thread->getThreadType() == "reply" && $thread->getCreatedBy() != "collaborator") {
                     $ticketCollaborators = (($thread != null) && !empty($thread->getTicket()) && $thread != "" ) ? $thread->getTicket()->getCollaborators() : [];
