@@ -194,13 +194,6 @@ class MailAgent extends WorkflowAction
 
             $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $collabrator ?? [], []); 
             if (!empty($messageId)) {
-                $createdThread = isset($entity->createdThread) ? $entity->createdThread : '';
-                   $createdThread->setMessageId($messageId);         
-                   $entityManager->persist($createdThread);
-                   $entityManager->flush();
-           }
-
-           if (!empty($messageId)) {
             $updatedReferenceIds = $entity->getReferenceIds() . ' ' . $messageId;            
             $entity->setReferenceIds($updatedReferenceIds);
 
