@@ -66,7 +66,11 @@ class MailCustomer extends WorkflowAction
                 $ticketPlaceholders = $container->get('email.service')->getTicketPlaceholderValues($entity);
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $ticketPlaceholders);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $ticketPlaceholders);
-                $message = preg_replace("/<img[^>]+\>/i", "(image) ", $message);
+                $bodyImageExtract = explode('<p style="text-align: center"><img',$message);
+                if (!array_key_exists(1,$bodyImageExtract)) {
+                    $bodyImageExtract = explode('<p style="text-align: center;"><img',$message);
+                }
+                $message = $bodyImageExtract['0'].' <p style="text-align: center"><img'.preg_replace("/<img[^>]+\>/i", "", $bodyImageExtract['1']);
                 $thread = ($thread != null) ? $thread : $createdThread;
                 $ticketCollaborators = (($thread != null) && !empty($thread->getTicket()) && $thread != "" ) ? $thread->getTicket()->getCollaborators() : [];
 
