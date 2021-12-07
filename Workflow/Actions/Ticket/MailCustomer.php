@@ -79,11 +79,13 @@ class MailCustomer extends WorkflowAction
 
                     $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $headers, $entity->getMailboxEmail(), $attachments ?? []);
 
-                    // if (!empty($messageId)) {
-                    //     $createdThread->setMessageId($messageId);
-                    //     $entityManager->persist($createdThread);
-                    //     $entityManager->flush();
-                    // }
+                    if (!empty($messageId)) {
+                        $updatedReferenceIds = $entity->getReferenceIds() . ' ' . $messageId;            
+                        $entity->setReferenceIds($updatedReferenceIds);
+
+                        $entityManager->persist($entity);
+                        $entityManager->flush();
+                    }
 
                     if($thread->getCc() || $thread->getBcc() || $ticketCollaborators != null && count($ticketCollaborators) > 0) {
                         self::sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message, $ticketCollaborators);
@@ -131,6 +133,14 @@ class MailCustomer extends WorkflowAction
                    $entityManager->persist($createdThread);
                    $entityManager->flush();
            }
+
+           if (!empty($messageId)) {
+            $updatedReferenceIds = $entity->getReferenceIds() . ' ' . $messageId;            
+            $entity->setReferenceIds($updatedReferenceIds);
+
+            $entityManager->persist($entity);
+            $entityManager->flush();
+            }
 
            if($collabrator != null && $thread->getCc()!= null && count($thread->getCc()) == count($collabrator) && $thread->getBcc() != null){
             $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
