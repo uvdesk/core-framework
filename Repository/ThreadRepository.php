@@ -160,4 +160,17 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
 
         return $json;
     }
+
+    public function findThreadByRefrenceId($referenceIds)
+    {
+        $query = $this->getEntityManager()
+            ->createQuery(
+                "SELECT t FROM UVDeskCoreFrameworkBundle:Ticket t
+                WHERE t.referenceIds LIKE :referenceIds
+                ORDER BY t.id DESC"
+            )->setParameter('referenceIds', '%'.$referenceIds.'%');
+
+        return $query->setMaxResults(1)->getOneOrNullResult();
+    }
+
 }
