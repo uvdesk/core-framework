@@ -411,8 +411,8 @@ class EmailService
         $placeholderParams = [
             'ticket.id' => $ticket->getId(),
             'ticket.subject' => $ticket->getSubject(),
-            'ticket.message' => count($ticket->getThreads()) > 0 ? $ticket->getThreads()->get(0)->getMessage() : '',
-            'ticket.threadMessage' => (isset($ticket->createdThread) && $ticket->createdThread->getThreadType() != "note") ? $ticket->createdThread->getMessage() : ((isset($ticket->currentThread)) ? $ticket->currentThread->getMessage() : $ticket->getThreads()->get(0)->getMessage()),
+            'ticket.message' => count($ticket->getThreads()) > 0 ? preg_replace("/<img[^>]+\>/i", "", $ticket->getThreads()->get(0)->getMessage()) : '',
+            'ticket.threadMessage' => (isset($ticket->createdThread) && $ticket->createdThread->getThreadType() != "note") ? preg_replace("/<img[^>]+\>/i", "", $ticket->createdThread->getMessage()) : ((isset($ticket->currentThread)) ? preg_replace("/<img[^>]+\>/i", "", $ticket->currentThread->getMessage()) : preg_replace("/<img[^>]+\>/i", "", $ticket->getThreads()->get(0)->getMessage())),
             'ticket.tags' => implode(',', $supportTags),
             'ticket.source' => ucfirst($ticket->getSource()),
             'ticket.status' => $ticket->getStatus()->getDescription(),
@@ -457,7 +457,6 @@ class EmailService
         }
 
         $content = $isSavedReply ? stripslashes($content) : htmlspecialchars_decode(preg_replace(['#&lt;script&gt;#', '#&lt;/script&gt;#'], ['&amp;lt;script&amp;gt;', '&amp;lt;/script&amp;gt;'], $content));
-
         return $twigTemplatingEngine->render($baseEmailTemplate, ['message' => $content]);
     }
 
