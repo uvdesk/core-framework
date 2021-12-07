@@ -457,7 +457,6 @@ class EmailService
         }
 
         $content = $isSavedReply ? stripslashes($content) : htmlspecialchars_decode(preg_replace(['#&lt;script&gt;#', '#&lt;/script&gt;#'], ['&amp;lt;script&amp;gt;', '&amp;lt;/script&amp;gt;'], $content));
-        dump($content); die;
         return $twigTemplatingEngine->render($baseEmailTemplate, ['message' => $content]);
     }
 
