@@ -578,7 +578,7 @@ class UserService
 
     public function removeCustomer($customer)
     {
-        $userData = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findBy(array('user' => $customer->getId(), 'supportRole' => 4));
+        $userData = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findBy(array('user' => $customer->getId()));
 
         $count = count($userData);
         $ticketData = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findBy(array('customer' => $customer->getId()));
@@ -639,7 +639,7 @@ class UserService
         $qb = $this->entityManager->createQueryBuilder();
         $query = $qb->delete('UVDeskCoreFrameworkBundle:UserInstance', 'ud')
                     ->andwhere('ud.user = :userId')
-                    ->andwhere('ud.supportRole != :roleId')
+                    ->andwhere('ud.supportRole = :roleId')
                     ->setParameter('userId', $user->getId())
                     ->setParameter('roleId', 3)
                     ->getQuery();
