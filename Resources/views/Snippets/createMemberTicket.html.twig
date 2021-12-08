@@ -450,11 +450,15 @@
         });
 
         sfTinyMce.init({
-            height: '170px',
+            height: '155px',
 			selector : '#create-reply',
 			images_upload_url: "",
             setup: function(editor) {
-            }
+            },
+			plugins: [
+            ],
+			toolbar: '| undo redo | bold italic forecolor ',
+			statusbar: false,
 		});
 
         var CreateTicketForm = Backbone.View.extend({
