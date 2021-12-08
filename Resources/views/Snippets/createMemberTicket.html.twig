@@ -1,3 +1,8 @@
+<style>
+    .mce-path {
+      		display: none !important;
+	}
+</style>
 {% set isTicketViewPage = ('helpdesk_member_ticket' == app.request.attributes.get('_route')) %}
 
 <div class="uv-pop-up-overlay uv-no-error-success-icon" id="create-ticket-modal">
@@ -458,7 +463,6 @@
 			plugins: [
             ],
 			toolbar: '| undo redo | bold italic forecolor ',
-			statusbar: false,
 		});
 
         var CreateTicketForm = Backbone.View.extend({
