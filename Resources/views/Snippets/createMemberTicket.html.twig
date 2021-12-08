@@ -58,7 +58,7 @@
             <div class="uv-element-block">
                 <label class="uv-field-label">{{ 'Message'|trans }}</label>
                 <div class="uv-field-block">
-                    <textarea name="reply" class="uv-field create-ticket" type="text"></textarea>
+                    <textarea name="reply" id="create-reply" class="uv-field create-ticket" type="text">{{ ticket_service.getAgentDraftReply() }}</textarea>
                 </div>
                 
                 <span class="uv-field-info">{{ 'Ticket query message'|trans }}</span>
@@ -382,6 +382,7 @@
     var validationParameters = true;
 </script>
 {% endif %}
+{{ include("@UVDeskSupportCenter/Templates/tinyMCE.html.twig") }}
 
 <script type="text/javascript">
     $(function () {
@@ -433,12 +434,28 @@
                     msg : "{{ 'This field is mandatory'|trans }}"
                 },
                 'reply' : {
-                    required : true,
+                    fn: function(value) {
+                            if(!tinyMCE.get("uv-edit-create-thread"))
+                                return false;
+                            var html = tinyMCE.get("uv-edit-create-thread").getContent();
+                            if(app.appView.stripHTML(html) != '') {
+                                return false;
+                            }
+                            return true;
+                        },
                     msg : "{{ 'This field is mandatory'|trans }}"
                 },
             }),
             urlRoot : "{{ path('helpdesk_member_create_ticket') }}"
         });
+
+        sfTinyMce.init({
+            height: '170px',
+			selector : '#create-reply',
+			images_upload_url: "",
+            setup: function(editor) {
+            }
+		});
 
         var CreateTicketForm = Backbone.View.extend({
             el : $("#create-ticket-modal #create-ticket-form"),
