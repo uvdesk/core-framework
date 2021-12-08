@@ -236,7 +236,7 @@ class Ticket extends Controller
             'subject' => $ticketProxy->getSubject(),
             // @TODO: We need to enable support for html messages. 
             // Our focus here instead should be to prevent XSS (filter js)
-            'message' => strip_tags($ticketProxy->getReply()),
+            'message' => str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', htmlspecialchars($ticketProxy->getReply())),
             'firstName' => $customer->getFirstName(),
             'lastName' => $customer->getLastName(),
             'type' => $ticketProxy->getType(),
