@@ -267,10 +267,10 @@ class Account extends AbstractController
                     $user->setFirstName($data['firstName']);
                     $user->setLastName($data['lastName']);
                     $user->setEmail($data['email']);
-                    $user->setIsEnabled(isset($data['isActive']));
+                    $user->setIsEnabled(true);
                     
-                    $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(['user' => $agentId]);
-
+                    $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(array('user' => $agentId, 'supportRole' => array(2, 3)));
+                    
                     $oldSupportTeam = ($supportTeamList = $userInstance->getSupportTeams()) ? $supportTeamList->toArray() : [];
                     $oldSupportGroup  = ($supportGroupList = $userInstance->getSupportGroups()) ? $supportGroupList->toArray() : [];
                     $oldSupportedPrivilege = ($supportPrivilegeList = $userInstance->getSupportPrivileges())? $supportPrivilegeList->toArray() : [];
@@ -302,7 +302,7 @@ class Account extends AbstractController
                     }
 
                     $userInstance->setSignature($data['signature']);
-                    $userInstance->setIsActive(true);
+                    $userInstance->setIsActive(isset($data['isActive']) ? $data['isActive'] : 0);
 
                     if(isset($data['userSubGroup'])){
                         foreach ($data['userSubGroup'] as $userSubGroup) {
@@ -447,6 +447,12 @@ class Account extends AbstractController
                         'signature' => $formDetails['signature'],
                         'designation' => $formDetails['designation'],
                     ]);
+
+                    if(!empty($user)){
+                        $user->setIsEnabled(true);
+                        $entityManager->persist($user);
+                        $entityManager->flush();
+                    }
 
                     $userInstance = $user->getAgentInstance();
 
