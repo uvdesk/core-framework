@@ -448,6 +448,12 @@ class Account extends AbstractController
                         'designation' => $formDetails['designation'],
                     ]);
 
+                    if(!empty($user)){
+                        $user->setIsEnabled(true);
+                        $entityManager->persist($user);
+                        $entityManager->flush();
+                    }
+
                     $userInstance = $user->getAgentInstance();
 
                     if (isset($formDetails['ticketView'])) {

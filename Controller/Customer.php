@@ -77,6 +77,12 @@ class Customer extends AbstractController
                         'image' => $uploadedFiles['profileImage'],
                     ]);
 
+                    if(!empty($user)){
+                        $user->setIsEnabled(true);
+                        $entityManager->persist($user);
+                        $entityManager->flush();
+                    }
+                    
                     $this->addFlash('success', $this->translator->trans('Success ! Customer saved successfully.'));
 
                     return $this->redirect($this->generateUrl('helpdesk_member_manage_customer_account_collection'));
