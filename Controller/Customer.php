@@ -77,6 +77,12 @@ class Customer extends AbstractController
                         'image' => $uploadedFiles['profileImage'],
                     ]);
 
+                    if(!empty($user)){
+                        $user->setIsEnabled(true);
+                        $entityManager->persist($user);
+                        $entityManager->flush();
+                    }
+                    
                     $this->addFlash('success', $this->translator->trans('Success ! Customer saved successfully.'));
 
                     return $this->redirect($this->generateUrl('helpdesk_member_manage_customer_account_collection'));
@@ -141,13 +147,13 @@ class Customer extends AbstractController
                     $user->setFirstName($data['firstName']);
                     $user->setLastName($data['lastName']);
                     $user->setEmail($data['email']);
-                    $user->setIsEnabled(isset($data['isActive']) ? 1 : 0);
+                    $user->setIsEnabled(true);
                     $em->persist($user);
 
                     // User Instance
-                    $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(array('user' => $user->getId()));
+                    $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(array('user' => $user->getId(), 'supportRole' => 4));
                     $userInstance->setUser($user);
-                    // $userInstance->setIsActive(isset($data['isActive']) ? 1 : 0);
+                    $userInstance->setIsActive(isset($data['isActive']) ? $data['isActive'] : 0);
                     $userInstance->setIsVerified(0);
                     
                     if(isset($data['contactNumber'])) {
@@ -225,7 +231,7 @@ class Customer extends AbstractController
 
             return new Response(json_encode($json), 200, []);
         }
-
+// dump($user); die;
         return $this->render('@UVDeskCoreFramework/Customers/updateSupportCustomer.html.twig', [
             'user' => $user,
             'errors' => json_encode([])
