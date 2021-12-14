@@ -412,7 +412,7 @@ class EmailService
             'ticket.id' => $ticket->getId(),
             'ticket.subject' => $ticket->getSubject(),
             'ticket.message' => count($ticket->getThreads()) > 0 ? preg_replace("/<img[^>]+\>/i", "", $ticket->getThreads()->get(0)->getMessage()) : '',
-            'ticket.threadMessage' => (isset($ticket->createdThread) && $ticket->createdThread->getThreadType() != "note") ? preg_replace("/<img[^>]+\>/i", "", $ticket->createdThread->getMessage()) : ((isset($ticket->currentThread)) ? preg_replace("/<img[^>]+\>/i", "", $ticket->currentThread->getMessage()) : preg_replace("/<img[^>]+\>/i", "", $ticket->getThreads()->get(0)->getMessage())),
+            'ticket.threadMessage' => $this->threadMessage($ticket),
             'ticket.tags' => implode(',', $supportTags),
             'ticket.source' => ucfirst($ticket->getSource()),
             'ticket.status' => $ticket->getStatus()->getDescription(),
@@ -437,6 +437,26 @@ class EmailService
 
         return $placeholderParams;
     }
+
+    public function threadMessage($ticket)
+    {
+        $message = null;
+        if (isset($ticket->createdThread) && $ticket->createdThread->getThreadType() != "note") {
+            return preg_replace("/<img[^>]+\>/i", "", $ticket->createdThread->getMessage());
+        } elseif (isset($ticket->currentThread) && $ticket->currentThread->getThreadType() != "note") {
+            return  preg_replace("/<img[^>]+\>/i", "", $ticket->currentThread->getMessage());
+        } else {
+            $messages = $ticket->getThreads();
+            for ($i = count($messages) - 1 ; $i >= 0  ; $i--) { 
+                if (isset($messages[$i]) && $messages[$i]->getThreadType() != "note") {
+                    return preg_replace("/<img[^>]+\>/i", "", $messages[$i]);
+                }
+            }
+        }
+
+        return "";
+    }
+
 
     public function processEmailSubject($subject, array $emailPlaceholders = [])
     {
