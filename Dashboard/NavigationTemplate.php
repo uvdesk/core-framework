@@ -54,6 +54,12 @@ class NavigationTemplate implements ExtendableComponentInterface
 			}
 		}
 
+		if (array_key_exists(2, $accessibleSegments))
+        {
+			$temp = $accessibleSegments[1];
+			$accessibleSegments[1] = $accessibleSegments[2];
+			$accessibleSegments[2] = $temp;
+        }
 		// Reduce the accessible segments into injectible html snippet
 		$html = array_reduce($accessibleSegments, function($html, $segment) use ($router, $request, $route) {
 			$isActive = '';
