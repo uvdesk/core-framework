@@ -449,7 +449,7 @@ class EmailService
             $messages = $ticket->getThreads();
             for ($i = count($messages) - 1 ; $i >= 0  ; $i--) { 
                 if (isset($messages[$i]) && $messages[$i]->getThreadType() != "note") {
-                    return preg_replace("/<img[^>]+\>/i", "", $messages[$i]);
+                    return preg_replace("/<img[^>]+\>/i", "", $messages[$i]->getMessage());
                 }
             }
         }
