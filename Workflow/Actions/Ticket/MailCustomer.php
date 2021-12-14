@@ -69,6 +69,7 @@ class MailCustomer extends WorkflowAction
                 $thread = ($thread != null) ? $thread : $createdThread;
                 $ticketCollaborators = (($thread != null) && !empty($thread->getTicket()) && $thread != "" ) ? $thread->getTicket()->getCollaborators() : [];
 
+              $headers = ['References' => $entity->getReferenceIds()]; 
                 if (!empty($thread)) {
                     $headers = ['References' => $entity->getReferenceIds()];
                 
@@ -91,7 +92,11 @@ class MailCustomer extends WorkflowAction
                     }
                     
                 } else {
-                    $message = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail());
+                    if (!empty($entity->getReferenceIds())) {
+                        $headers = ['References' => $entity->getReferenceIds()];
+                        }
+                    
+                    $message = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(),$headers);
                 }
                 break;
             default:
