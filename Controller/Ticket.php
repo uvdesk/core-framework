@@ -64,7 +64,7 @@ class Ticket extends Controller
         $ticket = $ticketRepository->findOneById($ticketId);
         
         if (empty($ticket)) {
-            throw new \Exception('Page not found');
+            throw new NotFoundHttpException('Page not found!');
         }
         
         $user = $this->userService->getSessionUser();
@@ -117,27 +117,27 @@ class Ticket extends Controller
                             }
                         }
                         if (!$isAccessableGroupFound && !($ticketAssignAgent == $currentUser)) {
-                            throw new \Exception('Page not found');
+                            throw new NotFoundHttpException('Page not found!');
                         }
                         break;
                     case TicketRepository::TICKET_TEAM_ACCESS:
                         $supportTeams = array_map(function($supportTeam) { return $supportTeam->getId(); }, $user->getCurrentInstance()->getSupportTeams()->getValues());                         
                         $supportTeam = $ticket->getSupportTeam();
                         if (!($supportTeam && in_array($supportTeam->getId(), $supportTeams)) && !($ticketAssignAgent == $currentUser)) {
-                            throw new \Exception('Page not found');
+                            throw new NotFoundHttpException('Page not found!');
                         }
                         break;
                     default:
                         $collaborators = array_map( function ($collaborator) { return $collaborator->getId(); }, $ticket->getCollaborators()->getValues());
                         $accessableAgents = array_merge($collaborators, $ticket->getAgent() ? [$ticket->getAgent()->getId()] : []);
                         if (!in_array($user->getId(), $accessableAgents)) {
-                            throw new \Exception('Page not found');
+                            throw new NotFoundHttpException('Page not found!');
                         }
                         break;
                 }
                 break;
             default:
-                throw new \Exception('Page not found');
+                throw new NotFoundHttpException('Page not found!');
         }
 
         $quickActionButtonCollection->prepareAssets();
