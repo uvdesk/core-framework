@@ -64,7 +64,6 @@ class MailAgent extends WorkflowAction
             $emailTemplate = $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findOneById($value['value']);
             $emails = self::getAgentMails($value['for'], (($ticketAgent = $entity->getAgent()) ? $ticketAgent->getEmail() : ''), $container);
             $ticketCollaborators = []; 
-            
             if ($emails || $emailTemplate) {
                 $queryBuilder = $entityManager->createQueryBuilder()
                     ->select('th.messageId as messageId')
@@ -102,6 +101,9 @@ class MailAgent extends WorkflowAction
 
                 if(!empty($emails) && $emails != null){
                     foreach ($emails as $email) {
+                        if (is_array($email)) {
+                           $email = $email['email'];
+                        }
                         $messageId = $container->get('email.service')->sendMail($subject, $message, $email, $emailHeaders, null, $attachments ?? []);
                         if (!empty($messageId)) {
                             $updatedReferenceIds = $entity->getReferenceIds() . ' ' . $messageId;            
