@@ -1659,11 +1659,11 @@ class TicketService
         $router = $this->container->get('router');
 
         if ($type == 'customer') {
-            $ticketListURL = $router->generate('helpdesk_member_ticket_collection', [
+            $ticketListURL = $router->generate('helpdesk_customer_ticket_collection', [
                 'id' => $ticket->getId(),
             ], UrlGeneratorInterface::ABSOLUTE_URL);
         } else {
-            $ticketListURL = $router->generate('helpdesk_customer_ticket_collection', [
+            $ticketListURL = $router->generate('helpdesk_member_ticket_collection', [
                 'id' => $ticket->getId(),
             ], UrlGeneratorInterface::ABSOLUTE_URL);
         }
