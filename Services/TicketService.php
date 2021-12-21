@@ -856,7 +856,6 @@ class TicketService
                         $ticket->setIsTrashed(true);
                         
                         $this->entityManager->persist($ticket);
-                        $this->entityManager->flush();
                     }
 
                     // Trigger ticket delete event
@@ -880,7 +879,7 @@ class TicketService
                     }
 
                     $this->entityManager->remove($ticket);
-                    $this->entityManager->flush();
+                    
 
                     break;
                 case 'restored':
@@ -888,7 +887,6 @@ class TicketService
                         $ticket->setIsTrashed(false);
 
                         $this->entityManager->persist($ticket);
-                        $this->entityManager->flush();
                     }
                     break;
                 case 'agent':
@@ -898,7 +896,6 @@ class TicketService
                         $ticket->setAgent($agent);
     
                         $this->entityManager->persist($ticket);
-                        $this->entityManager->flush();
     
                         // Trigger Agent Assign event
                         $event = new GenericEvent(CoreWorkflowEvents\Ticket\Agent::getId(), [
@@ -915,7 +912,6 @@ class TicketService
                         $ticket->setStatus($status);
 
                         $this->entityManager->persist($ticket);
-                        $this->entityManager->flush();
 
                         // Trigger ticket status event
                         $event = new GenericEvent(CoreWorkflowEvents\Ticket\Status::getId(), [
@@ -933,7 +929,6 @@ class TicketService
                         $ticket->setType($type);
     
                         $this->entityManager->persist($ticket);
-                        $this->entityManager->flush();
     
                         // Trigger ticket type event
                         $event = new GenericEvent(CoreWorkflowEvents\Ticket\Type::getId(), [
@@ -951,7 +946,6 @@ class TicketService
                         $ticket->setSupportGroup($group);
     
                         $this->entityManager->persist($ticket);
-                        $this->entityManager->flush();
     
                         // Trigger Support group event
                         $event = new GenericEvent(CoreWorkflowEvents\Ticket\Group::getId(), [
@@ -969,7 +963,6 @@ class TicketService
                         $ticket->setSupportTeam($team);
                         
                         $this->entityManager->persist($ticket);
-                        $this->entityManager->flush();
         
                         // Trigger team event
                         $event = new GenericEvent(CoreWorkflowEvents\Ticket\Team::getId(), [
@@ -987,7 +980,6 @@ class TicketService
                         $ticket->setPriority($priority);
     
                         $this->entityManager->persist($ticket);
-                        $this->entityManager->flush();
     
                         // Trigger ticket Priority event
                         $event = new GenericEvent(CoreWorkflowEvents\Ticket\Priority::getId(), [
@@ -1006,13 +998,14 @@ class TicketService
                     }
                     
                     $this->entityManager->persist($ticket);
-                    $this->entityManager->flush();
 
                     break;
                 default:
                     break;
             }
-        }
+        } 
+
+        $this->entityManager->flush();
 
         return [
             'alertClass' => 'success',
@@ -1666,11 +1659,11 @@ class TicketService
         $router = $this->container->get('router');
 
         if ($type == 'customer') {
-            $ticketListURL = $router->generate('helpdesk_member_ticket_collection', [
+            $ticketListURL = $router->generate('helpdesk_customer_ticket_collection', [
                 'id' => $ticket->getId(),
             ], UrlGeneratorInterface::ABSOLUTE_URL);
         } else {
-            $ticketListURL = $router->generate('helpdesk_customer_ticket_collection', [
+            $ticketListURL = $router->generate('helpdesk_member_ticket_collection', [
                 'id' => $ticket->getId(),
             ], UrlGeneratorInterface::ABSOLUTE_URL);
         }
