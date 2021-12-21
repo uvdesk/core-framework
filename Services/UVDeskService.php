@@ -215,7 +215,6 @@ class UVDeskService
                 'ROLE_AGENT_MANAGE_WORKFLOW_AUTOMATIC' => $translator->trans('Can manage Automatic workflow'),
                 'ROLE_AGENT_MANAGE_TAG' => $translator->trans('Can manage tags'),
                 'ROLE_AGENT_MANAGE_KNOWLEDGEBASE' => $translator->trans('Can manage knowledgebase'),
-                'ROLE_AGENT_MANAGE_GROUP_SAVED_REPLY' => $translator->trans("Can manage Group's Saved Reply"),
                 'ROLE_AGENT_MANAGE_AGENT_ACTIVITY'  => $translator->trans("Can manage agent activity"),
                 'ROLE_AGENT_MANAGE_MARKETING_ANNOUNCEMENT' => $translator->trans("Can manage marketing announcement"),
             ]
