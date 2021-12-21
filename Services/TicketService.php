@@ -887,7 +887,6 @@ class TicketService
                         $ticket->setIsTrashed(false);
 
                         $this->entityManager->persist($ticket);
-                        $this->entityManager->flush();
                     }
                     break;
                 case 'agent':
@@ -1004,8 +1003,10 @@ class TicketService
                 default:
                     break;
             }
-        }
+        } 
+
         $this->entityManager->flush();
+
         return [
             'alertClass' => 'success',
             'alertMessage' => $this->trans('Tickets have been updated successfully'),
