@@ -59,7 +59,7 @@
                         <li for="profile" class="uv-tab-active">{{ 'General'|trans }}</li>
                         <li for="groups">{{ 'Groups'|trans }}</li>
                     
-                        {% if "ROLE_SUPER_ADMIN" not in user.roles %}
+                        {% if "ROLE_SUPER_ADMIN" != instanceRole %}
                             <li for="permission">{{ 'Permission'|trans }}</li>
                         {% endif %}
                     </ul>
@@ -263,7 +263,7 @@
 
                 <!--Tab View-->
                 <div class="uv-tab-view" id="permission">
-                    {% if "ROLE_SUPER_ADMIN" not in user.roles %}
+                    {% if "ROLE_SUPER_ADMIN" != instanceRole %}
                         <!-- Field -->
                         <div class="uv-element-block">
                             <label class="uv-field-label">{{ 'Role'|trans }}</label>
