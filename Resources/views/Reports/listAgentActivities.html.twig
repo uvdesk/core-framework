@@ -287,7 +287,7 @@
                     'dp.change input#to': 'initializeback'
                 },
                 initializeback: function(e) {
-                    if(e.keyCode == 8 || e.type =="dp") { 
+                     if (e.keyCode == 8 && $('#agent-filter-input').val() == '' || e.type == "dp") { 
                         agentActivityCollection.filterParameters.after = $('#from').val();
                         agentActivityCollection.filterParameters.before = $('#to').val();
 
