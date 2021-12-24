@@ -78,14 +78,27 @@
 		$(function () {
 			var TypeModel = Backbone.Model.extend({
 				validation: {
-					'code': {
-						required: true,
-						msg: "{{ 'This field is mandatory'|trans }}"
-					},
-					'description': {
+					'code': [{
 						required: true,
 						msg: "{{ 'This field is mandatory'|trans }}"
 					}
+					,{
+						pattern: '^(?!.*[!@#$%^&*()<_+])',
+						msg: "{{ 'Name must have characters only' }}"
+					},
+					,{
+						maxLength:200,
+						msg: "{{ 'This field contain maximum 100 characters.'|trans }}"
+					}],
+					'description': [{
+						required: true,
+						msg: "{{ 'This field is mandatory'|trans }}"
+					}
+					,{
+						maxLength:200,
+						msg: "{{ 'This field contain maximum 200 characters.'|trans }}"
+					}
+					],
 				}
 			});
 

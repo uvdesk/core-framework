@@ -177,6 +177,10 @@
 					,{
 						pattern: '^(?!.*[!@#$%^&*()<_+])',
 						msg: "{{ 'Name must have characters only' }}"
+					},
+					{
+						maxLength:100,
+						msg: "{{ 'This field contain maximum 100 characters.'|trans }}"
 					}
 					],
 				}
