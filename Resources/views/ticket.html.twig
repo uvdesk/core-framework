@@ -1228,11 +1228,15 @@
                             <input type="text" name="subject" class="uv-field" value="{{ ticket.subject }}" />
                         </div>
                     </div>
-
+                    
                     <div class="uv-element-block">
                         <label class="uv-field-label">{{ 'Reply'|trans }}</label>
                         <div class="uv-field-block">
-                            <textarea name="reply" id="uv-edit-create-thread" class="uv-field">{{ initialThread.message }}</textarea>
+                            {% if initialThread.message|striptags == initialThread.message %}
+                                <textarea name="reply" id="uv-edit-create-thread" class="uv-field">{{ initialThread.message|nl2br }}</textarea>
+                            %} {% else %}
+                                <textarea name="reply" id="uv-edit-create-thread" class="uv-field">{{ initialThread.message|raw }}</textarea>
+                            {% endif %}
                         </div>
                     </div>
 
