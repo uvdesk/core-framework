@@ -4,7 +4,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\ValidationService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;

@@ -2,7 +2,7 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Entity;
 
-use Symfony\Component\Security\Core\User\AdvancedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(name="uv_user")
  */
-class User implements AdvancedUserInterface
+class User implements UserInterface
 {
     /**
      * @var integer
