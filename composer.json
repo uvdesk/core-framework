@@ -10,12 +10,12 @@
         }
     ],
     "require": {
-        "php": "^7.3 || ^8.0",
-        "uvdesk/composer-plugin": "^1.0",
-        "doctrine/doctrine-bundle": "^2.4.2",
+        "php": "^7.2.5 || ^8.0",
+        "uvdesk/composer-plugin": "^1.1",
+        "doctrine/doctrine-bundle": "^2.4",
         "doctrine/doctrine-fixtures-bundle": "^3.4.0",
         "doctrine/doctrine-migrations-bundle": "^2.2.2",
-        "knplabs/knp-paginator-bundle": "^5.5.1"
+        "knplabs/knp-paginator-bundle": "^5.4.0"
     },
     "suggest": {
         "uvdesk/automation-bundle": "Automate operations within your UVDesk Community Helpdesk System based on pre-defined events triggered from your application",
@@ -27,7 +27,7 @@
     "extra": {
         "uvdesk-package-extension": "Webkul\\UVDesk\\CoreFrameworkBundle\\Package\\Composer",
         "branch-alias": {
-            "dev-master": "1.0.x-dev"
+            "dev-master": "1.1.x-dev"
         }
     },
     "minimum-stability": "stable"

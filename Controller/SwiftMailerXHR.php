@@ -4,12 +4,12 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\Event\ConfigurationRemovedEvent;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer as SwiftMailerService;
 
-class SwiftMailerXHR extends Controller
+class SwiftMailerXHR extends AbstractController
 {
     private $translator;
     private $swiftMailer;

@@ -7,7 +7,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Webkul\UVDesk\CoreFrameworkBundle\Framework\ExtendableComponentInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\HomepageSectionInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\HomepageSectionItemInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class HomepageTemplate implements ExtendableComponentInterface
 {

@@ -13,7 +13,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Webkul\UVDesk\CoreFrameworkBundle\FileSystem\FileSystem;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Filesystem\Filesystem as Fileservice;
 
 class Customer extends AbstractController

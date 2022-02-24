@@ -19,7 +19,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
 use Webkul\UVDesk\CoreFrameworkBundle\FileSystem\FileSystem;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Filesystem\Filesystem as Fileservice;
 
 

@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Team extends AbstractController
 {

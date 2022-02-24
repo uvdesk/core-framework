@@ -7,15 +7,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedFilters;
 use Symfony\Component\EventDispatcher\GenericEvent;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Filesystem\Filesystem as Fileservice;
 
-class AccountXHR extends Controller
+class AccountXHR extends AbstractController
 {
     private $eventDispatcher;
     private $translator;

@@ -4,7 +4,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Theme extends AbstractController
 {

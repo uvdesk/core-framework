@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportPrivilege;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
 
 class Privilege extends AbstractController

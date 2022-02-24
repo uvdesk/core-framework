@@ -3,11 +3,11 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
-class GroupXHR extends Controller
+class GroupXHR extends AbstractController
 {
     private $userService;
     private $translator;

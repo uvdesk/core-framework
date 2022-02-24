@@ -12,7 +12,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer;
 
 class Group extends AbstractController

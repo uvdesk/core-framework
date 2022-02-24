@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\ReCaptchaService;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class Authentication extends AbstractController

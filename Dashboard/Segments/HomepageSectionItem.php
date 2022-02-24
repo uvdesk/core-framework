@@ -5,7 +5,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Translation\Loader\YamlFileLoader;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 abstract class HomepageSectionItem implements HomepageSectionItemInterface
 {

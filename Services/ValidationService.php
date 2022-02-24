@@ -5,7 +5,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class Inbuilt {

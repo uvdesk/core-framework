@@ -6,7 +6,7 @@ use Symfony\Component\Yaml\Yaml;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer;
 
 class EmailSettings extends AbstractController
