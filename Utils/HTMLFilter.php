@@ -840,19 +840,19 @@ class HTMLFilter
 
         if ($block_external_images) {
             array_push(
-                $bad_attvals{'/.*/'}{'/^src|background/i'}[0],
+                $bad_attvals['/.*/']['/^src|background/i'][0],
                 '/^([\'\"])\s*https*:.*([\'\"])/si'
             );
             array_push(
-                $bad_attvals{'/.*/'}{'/^src|background/i'}[1],
+                $bad_attvals['/.*/']['/^src|background/i'][1],
                 "\\1$trans_image_path\\1"
             );
             array_push(
-                $bad_attvals{'/.*/'}{'/^style/i'}[0],
+                $bad_attvals['/.*/']['/^style/i'][0],
                 '/url\(([\'\"])\s*https*:.*([\'\"])\)/si'
             );
             array_push(
-                $bad_attvals{'/.*/'}{'/^style/i'}[1],
+                $bad_attvals['/.*/']['/^style/i'][1],
                 "url(\\1$trans_image_path\\1)"
             );
         }
