@@ -11,6 +11,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class CustomerXHR extends AbstractController
 {
@@ -25,7 +26,7 @@ class CustomerXHR extends AbstractController
         $this->translator = $translator;
     }
 
-    public function listCustomersXHR(Request $request) 
+    public function listCustomersXHR(Request $request, ContainerInterface $container) 
     {
         if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
@@ -35,8 +36,9 @@ class CustomerXHR extends AbstractController
         
         if($request->isXmlHttpRequest()) {
             $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:User');
-            $json =  $repository->getAllCustomer($request->query, $this->container);
+            $json =  $repository->getAllCustomer($request->query, $container);
         }
+        
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');
         
@@ -63,7 +65,7 @@ class CustomerXHR extends AbstractController
                     'entity' => $user,
                 ]);
 
-                $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+                $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                 $json['alertClass'] = 'success';
                 $json['alertMessage'] = $this->translator->trans('Success ! Customer removed successfully.');

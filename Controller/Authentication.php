@@ -105,7 +105,7 @@ class Authentication extends AbstractController
                             'entity' => $user,
                         ]);
                             
-                        $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+                        $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
                         $this->addFlash('success', $this->translator->trans('Please check your mail for password update'));
 
                         return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));

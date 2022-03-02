@@ -10,6 +10,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Form as CoreFrameworkBundleForms;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class SavedReplies extends AbstractController
 {
@@ -34,7 +35,7 @@ class SavedReplies extends AbstractController
         ]);
     }
 
-    public function updateSavedReplies(Request $request)
+    public function updateSavedReplies(Request $request, ContainerInterface $container)
     {
         $templateId = $request->attributes->get('template');
         $repository = $this->getDoctrine()->getRepository(CoreFrameworkBundleEntities\SavedReplies::class);
@@ -43,7 +44,7 @@ class SavedReplies extends AbstractController
             $template = new CoreFrameworkBundleEntities\SavedReplies();
         } else {
             // @TODO: Refactor: We shouldn't be passing around the container.
-            $template = $repository->getSavedReply($templateId, $this->container);
+            $template = $repository->getSavedReply($templateId, $container);
 
             if (empty($template)) {
                 $this->noResultFound();
@@ -135,7 +136,7 @@ class SavedReplies extends AbstractController
         ));
     }
 
-    public function savedRepliesXHR(Request $request)
+    public function savedRepliesXHR(Request $request, ContainerInterface $container)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new \Exception(404);
@@ -145,7 +146,7 @@ class SavedReplies extends AbstractController
         $savedReplyRepository = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SavedReplies');
 
         if ($request->getMethod() == 'GET') {
-            $responseContent = $savedReplyRepository->getSavedReplies($request->query, $this->container);
+            $responseContent = $savedReplyRepository->getSavedReplies($request->query, $container);
         } else {
             $savedReplyId = $request->attributes->get('template');
 

@@ -790,7 +790,7 @@
                     <span>
                         <span class="uv-ticket-strip-label">{{ 'By'|trans }} - </span> {{ initialThread.user.name }}
                         {% if totalCustomerTickets %}
-                            (<a id="more-tickets-btn" href="{{ path('helpdesk_member_ticket_collection') }}#customer/{{customer.id}}" target="_blank">{{ '%count% more ticket|%count% more tickets'|transchoice(totalCustomerTickets) }}</a>)
+                            (<a id="more-tickets-btn" href="{{ path('helpdesk_member_ticket_collection') }}#customer/{{customer.id}}" target="_blank">{{ 'count more tickets'|trans({'count': totalCustomerTickets}) }}</a>)
                         {% endif %}
                     </span>
 

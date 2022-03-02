@@ -22,6 +22,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\EmailService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class Ticket extends AbstractController
 {
@@ -55,7 +56,7 @@ class Ticket extends AbstractController
         ]);
     }
 
-    public function loadTicket($ticketId, QuickActionButtonCollection $quickActionButtonCollection)
+    public function loadTicket($ticketId, QuickActionButtonCollection $quickActionButtonCollection, ContainerInterface $container)
     {
         $entityManager = $this->getDoctrine()->getManager();
         $userRepository = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User');
@@ -145,7 +146,7 @@ class Ticket extends AbstractController
         return $this->render('@UVDeskCoreFramework//ticket.html.twig', [
             'ticket' => $ticket,
             'totalReplies' => $ticketRepository->countTicketTotalThreads($ticket->getId()),
-            'totalCustomerTickets' => ($ticketRepository->countCustomerTotalTickets($customer, $this->container) - 1),
+            'totalCustomerTickets' => ($ticketRepository->countCustomerTotalTickets($customer, $container) - 1),
             'initialThread' => $this->ticketService->getTicketInitialThreadDetails($ticket),
             'ticketAgent' => !empty($agent) ? $agent->getAgentInstance()->getPartialDetails() : null,
             'customer' => $customer->getCustomerInstance()->getPartialDetails(),
@@ -155,7 +156,7 @@ class Ticket extends AbstractController
             'ticketStatusCollection' => $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->findAll(),
             'ticketTypeCollection' => $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findByIsActive(true),
             'ticketPriorityCollection' => $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketPriority')->findAll(),
-            'ticketNavigationIteration' => $ticketRepository->getTicketNavigationIteration($ticket, $this->container),
+            'ticketNavigationIteration' => $ticketRepository->getTicketNavigationIteration($ticket, $container),
             'ticketLabelCollection' => $ticketRepository->getTicketLabelCollection($ticket, $user),
         ]);
     }
@@ -257,7 +258,7 @@ class Ticket extends AbstractController
                 'entity' =>  $thread->getTicket(),
             ]);
 
-            $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+            $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute', );
         } catch (\Exception $e) {
             // Skip Automation
         }
@@ -342,7 +343,7 @@ class Ticket extends AbstractController
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
-        $enabled_bundles = $this->container->getParameter('kernel.bundles');
+        $enabled_bundles = $this->getParameter('kernel.bundles');
 
         return $this->render('@UVDeskCoreFramework/supportTagList.html.twig', [
             'articlesEnabled' => in_array('UVDeskSupportCenterBundle', array_keys($enabled_bundles)),
@@ -400,7 +401,7 @@ class Ticket extends AbstractController
             'entity' => $ticket,
         ]);
 
-        $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+        $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
         $this->addFlash('success', $this->translator->trans('Success ! Ticket moved to trash successfully.'));
 
         return $this->redirectToRoute('helpdesk_member_ticket_collection');

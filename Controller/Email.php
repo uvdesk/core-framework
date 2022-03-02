@@ -12,6 +12,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
 class Email extends AbstractController
@@ -104,7 +105,7 @@ class Email extends AbstractController
         ));
     }
 
-    public function templatesxhr(Request $request)
+    public function templatesxhr(Request $request, ContainerInterface $container)
     {
         if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
@@ -112,23 +113,23 @@ class Email extends AbstractController
 
         $json = array();
         $error = false;
-        if($request->isXmlHttpRequest()) {
-            if($request->getMethod() == 'GET') {
+        if ($request->isXmlHttpRequest()) {
+            if ($request->getMethod() == 'GET') {
                 $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates');
-                $json =  $repository->getEmailTemplates($request->query, $this->container);
-            }else{
-                if($request->attributes->get('template')){
-                    if($templateBase = $this->getTemplate($request)) {
-                        if($request->getMethod() == 'DELETE' ){
+                $json =  $repository->getEmailTemplates($request->query, $container);
+            } else {
+                if ($request->attributes->get('template')){
+                    if ($templateBase = $this->getTemplate($request)) {
+                        if ($request->getMethod() == 'DELETE' ) {
                             $em = $this->getDoctrine()->getManager();
                             $em->remove($templateBase);
                             $em->flush();
 
                             $json['alertClass'] = 'success';
                             $json['alertMessage'] = 'Success! Template has been deleted successfully.';
-                        }else
+                        } else
                             $error = true;
-                    } else{
+                    } else {
                         $json['alertClass'] = 'danger';
                         $json['alertMessage'] = $this->translator->trans('Warning! resource not found.');
                         $json['statusCode'] = Response::HTTP_NO_FOUND;
@@ -137,7 +138,7 @@ class Email extends AbstractController
             }
         }
 
-        if($error) {
+        if ($error) {
             $json['alertClass'] = 'danger';
             $json['alertMessage'] = $this->translator->trans('Warning! You can not remove predefined email template which is being used in workflow(s).');
         }
