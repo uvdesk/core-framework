@@ -241,12 +241,11 @@ class UserService
 
             $user->addUserInstance($userInstance);
 
-
             // Trigger user created event
             $eventId = 'ROLE_CUSTOMER' == $role->getCode() ? CoreWorkflowEvents\Customer\Create::getId() : CoreWorkflowEvents\Agent\Create::getId();
             $event = new GenericEvent($eventId, ['entity' => $user]);
 
-            $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+            $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
         }
 
         return $user;
