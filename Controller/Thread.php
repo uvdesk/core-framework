@@ -144,7 +144,7 @@ class Thread extends AbstractController
                 $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                 // @TODO: Render response on the basis of event response (if propogation was stopped or not)
-                $this->addFlash('success', $this->get('translator')->trans('Success ! Reply added successfully.'));
+                $this->addFlash('success', $this->translator->trans('Success ! Reply added successfully.'));
                 break;
             case 'forward':
                 // Prepare headers
