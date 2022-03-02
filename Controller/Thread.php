@@ -130,7 +130,7 @@ class Thread extends AbstractController
                     'thread' =>  $thread
                 ]);
 
-                $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+                $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                 // @TODO: Render response on the basis of event response (if propogation was stopped or not)
                 $this->addFlash('success', $this->translator->trans('Note added to ticket successfully.'));
@@ -141,7 +141,7 @@ class Thread extends AbstractController
                     'thread' =>  $thread
                 ]);
 
-                $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+                $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                 // @TODO: Render response on the basis of event response (if propogation was stopped or not)
                 $this->addFlash('success', $this->get('translator')->trans('Success ! Reply added successfully.'));
@@ -238,7 +238,7 @@ class Thread extends AbstractController
                     'entity' =>  $ticket,
                 ]);
 
-                $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+                $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                 $json['alertMessage'] = $this->translator->trans('Success ! Thread updated successfully.');
                 $json['alertClass'] = 'success';

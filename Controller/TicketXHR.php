@@ -18,6 +18,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\EmailService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class TicketXHR extends AbstractController
 {
@@ -255,7 +256,7 @@ class TicketXHR extends AbstractController
                         'entity' => $ticket,
                     ]);
 
-                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
@@ -294,7 +295,7 @@ class TicketXHR extends AbstractController
                         'entity' => $ticket,
                     ]);
 
-                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
@@ -334,7 +335,7 @@ class TicketXHR extends AbstractController
                         'entity' => $ticket,
                     ]);
 
-                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
@@ -386,7 +387,7 @@ class TicketXHR extends AbstractController
                         'entity' => $ticket,
                     ]);
 
-                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
@@ -436,7 +437,7 @@ class TicketXHR extends AbstractController
                         'entity' => $ticket,
                     ]);
 
-                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
@@ -472,7 +473,7 @@ class TicketXHR extends AbstractController
                         'entity' => $ticket,
                     ]);
 
-                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
@@ -767,7 +768,7 @@ class TicketXHR extends AbstractController
             'entity' =>  $ticket
         ]);
 
-        $this->eventDispatcher->dispatch('uvdesk.automation.prepared_response.execute', $event);
+        $this->eventDispatcher->dispatch($event, 'uvdesk.automation.prepared_response.execute');
         $this->addFlash('success', $this->translator->trans('Success ! Prepared Response applied successfully.'));
 
         return $this->redirect($this->generateUrl('helpdesk_member_ticket',['ticketId' => $ticketId]));
@@ -916,7 +917,7 @@ class TicketXHR extends AbstractController
                         'entity' => $ticket,
                     ]);
 
-                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                     $json['alertClass'] = 'success';
                     $json['alertMessage'] = $this->translator->trans('Success ! Collaborator added successfully.');
@@ -947,13 +948,13 @@ class TicketXHR extends AbstractController
     }
 
     // Apply quick Response action
-    public function getTicketQuickViewDetailsXhr(Request $request)
+    public function getTicketQuickViewDetailsXhr(Request $request, ContainerInterface $container)
     {
         $json = [];
 
         if ($request->isXmlHttpRequest()) {
             $ticketId = $request->query->get('ticketId');
-            $json = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:Ticket')->getTicketDetails($request->query,$this->container);
+            $json = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:Ticket')->getTicketDetails($request->query, $container);
         }
 
         $response = new Response(json_encode($json));

@@ -863,7 +863,7 @@ class TicketService
                         'entity' => $ticket,
                     ]);
 
-                    $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                     break;
                 case 'delete':
@@ -902,7 +902,7 @@ class TicketService
                             'entity' => $ticket,
                         ]);
     
-                        $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                        $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
                     break;
                 case 'status':
@@ -918,7 +918,7 @@ class TicketService
                             'entity' => $ticket,
                         ]);
                         
-                        $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                        $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
                     
                     break;
@@ -935,7 +935,7 @@ class TicketService
                             'entity' => $ticket,
                         ]);
     
-                        $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                        $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
 
                     break;
@@ -952,7 +952,7 @@ class TicketService
                             'entity' => $ticket,
                         ]);
     
-                        $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                        $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
 
                     break;
@@ -969,7 +969,7 @@ class TicketService
                             'entity' => $ticket,
                         ]);
         
-                        $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                        $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
 
                     break;
@@ -986,7 +986,7 @@ class TicketService
                             'entity' => $ticket,
                         ]);
     
-                        $this->container->get('event_dispatcher')->dispatch('uvdesk.automation.workflow.execute', $event);
+                        $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
 
                     break;

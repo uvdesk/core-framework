@@ -381,7 +381,7 @@ class Account extends AbstractController
                         'entity' => $user,
                     ]);
 
-                    $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+                    $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                     $this->addFlash('success', $this->translator->trans('Success ! Agent updated successfully.'));
                     return $this->redirect($this->generateUrl('helpdesk_member_account_collection'));
