@@ -427,7 +427,7 @@ class Ticket extends AbstractController
         $entityManager->remove($ticket);
         $entityManager->flush();
 
-        $this->addFlash('success', $this->get('translator')->trans('Success ! Success ! Ticket Id #'. $ticketId .' has been deleted successfully.'));
+        $this->addFlash('success', $this->translator->trans('Success ! Success ! Ticket Id #'. $ticketId .' has been deleted successfully.'));
 
         return $this->redirectToRoute('helpdesk_member_ticket_collection');
     }
