@@ -163,22 +163,21 @@ class Report extends AbstractController
             $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:TicketRating');
             $json =  $repository->getRatedTicketList($request->query, $container);
 
-            $json['data'] = $this->getAchievementsData($request);
+            $json['data'] = $this->getAchievementsData($request, $container);
         }
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');
         return $response;
     }
 
-    public function getAchievementsData($request, ContainerInterface $container)
+    public function getAchievementsData($request, $container)
     {
         $data = array();
-        $reportService = $this->get('report.service');
+        $reportService = $this->reportService;
         $reportService->parameters = $request->query->all();
         $startDate = $reportService->parameters['start'];
         $endDate = $reportService->parameters['end'];
 
-        $userService = $this->get('user.service');
         $reportService->startDate = $this->userService->convertToTimezone(new \DateTime($startDate),'Y-m-d H:i:s');
         $reportService->endDate = $this->userService->convertToTimezone(new \DateTime($endDate),'Y-m-d H:i:s');
 
