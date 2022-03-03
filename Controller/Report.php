@@ -18,6 +18,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Doctrine\ORM\Query;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class Report extends AbstractController
 {
@@ -154,13 +155,13 @@ class Report extends AbstractController
         );
     }
 
-    public function getAchievementsXhr(Request $request)
+    public function getAchievementsXhr(Request $request, ContainerInterface $container)
     {
         $json = array();
 
         if( $request->isXmlHttpRequest()) {
             $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:TicketRating');
-            $json =  $repository->getRatedTicketList($request->query, $this->container);
+            $json =  $repository->getRatedTicketList($request->query, $container);
 
             $json['data'] = $this->getAchievementsData($request);
         }
@@ -169,7 +170,7 @@ class Report extends AbstractController
         return $response;
     }
 
-    public function getAchievementsData($request)
+    public function getAchievementsData($request, ContainerInterface $container)
     {
         $data = array();
         $reportService = $this->get('report.service');
@@ -182,9 +183,9 @@ class Report extends AbstractController
         $reportService->endDate = $this->userService->convertToTimezone(new \DateTime($endDate),'Y-m-d H:i:s');
 
         $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:TicketRating');
-        $data =  $repository->getRatingData($request->query, $this->container);
+        $data =  $repository->getRatingData($request->query, $container);
         for ($i = 1; $i <= 5; $i++) {
-            $data['ratings'][$i] = $repository->getRatingByStarCount($request->query, $i, $this->container);
+            $data['ratings'][$i] = $repository->getRatingByStarCount($request->query, $i, $container);
         }
 
         return $data;
