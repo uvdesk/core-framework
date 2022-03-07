@@ -266,7 +266,7 @@ class Ticket extends AbstractController
         if (!empty($thread)) {
             $ticket = $thread->getTicket();
             if($request->request->get('customFields') || $request->files->get('customFields')) {
-                $this->get('ticket.service')->addTicketCustomFields($thread, $request->request->get('customFields'), $request->files->get('customFields'));                        
+                $this->ticketService->addTicketCustomFields($thread, $request->request->get('customFields'), $request->files->get('customFields'));                        
             }
             $this->addFlash('success', $this->translator->trans('Success ! Ticket has been created successfully.'));
 
