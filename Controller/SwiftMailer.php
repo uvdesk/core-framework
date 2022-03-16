@@ -11,6 +11,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\Event\ConfigurationUpdatedEven
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer as SwiftMailerService;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class SwiftMailer extends AbstractController
 {
@@ -62,7 +63,7 @@ class SwiftMailer extends AbstractController
         return $this->render('@UVDeskCoreFramework//SwiftMailer//manageConfigurations.html.twig');
     }
 
-    public function updateMailerConfiguration($id, Request $request)
+    public function updateMailerConfiguration($id, Request $request, ContainerInterface $container)
     {
         $swiftmailerService = $this->swiftMailer;;
         $swiftmailerConfigurations = $swiftmailerService->parseSwiftMailerConfigurations();
@@ -88,7 +89,7 @@ class SwiftMailer extends AbstractController
             // Dispatch swiftmailer configuration updated event
             $event = new ConfigurationUpdatedEvent($swiftmailerConfiguration, $existingSwiftmailerConfiguration);
             
-            $this->get('uvdesk.core.event_dispatcher')->dispatch($event,ConfigurationUpdatedEvent::NAME);
+            $container->get('uvdesk.core.event_dispatcher')->dispatch($event, ConfigurationUpdatedEvent::NAME);
 
             // Updated swiftmailer configuration file
             $swiftmailerConfigurations[$index] = $swiftmailerConfiguration;            
