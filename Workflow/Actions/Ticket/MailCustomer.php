@@ -88,7 +88,7 @@ class MailCustomer extends WorkflowAction
                     }
 
                     if($thread->getCc() || $thread->getBcc() || $ticketCollaborators != null && count($ticketCollaborators) > 0) {
-                        self::sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message, $ticketCollaborators);
+                        self::sendCcBccMail($container, $entity, $thread, $subject, $attachments, $ticketCollaborators, $message);
                     }
                     
                 } else {
@@ -104,7 +104,7 @@ class MailCustomer extends WorkflowAction
         }
     }
 
-    public static function sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message = null, $ticketCollaborators)
+    public static function sendCcBccMail($container, $entity, $thread, $subject, $attachments, $ticketCollaborators, $message = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         $collabrator = array();

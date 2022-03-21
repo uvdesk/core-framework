@@ -116,7 +116,7 @@ class MailAgent extends WorkflowAction
                 }
                 
                 if(!empty($thread) && ($thread->getCc() || $thread->getBcc()) || $ticketCollaborators != null && count($ticketCollaborators) > 0) {
-                    self::sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message, $ticketCollaborators);
+                    self::sendCcBccMail($container, $entity, $thread, $subject, $attachments, $ticketCollaborators, $message);
                 }
             } else {
                 // Email Template/Emails Not Found. Disable Workflow/Prepared Response
@@ -166,7 +166,7 @@ class MailAgent extends WorkflowAction
         return array_filter($agentMails);
     }
     
-    public static function sendCcBccMail($container, $entity, $thread, $subject, $attachments, $message = null, $ticketCollaborators)
+    public static function sendCcBccMail($container, $entity, $thread, $subject, $attachments, $ticketCollaborators, $message = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         $collabrator = array();
