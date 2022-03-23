@@ -3,6 +3,145 @@ CHANGELOG for 1.0.x
 
 This changelog references any relevant changes introduced in 1.0 minor versions.
 
+* 1.0.17 (2021-10-27)
+    * **Misc. Updates:**
+        * **Compatibility with PHP 8.**
+        * **Background color of note updated to yellow for reply box.**
+        * **Saved reply search filter added and focus on search added.**
+        * **Added some default email templates.**
+        * **Ticket transfer functionality using workflow.**
+        * **Delete attachment from physical path.**
+
+    * **Bug Fixes:**
+        * **Issue #423:** When Choose format option in H1,h2 headings from customer and admin side so in admin and customer panel format is not showing properly bug
+        * **Issue #424:** When Set Status from admin side so customer side not showing bug.
+        * **Issue #425:** When Forward message from admin and agent side so mail format is not showing properly.
+        * **Issue #426:** In kudos is not able to team and source fields filter. 
+        * **Issue #428:** When I make manually template from workflow and email templates so collaborators name and email not showing in collaborator mail.
+        * **Issue #429:** when create workflow for new ticket generate so automatically assigned to agent bug.
+        * **Issue #430:** When create new agent with select new create set privileges and group so showing error bug Fixed.
+        * **Issue #432:** When I make manually template from workflow and email templates so manually templates create new ticket when coll. reply from mail side bug Fixed
+        * **Issue #433:** When create Note for customer reply so agent mail side showing note message instead of reply message.
+        * **Issue #435:** when collaborator reply from web and mail side so not going to mail to agent mail id regarding customer added a reply bug.
+        * **Issue #441:** when we use add a note for customer reply so not going to attachment in mail side of agent and collaborator side bug Fixed.
+        * **Issue #442:** When go to workflow and choose option Set Type As so here showing is Disabled Ticket Type bug
+        * **Issue #443:** When Ticket Assign to agent so not showing to these placeholders {%ticket.message%} {%ticket.threadMessage%} bug Fixed.
+        * **Issue #451:** When Unchecked Website status in branding section so showing frontend page from customer side instead of removing frontend page bug.
+        * **Issue #451:** When Unchecked Website status in branding section so showing frontend page from customer side instead of removing frontend page bug.
+        * **Issue #458:** When Unchecked Website status in branding section so showing frontend page from customer side instead of removing frontend page bug.
+
+* 1.0.16 (2021-08-23)
+    * **Misc. Updates:**
+        * **Flash Mesaage with a warning if swiftmailer is not setup or working with ticket create process**
+        * **Save password with encryption in swiftmailer.yaml for security**
+        * **Time stamp format correction for agent as well as for customer.**
+
+    * **Bug Fixes:**
+        * **Issue #383:** getting exception when filter kudos based on customer group
+        * **Issue #384:** broken image on kudos customer filter.
+        * **Issue #385:** customer image should be visible along with customer name in kudos grid.
+        * **Issue #386:** Collaborator name is coming wrong on ticket thread at agent ticket view.   
+        * **Issue #387:** Collaborator on email is coming wrong format.
+        * **Issue #388:** Users Image not displaying properly in Group and Team Section.
+        * **Issue #392:** Gmail Replies from admin gmail is not added in ticket thread of admin panel.
+        * **Issue #393:** Email format is not properly showing in CC and BCC Email.
+        * **Issue #394:** In Customer and Collaborator dashboard image not displaying of Admin Image.
+        * **Issue #396:** Agent Activity is not working properly from agent side.
+        * **Issue #397:** Translation is not showing properly in it(italian) language admin website and agent side view.
+        * **Issue #399:** Reply from collaborator gmail so collaborator name is not showing.
+        * **Issue #403:** Remove from customer side image so default image not showing in Tickets thread.
+        * **Issue #405:** Reply from Customer Side also added CC and BCC mails So Not going to mail CC and BCC mail id's.
+
+* 1.0.15 (2021-08-21)
+    * **Misc. Updates:**
+        * **Flash Mesaage with a warning if swiftmailer is not setup or working with ticket create process**
+        * **Save password with encryption in swiftmailer.yaml for security**
+        * **Time stamp format correction for agent as well as for customer.**
+
+    * **Bug Fixes:**
+        * **Issue #383:** getting exception when filter kudos based on customer group
+        * **Issue #384:** broken image on kudos customer filter.
+        * **Issue #385:** customer image should be visible along with customer name in kudos grid.
+        * **Issue #386:** Collaborator name is coming wrong on ticket thread at agent ticket view.   
+        * **Issue #387:** Collaborator on email is coming wrong format.
+        * **Issue #388:** Users Image not displaying properly in Group and Team Section.
+        * **Issue #392:** Gmail Replies from admin gmail is not added in ticket thread of admin panel.
+        * **Issue #393:** Email format is not properly showing in CC and BCC Email.
+        * **Issue #394:** In Customer and Collaborator dashboard image not displaying of Admin Image.
+        * **Issue #396:** Agent Activity is not working properly from agent side.
+        * **Issue #397:** Translation is not showing properly in it(italian) language admin website and agent side view.
+        * **Issue #399:** Reply from collaborator gmail so collaborator name is not showing.
+        * **Issue #403:** Remove from customer side image so default image not showing in Tickets thread.
+        * **Issue #405:** Reply from Customer Side also added CC and BCC mails So Not going to mail CC and BCC mail id's.
+
+* 1.0.14 (2021-06-19)
+    * **Misc. Updates:**
+        * **Add new feature under report section Agent Activity.**
+        * **Attachment download issues for some extension like docx.**
+        * **Italian language translation corrections.**
+
+    * **Bug Fixes:**
+        * **Issue #374:** {%ticket.customerEmail%} placeholder is not working with saved replies when apply on ticket.
+        * **Issue #373:** admin name is not coming in agent list drop down.
+        * **Issue #372:** Getting 404 on ticket view at agent panel if group is not added in ticket.
+        * **Issue #371:** getting exception when edit agent profile.
+        * **Issue #370:** Creating a new agent without activating creates zombie agent.
+        * **Issue #369:** exception when agent view activity section.
+        * **Issue #368:** member prefix or customer prefix value should be saved in database.
+        * **Issue #365:** broken agent images in report filter search bar.
+        * **Issue #363:** not able to filter group based on status.
+        * **Issue #362:** An exception has been thrown during the rendering of a template ("Class "1\BaseController" does not exist in C:\Program Files\Xampp\htdocs\uvdesk-community-v1.0.13\config/routes\../../src/Controller/ (which is being imported from "C:\Program Files\Xampp\htdocs\uvdesk-community-v1.0.13\config/routes/annotations.yaml"). Make sure annotations are installed and enabled.").
+
+* 1.0.13 (2021-04-02)
+    * **Misc. Updates:**
+        * **Last reply Field Added with ticket listing.**
+        * **reCAPTCHA setting option provided on Admin panel.**
+        * **Strong password added (for security purpose) for all places from where user create and update password.**
+        * **Current version updated in dashboard in footer so that user have idea which version he is using currently.**
+        * **Fancy style added for Blockquote https://prnt.sc/xle8c4**
+        * **Added option for automatically label assign to ticket from workflow.**
+        * **All latest version links updated for jquery, backbone and underscore js.**
+
+    * **Bug Fixes:**
+        * **Issue #313:** user.service not found exception.
+        * **Issue #317:** Exception showing when view agent list.
+        * **Issue #318:** getting exception when redirect to ticket view page.
+        * **Issue #319:** exception when creating swiftmailer.
+        * **Issue #320:** showing error while save email settings.
+        * **Issue #321:** display flash message when save branding theme.
+        * **Issue #322:** error on console when add new email template.
+        * **Issue #323:** getting exception when submitting a reply to ticket.
+        * **Issue #325:** getting error when save agent profile.
+        * **Issue #326:** ticket quick view icon is not working.
+        * **Issue #327:** customer profile image is broken in filter.
+        * **Issue #329:** all the apps are visible to agent in search even they don't have privilege to manage.
+        * **Issue #330:** Not able to remove assigned group/team from saved replies.
+        * **Issue #331:** unnecessary privilege added.
+        * **Issue #332:** getting exception when agent update customer profile.
+        * **Issue #334:** Email validation failure.
+        * **Issue #337:** Asking for ability to set color of all text on homepage..
+        * **Issue #338:** EmailService: add text/plain version of the email content.
+        * **Issue #340:** assign ticket are not visible to agent in my ticket section.
+        * **Issue #343:** saved reply is getting removed from the agent panel.
+        * **Issue #349:** duplicate customer routes are visible on search at admin panel.
+        * **Issue #350:** CC/BCC user should only receive ticket message in email notification.
+        * **Issue #352:** Update jQuery to update to 3.6.0.
+        * **Issue #354:** ReCaptcha should be mandatory on member login.
+        * **Issue #356:** Last reply option is missing Asset Visibility.
+        * **Issue #357:** getting error when view ticket which are fetched from email.
+        * **Issue #360:** Agent should not able to manage recaptcha settings.
+
+* 1.0.12 (2020-07-20)
+    * **Misc. Updates:**
+        * **Added mailbox filter for ticket so that we get to know from which mailbox ticket came from.**
+        * **Ticket type sort alphabetically**
+        
+    * **Bug Fixes:**
+        * **Issue #304:** getting exception when update status in ticket set as workflow condition.
+        * **Issue #301:** My ticket's section ticket status are not clickable on agent panel
+        * **Issue #306:** Incorrect email headers.
+        * **Issue #299:** getting exception when drag & drop image on ticket reply editor box.
+        * **Issue #302:** getting error on agent panel when filter ticket by customer name
 
 * 1.0.11 (2020-05-22)
     * **Bug Fixes:**
