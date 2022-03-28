@@ -42,23 +42,26 @@ class Authentication extends AbstractController
     {
         if (true === $request->isXmlHttpRequest()) {
             $output = array();
-            $projectDir = $this->kernel->getProjectDir();
-            $output = shell_exec('php '.$projectDir.'/bin/console cache:clear');
-            $processId = (int) $output[0];
-
-            $responseContent = [
-                'alertClass' => 'success',
-                'alertMessage' => $this->translator->trans('Success ! Project cache cleared successfully.')
-            ];
-            return new Response(json_encode($responseContent), 200, ['Content-Type' => 'application/json']);
+            try {
+                $projectDir = $this->kernel->getProjectDir();
+                $output = shell_exec('php -n -s '.$projectDir.'/bin/console cache:clear');
+                if ($output != null) {
+                    $responseContent = [
+                        'alertClass' => 'success',
+                        'alertMessage' => $this->translator->trans('Success ! Project cache cleared successfully.')
+                    ];
+                    return new Response(json_encode($responseContent), 404, ['Content-Type' => 'application/json']);
+                }
+            } catch (\Exception $e) {
+                
+            }
         }
-
         $responseContent = [
             'alertClass' => 'warning',
             'alertMessage' => $this->translator->trans('Error! Something went wrong.')
         ];
-
-        return new Response(json_encode($responseContent), 404, ['Content-Type' => 'application/json']);
+        
+        return new Response(json_encode($responseContent), 200, ['Content-Type' => 'application/json']);
     }
 
     public function login(Request $request)
