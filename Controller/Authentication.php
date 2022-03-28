@@ -50,7 +50,7 @@ class Authentication extends AbstractController
                         'alertClass' => 'success',
                         'alertMessage' => $this->translator->trans('Success ! Project cache cleared successfully.')
                     ];
-                    return new Response(json_encode($responseContent), 404, ['Content-Type' => 'application/json']);
+                    return new Response(json_encode($responseContent), 200, ['Content-Type' => 'application/json']);
                 }
             } catch (\Exception $e) {
                 
@@ -61,7 +61,7 @@ class Authentication extends AbstractController
             'alertMessage' => $this->translator->trans('Error! Something went wrong.')
         ];
         
-        return new Response(json_encode($responseContent), 200, ['Content-Type' => 'application/json']);
+        return new Response(json_encode($responseContent), 404, ['Content-Type' => 'application/json']);
     }
 
     public function login(Request $request)
