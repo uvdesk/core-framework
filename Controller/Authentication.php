@@ -18,6 +18,9 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\ReCaptchaService;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 
 class Authentication extends AbstractController
 {
@@ -40,25 +43,37 @@ class Authentication extends AbstractController
 
     public function clearProjectCache(Request $request)
     {
-        if (true === $request->isXmlHttpRequest()) {
-            $output = array();
-            $projectDir = $this->kernel->getProjectDir();
-            $output = shell_exec('php '.$projectDir.'/bin/console cache:clear');
-            $processId = (int) $output[0];
+        $application = new Application($this->kernel);
+        $application->setAutoExit(false);
+        $input = new ArrayInput([
+            'command' => 'cache:clear'
+        ]);
+        $code = 0;
 
+        $output = new BufferedOutput();
+        try {
+            $application->run($input, $output);
+        } catch (\Exception $e) {
+           $output = null;
+        }
+
+        if ($output != null && !empty($output->fetch())) {
             $responseContent = [
                 'alertClass' => 'success',
                 'alertMessage' => $this->translator->trans('Success ! Project cache cleared successfully.')
             ];
-            return new Response(json_encode($responseContent), 200, ['Content-Type' => 'application/json']);
+
+            $code = 200;
+        } else {
+            $responseContent = [
+                'alertClass' => 'warning',
+                'alertMessage' => $this->translator->trans('Error! Something went wrong.')
+            ];
+
+            $code = 404;
         }
 
-        $responseContent = [
-            'alertClass' => 'warning',
-            'alertMessage' => $this->translator->trans('Error! Something went wrong.')
-        ];
-
-        return new Response(json_encode($responseContent), 404, ['Content-Type' => 'application/json']);
+        return new Response(json_encode($responseContent), $code, ['Content-Type' => 'application/json']);   
     }
 
     public function login(Request $request)
