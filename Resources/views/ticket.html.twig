@@ -565,7 +565,7 @@
                                     </div>
 
                                     <ul class="uv-search-list type" data-action="type">
-                                        {% for type in ticketTypeCollection %}
+                                        {% for type in ticket_service.getTypes()  %}
                                             <li data-index="{{ type.id }}"><a href="#">{{ type.name }}</a></li>
                                         {% endfor %}
                                     </ul>
