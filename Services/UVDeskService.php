@@ -54,6 +54,11 @@ class UVDeskService
             'da' => 'Danish'
         ];
     }
+
+    public function getUrlPrefix()
+	{
+		return $this->container->getParameter("uvdesk_site_path.member_prefix"); 
+    }
     
     public function getTimezones()
     {
