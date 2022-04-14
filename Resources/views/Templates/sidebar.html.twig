@@ -85,4 +85,39 @@
         
 		{{ uvdesk_extensibles.getRegisteredComponent('Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\Dashboard').getNavigationTemplate().render()|raw }}
 	</ul>
+
+    <ul class="uv-menubar uv-language">
+		<li>
+			<a class="uv-cursor">
+				<span style="position: relative">
+					<div class="uv-profile uv-dropdown-other lang-wrapper">
+						<span class="uv-icon uv-skin-svg">
+							<svg xmlns="http://www.w3.org/2000/svg"
+								xmlns:xlink="http://www.w3.org/1999/xlink"
+								width="20px" height="20px">
+								<path fill-rule="evenodd"  fill="rgb(158, 158, 158)"
+								d="M13.076,5.199 L11.543,3.000 L14.505,3.000 L13.076,5.199 ZM12.000,12.000 L12.000,8.763 L13.105,7.061 L15.161,10.010 L16.001,9.395 L13.717,6.119 L15.744,3.000 L17.000,3.000 L17.000,2.000 L15.174,2.000 L15.161,1.990 L15.154,2.000 L13.000,2.000 L13.000,1.000 L12.000,1.000 L12.000,2.000 L10.846,2.000 L10.839,1.990 L10.826,2.000 L9.000,2.000 L9.000,3.000 L10.275,3.000 L12.464,6.141 L11.906,7.000 L7.000,7.000 L7.000,-0.000 L19.000,-0.000 L19.000,12.000 L12.000,12.000 ZM11.000,8.394 L10.999,8.395 L11.000,8.396 L11.000,19.000 L-0.000,19.000 L-0.000,8.000 L11.000,8.000 L11.000,8.394 ZM6.288,9.992 L4.773,9.992 L2.005,16.994 L3.458,16.994 L4.208,15.017 L6.842,15.017 L7.587,16.994 L9.014,16.994 L6.288,9.992 ZM5.538,11.205 C5.555,11.266 5.872,12.215 6.488,14.052 L4.557,14.052 L5.538,11.205 ZM15.000,13.000 L17.000,13.000 L17.000,16.025 L15.000,18.000 C15.000,18.000 14.983,18.000 14.951,18.000 C14.564,18.000 12.000,18.000 12.000,18.000 L12.000,16.000 L15.000,16.000 L15.000,13.000 Z"/>
+							</svg>
+						</span>
+						<span class="uv-menu-item">
+							<span class="" style="color: #BABABA;font-weight: normal;">{{ 'Language'|trans }}: </span>
+							<span style="text-transform:capitalize;color: black;font-weight: normal;">{{ uvdesk_service.getLocales()[app.request.locale] is defined ? uvdesk_service.getLocales()[app.request.locale] : app.request.locale }}</span>
+							<span aria-hidden="true" style="color: rgb(155, 155, 155);">▼</span>
+						</span>
+					</div>
+					<div class="uv-dropdown-list uv-bottom-left">
+						<div class="uv-dropdown-container">
+							<ul>
+								{% for localeCode, localeName in uvdesk_service.getLocales() %}
+									<li data-value="{{ uvdesk_service.getLocaleUrl(localeCode) }}" {% if app.request.locale == localeCode %}class="uv-active"{% endif %} onclick="window.location = this.getAttribute('data-value')">
+										{{ localeName }}
+									</li>
+								{% endfor %}
+							</ul>
+						</div>
+					</div>
+				</span>
+			</a>
+		</li>
+	</ul>
 </div>

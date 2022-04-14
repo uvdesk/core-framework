@@ -41,23 +41,74 @@ class UVDeskService
 		$this->entityManager = $entityManager;
 	}
 
-	public function getLocales()
-	{
-		return [
-            'en' => 'English',
-            'fr' => 'French',
-            'it' => 'Italian',
-            'ar' => 'Arabic',
-            'de' => 'German',
-            'es' => 'Spanish',
-            'tr' => 'Turkish',
-            'da' => 'Danish'
+    public function updatesLocales($locales)
+    {  
+        $filePath = $this->container->get('kernel')->getProjectDir() . '/config/packages/uvdesk.yaml';
+
+        $updatesLocales = array();
+        foreach ($locales as $key => $value) {
+            $updatesLocales[] = $key;
+        }
+
+        $localesForUpdate = implode('|',$updatesLocales);
+
+        // get file content and index
+        $file = file($filePath);
+        foreach ($file as $index => $content) {
+            if (false !== strpos($content, 'app_locales')) {
+                list($helpdesk_panel_locales, $helpdesk_panel_text) = array($index, $content);
+            }
+        }
+
+        // save updated data in a variable ($updatedFileContent)
+        $updatedFileContent = $file;
+
+        $updatedlocales = (null !== $helpdesk_panel_locales) ? substr($helpdesk_panel_text, 0, strpos($helpdesk_panel_text, 'app_locales') + strlen('app_locales: ')) . $localesForUpdate . PHP_EOL: '';
+
+        $updatedFileContent[$helpdesk_panel_locales] = $updatedlocales;
+
+        // flush updated content in file
+        $status = file_put_contents($filePath, $updatedFileContent);
+
+        return true;
+    }
+
+    public function getLocalesList() 
+    {
+        $translator = $this->container->get('translator');
+        return  [
+            'en' => $translator->trans("English"),
+            'fr' => $translator->trans("French"),
+            'it' => $translator->trans("Italian"),
+            'ar' => $translator->trans("Arabic"),
+            'de' => $translator->trans("German"),
+            'es' => $translator->trans("Spanish"),
+            'tr' => $translator->trans("Turkish"),
+            'da' => $translator->trans("Danish"),
         ];
     }
 
-    public function getUrlPrefix()
-	{
-		return $this->container->getParameter("uvdesk_site_path.member_prefix"); 
+    public function getActiveLocales() 
+    {
+        $localesList = $this->getLocalesList();
+        $activeLocales = $this->container->getParameter("app_locales");
+        $explodeActiveLocales = explode("|",$activeLocales);
+
+        return $explodeActiveLocales;
+    }
+
+    public function getLocales() 
+    {
+        $localesList = $this->getLocalesList();
+        $explodeActiveLocales = $this->getActiveLocales();
+
+        $listingActiveLocales = array();
+
+        foreach ($explodeActiveLocales as $key => $value) {
+            $listingActiveLocales[$value] = $localesList[$value];
+        }
+
+        return $listingActiveLocales;
     }
     
     public function getTimezones()
@@ -345,7 +396,7 @@ class UVDeskService
             'd-M G:i' => 'd-M G:i (15-Jan 13:00)',
             'd-M h:ia' => 'd-M h:ia (15-Jan 01:00pm)',
             'D-m G:i' => 'D-m G:i (Mon-01 13:00)',
-            'D-m h:ia' => 'D-m h:ia (Mon-01 01:00pm)',
+            'Y-m-d H:i:sa' => 'Y-m-d H:i:s (1991-01-15 01:00:30pm)',
         );
     }
 }
