@@ -3,6 +3,9 @@ CHANGELOG for 1.1.x
 
 This changelog references any relevant changes introduced in 1.1 minor versions.
 
+* 1.1.x
+    * PR #192: Update BootstrappingProject.php (WebmaticMerseburg)
+
 * 1.1.0 (2022-03-23)
     * Feature: Improved compatibility with PHP 8 and Symfony 5 components
     * PR #530: Updated ticket type and saved replies form validation criterias (vipin-shrivastava)
