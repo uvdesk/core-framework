@@ -2,7 +2,6 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer;
 
-use Doctrine\ORM\EntityManager;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
