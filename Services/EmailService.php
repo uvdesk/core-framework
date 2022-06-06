@@ -411,7 +411,7 @@ class EmailService
         $placeholderParams = [
             'ticket.id' => $ticket->getId(),
             'ticket.subject' => $ticket->getSubject(),
-            'ticket.message' => count($ticket->getThreads()) > 0 ? preg_replace("/<img[^>]+\>/i", "", $ticket->getThreads()->get(0)->getMessage()) : '',
+            'ticket.message' => count($ticket->getThreads()) > 0 ? preg_replace("/<img[^>]+\>/i", "", $ticket->getThreads()->get(0)->getMessage()) : preg_replace("/<img[^>]+\>/i", "", $this->container->get('ticket.service')->getInitialThread($ticket->getId())->getMessage()),
             'ticket.threadMessage' => $this->threadMessage($ticket),
             'ticket.tags' => implode(',', $supportTags),
             'ticket.source' => ucfirst($ticket->getSource()),
