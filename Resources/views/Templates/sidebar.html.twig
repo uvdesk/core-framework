@@ -32,7 +32,7 @@
         padding: 17px 18px;
     }
 
-    .uv-logo-image {
+    {# .uv-logo-image {
 		height: 50px;
 		width: 50px;	
 	}
@@ -40,7 +40,27 @@
 	.hamburger-click-area{
 		width: 30px;
 		height: 30px;
-	}
+	} #}
+
+    .uv-wrapper-padding  {
+        padding-left: 300px !important;
+    }
+
+    .uv-wrapper-gap {
+        padding-left: 232px !important;
+    }
+
+    @media screen and (min-width: 1400px) {
+        .uv-sidebar .uv-soft-top a.uv-logo {
+            display: none;
+            margin: 10px 7px;
+        }
+
+        .uv-sidebar .uv-soft-top .uv-hamburger {
+            display: block;
+            margin: 24px 20px;
+        }
+    }
 
     @media only screen and (max-width: 900px) {
         .uv-sidebar ul.uv-menubar.uv-language li a {
@@ -53,10 +73,13 @@
 	<script type="text/javascript">
 		document.addEventListener("DOMContentLoaded", function(e) {
 			window.dispatchEvent(new Event('resize'));
-		    var uvView = document.querySelector(".uv-view");
-			if(uvView && uvView.offsetWidth <= 1340) {
-				document.cookie = "uv-sidebar-status=1; expires=Wed, 01 Jan 2020 00:00:00 GMT;path=/";
-			}
+            $(window).resize(function() {
+                var uvView = $(window).width();
+                if(uvView && uvView >= 1340) {
+                    console.log(uvView);
+				    document.cookie = "uv-sidebar-status=1; expires=Wed, 01 Jan 2020 00:00:00 GMT;path=/";
+			    }
+            });
 		});
 	</script>
 {% endif %}
@@ -122,3 +145,66 @@
 		</li>
 	</ul>
 </div>
+
+	<script type="text/javascript">
+        var uvView = $(window).width();
+        if(uvView && uvView >= 1340) {
+            var uvHamburger =  document.querySelector(".uv-hamburger");
+            var uvWrapper =  document.querySelector(".uv-paper");
+            var uvViewT =  document.querySelector(".uv-view");
+
+            console.log(uvWrapper );
+            uvHamburger.addEventListener("click", () => {
+                var uvSideBar = document.querySelector(".uv-logo");
+                var uvSoftTop = document.querySelector(".uv-soft-top");
+                var uvOpenHamburger = document.querySelector(".open-hamburger");
+                if (uvOpenHamburger) {
+                    if (uvViewT)
+                    	uvViewT.classList.add('open-uvt');
+
+                    uvHamburger.classList.remove('open-hamburger');
+                    uvHamburger.style.margin = '24px 20px'; 
+                    uvSideBar.style.display = 'none';
+                    uvSideBar.style.margin = '10px 7px'; 
+                    uvSoftTop.style.display = 'block';
+                } else {
+					if (uvViewT)
+                    	uvViewT.classList.add('open-uvt');
+
+                    uvHamburger.classList.add('open-hamburger');
+                    uvHamburger.style.margin = '24px 7px'; 
+                    uvSideBar.style.display = 'block';
+                    uvSideBar.style.margin = '10px 18px'; 
+                    uvSoftTop.style.display = 'flex';
+
+                }
+            }); 
+        }
+
+        {# $(window).on('load', function() {
+            var uvView = $(window).width();
+            if(uvView && uvView > 1340) {
+                var uvHamburger =  document.querySelector(".uv-hamburger");
+                uvHamburger.addEventListener("click", () => {
+                    var uvSideBar = document.querySelector(".uv-sidebar");
+                    var uvSideBarActive = uvSideBar.classList.add('uv-sidebar-active'); 
+                    var uvLogo = document.querySelector(".uv-logo");
+                    uvLogo.style.display = 'none';
+                    uvSideBarActive.style.overflow = 'visible';
+                    uvSideBarActive.style.width = '60px';
+                    
+                }); 
+            }
+        }); #}
+
+        $(window).resize(function() {
+        var uvView = $(window).width();
+        if(uvView && uvView <= 1340) {
+            var uvSideBar = document.querySelector(".uv-logo");
+            var uvOpenHamburger = document.querySelector(".open-hamburger");
+            if (uvOpenHamburger && !uvOpenHamburger.is(":hidden")) {
+                uvSideBar.style.display = 'block';
+            }
+        }
+    });
+	</script>
