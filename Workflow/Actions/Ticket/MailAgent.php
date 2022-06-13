@@ -82,11 +82,17 @@ class MailAgent extends WorkflowAction
                     $emailHeaders['References'] = $entity->getReferenceIds();
                 }
 
+                if ($thread == null) {
+                    $ticketId = $entity->getId();
+                    $thread = $container->get('ticket.service')->getInitialThread("$ticketId");
+                }
+
                 // Only process attachments if required in the message body
                 // @TODO: Revist -> Maybe we should always include attachments if they are provided??
                 $createdThread = isset($entity->createdThread) && $entity->createdThread->getThreadType() != "note" ? $entity->createdThread : (isset($entity->currentThread) ? $entity->currentThread : "") ;
                 $attachments = [];
-                if (!empty($createdThread) && (strpos($emailTemplate->getMessage(), '{%ticket.attachments%}') !== false || strpos($emailTemplate->getMessage(), '{% ticket.attachments %}') !== false)) {
+                if ((!empty($createdThread) || !empty($thread)) && (strpos($emailTemplate->getMessage(), '{%ticket.attachments%}') !== false || strpos($emailTemplate->getMessage(), '{% ticket.attachments %}') !== false)) {
+                    $createdThread = !empty($createdThread) ? $createdThread : $thread;
                     $attachments = array_map(function($attachment) use ($container) { 
                         return str_replace('//', '/', $container->get('kernel')->getProjectDir() . "/public" . $attachment->getPath());
                     }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:Attachment')->findByThread($createdThread));
