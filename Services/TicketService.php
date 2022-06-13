@@ -1891,4 +1891,17 @@ class TicketService
 
         return $qb->getQuery()->getArrayResult();
     }
+
+    // return attachemnt for initial thread
+    public function getInitialThread($ticketId)
+    {
+        $firstThread = null;
+        $intialThread = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Thread')->findBy(['ticket'=>$ticketId]);
+        foreach ($intialThread as $key => $value) {
+            if($value->getThreadType() == "create"){
+                $firstThread = $value;
+            }
+        }
+        return $firstThread;
+    }
 }
