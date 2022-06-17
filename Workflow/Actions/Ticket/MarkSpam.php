@@ -6,6 +6,7 @@ use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
 
 class MarkSpam extends WorkflowAction
 {
@@ -33,7 +34,7 @@ class MarkSpam extends WorkflowAction
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         if($entity instanceof Ticket) {
-            $status = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->find(6);
+            $status = $entityManager->getRepository(TicketStatus::class)->find(6);
             $entity->setStatus($status);
             $entityManager->persist($entity);
             $entityManager->flush();

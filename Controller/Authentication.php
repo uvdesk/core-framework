@@ -96,8 +96,8 @@ class Authentication extends AbstractController
                 $form->handleRequest($request);
                 
                 if ($form->isValid()) {
-                    $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:User');
-                    $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($form->getData()->getEmail());
+                    $repository = $this->getDoctrine()->getRepository(User::class);
+                    $user = $entityManager->getRepository(User::class)->findOneByEmail($form->getData()->getEmail());
 
                     if (!empty($user)) {
                         // Trigger agent forgot password event
@@ -123,8 +123,8 @@ class Authentication extends AbstractController
     public function updateCredentials($email, $verificationCode, Request $request, UserPasswordEncoderInterface $encoder)
     {
         $entityManager = $this->getDoctrine()->getManager();
-        $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($email);
-        $lastupdatedInstance = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->LastupdatedRole($user);
+        $user = $entityManager->getRepository(User::class)->findOneByEmail($email);
+        $lastupdatedInstance = $entityManager->getRepository(User::class)->LastupdatedRole($user);
         
         if (empty($user) || $user->getVerificationCode() != $verificationCode) {
             $this->addFlash('success', $this->translator->trans('You have already update password using this link if you wish to change password again click on forget password link here from login page'));

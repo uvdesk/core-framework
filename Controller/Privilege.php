@@ -72,7 +72,7 @@ class Privilege extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
         $request = $this->get('request_stack')->getCurrentRequest();
 
-        $supportPrivilege = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportPrivilege')->findOneById($supportPrivilegeId);
+        $supportPrivilege = $entityManager->getRepository(SupportPrivilege::class)->findOneById($supportPrivilegeId);
 
         if (empty($supportPrivilege)) {
             $this->noResultFound();

@@ -5,6 +5,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportLabel;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class UpdateLabel extends WorkflowAction
@@ -49,7 +50,7 @@ class UpdateLabel extends WorkflowAction
                 }
             }
             if(!$isAlreadyAdded) {
-                $label = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportLabel')->find($value);
+                $label = $entityManager->getRepository(SupportLabel::class)->find($value);
                 if($label) {
                     $entity->addSupportLabel($label);
                     $entityManager->persist($entity);

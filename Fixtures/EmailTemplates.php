@@ -6,6 +6,7 @@ use Doctrine\Persistence\ObjectManager;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Doctrine\Bundle\FixturesBundle\Fixture as DoctrineFixture;
 use Webkul\UVDesk\CoreFrameworkBundle\Templates\Email\Resources as CoreEmailTemplates;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\EmailTemplates as CoreBundleEmailTemplates;
 
 class EmailTemplates extends DoctrineFixture
 {
@@ -25,7 +26,7 @@ class EmailTemplates extends DoctrineFixture
 
     public function load(ObjectManager $entityManager)
     {
-        $emailTemplateCollection = $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findAll();
+        $emailTemplateCollection = $entityManager->getRepository(CoreBundleEmailTemplates::class)->findAll();
 
         if (empty($emailTemplateCollection)) {
             foreach (self::$seeds as $coreEmailTemplate) {

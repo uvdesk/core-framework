@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bundle\SecurityBundle\Security\FirewallMap;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -44,8 +45,8 @@ class UserProvider implements UserProviderInterface
         } else {
             $queryBuilder = $this->entityManager->createQueryBuilder()
             ->select('user, userInstance')
-            ->from('UVDeskCoreFrameworkBundle:User', 'user')
-            ->leftJoin('UVDeskCoreFrameworkBundle:UserInstance', 'userInstance', 'WITH', 'user.id = userInstance.user')
+            ->from(User::class, 'user')
+            ->leftJoin(UserInstance::class, 'userInstance', 'WITH', 'user.id = userInstance.user')
             ->leftJoin('userInstance.supportRole', 'supportRole')
             ->where('user.email = :email')->setParameter('email', trim($username))
             ->andWhere('userInstance.isActive = :isActive')->setParameter('isActive', true)

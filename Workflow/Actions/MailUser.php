@@ -7,6 +7,7 @@ use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\EmailTemplates;
 
 class MailUser extends WorkflowAction
 {
@@ -34,7 +35,7 @@ class MailUser extends WorkflowAction
                 'id' => $emailTemplate->getId(),
                 'name' => $emailTemplate->getName(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findAll());
+        }, $entityManager->getRepository(EmailTemplates::class)->findAll());
     }
 
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
@@ -43,7 +44,7 @@ class MailUser extends WorkflowAction
 
         switch (true) {
             case $entity instanceof CoreEntities\User:
-                $emailTemplate = $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findOneById($value);
+                $emailTemplate = $entityManager->getRepository(EmailTemplates::class)->findOneById($value);
 
                 if (empty($emailTemplate)) {
                     // @TODO: Send default email template

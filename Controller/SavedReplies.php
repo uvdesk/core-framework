@@ -4,6 +4,9 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedReplies as CoreBundleSavedReplies;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Form as CoreFrameworkBundleForms;
@@ -81,7 +84,7 @@ class SavedReplies extends AbstractController
 
             foreach($groups as $key => $groupId) {
                 if ($groupId) {
-                    $group = $em->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')->findOneBy([ 'id' => $groupId ]);
+                    $group = $em->getRepository(SupportGroup::class)->findOneBy([ 'id' => $groupId ]);
 
                     if ($group && (empty($previousGroupIds) || !in_array($groupId, $previousGroupIds))) {
                         $template->addSupportGroup($group);
@@ -107,7 +110,7 @@ class SavedReplies extends AbstractController
 
             foreach ($teams as $key => $teamId) {
                 if ($teamId) {
-                    $team = $em->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')->findOneBy([ 'id' => $teamId ]);
+                    $team = $em->getRepository(SupportTeam::class)->findOneBy([ 'id' => $teamId ]);
 
                     if ($team && (empty($previousTeamIds) || !in_array($teamId, $previousTeamIds))) {
                         $template->addSupportTeam($team);
@@ -143,7 +146,7 @@ class SavedReplies extends AbstractController
         }
 
         $entityManager = $this->getDoctrine()->getManager();
-        $savedReplyRepository = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SavedReplies');
+        $savedReplyRepository = $entityManager->getRepository(CoreBundleSavedReplies::class);
 
         if ($request->getMethod() == 'GET') {
             $responseContent = $savedReplyRepository->getSavedReplies($request->query, $container);
