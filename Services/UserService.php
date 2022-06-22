@@ -679,7 +679,7 @@ class UserService
     public function getWebsiteView()
     {
         $website = $this->entityManager->getRepository(Website::class)->findOneBy(['code'=>'knowledgebase']);
-        $layout  = $this->entityManager->getRepository('UVDeskSupportCenterBundle:KnowledgebaseWebsite')->findOneBy(['website'=>$website->getId()]);
+        $layout  = $this->entityManager->getRepository(KnowledgebaseWebsite::class)->findOneBy(['website'=>$website->getId()]);
       
         $homepageContent = $layout->getHomepageContent();
         return (!empty($homepageContent)) ? $homepageContent . 'View' : 'masonryView';

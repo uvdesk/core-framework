@@ -36,6 +36,7 @@ use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity;
 use Webkul\UVDesk\MailboxBundle\Utils\Imap\Configuration as ImapConfiguration;
 use Symfony\Component\Filesystem\Filesystem;
 use Webkul\UVDesk\SupportCenterBundle\Entity\Article;
+use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
 use Webkul\UVDesk\AutomationBundle\Entity\PreparedResponses;
 
 class TicketService
@@ -1688,7 +1689,7 @@ class TicketService
     {
         $flag = false;
         $email = strtolower($email);
-        $knowlegeBaseWebsite = $this->entityManager->getRepository('UVDeskSupportCenterBundle:KnowledgebaseWebsite')->findOneBy(['website' => $website->getId(), 'isActive' => 1]);
+        $knowlegeBaseWebsite = $this->entityManager->getRepository(KnowledgebaseWebsite::class)->findOneBy(['website' => $website->getId(), 'isActive' => 1]);
         $list = $this->container->get('user.service')->getWebsiteSpamDetails($knowlegeBaseWebsite);
 
         // Blacklist
