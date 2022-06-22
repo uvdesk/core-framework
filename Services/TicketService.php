@@ -35,6 +35,8 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity;
 use Webkul\UVDesk\MailboxBundle\Utils\Imap\Configuration as ImapConfiguration;
 use Symfony\Component\Filesystem\Filesystem;
+use Webkul\UVDesk\SupportCenterBundle\Entity\Article;
+use Webkul\UVDesk\AutomationBundle\Entity\PreparedResponses;
 
 class TicketService
 {
@@ -1128,7 +1130,7 @@ class TicketService
         $paginationData['url'] = '#' . $this->container->get('uvdesk.service')->buildPaginationQuery($paginationParams);
 
         if (in_array('UVDeskSupportCenterBundle', array_keys($this->container->getParameter('kernel.bundles')))) {
-            $articleRepository = $this->entityManager->getRepository('UVDeskSupportCenterBundle:Article');
+            $articleRepository = $this->entityManager->getRepository(Article::class);
 
             return [
                 'tags' => array_map(function ($supportTag) use ($articleRepository) {
@@ -1394,7 +1396,7 @@ class TicketService
         $teamIds = []; 
         $userId = $this->container->get('user.service')->getCurrentUser()->getAgentInstance()->getId();
 
-        $preparedResponseRepo = $this->entityManager->getRepository('UVDeskAutomationBundle:PreparedResponses')->findAll();
+        $preparedResponseRepo = $this->entityManager->getRepository(PreparedResponses::class)->findAll();
 
         foreach ($preparedResponseRepo as $pr) {
             if ($userId == $pr->getUser()->getId()) {
@@ -1452,7 +1454,7 @@ class TicketService
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('DISTINCT mw')
-            ->from('UVDeskAutomationBundle:PreparedResponses', 'mw')
+            ->from(PreparedResponses::class, 'mw')
             ->where('mw.status = 1')
             ->andWhere('mw.id IN (:ids)')
             ->setParameter('ids', $preparedResponseIds);

@@ -30,6 +30,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\EmailService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\SupportCenterBundle\Entity\ArticleTags;
 
 class TicketXHR extends AbstractController
 {
@@ -836,7 +837,7 @@ class TicketXHR extends AbstractController
         } elseif($request->getMethod() == "DELETE") {
             $tag = $em->getRepository(Tag::class)->findOneBy(array('id' => $request->attributes->get('id')));
             if($tag) {
-                $articles = $em->getRepository('UVDeskSupportCenterBundle:ArticleTags')->findOneBy(array('tagId' => $tag->getId()));
+                $articles = $em->getRepository(ArticleTags::class)->findOneBy(array('tagId' => $tag->getId()));
                 if($articles)
                     foreach ($articles as $entry) {
                         $em->remove($entry);

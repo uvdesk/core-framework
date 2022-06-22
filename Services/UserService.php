@@ -23,6 +23,7 @@ use Symfony\Component\Translation\Translator;
 use Symfony\Component\Translation\Loader\YamlFileLoader;
 use Twig\Environment as TwigEnvironment;
 use Symfony\Component\Filesystem\Filesystem as Fileservice;
+use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
 
 class UserService
 {
@@ -527,11 +528,11 @@ class UserService
                 'isActive' => 1,
             ];
         }
-
+        
         // find current user from session(admin or customer)
         $em = $this->entityManager;
         $websiteRepo = $em->getRepository(Website::class);
-        $configurationRepo = $em->getRepository('UVDeskSupportCenterBundle:KnowledgebaseWebsite');
+        $configurationRepo = $em->getRepository(KnowledgebaseWebsite::class);
 
         $website = $websiteRepo->findOneByCode($code);
         if ($website)

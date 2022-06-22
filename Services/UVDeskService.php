@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
 
 class UVDeskService
 {
@@ -248,7 +249,7 @@ class UVDeskService
 
     public function getActiveConfiguration($websiteId)
     {
-        $configurationRepo = $this->entityManager->getRepository('UVDeskSupportCenterBundle:KnowledgebaseWebsite');
+        $configurationRepo = $this->entityManager->getRepository(KnowledgebaseWebsite::class);
         $configuration = $configurationRepo->findOneBy(['website' => $websiteId, 'isActive' => 1]);
 
         return $configuration;
