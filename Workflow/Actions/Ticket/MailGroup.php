@@ -4,8 +4,10 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntites;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\EmailTemplates;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
 
 class MailGroup extends WorkflowAction
 {
@@ -33,7 +35,7 @@ class MailGroup extends WorkflowAction
                 'id' => $emailTemplate->getId(),
                 'name' => $emailTemplate->getName(),
             ];
-        }, $entityManager->getRepository(CoreEntites\EmailTemplates::class)->findAll());
+        }, $entityManager->getRepository(EmailTemplates::class)->findAll());
 
         $groupCollection = array_map(function ($supportGroup) {
             return [
@@ -56,7 +58,7 @@ class MailGroup extends WorkflowAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        $emailTemplate = $entityManager->getRepository(CoreEntites\EmailTemplates::class)->findOneById($value['value']);
+        $emailTemplate = $entityManager->getRepository(EmailTemplates::class)->findOneById($value['value']);
         
         if($entity instanceof Ticket && $emailTemplate) {
             $mailData = array();
@@ -70,7 +72,7 @@ class MailGroup extends WorkflowAction
             if (!empty($createdThread) && (strpos($emailTemplate->getMessage(), '{%ticket.attachments%}') !== false || strpos($emailTemplate->getMessage(), '{% ticket.attachments %}') !== false)) {
                 $attachments = array_map(function($attachment) use ($container) { 
                     return str_replace('//', '/', $container->get('kernel')->getProjectDir() . "/public" . $attachment->getPath());
-                }, $entityManager->getRepository(CoreEntites\Attachment::class)->findByThread($createdThread));
+                }, $entityManager->getRepository(Attachment::class)->findByThread($createdThread));
             }
             
             $to = array();

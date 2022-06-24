@@ -2,9 +2,10 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
-use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntites;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedFilters;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
@@ -35,7 +36,7 @@ class AccountXHR extends AbstractController
         }
 
         if (true === $request->isXmlHttpRequest()) {
-            $userRepository = $this->getDoctrine()->getRepository(CoreEntites\User::class);
+            $userRepository = $this->getDoctrine()->getRepository(User::class);
             $agentCollection = $userRepository->getAllAgents($request->query, $container);
             return new Response(json_encode($agentCollection), 200, ['Content-Type' => 'application/json']);
         }
@@ -102,7 +103,7 @@ class AccountXHR extends AbstractController
 
         if($request->getMethod() == 'POST') {
             $content = $request->request->all();
-            $filter = new CoreEntites\SavedFilters();
+            $filter = new SavedFilters();
             $filter->setName($content['name']);
             $filter->setRoute($content['route']);
             $filter->setUser($userData);
@@ -120,7 +121,7 @@ class AccountXHR extends AbstractController
             $json['alertMessage'] = $this->translator->trans('Success ! Filter has been saved successfully.');
         } elseif($request->getMethod() == 'PUT' || $request->getMethod() == 'PATCH') {
             $content = $request->request->all();
-            $filter = $em->getRepository(CoreEntites\SavedFilters::class)->find($content['id']);
+            $filter = $em->getRepository(SavedFilters::class)->find($content['id']);
             $filter->setName($content['name']);
             $filter->setRoute($content['route']);
             $em->flush();
@@ -139,7 +140,7 @@ class AccountXHR extends AbstractController
         } elseif($request->getMethod() == 'DELETE') {
 
             $id = $request->attributes->get('filterId');
-            $filter = $em->getRepository(CoreEntites\SavedFilters::class)->find($id);
+            $filter = $em->getRepository(SavedFilters::class)->find($id);
             $em->remove($filter);
             $em->flush();
 

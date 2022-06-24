@@ -62,7 +62,7 @@ class Email extends AbstractController
         if ($request->attributes->get('template')) {
             $template = $this->getTemplate($request);
         } else {
-            $template = new Entity\EmailTemplates();
+            $template = new EmailTemplates();
         }
 
         if (!$template) {
