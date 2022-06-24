@@ -4,17 +4,11 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Recaptcha;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntites;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Form\UserAccount;
 use Webkul\UVDesk\CoreFrameworkBundle\Form\UserProfile;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportRole;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportPrivilege;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -92,7 +86,7 @@ class Account extends AbstractController
             }
 
             $data = $data['user_form'];
-            $checkUser = $em->getRepository(User::class)->findOneBy(array('email' => $data['email']));
+            $checkUser = $em->getRepository(CoreEntites\User::class)->findOneBy(array('email' => $data['email']));
 
             $errorFlag = 0;
             if ($checkUser) {
@@ -132,7 +126,7 @@ class Account extends AbstractController
                     $em->persist($user);
                     $em->flush();
 
-                    $userInstance = $em->getRepository(UserInstance::class)->findOneBy(array('user' => $user->getId()));
+                    $userInstance = $em->getRepository(CoreEntites\UserInstance::class)->findOneBy(array('user' => $user->getId()));
                     $userInstance = $this->userService->getUserDetailById($user->getId());
 
                     if (isset($dataFiles['profileImage'])) {
@@ -164,7 +158,7 @@ class Account extends AbstractController
                     
                     if(in_array($roleId,  [1,2])) {
                         // Recaptcha Setting
-                        $recaptchaSetting = $em->getRepository(Recaptcha::class)->findOneBy(['id' => 1]);
+                        $recaptchaSetting = $em->getRepository(CoreEntites\Recaptcha::class)->findOneBy(['id' => 1]);
 
                         if($recaptchaSetting) {
                             $recaptchaSetting->setSiteKey($data['recaptcha_site_key']);
@@ -178,7 +172,7 @@ class Account extends AbstractController
                             $em->persist($recaptchaSetting);
                             $em->flush();
                         } else {
-                            $recaptchaNew = new Recaptcha;
+                            $recaptchaNew = new CoreEntites\Recaptcha;
                             $recaptchaNew->setSiteKey($data['recaptcha_site_key']);
                             $recaptchaNew->setSecretKey($data['recaptcha_secret_key']);
                             if(isset($data['recaptcha_status'])) {
@@ -225,7 +219,7 @@ class Account extends AbstractController
         $request = $this->container->get('request_stack')->getCurrentRequest();
 
         $activeUser = $this->userService->getSessionUser();
-        $user = $em->getRepository(User::class)->find($agentId);
+        $user = $em->getRepository(CoreEntites\User::class)->find($agentId);
         $instanceRole = $user->getAgentInstance()->getSupportRole()->getCode();
 
         if (empty($user)) {
@@ -252,7 +246,7 @@ class Account extends AbstractController
                         break;
                     }
                 }
-                $checkUser = $em->getRepository(User::class)->findOneBy(array('email'=> $data['email']));
+                $checkUser = $em->getRepository(CoreEntites\User::class)->findOneBy(array('email'=> $data['email']));
                 $errorFlag = 0;
 
                 if ($checkUser && $checkUser->getId() != $agentId) {
@@ -273,14 +267,14 @@ class Account extends AbstractController
                     $user->setEmail($data['email']);
                     $user->setIsEnabled(true);
                     
-                    $userInstance = $em->getRepository(UserInstance::class)->findOneBy(array('user' => $agentId, 'supportRole' => array(1, 2, 3)));
+                    $userInstance = $em->getRepository(CoreEntites\UserInstance::class)->findOneBy(array('user' => $agentId, 'supportRole' => array(1, 2, 3)));
                     
                     $oldSupportTeam = ($supportTeamList = $userInstance != null ? $userInstance->getSupportTeams() : null) ? $supportTeamList->toArray() : [];
                     $oldSupportGroup  = ($supportGroupList = $userInstance != null ? $userInstance->getSupportGroups() : null) ? $supportGroupList->toArray() : [];
                     $oldSupportedPrivilege = ($supportPrivilegeList = $userInstance != null ? $userInstance->getSupportPrivileges() : null)? $supportPrivilegeList->toArray() : [];
 
                     if(isset($data['role'])) {
-                        $role = $em->getRepository(SupportRole::class)->findOneBy(array('code' => $data['role']));
+                        $role = $em->getRepository(CoreEntites\SupportRole::class)->findOneBy(array('code' => $data['role']));
                         $userInstance->setSupportRole($role);
                     }
 
@@ -311,7 +305,7 @@ class Account extends AbstractController
                     if(isset($data['userSubGroup'])){
                         foreach ($data['userSubGroup'] as $userSubGroup) {
                             if($userSubGrp = $this->uvdeskService->getEntityManagerResult(
-                                SupportTeam::class,
+                                CoreEntites\SupportTeam::class,
                                 'findOneBy', [
                                     'id' => $userSubGroup
                                 ]
@@ -333,7 +327,7 @@ class Account extends AbstractController
                     if(isset($data['groups'])){
                         foreach ($data['groups'] as $userGroup) {
                             if($userGrp = $this->uvdeskService->getEntityManagerResult(
-                                SupportGroup::class,
+                                CoreEntites\SupportGroup::class,
                                 'findOneBy', [
                                     'id' => $userGroup
                                 ]
@@ -356,7 +350,7 @@ class Account extends AbstractController
                     if(isset($data['agentPrivilege'])){
                         foreach ($data['agentPrivilege'] as $supportPrivilege) {
                             if($supportPlg = $this->uvdeskService->getEntityManagerResult(
-                                SupportPrivilege::class,
+                                CoreEntites\SupportPrivilege::class,
                                 'findOneBy', [
                                     'id' => $supportPrivilege
                                 ]
@@ -418,7 +412,7 @@ class Account extends AbstractController
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
-        $user = new User();
+        $user = new CoreEntites\User();
         $userServiceContainer = $this->userService;
 
         if ('POST' == $request->getMethod()) {
@@ -435,13 +429,13 @@ class Account extends AbstractController
                 }
             }
 
-            $user = $entityManager->getRepository(User::class)->findOneByEmail($formDetails['email']);
+            $user = $entityManager->getRepository(CoreEntites\User::class)->findOneByEmail($formDetails['email']);
             $agentInstance = !empty($user) ? $user->getAgentInstance() : null;
 
             if (empty($agentInstance)) {
                 if (!empty($formDetails)) {
                     $fullname = trim(implode(' ', [$formDetails['firstName'], $formDetails['lastName']]));
-                    $supportRole = $entityManager->getRepository(SupportRole::class)->findOneByCode($formDetails['role']);
+                    $supportRole = $entityManager->getRepository(CoreEntites\SupportRole::class)->findOneByCode($formDetails['role']);
 
                     $user = $this->userService->createUserInstance($formDetails['email'], $fullname, $supportRole, [
                         'contact' => $formDetails['contactNumber'],
@@ -466,7 +460,7 @@ class Account extends AbstractController
 
                     // Map support team
                     if (!empty($formDetails['userSubGroup'])) {
-                        $supportTeamRepository = $entityManager->getRepository(SupportTeam::class);
+                        $supportTeamRepository = $entityManager->getRepository(CoreEntites\SupportTeam::class);
 
                         foreach ($formDetails['userSubGroup'] as $supportTeamId) {
                             $supportTeam = $supportTeamRepository->findOneById($supportTeamId);
@@ -478,7 +472,7 @@ class Account extends AbstractController
                     }
                     // Map support group
                     if (!empty($formDetails['groups'])) {
-                        $supportGroupRepository = $entityManager->getRepository(SupportGroup::class);
+                        $supportGroupRepository = $entityManager->getRepository(CoreEntites\SupportGroup::class);
 
                         foreach ($formDetails['groups'] as $supportGroupId) {
                             $supportGroup = $supportGroupRepository->findOneById($supportGroupId);
@@ -490,7 +484,7 @@ class Account extends AbstractController
                     }
                     // Map support privileges
                     if (!empty($formDetails['agentPrivilege'])) {
-                        $supportPrivilegeRepository = $entityManager->getRepository(SupportPrivilege::class);
+                        $supportPrivilegeRepository = $entityManager->getRepository(CoreEntites\SupportPrivilege::class);
 
                         foreach($formDetails['agentPrivilege'] as $supportPrivilegeId) {
                             $supportPrivilege = $supportPrivilegeRepository->findOneById($supportPrivilegeId);
