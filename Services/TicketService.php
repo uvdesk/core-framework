@@ -14,6 +14,7 @@ use Webkul\UVDesk\MailboxBundle\Utils\Mailbox\Mailbox;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Tag;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketType;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketPriority;
@@ -38,6 +39,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Webkul\UVDesk\SupportCenterBundle\Entity\Article;
 use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
 use Webkul\UVDesk\AutomationBundle\Entity\PreparedResponses;
+
 
 class TicketService
 {
