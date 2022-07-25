@@ -31,9 +31,10 @@ class UpdateType extends PreparedResponseAction
         return array_map(function ($ticketType) {
             return [
                 'id' => $ticketType->getId(),
-                'name' => $ticketType->getDescription(),
+                'name' => $ticketType->getCode(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findAll());
+        }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')
+                           ->findBy(['isActive' => true], ['code' => 'ASC']));
     }
 
     public static function applyAction(ContainerInterface $container, $entity, $value = null)

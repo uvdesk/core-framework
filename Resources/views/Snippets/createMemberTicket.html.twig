@@ -40,10 +40,10 @@
                 <div class="uv-field-block">
                     <select name="type" class="uv-select create-ticket" id="type">
                         <option value="">{{ 'Select type'|trans }}</option>
-
-                        {% for type in ticketTypeCollection %}
-                            <option value="{{ type.id }}">{{ type.description }}</option>
-                        {% endfor %}
+                            {% for type in ticket_service.getTypes()  %}
+                                <option value="{{ type.id }}" {{ post.type is defined and post.type == type.id ? 'selected' : '' }}>{{ type.name }}
+                                </option>
+                            {% endfor %}
                     </select>
                 </div>
                 <span class="uv-field-info">{{ 'Choose ticket type'|trans }}</span>
