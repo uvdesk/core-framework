@@ -4,6 +4,7 @@ CHANGELOG for 1.1.x
 This changelog references any relevant changes introduced in 1.1 minor versions.
 
 * 1.1.x
+    * PR #566: List ticket types in alphabetical order and display ticket type name instead of description (papnoisanjeev)
     * PR #192: Update BootstrappingProject.php (WebmaticMerseburg)
 
 * 1.1.0 (2022-03-23)
