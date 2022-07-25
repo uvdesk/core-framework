@@ -28,13 +28,14 @@ class UpdateType extends PreparedResponseAction
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
 
+        $collection = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findBy(['isActive' => true], ['code' => 'ASC']);
+
         return array_map(function ($ticketType) {
             return [
                 'id' => $ticketType->getId(),
                 'name' => $ticketType->getCode(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')
-                           ->findBy(['isActive' => true], ['code' => 'ASC']));
+        }, $collection);
     }
 
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
