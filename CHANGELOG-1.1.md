@@ -4,6 +4,7 @@ CHANGELOG for 1.1.x
 This changelog references any relevant changes introduced in 1.1 minor versions.
 
 * 1.1.x
+    * Bug #569: Wrong saved replies pagination results (papnoisanjeev)
     * PR #566: List ticket types in alphabetical order and display ticket type name instead of description (papnoisanjeev)
     * PR #192: Update BootstrappingProject.php (WebmaticMerseburg)
 
