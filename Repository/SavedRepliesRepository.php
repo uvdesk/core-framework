@@ -32,7 +32,10 @@ class SavedRepliesRepository extends EntityRepository
                     }
                 }
             }
-        }           
+        }
+
+        // filter saved replies based on groups and teams.
+        $this->addGroupTeamFilter($qb, $container); 
 
         if(!isset($data['sort']))
             $qb->orderBy('sr.id', Criteria::DESC);
@@ -60,6 +63,34 @@ class SavedRepliesRepository extends EntityRepository
         $json['pagination_data'] = $paginationData;
        
         return $json;
+    }
+
+    public function addGroupTeamFilter($qb, $container, $entityAlias = 'sr')
+    {
+        $qb->leftJoin($entityAlias.'.groups', 'grps')
+            ->leftJoin($entityAlias.'.teams', 'tms');
+
+        $user = $container->get('user.service')->getCurrentUser();
+        $userCondition = $qb->expr()->orX();
+        $userCondition->add($qb->expr()->eq($entityAlias.'.user', ':userId'));
+        $qb->setParameter('userId', $container->get('user.service')->getCurrentUser()->getAgentInstance()->getId());
+        
+        if($user->getAgentInstance()->getSupportGroups()) {
+            foreach($user->getAgentInstance()->getSupportGroups() as $key => $grp) {
+                $userCondition->add($qb->expr()->eq('grps.id', ':groupId'.$key));
+                $qb->setParameter('groupId'.$key, $grp->getId());
+            }
+        }
+
+        $subgroupIds = $user->getAgentInstance()->getSupportTeams();
+        foreach($subgroupIds as $key => $teamId) {
+            $userCondition->add($qb->expr()->eq('tms.id', ':teamId'.$key ));
+            $qb->setParameter('teamId'.$key, $teamId);
+        } 
+        
+        $qb->andWhere($userCondition);
+
+        return $qb;        
     }
 
     public function getSavedReply($id, $container)
