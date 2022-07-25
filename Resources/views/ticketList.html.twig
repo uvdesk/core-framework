@@ -425,8 +425,8 @@
                                             </div>
 
                                             <ul class="uv-search-list type" data-action="type">
-                                                {% for type in ticketTypeCollection %}
-                                                    <li data-index="{{ type.id }}"><a href="#">{{ type.description }}</a></li>
+                                                {% for type in ticket_service.getTypes()  %}
+                                                    <li data-index="{{ type.id }}"><a href="#">{{ type.name }}</a></li>
                                                 {% endfor %}
                                             </ul>
                                         </div>
