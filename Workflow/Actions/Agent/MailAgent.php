@@ -7,6 +7,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\EmailTemplates;
 
 class MailAgent extends WorkflowAction
 {
@@ -34,7 +35,7 @@ class MailAgent extends WorkflowAction
                 'id' => $emailTemplate->getId(),
                 'name' => $emailTemplate->getName(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findAll());
+        }, $entityManager->getRepository(EmailTemplates::class)->findAll());
     }
 
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
@@ -44,7 +45,7 @@ class MailAgent extends WorkflowAction
         switch (true) {
             // Agent created
             case $entity instanceof CoreEntities\User:
-                $emailTemplate = $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findOneById($value);
+                $emailTemplate = $entityManager->getRepository(EmailTemplates::class)->findOneById($value);
 
                 if (empty($emailTemplate)) {
                     // @TODO: Send default email template
@@ -59,7 +60,7 @@ class MailAgent extends WorkflowAction
                 break;
             // Ticket created
             case $entity instanceof CoreEntities\Ticket:
-                $emailTemplate = $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findOneById($value);
+                $emailTemplate = $entityManager->getRepository(EmailTemplates::class)->findOneById($value);
 
                 if (empty($emailTemplate)) {
                     break;

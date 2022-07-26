@@ -4,8 +4,12 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions\Ticket;
 
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\EmailTemplates;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 
 class MailAgent extends WorkflowAction
 {
@@ -33,7 +37,7 @@ class MailAgent extends WorkflowAction
                 'id' => $emailTemplate->getId(),
                 'name' => $emailTemplate->getName(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findAll());
+        }, $entityManager->getRepository(EmailTemplates::class)->findAll());
 
         $agentCollection = array_map(function ($agent) {
             return [
@@ -61,13 +65,13 @@ class MailAgent extends WorkflowAction
         $entityManager = $container->get('doctrine.orm.entity_manager');
 
         if ($entity instanceof Ticket) {
-            $emailTemplate = $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findOneById($value['value']);
+            $emailTemplate = $entityManager->getRepository(EmailTemplates::class)->findOneById($value['value']);
             $emails = self::getAgentMails($value['for'], (($ticketAgent = $entity->getAgent()) ? $ticketAgent->getEmail() : ''), $container);
             $ticketCollaborators = []; 
             if ($emails || $emailTemplate) {
                 $queryBuilder = $entityManager->createQueryBuilder()
                     ->select('th.messageId as messageId')
-                    ->from('UVDeskCoreFrameworkBundle:Thread', 'th')
+                    ->from(Thread::class, 'th')
                     ->where('th.createdBy = :userType')->setParameter('userType', 'agent')
                     ->orderBy('th.id', 'DESC')
                     ->setMaxResults(1);
@@ -82,14 +86,20 @@ class MailAgent extends WorkflowAction
                     $emailHeaders['References'] = $entity->getReferenceIds();
                 }
 
+                if ($thread == null) {
+                    $ticketId = $entity->getId();
+                    $thread = $container->get('ticket.service')->getInitialThread("$ticketId");
+                }
+
                 // Only process attachments if required in the message body
                 // @TODO: Revist -> Maybe we should always include attachments if they are provided??
                 $createdThread = isset($entity->createdThread) && $entity->createdThread->getThreadType() != "note" ? $entity->createdThread : (isset($entity->currentThread) ? $entity->currentThread : "") ;
                 $attachments = [];
-                if (!empty($createdThread) && (strpos($emailTemplate->getMessage(), '{%ticket.attachments%}') !== false || strpos($emailTemplate->getMessage(), '{% ticket.attachments %}') !== false)) {
+                if ((!empty($createdThread) || !empty($thread)) && (strpos($emailTemplate->getMessage(), '{%ticket.attachments%}') !== false || strpos($emailTemplate->getMessage(), '{% ticket.attachments %}') !== false)) {
+                    $createdThread = !empty($createdThread) ? $createdThread : $thread;
                     $attachments = array_map(function($attachment) use ($container) { 
                         return str_replace('//', '/', $container->get('kernel')->getProjectDir() . "/public" . $attachment->getPath());
-                    }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:Attachment')->findByThread($createdThread));
+                    }, $entityManager->getRepository(Attachment::class)->findByThread($createdThread));
                 }
                 $placeHolderValues = $container->get('email.service')->getTicketPlaceholderValues($entity, 'agent');
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $placeHolderValues);
@@ -149,13 +159,13 @@ class MailAgent extends WorkflowAction
                 }
             } else if((int)$agent) {
                 $qb = $entityManager->createQueryBuilder();
-                $emails = $qb->select('u.email')->from('UVDeskCoreFrameworkBundle:User', 'u')
+                $emails = $qb->select('u.email')->from(User::class, 'u')
                     ->andwhere("u.id = :userId")
                     ->setParameter('userId', $agent)
                     ->getQuery()->getResult();
                 
                 foreach ($emails as $email) {
-                    $agent = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy($email);
+                    $agent = $entityManager->getRepository(User::class)->findOneBy($email);
                     if ($agent != null && $agent->getAgentInstance() != null) {
                             $agentMails[] = $email;
                     }

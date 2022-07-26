@@ -5,6 +5,10 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Repository;
 use Doctrine\ORM\Query;
 use Doctrine\Common\Collections\Criteria;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -23,7 +27,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         $params = !empty($params) ? array_reverse($params->all()) : [];
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select("user, userInstance, supportRole")
-            ->from('UVDeskCoreFrameworkBundle:User', 'user')
+            ->from(User::class, 'user')
             ->leftJoin('user.userInstance', 'userInstance')
             ->leftJoin('userInstance.supportRole', 'supportRole')
             ->where('supportRole.id != :customerRole')->setParameter('customerRole', 4)
@@ -188,7 +192,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
 
     public function getCustomerTicketCount($customerId) {
         $qb = $this->getEntityManager()->createQueryBuilder();
-        $qb->select('COUNT(t.id) as countTicket')->from('UVDeskCoreFrameworkBundle:Ticket', 't');
+        $qb->select('COUNT(t.id) as countTicket')->from(Ticket::class, 't');
         $qb->andwhere('t.status = 1');
         $qb->andwhere('t.isTrashed != 1');
         $qb->andwhere('t.customer = :customerId');
@@ -215,7 +219,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
     public function getSupportGroups(Request $request = null)
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
-            ->select('supportGroup.id, supportGroup.name')->from('UVDeskCoreFrameworkBundle:SupportGroup', 'supportGroup')
+            ->select('supportGroup.id, supportGroup.name')->from(SupportGroup::class, 'supportGroup')
             ->where('supportGroup.isActive = :isActive')->setParameter('isActive', true);
 
         if ($request) {
@@ -230,7 +234,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
     public function getSupportTeams(Request $request = null)
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
-            ->select('supportTeam.id, supportTeam.name')->from('UVDeskCoreFrameworkBundle:SupportTeam', 'supportTeam')
+            ->select('supportTeam.id, supportTeam.name')->from(SupportTeam::class, 'supportTeam')
             ->where('supportTeam.isActive = :isActive')->setParameter('isActive', true);
         
         if ($request) {
@@ -245,7 +249,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
     public function getUserSupportGroupReferences(User $user)
     {
         $query = $this->getEntityManager()->createQueryBuilder()
-            ->select('ug.id')->from('UVDeskCoreFrameworkBundle:User', 'u') 
+            ->select('ug.id')->from(User::class, 'u') 
             ->leftJoin('u.userInstance','userInstance')
             ->leftJoin('userInstance.supportGroups','ug')
             ->andwhere('u.id = :userId')
@@ -258,7 +262,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
     public function getUserSupportTeamReferences(User $user)
     {
         $query = $this->getEntityManager()->createQueryBuilder()
-            ->select('ut.id')->from('UVDeskCoreFrameworkBundle:User', 'u')
+            ->select('ut.id')->from(User::class, 'u')
             ->leftJoin('u.userInstance','userInstance')
             ->leftJoin('userInstance.supportTeams','ut')
             ->andwhere('u.id = :userId')
@@ -273,7 +277,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
     public function LastupdatedRole($user)
     {
         $qb = $this->getEntityManager()->createQueryBuilder();
-        $qb->select('us')->from("UVDeskCoreFrameworkBundle:UserInstance", 'us');
+        $qb->select('us')->from(UserInstance::class, 'us');
 
         $qb->andwhere('us.user = :userId');
         $qb->setParameter('userId',$user->getId());

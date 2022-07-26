@@ -36,7 +36,7 @@ class AccountXHR extends AbstractController
         }
 
         if (true === $request->isXmlHttpRequest()) {
-            $userRepository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:User');
+            $userRepository = $this->getDoctrine()->getRepository(User::class);
             $agentCollection = $userRepository->getAllAgents($request->query, $container);
             return new Response(json_encode($agentCollection), 200, ['Content-Type' => 'application/json']);
         }
@@ -121,7 +121,7 @@ class AccountXHR extends AbstractController
             $json['alertMessage'] = $this->translator->trans('Success ! Filter has been saved successfully.');
         } elseif($request->getMethod() == 'PUT' || $request->getMethod() == 'PATCH') {
             $content = $request->request->all();
-            $filter = $em->getRepository('UVDeskCoreFrameworkBundle:SavedFilters')->find($content['id']);
+            $filter = $em->getRepository(SavedFilters::class)->find($content['id']);
             $filter->setName($content['name']);
             $filter->setRoute($content['route']);
             $em->flush();
@@ -140,7 +140,7 @@ class AccountXHR extends AbstractController
         } elseif($request->getMethod() == 'DELETE') {
 
             $id = $request->attributes->get('filterId');
-            $filter = $em->getRepository('UVDeskCoreFrameworkBundle:SavedFilters')->find($id);
+            $filter = $em->getRepository(SavedFilters::class)->find($id);
             $em->remove($filter);
             $em->flush();
 

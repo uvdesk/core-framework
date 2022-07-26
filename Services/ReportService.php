@@ -4,6 +4,9 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\AgentActivity;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread;
 
 class ReportService {
 
@@ -46,7 +49,7 @@ class ReportService {
                             AgentActivity.id,
                             priority.colorCode as colorCode
                         ')
-                        ->from('UVDeskCoreFrameworkBundle:AgentActivity', 'AgentActivity')
+                        ->from(AgentActivity::class, 'AgentActivity')
                         ->leftJoin('AgentActivity.ticket', 't')
                         ->leftJoin('t.supportGroup', 'gr')
                         ->leftJoin('t.supportTeam', 'tSub')
@@ -70,8 +73,8 @@ class ReportService {
     public function addPermissionFilter($qb, $container, $haveJoin = true)
     {
         $activeUser = $this->container->get('user.service')->getSessionUser();
-        $supportGroupReferences = $this->em->getRepository('UVDeskCoreFrameworkBundle:User')->getUserSupportGroupReferences($activeUser);
-        $supportTeamReferences  = $this->em->getRepository('UVDeskCoreFrameworkBundle:User')->getUserSupportTeamReferences($activeUser);
+        $supportGroupReferences = $this->em->getRepository(User::class)->getUserSupportGroupReferences($activeUser);
+        $supportTeamReferences  = $this->em->getRepository(User::class)->getUserSupportTeamReferences($activeUser);
         $userInstance = $activeUser->getAgentInstance();
 
         if (!empty($userInstance) && ('ROLE_AGENT' == $userInstance->getSupportRole()->getCode() && $userInstance->getTicketAccesslevel() != self::TICKET_GLOBAL_ACCESS)) {
@@ -108,7 +111,7 @@ class ReportService {
             $agentClause = array_map(function($id) { return "thread.user = $id"; }, $agents);
             $qb = $this->em->createQueryBuilder()
                     ->select("Count(thread.id) as ticketCount, IDENTITY (thread.ticket) AS ticketId")
-                    ->from('UVDeskCoreFrameworkBundle:Thread', 'thread')
+                    ->from(Thread::class, 'thread')
                     ->andwhere('thread.ticket IN (:ticket)')
                     ->andWhere('thread.threadType =:threadType')
                     ->andWhere('thread.createdAt BETWEEN :startDate AND :endDate');

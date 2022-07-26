@@ -257,7 +257,7 @@ class Thread extends AbstractController
         $content = json_decode($request->getContent(), true);
         $em = $this->getDoctrine()->getManager();
 
-        $ticket = $em->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($content['ticketId']); 
+        $ticket = $em->getRepository(Ticket::class)->findOneById($content['ticketId']); 
 
         // Proceed only if user has access to the resource
         if (false == $this->ticketService->isTicketAccessGranted($ticket)){

@@ -5,6 +5,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Website;
 
 class Theme extends AbstractController
 {
@@ -20,7 +21,7 @@ class Theme extends AbstractController
         if ($request->getMethod() == "POST") {
             $values = $request->request->all();
             $entityManager = $this->getDoctrine()->getManager();
-            $website = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneByCode('helpdesk');
+            $website = $entityManager->getRepository(Website::class)->findOneByCode('helpdesk');
 
             $website->setName($values['helpdeskName']);
             $website->setThemeColor($values['themeColor']);

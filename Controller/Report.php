@@ -19,6 +19,8 @@ use Knp\Component\Pager\PaginatorInterface;
 use Doctrine\ORM\Query;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketRating;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 
 class Report extends AbstractController
 {
@@ -100,7 +102,7 @@ class Report extends AbstractController
         $agentActivity = [];
         $agentIds = [];
         foreach ($results as $key => $activity) {
-            $ticket = $this->getDoctrine()->getManager()->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($activity['id']);
+            $ticket = $this->getDoctrine()->getManager()->getRepository(Ticket::class)->findOneById($activity['id']);
             $currentDateTime  = new \DateTime('now');
             $activityDateTime = $activity['createdAt'];
             $difference = $currentDateTime->getTimeStamp() - $activityDateTime->getTimeStamp();
@@ -160,7 +162,7 @@ class Report extends AbstractController
         $json = array();
 
         if( $request->isXmlHttpRequest()) {
-            $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:TicketRating');
+            $repository = $this->getDoctrine()->getRepository(TicketRating::class);
             $json =  $repository->getRatedTicketList($request->query, $container);
 
             $json['data'] = $this->getAchievementsData($request, $container);
@@ -181,7 +183,7 @@ class Report extends AbstractController
         $reportService->startDate = $this->userService->convertToTimezone(new \DateTime($startDate),'Y-m-d H:i:s');
         $reportService->endDate = $this->userService->convertToTimezone(new \DateTime($endDate),'Y-m-d H:i:s');
 
-        $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:TicketRating');
+        $repository = $this->getDoctrine()->getRepository(TicketRating::class);
         $data =  $repository->getRatingData($request->query, $container);
         for ($i = 1; $i <= 5; $i++) {
             $data['ratings'][$i] = $repository->getRatingByStarCount($request->query, $i, $container);

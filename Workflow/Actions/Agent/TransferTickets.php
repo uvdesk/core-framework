@@ -50,11 +50,11 @@ class TransferTickets extends WorkflowAction
             if ($value == 'responsePerforming') {
                 $user = $container->get('security.tokenstorage')->getToken()->getUser();
             } else {
-                $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->find($value);
+                $user = $entityManager->getRepository(User::class)->find($value);
             }
             
             if (!empty($user) && $user != 'anon.') {
-                $tickets = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->getAgentTickets($entity->getId(), $container);
+                $tickets = $entityManager->getRepository(Ticket::class)->getAgentTickets($entity->getId(), $container);
 
                 foreach ($tickets as $ticket) {
                     $ticket->setAgent($user);

@@ -7,6 +7,8 @@ use Doctrine\Common\Collections\Criteria;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread;
+
 
 /**
  * ThreadRepository
@@ -40,7 +42,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
     {
         return $this->getEntityManager()->createQueryBuilder()
             ->select("thread")
-            ->from('UVDeskCoreFrameworkBundle:Thread', 'thread')
+            ->from(Thread::class, 'thread')
             ->where('thread.ticket = :ticket')->setParameter('ticket', $ticket)
             ->orderBy('thread.id', Criteria::DESC)
             ->setMaxResults(1)
@@ -52,7 +54,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select("thread, attachments, user, userInstance")
-            ->from('UVDeskCoreFrameworkBundle:Thread', 'thread')
+            ->from(Thread::class, 'thread')
             ->leftJoin('thread.user', 'user')
             ->leftJoin('user.userInstance', 'userInstance')
             ->leftJoin('thread.attachments', 'attachments')
