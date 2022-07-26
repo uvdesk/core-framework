@@ -7,6 +7,7 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\Common\Collections\Criteria;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketRating;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -130,7 +131,7 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
         $data = array();
 
         $qb = $this->getEntityManager()->createQueryBuilder();
-        $qb->select('avg(r.stars) as avgCount, count(r.customer) as totalRatedCustomer')->from('UVDeskCoreFrameworkBundle:TicketRating', 'r')
+        $qb->select('avg(r.stars) as avgCount, count(r.customer) as totalRatedCustomer')->from(TicketRating::class, 'r')
                 ->leftJoin('r.ticket', 't')
                 ->andwhere('r.createdAt BETWEEN :startDate AND :endDate')
                 ->andwhere('t.isTrashed != 1')
@@ -208,7 +209,7 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
 
         $data = array();
         $qb = $this->getEntityManager()->createQueryBuilder();
-        $qb->select('COUNT(r.id)')->from('UVDeskCoreFrameworkBundle:TicketRating', 'r')
+        $qb->select('COUNT(r.id)')->from(TicketRating::class, 'r')
                 ->leftJoin('r.ticket', 't')
                 ->andwhere('r.createdAt BETWEEN :startDate AND :endDate')
                 ->andwhere('t.isTrashed != 1')

@@ -5,6 +5,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class UpdateAgent extends WorkflowAction
@@ -51,15 +52,15 @@ class UpdateAgent extends WorkflowAction
                     $agent = $currentUser;
                 }
             } else {
-                $agent = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->find($value);
+                $agent = $entityManager->getRepository(User::class)->find($value);
 
                 if ($agent) {
-                    $agent = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(array('email' => $agent->getEmail()));
+                    $agent = $entityManager->getRepository(User::class)->findOneBy(array('email' => $agent->getEmail()));
                 }
             }
 
             if (!empty($agent)) {
-                if ($entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(array('id' => $agent->getId()))) {
+                if ($entityManager->getRepository(User::class)->findOneBy(array('id' => $agent->getId()))) {
                     $entity->setAgent($agent);
                     $entityManager->persist($entity);
                     $entityManager->flush();

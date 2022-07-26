@@ -35,7 +35,7 @@ class CustomerXHR extends AbstractController
         $json = array();
         
         if($request->isXmlHttpRequest()) {
-            $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:User');
+            $repository = $this->getDoctrine()->getRepository(User::class);
             $json =  $repository->getAllCustomer($request->query, $container);
         }
         
@@ -55,7 +55,7 @@ class CustomerXHR extends AbstractController
         if($request->getMethod() == "DELETE") {
             $em = $this->getDoctrine()->getManager();
             $id = $request->attributes->get('customerId');
-            $user = $em->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(['id' => $id]);
+            $user = $em->getRepository(User::class)->findOneBy(['id' => $id]);
 
             if($user) {
 

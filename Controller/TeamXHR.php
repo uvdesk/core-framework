@@ -10,6 +10,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
 
 class TeamXHR extends AbstractController
 {
@@ -29,7 +30,7 @@ class TeamXHR extends AbstractController
         }
 
         if (true === $request->isXmlHttpRequest()) {
-            $paginationResponse = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')->getAllSupportTeams($request->query, $container);
+            $paginationResponse = $this->getDoctrine()->getRepository(SupportTeam::class)->getAllSupportTeams($request->query, $container);
 
             return new Response(json_encode($paginationResponse), 200, ['Content-Type' => 'application/json']);
         }
@@ -47,7 +48,7 @@ class TeamXHR extends AbstractController
 
         if ("DELETE" == $request->getMethod()) {
             $entityManager = $this->getDoctrine()->getManager();
-            $supportTeam = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')->findOneById($supportTeamId);
+            $supportTeam = $entityManager->getRepository(SupportTeam::class)->findOneById($supportTeamId);
 
             if (!empty($supportTeam)) {
                 $entityManager->remove($supportTeam);

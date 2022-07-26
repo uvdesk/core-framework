@@ -42,7 +42,7 @@ class Group extends AbstractController
         }
 
         if($request->attributes->get('supportGroupId')){
-            $group = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')
+            $group = $this->getDoctrine()->getRepository(SupportGroup::class)
                 ->findGroupById(['id' => $request->attributes->get('supportGroupId'),
                 ]);
 
@@ -80,7 +80,7 @@ class Group extends AbstractController
                 $usersList = array_map(function ($user) { return 'user.id = ' . $user; }, $usersList);
 
                 $userList = $em->createQueryBuilder()->select('user')
-                    ->from('UVDeskCoreFrameworkBundle:User', 'user')
+                    ->from(User::class, 'user')
                     ->where(implode(' OR ', $usersList))
                     ->getQuery()->getResult();
             }
@@ -89,7 +89,7 @@ class Group extends AbstractController
                 $userTeam = array_map(function ($team) { return 'team.id = ' . $team; }, $userTeam);
 
                 $userTeam = $em->createQueryBuilder()->select('team')
-                    ->from('UVDeskCoreFrameworkBundle:SupportTeam', 'team')
+                    ->from(SupportTeam::class, 'team')
                     ->where(implode(' OR ', $userTeam))
                     ->getQuery()->getResult();
             }
@@ -179,7 +179,7 @@ class Group extends AbstractController
                 $usersList = array_map(function ($user) { return 'user.id = ' . $user; }, $usersList);
 
                 $userList = $em->createQueryBuilder()->select('user')
-                    ->from('UVDeskCoreFrameworkBundle:User', 'user')
+                    ->from(User::class, 'user')
                     ->where(implode(' OR ', $usersList))
                     ->getQuery()->getResult();
             }
@@ -188,7 +188,7 @@ class Group extends AbstractController
                 $userTeam = array_map(function ($team) { return 'team.id = ' . $team; }, $userTeam);
 
                 $userTeam = $em->createQueryBuilder()->select('team')
-                    ->from('UVDeskCoreFrameworkBundle:SupportTeam', 'team')
+                    ->from(SupportTeam::class, 'team')
                     ->where(implode(' OR ', $userTeam))
                     ->getQuery()->getResult();
             }

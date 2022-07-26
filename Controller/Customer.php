@@ -3,6 +3,8 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportRole;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\EventDispatcher\GenericEvent;
@@ -62,13 +64,13 @@ class Customer extends AbstractController
                 }
             }
 
-            $user = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(array('email' => $formDetails['email']));
+            $user = $entityManager->getRepository(User::class)->findOneBy(array('email' => $formDetails['email']));
             $customerInstance = !empty($user) ? $user->getCustomerInstance() : null;
 
             if (empty($customerInstance)){
                 if (!empty($formDetails)) {
                     $fullname = trim(implode(' ', [$formDetails['firstName'], $formDetails['lastName']]));
-                    $supportRole = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportRole')->findOneByCode('ROLE_CUSTOMER');
+                    $supportRole = $entityManager->getRepository(SupportRole::class)->findOneByCode('ROLE_CUSTOMER');
 
                     $user = $this->userService->createUserInstance($formDetails['email'], $fullname, $supportRole, [
                         'contact' => $formDetails['contactNumber'],
@@ -105,7 +107,7 @@ class Customer extends AbstractController
         }
 
         $em = $this->getDoctrine()->getManager();
-        $repository = $em->getRepository('UVDeskCoreFrameworkBundle:User');
+        $repository = $em->getRepository(User::class);
 
         if($userId = $request->attributes->get('customerId')) {
             $user = $repository->findOneBy(['id' =>  $userId]);
@@ -126,7 +128,7 @@ class Customer extends AbstractController
             if($userId) {
                 $data = $request->request->all();
                 $data = $data['customer_form'];
-                $checkUser = $em->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(array('email' => $data['email']));
+                $checkUser = $em->getRepository(User::class)->findOneBy(array('email' => $data['email']));
                 $errorFlag = 0;
 
                 if($checkUser) {
@@ -151,7 +153,7 @@ class Customer extends AbstractController
                     $em->persist($user);
 
                     // User Instance
-                    $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(array('user' => $user->getId(), 'supportRole' => 4));
+                    $userInstance = $em->getRepository(UserInstance::class)->findOneBy(array('user' => $user->getId(), 'supportRole' => 4));
                     $userInstance->setUser($user);
                     $userInstance->setIsActive(isset($data['isActive']) ? $data['isActive'] : 0);
                     $userInstance->setIsVerified(0);
@@ -198,7 +200,7 @@ class Customer extends AbstractController
             if (!$user)
                 $this->noResultFound();
 
-            $checkUser = $em->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(array('email' => $content['email']));
+            $checkUser = $em->getRepository(User::class)->findOneBy(array('email' => $content['email']));
             $errorFlag = 0;
 
             if ($checkUser) {
@@ -215,7 +217,7 @@ class Customer extends AbstractController
                 $em->persist($user);
 
                 //user Instance
-                $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(array('user' => $user->getId()));
+                $userInstance = $em->getRepository(UserInstance::class)->findOneBy(array('user' => $user->getId()));
                 if(isset($content['contactNumber'])){
                     $userInstance->setContactNumber($content['contactNumber']);
                 }
@@ -256,12 +258,12 @@ class Customer extends AbstractController
         $em = $this->getDoctrine()->getManager();
         $data = json_decode($request->getContent(), true);
         $id = $request->attributes->get('id') ? : $data['id'];
-        $user = $em->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(['id' => $id]);
+        $user = $em->getRepository(User::class)->findOneBy(['id' => $id]);
         if(!$user)  {
             $json['error'] = 'resource not found';
             return new JsonResponse($json, Response::HTTP_NOT_FOUND);
         }
-        $userInstance = $em->getRepository('UVDeskCoreFrameworkBundle:UserInstance')->findOneBy(array(
+        $userInstance = $em->getRepository(UserInstance::class)->findOneBy(array(
                 'user' => $id,
                 'supportRole' => 4
             )

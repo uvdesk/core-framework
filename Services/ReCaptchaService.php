@@ -4,6 +4,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Recaptcha;
 
 class ReCaptchaService {
 
@@ -45,7 +46,7 @@ class ReCaptchaService {
     {   
         // find Recaptcha details
         $em = $this->em;
-        $recaptchaRepo = $em->getRepository('UVDeskCoreFrameworkBundle:Recaptcha');
+        $recaptchaRepo = $em->getRepository(Recaptcha::class);
         $recaptcha = $recaptchaRepo->findOneById(1);
 
         return $recaptcha ? $recaptcha : '';

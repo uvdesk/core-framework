@@ -5,6 +5,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 use Webkul\UVDesk\CoreFrameworkBundle\Form;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -64,7 +65,7 @@ class Team extends AbstractController
                 $usersList = array_map(function ($user) { return 'user.id = ' . $user; }, $usersList);
 
                 $userList = $em->createQueryBuilder()->select('user')
-                    ->from('UVDeskCoreFrameworkBundle:User', 'user')
+                    ->from(User::class, 'user')
                     ->where(implode(' OR ', $usersList))
                     ->getQuery()->getResult();
             }
@@ -73,7 +74,7 @@ class Team extends AbstractController
                 $usersGroup = array_map(function ($group) { return 'p.id = ' . $group; }, $usersGroup);
 
                 $userGroup = $em->createQueryBuilder('p')->select('p')
-                    ->from('UVDeskCoreFrameworkBundle:SupportGroup', 'p')
+                    ->from(SupportGroup::class, 'p')
                     ->where(implode(' OR ', $usersGroup))
                     ->getQuery()->getResult();
             }
@@ -111,7 +112,7 @@ class Team extends AbstractController
         }
 
         if($request->attributes->get('supportTeamId')){
-            $supportTeam = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')
+            $supportTeam = $this->getDoctrine()->getRepository(SupportTeam::class)
                 ->findSubGroupById(['id' => $request->attributes->get('supportTeamId')]);
 
             if(!$supportTeam)
@@ -138,7 +139,7 @@ class Team extends AbstractController
             if (!empty($usersList)) {
                 $usersList = array_map(function ($user) { return 'p.id = ' . $user; }, $usersList);
                 $userList = $em->createQueryBuilder('p')->select('p')
-                    ->from('UVDeskCoreFrameworkBundle:User', 'p')
+                    ->from(User::class, 'p')
                     ->where(implode(' OR ', $usersList))
                     ->getQuery()->getResult();
             }
@@ -147,7 +148,7 @@ class Team extends AbstractController
                 $usersGroup = array_map(function ($group) { return 'p.id = ' . $group; }, $usersGroup);
 
                 $userGroup = $em->createQueryBuilder('p')->select('p')
-                    ->from('UVDeskCoreFrameworkBundle:SupportGroup', 'p')
+                    ->from(SupportGroup::class, 'p')
                     ->where(implode(' OR ', $usersGroup))
                     ->getQuery()->getResult();
             }

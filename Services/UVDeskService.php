@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
 
 class UVDeskService
 {
@@ -41,18 +42,93 @@ class UVDeskService
 		$this->entityManager = $entityManager;
 	}
 
-	public function getLocales()
-	{
-		return [
-            'en' => 'English',
-            'fr' => 'French',
-            'it' => 'Italian',
-            'ar' => 'Arabic',
-            'de' => 'German',
-            'es' => 'Spanish',
-            'tr' => 'Turkish',
-            'da' => 'Danish'
+    public function updatesLocales($locales)
+    {  
+        $fileTranslation = $this->container->get('kernel')->getProjectDir() . '/config/packages/translation.yaml';
+        $fileServices = $this->container->get('kernel')->getProjectDir() . '/config/services.yaml';
+
+        // get file content and index
+        $fileTrans = file($fileTranslation);
+        $fileServs = file($fileServices);
+
+        foreach ($fileTrans as $index => $content) {
+            if (false !== strpos($content, 'default_locale')) {
+                list($helpdesk_panel_locales, $helpdesk_panel_text) = array($index, $content);
+            }
+
+            if (false !== strpos($content, '- ')) {
+                list($helpdesk_panel_locales_fallback, $helpdesk_panel_text_fallback) = array($index, $content);
+            }
+        }
+
+        foreach ($fileServs as $indexs => $contents) {
+            if (false !== strpos($contents, 'locale')) {
+                list($helpdesk_services_locales, $helpdesk_services_text) = array($indexs, $contents);
+            }
+        }
+
+
+        // save updated data in a variable ($updatedFileContent)
+        $updatedFileContent = $fileTrans;
+        $updatedServicesFileContent = $fileServs;
+
+        $updatedlocales = (null !== $helpdesk_panel_locales) ? substr($helpdesk_panel_text, 0, strpos($helpdesk_panel_text, 'default_locale') + strlen('default_locale: ')) . $locales . PHP_EOL: '';
+        $updatedlocales_fallback = (null !== $helpdesk_panel_locales_fallback) ? substr($helpdesk_panel_text_fallback, 0, strpos($helpdesk_panel_text_fallback, '- ') + strlen('- ')) . $locales . PHP_EOL: '';
+        $updatedServiceslocales = (null !== $helpdesk_services_locales) ? substr($helpdesk_services_text, 0, strpos($helpdesk_services_text, 'locale') + strlen('locale: ')) . $locales . PHP_EOL: '';
+
+        $updatedFileContent[$helpdesk_panel_locales] = $updatedlocales;
+        $updatedFileContent[$helpdesk_panel_locales_fallback] = $updatedlocales_fallback;
+
+        $updatedServicesFileContent[$helpdesk_services_locales] = $updatedServiceslocales;
+
+        // flush updated content in file
+        $status = file_put_contents($fileTranslation, $updatedFileContent);
+        $status1 = file_put_contents($fileServices, $updatedServicesFileContent);
+
+        return true;
+    }
+
+    public function getLocalesList() 
+    {
+        $translator = $this->container->get('translator');
+        return  [
+            'en' => $translator->trans("English"),
+            'fr' => $translator->trans("French"),
+            'it' => $translator->trans("Italian"),
+            'ar' => $translator->trans("Arabic"),
+            'de' => $translator->trans("German"),
+            'es' => $translator->trans("Spanish"),
+            'tr' => $translator->trans("Turkish"),
+            'da' => $translator->trans("Danish"),
         ];
+    }
+
+    public function getActiveLocales() 
+    {
+        $localesList = $this->getLocalesList();
+        $activeLocales = $this->container->getParameter("app_locales");
+        $explodeActiveLocales = explode("|",$activeLocales);
+
+        return $explodeActiveLocales;
+    }
+
+    public function getLocales()
+    {
+        $localesList = $this->getLocalesList();
+        $explodeActiveLocales = $this->getActiveLocales();
+
+        $listingActiveLocales = array();
+
+        foreach ($explodeActiveLocales as $key => $value) {
+            $listingActiveLocales[$value] = $localesList[$value];
+        }
+
+        return $listingActiveLocales;
+    }
+
+    public function getDefaultLangauge() 
+    {
+        return $this->container->getParameter("kernel.default_locale");  
     }
     
     public function getTimezones()
@@ -173,7 +249,7 @@ class UVDeskService
 
     public function getActiveConfiguration($websiteId)
     {
-        $configurationRepo = $this->entityManager->getRepository('UVDeskSupportCenterBundle:KnowledgebaseWebsite');
+        $configurationRepo = $this->entityManager->getRepository(KnowledgebaseWebsite::class);
         $configuration = $configurationRepo->findOneBy(['website' => $websiteId, 'isActive' => 1]);
 
         return $configuration;
@@ -341,6 +417,7 @@ class UVDeskService
             'd-M h:ia' => 'd-M h:ia (15-Jan 01:00pm)',
             'D-m G:i' => 'D-m G:i (Mon-01 13:00)',
             'D-m h:ia' => 'D-m h:ia (Mon-01 01:00pm)',
+            'Y-m-d H:i:sa' => 'Y-m-d H:i:s (1991-01-15 01:00:30pm)',
         );
     }
 }

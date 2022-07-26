@@ -6,6 +6,7 @@ use Webkul\UVDesk\AutomationBundle\PreparedResponse\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\PreparedResponse\Action as PreparedResponseAction;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup;
 
 class UpdateGroup extends PreparedResponseAction
 {
@@ -33,7 +34,7 @@ class UpdateGroup extends PreparedResponseAction
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         if($entity instanceof Ticket) {
-            $group = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')->find($value);
+            $group = $entityManager->getRepository(SupportGroup::class)->find($value);
             if($group) {
                 $entity->setSupportGroup($group);
                 $entityManager->persist($entity);

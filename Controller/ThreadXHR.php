@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 
 class ThreadXHR extends AbstractController
 {
@@ -22,7 +23,7 @@ class ThreadXHR extends AbstractController
         $request = $this->container->get('request_stack')->getCurrentRequest();
 
         if (true === $request->isXmlHttpRequest()) {
-            $ticket = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findOneById($ticketId);
+            $ticket = $entityManager->getRepository(Ticket::class)->findOneById($ticketId);
 
             if (!empty($ticket)) {
                 $paginationResponse = $this->ticketService->paginateMembersTicketThreadCollection($ticket, $request);
