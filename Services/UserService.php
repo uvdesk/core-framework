@@ -529,27 +529,23 @@ class UserService
             ];
         }
         
-        // find current user from session(admin or customer)
-        $em = $this->entityManager;
-        $websiteRepo = $em->getRepository(Website::class);
-        $configurationRepo = $em->getRepository(KnowledgebaseWebsite::class);
+        $website = $this->entityManager->getRepository(Website::class)->findOneByCode($code);
 
-        $website = $websiteRepo->findOneByCode($code);
-        if ($website)
-            $configuration = $configurationRepo->findOneBy(['website' => $website->getId(), 'isActive' => 1]);
+        if ($website) {
+            $configuration = $this->entityManager->getRepository(KnowledgebaseWebsite::class)->findOneBy([
+                'website' => $website->getId(), 
+                'isActive' => 1
+            ]);
+        }
 
-        return $configuration ?: false;
+        return !empty($configuration) ? $configuration : false;
     }
 
-    public function getWebsiteDetails($currentUser)
+    public function getWebsiteDetails($code)
     {
-        // find current user from session(admin or customer)
-        $em = $this->entityManager;
-        $websiteRepo = $em->getRepository(Website::class);
+        $website = $this->entityManager->getRepository(Website::class)->findOneByCode($code);
 
-        $website = $websiteRepo->findOneBy(['code' => $currentUser]);
-
-        return $website ? $website : false;
+        return !empty($website) ? $website : false;
     }
 
     public function convertToTimezone($date, $format = "d-m-Y H:ia")
