@@ -14,6 +14,16 @@ use Webkul\UVDesk\MailboxBundle\Utils\Mailbox\Mailbox;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Tag;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketType;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketPriority;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportRole;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Website;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportLabel;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedReplies;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
 use Webkul\UVDesk\MailboxBundle\Utils\MailboxConfiguration;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
@@ -26,6 +36,10 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity;
 use Webkul\UVDesk\MailboxBundle\Utils\Imap\Configuration as ImapConfiguration;
 use Symfony\Component\Filesystem\Filesystem;
+use Webkul\UVDesk\SupportCenterBundle\Entity\Article;
+use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
+use Webkul\UVDesk\AutomationBundle\Entity\PreparedResponses;
+
 
 class TicketService
 {
@@ -133,7 +147,7 @@ class TicketService
     public function getDefaultType()
     {
         $typeCode = $this->container->getParameter('uvdesk.default.ticket.type');
-        $ticketType = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findOneByCode($typeCode);
+        $ticketType = $this->entityManager->getRepository(TicketType::class)->findOneByCode($typeCode);
 
         return !empty($ticketType) ? $ticketType : null;
     }
@@ -141,7 +155,7 @@ class TicketService
     public function getDefaultStatus()
     {
         $statusCode = $this->container->getParameter('uvdesk.default.ticket.status');
-        $ticketStatus = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->findOneByCode($statusCode);
+        $ticketStatus = $this->entityManager->getRepository(TicketStatus::class)->findOneByCode($statusCode);
 
         return !empty($ticketStatus) ? $ticketStatus : null;
     }
@@ -149,7 +163,7 @@ class TicketService
     public function getDefaultPriority()
     {
         $priorityCode = $this->container->getParameter('uvdesk.default.ticket.priority');
-        $ticketPriority = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketPriority')->findOneByCode($priorityCode);
+        $ticketPriority = $this->entityManager->getRepository(TicketPriority::class)->findOneByCode($priorityCode);
 
         return !empty($ticketPriority) ? $ticketPriority : null;
     }
@@ -170,7 +184,7 @@ class TicketService
     public function getMemberCreateTicketSnippet()
     {   
         $twigTemplatingEngine = $this->container->get('twig');
-        $ticketTypeCollection = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findByIsActive(true);
+        $ticketTypeCollection = $this->entityManager->getRepository(TicketType::class)->findByIsActive(true);
         
         $isFolderExist  =  $this->userService->isfileExists('apps/uvdesk/form-component');
         if ($isFolderExist) {
@@ -195,13 +209,13 @@ class TicketService
 
     public function createTicket(array $params = [])
     {
-        $thread = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Thread')->findOneByMessageId($params['messageId']);
+        $thread = $this->entityManager->getRepository(Thread::class)->findOneByMessageId($params['messageId']);
 
         if (empty($thread)) {
-            $user = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneByEmail($params['from']);
+            $user = $this->entityManager->getRepository(User::class)->findOneByEmail($params['from']);
 
             if (empty($user) || null == $user->getCustomerInstance()) {
-                $role = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportRole')->findOneByCode($params['role']);
+                $role = $this->entityManager->getRepository(SupportRole::class)->findOneByCode($params['role']);
                 if (empty($role)) {
                     throw new \Exception("The requested role '" . $params['role'] . "' does not exist.");
                 }
@@ -344,7 +358,7 @@ class TicketService
             $this->entityManager->persist($agentActivity);
         }
         
-        $ticket->currentThread = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Thread')->getTicketCurrentThread($ticket);
+        $ticket->currentThread = $this->entityManager->getRepository(Thread::class)->getTicketCurrentThread($ticket);
         
         $this->entityManager->persist($thread);
         $this->entityManager->flush();
@@ -444,7 +458,7 @@ class TicketService
             return $types;
 
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('tp.id','tp.code As name')->from('UVDeskCoreFrameworkBundle:TicketType', 'tp')
+        $qb->select('tp.id','tp.code As name')->from(TicketType::class, 'tp')
                 ->andwhere('tp.isActive = 1')
                 ->orderBy('tp.code', 'ASC');
 
@@ -458,7 +472,7 @@ class TicketService
             return $statuses;
 
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('ts')->from('UVDeskCoreFrameworkBundle:TicketStatus', 'ts');
+        $qb->select('ts')->from(TicketStatus::class, 'ts');
         // $qb->orderBy('ts.sortOrder', Criteria::ASC);
 
         return $statuses = $qb->getQuery()->getArrayResult();
@@ -467,7 +481,7 @@ class TicketService
     public function getTicketTotalThreads($ticketId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('COUNT(th.id) as threadCount')->from('UVDeskCoreFrameworkBundle:Ticket', 't')
+        $qb->select('COUNT(th.id) as threadCount')->from(Ticket::class, 't')
             ->leftJoin('t.threads', 'th')
             ->andWhere('t.id = :ticketId')
             ->andWhere('th.threadType = :threadType')
@@ -475,7 +489,7 @@ class TicketService
             ->setParameter('ticketId', $ticketId);
 
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('COUNT(t.id) as threadCount')->from('UVDeskCoreFrameworkBundle:Thread', 't')
+        $qb->select('COUNT(t.id) as threadCount')->from(Thread::class, 't')
             ->andWhere('t.ticket = :ticketId')
             ->andWhere('t.threadType = :threadType')
             ->setParameter('threadType','reply')
@@ -487,7 +501,7 @@ class TicketService
     public function getTicketTags($request = null)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('tg')->from('UVDeskCoreFrameworkBundle:Tag', 'tg');
+        $qb->select('tg')->from(Tag::class, 'tg');
 
         if($request) {
             $qb->andwhere("tg.name LIKE :tagName");
@@ -503,18 +517,18 @@ class TicketService
     {
         $params = $request->query->all();
         $activeUser = $this->container->get('user.service')->getSessionUser();
-        $activeUserTimeZone = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'Knowledgebase']);
+        $activeUserTimeZone = $this->entityManager->getRepository(Website::class)->findOneBy(['code' => 'Knowledgebase']);
         $agentTimeZone = !empty($activeUser->getTimezone()) ? $activeUser->getTimezone() : $activeUserTimeZone->getTimezone();
         $agentTimeFormat = !empty($activeUser->getTimeformat()) ? $activeUser->getTimeformat() : $activeUserTimeZone->getTimeformat();
 
-        $ticketRepository = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket');
+        $ticketRepository = $this->entityManager->getRepository(Ticket::class);
 
-        $website = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'helpdesk']);
+        $website = $this->entityManager->getRepository(Website::class)->findOneBy(['code' => 'helpdesk']);
         $timeZone = $website->getTimezone();
         $timeFormat = $website->getTimeformat();
 
-        $supportGroupReference = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->getUserSupportGroupReferences($activeUser);
-        $supportTeamReference  = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->getUserSupportTeamReferences($activeUser);
+        $supportGroupReference = $this->entityManager->getRepository(User::class)->getUserSupportGroupReferences($activeUser);
+        $supportTeamReference  = $this->entityManager->getRepository(User::class)->getUserSupportTeamReferences($activeUser);
 
         // Get base query
         $baseQuery = $ticketRepository->prepareBaseTicketQuery($activeUser, $supportGroupReference, $supportTeamReference, $params);
@@ -548,7 +562,7 @@ class TicketService
 
         $ticketThreadCountQueryTemplate = $this->entityManager->createQueryBuilder()
             ->select('COUNT(thread.id) as threadCount')
-            ->from('UVDeskCoreFrameworkBundle:Ticket', 'ticket')
+            ->from(Ticket::class, 'ticket')
             ->leftJoin('ticket.threads', 'thread')
             ->where('ticket.id = :ticketId')
             ->andWhere('thread.threadType = :threadType')->setParameter('threadType', 'reply');
@@ -655,8 +669,8 @@ class TicketService
     {
         $data = array();
         $queryBuilder = $this->entityManager->createQueryBuilder();
-        $ticketRepository = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket');
-        $queryBuilder->select('COUNT(DISTINCT ticket.id) as ticketCount')->from('UVDeskCoreFrameworkBundle:Ticket', 'ticket');
+        $ticketRepository = $this->entityManager->getRepository(Ticket::class);
+        $queryBuilder->select('COUNT(DISTINCT ticket.id) as ticketCount')->from(Ticket::class, 'ticket');
             
         // // applyFilter according to permission
         $queryBuilder->where('ticket.isTrashed != 1');
@@ -738,11 +752,11 @@ class TicketService
         $entityManager = $this->entityManager;
         $activeUser = $this->container->get('user.service')->getSessionUser();
 
-        $activeUserTimeZone = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'Knowledgebase']);
+        $activeUserTimeZone = $this->entityManager->getRepository(Website::class)->findOneBy(['code' => 'Knowledgebase']);
         $agentTimeZone = !empty($activeUser->getTimezone()) ? $activeUser->getTimezone() : $activeUserTimeZone->getTimezone();
         $agentTimeFormat = !empty($activeUser->getTimeformat()) ? $activeUser->getTimeformat() : $activeUserTimeZone->getTimeformat();
         
-        $threadRepository = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Thread');
+        $threadRepository = $entityManager->getRepository(Thread::class);
         $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
 
         // Get base query
@@ -766,7 +780,7 @@ class TicketService
         $paginationParams = $pagination->getParams();
         $paginationData = $pagination->getPaginationData();
 
-        $website = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'helpdesk']);
+        $website = $this->entityManager->getRepository(Website::class)->findOneBy(['code' => 'helpdesk']);
         $timeZone = $website->getTimezone();
         $timeFormat = $website->getTimeformat();
 
@@ -839,7 +853,7 @@ class TicketService
         $params = $request->request->get('data');
 
         foreach ($params['ids'] as $ticketId) {
-            $ticket = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->find($ticketId);
+            $ticket = $this->entityManager->getRepository(Ticket::class)->find($ticketId);
 
             if (false == $this->isTicketAccessGranted($ticket)) {
 		        throw new \Exception('Access Denied', 403);
@@ -892,7 +906,7 @@ class TicketService
                 case 'agent':
                     if ($ticket->getAgent() == null || $ticket->getAgent() && $ticket->getAgent()->getId() != $params['targetId']) {
 
-                        $agent = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->find($params['targetId']);
+                        $agent = $this->entityManager->getRepository(User::class)->find($params['targetId']);
                         $ticket->setAgent($agent);
     
                         $this->entityManager->persist($ticket);
@@ -908,7 +922,7 @@ class TicketService
                 case 'status':
                     if ($ticket->getStatus() == null || $ticket->getStatus() && $ticket->getStatus()->getId() != $params['targetId']) {
 
-                        $status = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketStatus')->findOneById($params['targetId']);
+                        $status = $this->entityManager->getRepository(TicketStatus::class)->findOneById($params['targetId']);
                         $ticket->setStatus($status);
 
                         $this->entityManager->persist($ticket);
@@ -925,7 +939,7 @@ class TicketService
                 case 'type':
                     if ($ticket->getType() == null || $ticket->getType() && $ticket->getType()->getId() != $params['targetId']) {
 
-                        $type = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findOneById($params['targetId']);
+                        $type = $this->entityManager->getRepository(TicketType::class)->findOneById($params['targetId']);
                         $ticket->setType($type);
     
                         $this->entityManager->persist($ticket);
@@ -942,7 +956,7 @@ class TicketService
                 case 'group':
                     if ($ticket->getSupportGroup() == null || $ticket->getSupportGroup() && $ticket->getSupportGroup()->getId() != $params['targetId']) {
 
-                        $group = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')->find($params['targetId']);
+                        $group = $this->entityManager->getRepository(SupportGroup::class)->find($params['targetId']);
                         $ticket->setSupportGroup($group);
     
                         $this->entityManager->persist($ticket);
@@ -959,7 +973,7 @@ class TicketService
                 case 'team':
                     if ($ticket->getSupportTeam() == null || $ticket->getSupportTeam() && $ticket->getSupportTeam()->getId() != $params['targetId']){
 
-                        $team = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportTeam')->find($params['targetId']);
+                        $team = $this->entityManager->getRepository(SupportTeam::class)->find($params['targetId']);
                         $ticket->setSupportTeam($team);
                         
                         $this->entityManager->persist($ticket);
@@ -976,7 +990,7 @@ class TicketService
                 case 'priority':
                     if ($ticket->getPriority() == null || $ticket->getPriority() && $ticket->getPriority()->getId() != $params['targetId']) {
                         
-                        $priority = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketPriority')->find($params['targetId']);
+                        $priority = $this->entityManager->getRepository(TicketPriority::class)->find($params['targetId']);
                         $ticket->setPriority($priority);
     
                         $this->entityManager->persist($ticket);
@@ -991,9 +1005,9 @@ class TicketService
 
                     break;
                 case 'label':
-                    $label = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportLabel')->find($params['targetId']);
+                    $label = $this->entityManager->getRepository(SupportLabel::class)->find($params['targetId']);
                     
-                    if ($label && !$this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->isLabelAlreadyAdded($ticket, $label)) {
+                    if ($label && !$this->entityManager->getRepository(Ticket::class)->isLabelAlreadyAdded($ticket, $label)) {
                         $ticket->addSupportLabel($label);
                     }
                     
@@ -1063,7 +1077,7 @@ class TicketService
     {
         // Get base query
         $params = $request->query->all();
-        $ticketRepository = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket');
+        $ticketRepository = $this->entityManager->getRepository(Ticket::class);
         $paginationQuery = $ticketRepository->prepareBasePaginationTicketTypesQuery($params);
 
         // Apply Pagination
@@ -1097,7 +1111,7 @@ class TicketService
     {
         // Get base query
         $params = $request->query->all();
-        $ticketRepository = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket');
+        $ticketRepository = $this->entityManager->getRepository(Ticket::class);
         $baseQuery = $ticketRepository->prepareBasePaginationTagsQuery($params);
 
         // Apply Pagination
@@ -1119,7 +1133,7 @@ class TicketService
         $paginationData['url'] = '#' . $this->container->get('uvdesk.service')->buildPaginationQuery($paginationParams);
 
         if (in_array('UVDeskSupportCenterBundle', array_keys($this->container->getParameter('kernel.bundles')))) {
-            $articleRepository = $this->entityManager->getRepository('UVDeskSupportCenterBundle:Article');
+            $articleRepository = $this->entityManager->getRepository(Article::class);
 
             return [
                 'tags' => array_map(function ($supportTag) use ($articleRepository) {
@@ -1148,7 +1162,7 @@ class TicketService
 
     public function getTicketInitialThreadDetails(Ticket $ticket)
     {
-        $initialThread = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Thread')->findOneBy([
+        $initialThread = $this->entityManager->getRepository(Thread::class)->findOneBy([
             'ticket' => $ticket,
             'threadType' => 'create',
         ]);
@@ -1188,7 +1202,7 @@ class TicketService
     public function getCreateReply($ticketId, $firewall = 'member')
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("th,a,u.id as userId")->from('UVDeskCoreFrameworkBundle:Thread', 'th')
+        $qb->select("th,a,u.id as userId")->from(Thread::class, 'th')
                 ->leftJoin('th.ticket','t')
                 ->leftJoin('th.attachments', 'a')
                 ->leftJoin('th.user','u')
@@ -1231,7 +1245,7 @@ class TicketService
 
     public function hasAttachments($ticketId) {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("DISTINCT COUNT(a.id) as attachmentCount")->from('UVDeskCoreFrameworkBundle:Thread', 'th')
+        $qb->select("DISTINCT COUNT(a.id) as attachmentCount")->from(Thread::class, 'th')
                 ->leftJoin('th.ticket','t')
                 ->leftJoin('th.attachments','a')
                 ->andWhere('t.id = :ticketId')
@@ -1263,7 +1277,7 @@ class TicketService
         $currentUser = $container->get('user.service')->getCurrentUser();
 
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('COUNT(DISTINCT t) as ticketCount,sl.id')->from("UVDeskCoreFrameworkBundle:Ticket", 't')
+        $qb->select('COUNT(DISTINCT t) as ticketCount,sl.id')->from(Ticket::class, 't')
                 ->leftJoin('t.supportLabels','sl')
                 ->andwhere('sl.user = :userId')
                 ->setParameter('userId', $currentUser->getId())
@@ -1273,7 +1287,7 @@ class TicketService
 
         $data = array();
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('sl.id,sl.name,sl.colorCode')->from("UVDeskCoreFrameworkBundle:SupportLabel", 'sl')
+        $qb->select('sl.id,sl.name,sl.colorCode')->from(SupportLabel::class, 'sl')
                 ->andwhere('sl.user = :userId')
                 ->setParameter('userId', $currentUser->getId());
 
@@ -1297,7 +1311,7 @@ class TicketService
             return $labels;
 
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('sl')->from('UVDeskCoreFrameworkBundle:SupportLabel', 'sl')
+        $qb->select('sl')->from(SupportLabel::class, 'sl')
             ->andwhere('sl.user = :userId')
             ->setParameter('userId', $this->getUser()->getId());
 
@@ -1312,7 +1326,7 @@ class TicketService
     public function getTicketCollaborators($ticketId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("DISTINCT c.id, c.email, CONCAT(c.firstName,' ', c.lastName) AS name, userInstance.profileImagePath, userInstance.profileImagePath as smallThumbnail")->from('UVDeskCoreFrameworkBundle:Ticket', 't')
+        $qb->select("DISTINCT c.id, c.email, CONCAT(c.firstName,' ', c.lastName) AS name, userInstance.profileImagePath, userInstance.profileImagePath as smallThumbnail")->from(Ticket::class, 't')
                 ->leftJoin('t.collaborators', 'c')
                 ->leftJoin('c.userInstance', 'userInstance')
                 ->andwhere('t.id = :ticketId')
@@ -1327,7 +1341,7 @@ class TicketService
     public function getTicketTagsById($ticketId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('tg')->from('UVDeskCoreFrameworkBundle:Tag', 'tg')
+        $qb->select('tg')->from(Tag::class, 'tg')
                 ->leftJoin('tg.tickets' ,'t')
                 ->andwhere('t.id = :ticketId')
                 ->setParameter('ticketId', $ticketId);
@@ -1338,7 +1352,7 @@ class TicketService
     public function getTicketLabels($ticketId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('DISTINCT sl.id,sl.name,sl.colorCode')->from('UVDeskCoreFrameworkBundle:Ticket', 't')
+        $qb->select('DISTINCT sl.id,sl.name,sl.colorCode')->from(Ticket::class, 't')
                 ->leftJoin('t.supportLabels','sl')
                 ->leftJoin('sl.user','slu')
                 ->andWhere('slu.id = :userId')
@@ -1354,7 +1368,7 @@ class TicketService
     public function getUserLabels()
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('sl')->from('UVDeskCoreFrameworkBundle:SupportLabel', 'sl')
+        $qb->select('sl')->from(SupportLabel::class, 'sl')
                 ->leftJoin('sl.user','slu')
                 ->andWhere('slu.id = :userId')
                 ->setParameter('userId', $this->getUser()->getId());
@@ -1367,7 +1381,7 @@ class TicketService
     public function getTicketLabelsAll($ticketId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('DISTINCT sl.id,sl.name,sl.colorCode')->from('UVDeskCoreFrameworkBundle:Ticket', 't')
+        $qb->select('DISTINCT sl.id,sl.name,sl.colorCode')->from(Ticket::class, 't')
                 ->leftJoin('t.supportLabels','sl')
                 ->andWhere('t.id = :ticketId')
                 ->setParameter('ticketId', $ticketId);
@@ -1385,7 +1399,7 @@ class TicketService
         $teamIds = []; 
         $userId = $this->container->get('user.service')->getCurrentUser()->getAgentInstance()->getId();
 
-        $preparedResponseRepo = $this->entityManager->getRepository('UVDeskAutomationBundle:PreparedResponses')->findAll();
+        $preparedResponseRepo = $this->entityManager->getRepository(PreparedResponses::class)->findAll();
 
         foreach ($preparedResponseRepo as $pr) {
             if ($userId == $pr->getUser()->getId()) {
@@ -1443,7 +1457,7 @@ class TicketService
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('DISTINCT mw')
-            ->from('UVDeskAutomationBundle:PreparedResponses', 'mw')
+            ->from(PreparedResponses::class, 'mw')
             ->where('mw.status = 1')
             ->andWhere('mw.id IN (:ids)')
             ->setParameter('ids', $preparedResponseIds);
@@ -1458,7 +1472,7 @@ class TicketService
         $teamIds = []; 
         $userId = $this->container->get('user.service')->getCurrentUser()->getAgentInstance()->getId();
 
-        $savedReplyRepo = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SavedReplies')->findAll();
+        $savedReplyRepo = $this->entityManager->getRepository(SavedReplies::class)->findAll();
 
         foreach ($savedReplyRepo as $sr) {
             if ($userId == $sr->getUser()->getId()) {
@@ -1516,7 +1530,7 @@ class TicketService
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('DISTINCT sr')
-        ->from('UVDeskCoreFrameworkBundle:SavedReplies', 'sr')
+        ->from(SavedReplies::class, 'sr')
         ->Where('sr.id IN (:ids)')
         ->setParameter('ids', $savedReplyIds);
         
@@ -1530,7 +1544,7 @@ class TicketService
             return $priorities;
 
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('tp')->from('UVDeskCoreFrameworkBundle:TicketPriority', 'tp');
+        $qb->select('tp')->from(TicketPriority::class, 'tp');
 
         return $priorities = $qb->getQuery()->getArrayResult();
     }
@@ -1538,7 +1552,7 @@ class TicketService
     public function getTicketLastThread($ticketId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("th")->from('UVDeskCoreFrameworkBundle:Thread', 'th')
+        $qb->select("th")->from(Thread::class, 'th')
                 ->leftJoin('th.ticket','t')
                 ->andWhere('t.id = :ticketId')
                 ->setParameter('ticketId',$ticketId)
@@ -1550,7 +1564,7 @@ class TicketService
     public function getlastReplyAgentName($ticketId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("u.id,CONCAT(u.firstName,' ', u.lastName) AS name,u.firstName")->from('UVDeskCoreFrameworkBundle:Thread', 'th')
+        $qb->select("u.id,CONCAT(u.firstName,' ', u.lastName) AS name,u.firstName")->from(Thread::class, 'th')
                 ->leftJoin('th.ticket','t')
                 ->leftJoin('th.user', 'u')
                 ->leftJoin('u.userInstance', 'userInstance')
@@ -1572,7 +1586,7 @@ class TicketService
     {
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $queryBuilder->select("th, a, u.id as userId")
-            ->from('UVDeskCoreFrameworkBundle:Thread', 'th')
+            ->from(Thread::class, 'th')
             ->leftJoin('th.ticket','t')
             ->leftJoin('th.attachments', 'a')
             ->leftJoin('th.user','u')
@@ -1619,8 +1633,8 @@ class TicketService
 
     public function getSavedReplyContent($savedReplyId, $ticketId)
     {
-        $ticket = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->find($ticketId);
-        $savedReply = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:SavedReplies')->findOneById($savedReplyId);
+        $ticket = $this->entityManager->getRepository(Ticket::class)->find($ticketId);
+        $savedReply = $this->entityManager->getRepository(SavedReplies::class)->findOneById($savedReplyId);
         $emailPlaceholders = $this->getSavedReplyPlaceholderValues($ticket, 'customer');
 
         return $this->container->get('email.service')->processEmailContent($savedReply->getMessage(), $emailPlaceholders, true);
@@ -1677,7 +1691,7 @@ class TicketService
     {
         $flag = false;
         $email = strtolower($email);
-        $knowlegeBaseWebsite = $this->entityManager->getRepository('UVDeskSupportCenterBundle:KnowledgebaseWebsite')->findOneBy(['website' => $website->getId(), 'isActive' => 1]);
+        $knowlegeBaseWebsite = $this->entityManager->getRepository(KnowledgebaseWebsite::class)->findOneBy(['website' => $website->getId(), 'isActive' => 1]);
         $list = $this->container->get('user.service')->getWebsiteSpamDetails($knowlegeBaseWebsite);
 
         // Blacklist
@@ -1714,7 +1728,7 @@ class TicketService
 
     public function timeZoneConverter($dateFlag)
     {
-        $website = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:Website')->findOneBy(['code' => 'Knowledgebase']);
+        $website = $this->entityManager->getRepository(Website::class)->findOneBy(['code' => 'Knowledgebase']);
         $timeZone = $website->getTimezone();
         $timeFormat = $website->getTimeformat();
 
@@ -1890,5 +1904,18 @@ class TicketService
                 ->setParameter('userId', $currentUser->getId());
 
         return $qb->getQuery()->getArrayResult();
+    }
+
+    // return attachemnt for initial thread
+    public function getInitialThread($ticketId)
+    {
+        $firstThread = null;
+        $intialThread = $this->entityManager->getRepository(Thread::class)->findBy(['ticket'=>$ticketId]);
+        foreach ($intialThread as $key => $value) {
+            if($value->getThreadType() == "create"){
+                $firstThread = $value;
+            }
+        }
+        return $firstThread;
     }
 }

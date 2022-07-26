@@ -5,6 +5,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketType;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class UpdateType extends WorkflowAction
@@ -28,19 +29,21 @@ class UpdateType extends WorkflowAction
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
 
+        $collection = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findBy(['isActive' => true], ['code' => 'ASC']);
+
         return array_map(function ($ticketType) {
             return [
                 'id' => $ticketType->getId(),
-                'name' => $ticketType->getDescription(),
+                'name' => $ticketType->getCode(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findByIsActive(1));
+        }, $collection);
     }
 
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         if($entity instanceof Ticket && $value) {
-            $type = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->find($value);
+            $type = $entityManager->getRepository(TicketType::class)->find($value);
             if($type) {
                 $entity->setType($type);
                 $entityManager->persist($entity);

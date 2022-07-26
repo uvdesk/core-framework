@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\ValidationService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketType;
 
 class CustomFieldsService {
 
@@ -66,7 +67,7 @@ class CustomFieldsService {
                     $customField['validation']['required'] = $customField['required'];
                     $customField['validation']['fieldtype'] = $customField['fieldType'] ? : $customField['validation']['fieldtype'] ;
                     if(count($customField['customFieldsDependency'])) {
-                        $ticketType = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findOneById(isset($data['type']) ? $data['type'] : '' );
+                        $ticketType = $this->entityManager->getRepository(TicketType::class)->findOneById(isset($data['type']) ? $data['type'] : '' );
                         if($ticketType) {
                             $typeId = $ticketType->getId();
                             $flag = 0;
@@ -117,7 +118,7 @@ class CustomFieldsService {
                     $customFieldValue = isset($data['customFields'][$customField['id']]) ? $data['customFields'][$customField['id']] : null;
                 }
                 if(count($customField['customFieldsDependency'])) {
-                    $ticketType = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findOneById(isset($data['type']) ? $data['type'] : '' );
+                    $ticketType = $this->entityManager->getRepository(TicketType::class)->findOneById(isset($data['type']) ? $data['type'] : '' );
                     if($ticketType) {
                         $typeId = $ticketType->getId();
                         $flag = 0;
@@ -175,7 +176,7 @@ class CustomFieldsService {
                 $customField['validation']['required'] = $customField['required'];
                 $customField['validation']['fieldtype'] = $customField['fieldType'] ? : $customField['validation']['fieldtype'];
                 if(count($customField['customFieldsDependency'])) {
-                    $ticketType = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findOneById(isset($data['type']) ? $data['type'] : '' );
+                    $ticketType = $this->entityManager->getRepository(TicketType::class)->findOneById(isset($data['type']) ? $data['type'] : '' );
                     if($ticketType) {
                         $typeId = $ticketType->getId();
                         $flag = 0;
@@ -230,7 +231,7 @@ class CustomFieldsService {
                 }
 
                 if(count($customField['dependency'])) {
-                    $ticketType = $this->entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketType')->findOneById(isset($data['type']) ? $data['type'] : '' );
+                    $ticketType = $this->entityManager->getRepository(TicketType::class)->findOneById(isset($data['type']) ? $data['type'] : '' );
                     if($ticketType) {
                         $typeId = $ticketType->getId();
                         $flag = 0;

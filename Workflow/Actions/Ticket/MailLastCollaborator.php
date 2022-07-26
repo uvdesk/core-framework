@@ -6,6 +6,7 @@ use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\EmailTemplates;
 
 class MailLastCollaborator extends WorkflowAction
 {
@@ -33,7 +34,7 @@ class MailLastCollaborator extends WorkflowAction
                 'id' => $emailTemplate->getId(),
                 'name' => $emailTemplate->getName(),
             ];
-        }, $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findAll());
+        }, $entityManager->getRepository(EmailTemplates::class)->findAll());
 
         return $emailTemplateCollection;
     }
@@ -42,7 +43,7 @@ class MailLastCollaborator extends WorkflowAction
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         if($entity instanceof Ticket) {
-            $emailTemplate = $entityManager->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates')->findOneById($value);
+            $emailTemplate = $entityManager->getRepository(EmailTemplates::class)->findOneById($value);
             if(count($entity->getCollaborators()) && $emailTemplate) {
                 $mailData = array();
                 $createThread = $container->get('ticket.service')->getCreateReply($entity->getId(),false);

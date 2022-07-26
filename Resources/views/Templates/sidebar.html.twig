@@ -42,6 +42,26 @@
 		height: 30px;
 	} #}
 
+    .uv-wrapper-padding  {
+        padding-left: 300px !important;
+    }
+
+    .uv-wrapper-gap {
+        padding-left: 232px !important;
+    }
+
+    @media screen and (min-width: 1400px) {
+        .uv-sidebar .uv-soft-top a.uv-logo {
+            display: none;
+            margin: 10px 7px;
+        }
+
+        .uv-sidebar .uv-soft-top .uv-hamburger {
+            display: block;
+            margin: 24px 20px;
+        }
+    }
+
     @media only screen and (max-width: 900px) {
         .uv-sidebar ul.uv-menubar.uv-language li a {
             width: 58px;
@@ -53,10 +73,13 @@
 	<script type="text/javascript">
 		document.addEventListener("DOMContentLoaded", function(e) {
 			window.dispatchEvent(new Event('resize'));
-		    var uvView = document.querySelector(".uv-view");
-			if(uvView && uvView.offsetWidth <= 1340) {
-				document.cookie = "uv-sidebar-status=1; expires=Wed, 01 Jan 2020 00:00:00 GMT;path=/";
-			}
+            $(window).resize(function() {
+                var uvView = $(window).width();
+                if(uvView && uvView >= 1340) {
+                    console.log(uvView);
+				    document.cookie = "uv-sidebar-status=1; expires=Wed, 01 Jan 2020 00:00:00 GMT;path=/";
+			    }
+            });
 		});
 	</script>
 {% endif %}
@@ -85,4 +108,103 @@
         
 		{{ uvdesk_extensibles.getRegisteredComponent('Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\Dashboard').getNavigationTemplate().render()|raw }}
 	</ul>
+
+    <ul class="uv-menubar uv-language">
+	    {# Sidebar Quike-langauge-select-option #}
+		<li>
+			<a class="uv-cursor">
+				<span style="position: relative">
+					<div class="uv-profile uv-dropdown-other lang-wrapper">
+						<span class="uv-icon uv-skin-svg">
+							<svg xmlns="http://www.w3.org/2000/svg"
+								xmlns:xlink="http://www.w3.org/1999/xlink"
+								width="20px" height="20px">
+								<path fill-rule="evenodd"  fill="rgb(158, 158, 158)"
+								d="M13.076,5.199 L11.543,3.000 L14.505,3.000 L13.076,5.199 ZM12.000,12.000 L12.000,8.763 L13.105,7.061 L15.161,10.010 L16.001,9.395 L13.717,6.119 L15.744,3.000 L17.000,3.000 L17.000,2.000 L15.174,2.000 L15.161,1.990 L15.154,2.000 L13.000,2.000 L13.000,1.000 L12.000,1.000 L12.000,2.000 L10.846,2.000 L10.839,1.990 L10.826,2.000 L9.000,2.000 L9.000,3.000 L10.275,3.000 L12.464,6.141 L11.906,7.000 L7.000,7.000 L7.000,-0.000 L19.000,-0.000 L19.000,12.000 L12.000,12.000 ZM11.000,8.394 L10.999,8.395 L11.000,8.396 L11.000,19.000 L-0.000,19.000 L-0.000,8.000 L11.000,8.000 L11.000,8.394 ZM6.288,9.992 L4.773,9.992 L2.005,16.994 L3.458,16.994 L4.208,15.017 L6.842,15.017 L7.587,16.994 L9.014,16.994 L6.288,9.992 ZM5.538,11.205 C5.555,11.266 5.872,12.215 6.488,14.052 L4.557,14.052 L5.538,11.205 ZM15.000,13.000 L17.000,13.000 L17.000,16.025 L15.000,18.000 C15.000,18.000 14.983,18.000 14.951,18.000 C14.564,18.000 12.000,18.000 12.000,18.000 L12.000,16.000 L15.000,16.000 L15.000,13.000 Z"/>
+							</svg>
+						</span>
+						<span class="uv-menu-item">
+							<span class="" style="color: #BABABA;font-weight: normal;">{{ 'Language'|trans }}: </span>
+							<span style="text-transform:capitalize;color: black;font-weight: normal;">{{ uvdesk_service.getLocales()[app.request.locale] is defined ? uvdesk_service.getLocales()[app.request.locale] : app.request.locale }}</span>
+							<span aria-hidden="true" style="color: rgb(155, 155, 155);">▼</span>
+						</span>
+					</div>
+					<div class="uv-dropdown-list uv-bottom-left">
+						<div class="uv-dropdown-container">
+							<ul>
+								{% for localeCode, localeName in uvdesk_service.getLocales() %}
+									<li data-value="{{ uvdesk_service.getLocaleUrl(localeCode) }}" {% if app.request.locale == localeCode %}class="uv-active"{% endif %} onclick="window.location = this.getAttribute('data-value')">
+										{{ localeName }}
+									</li>
+								{% endfor %}
+							</ul>
+						</div>
+					</div>
+				</span>
+			</a>
+		</li>
+	</ul>
 </div>
+
+	<script type="text/javascript">
+        var uvView = $(window).width();
+        if(uvView && uvView >= 1340) {
+            var uvHamburger =  document.querySelector(".uv-hamburger");
+            var uvWrapper =  document.querySelector(".uv-paper");
+            var uvViewT =  document.querySelector(".uv-view");
+
+            console.log(uvWrapper );
+            uvHamburger.addEventListener("click", () => {
+                var uvSideBar = document.querySelector(".uv-logo");
+                var uvSoftTop = document.querySelector(".uv-soft-top");
+                var uvOpenHamburger = document.querySelector(".open-hamburger");
+                if (uvOpenHamburger) {
+                    if (uvViewT)
+                    	uvViewT.classList.add('open-uvt');
+
+                    uvHamburger.classList.remove('open-hamburger');
+                    uvHamburger.style.margin = '24px 20px'; 
+                    uvSideBar.style.display = 'none';
+                    uvSideBar.style.margin = '10px 7px'; 
+                    uvSoftTop.style.display = 'block';
+                } else {
+					if (uvViewT)
+                    	uvViewT.classList.add('open-uvt');
+
+                    uvHamburger.classList.add('open-hamburger');
+                    uvHamburger.style.margin = '24px 7px'; 
+                    uvSideBar.style.display = 'block';
+                    uvSideBar.style.margin = '10px 18px'; 
+                    uvSoftTop.style.display = 'flex';
+
+                }
+            }); 
+        }
+
+        {# $(window).on('load', function() {
+            var uvView = $(window).width();
+            if(uvView && uvView > 1340) {
+                var uvHamburger =  document.querySelector(".uv-hamburger");
+                uvHamburger.addEventListener("click", () => {
+                    var uvSideBar = document.querySelector(".uv-sidebar");
+                    var uvSideBarActive = uvSideBar.classList.add('uv-sidebar-active'); 
+                    var uvLogo = document.querySelector(".uv-logo");
+                    uvLogo.style.display = 'none';
+                    uvSideBarActive.style.overflow = 'visible';
+                    uvSideBarActive.style.width = '60px';
+                    
+                }); 
+            }
+        }); #}
+
+        $(window).resize(function() {
+        var uvView = $(window).width();
+        if(uvView && uvView <= 1340) {
+            var uvSideBar = document.querySelector(".uv-logo");
+            var uvOpenHamburger = document.querySelector(".open-hamburger");
+            if (uvOpenHamburger && !uvOpenHamburger.is(":hidden")) {
+                uvSideBar.style.display = 'block';
+            }
+        }
+    });
+	</script>

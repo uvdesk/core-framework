@@ -7,6 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup;
 
 class GroupXHR extends AbstractController
 {
@@ -26,7 +27,7 @@ class GroupXHR extends AbstractController
         }
 
         if (true === $request->isXmlHttpRequest()) {
-            $paginationResponse = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')->getAllGroups($request->query, $container);
+            $paginationResponse = $this->getDoctrine()->getRepository(SupportGroup::class)->getAllGroups($request->query, $container);
 
             return new Response(json_encode($paginationResponse), 200, ['Content-Type' => 'application/json']);
         }
@@ -43,7 +44,7 @@ class GroupXHR extends AbstractController
         $request = $this->get('request_stack')->getCurrentRequest();
         if ($request->getMethod() == "DELETE") {
             $entityManager = $this->getDoctrine()->getManager();
-            $supportGroup = $entityManager->getRepository('UVDeskCoreFrameworkBundle:SupportGroup')->findOneById($supportGroupId);
+            $supportGroup = $entityManager->getRepository(SupportGroup::class)->findOneById($supportGroupId);
 
             if (!empty($supportGroup)) {
                 $entityManager->remove($supportGroup);

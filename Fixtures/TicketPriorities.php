@@ -5,6 +5,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Fixtures;
 use Doctrine\Persistence\ObjectManager;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Doctrine\Bundle\FixturesBundle\Fixture as DoctrineFixture;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketPriority;
 
 class TicketPriorities extends DoctrineFixture
 {
@@ -33,7 +34,7 @@ class TicketPriorities extends DoctrineFixture
 
     public function load(ObjectManager $entityManager)
     {
-        $availableTicketPriorities = $entityManager->getRepository('UVDeskCoreFrameworkBundle:TicketPriority')->findAll();
+        $availableTicketPriorities = $entityManager->getRepository(TicketPriority::class)->findAll();
         $availableTicketPriorities = array_map(function ($ticketPriority) {
             return $ticketPriority->getCode();
         }, $availableTicketPriorities);

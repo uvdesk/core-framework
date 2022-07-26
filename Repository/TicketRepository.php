@@ -7,6 +7,8 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\Common\Collections\Criteria;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketType;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Tag;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -32,7 +34,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
     {
         // $queryBuilder = $this->getEntityManager()->createQueryBuilder()
         //     ->select("DISTINCT supportLabel.id, supportLabel.name, supportLabel.colorCode as color")
-        //     ->from('UVDeskCoreFrameworkBundle:Ticket', 'ticket')
+        //     ->from(Ticket::class, 'ticket')
         //     ->leftJoin('ticket.supportLabels', 'supportLabel')
         //     // ->leftJoin('supportLabel.user', 'user')
         //     ->where('ticket.id = :ticketId')->setParameter('ticketId', $ticket->getId())
@@ -269,7 +271,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 CONCAT(customer.firstName, ' ', customer.lastName) AS customerName, 
                 CONCAT(agent.firstName,' ', agent.lastName) AS agentName
             ")
-            ->from('UVDeskCoreFrameworkBundle:Ticket', 'ticket')
+            ->from(Ticket::class, 'ticket')
             ->leftJoin('ticket.type', 'type')
             ->leftJoin('ticket.agent', 'agent')
             ->leftJoin('ticket.threads', 'threads')
@@ -303,7 +305,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select("ticketType")
-            ->from('UVDeskCoreFrameworkBundle:TicketType', 'ticketType');
+            ->from(TicketType::class, 'ticketType');
 
         // Apply filters
         foreach ($params as $field => $fieldValue) {
@@ -339,7 +341,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select('supportTag.id as id, supportTag.name as name, COUNT(ticket) as totalTickets')
-            ->from('UVDeskCoreFrameworkBundle:Tag', 'supportTag')
+            ->from(Tag::class, 'supportTag')
             ->leftJoin('supportTag.tickets', 'ticket')
             ->groupBy('supportTag.id');
 
@@ -378,7 +380,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 status.id as statusId, 
                 status.code as tab
             ")
-            ->from('UVDeskCoreFrameworkBundle:Ticket', 'ticket')
+            ->from(Ticket::class, 'ticket')
             ->leftJoin('ticket.type',   'type')
             ->leftJoin('ticket.agent', 'agent')
             ->leftJoin('ticket.status', 'status')
@@ -413,7 +415,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
     {
         $totalThreads = $this->getEntityManager()->createQueryBuilder()
             ->select('COUNT(thread.id) as threads')
-            ->from('UVDeskCoreFrameworkBundle:Ticket', 'ticket')
+            ->from(Ticket::class, 'ticket')
             ->leftJoin('ticket.threads', 'thread')
             ->where('ticket.id = :ticketId')->setParameter('ticketId', $ticketId)
             ->andWhere('thread.threadType = :threadType')->setParameter('threadType', $threadType)
@@ -424,7 +426,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
     public function getTicketNavigationIteration($ticket, $container)
     {
-        $ticketsCollection = $this->getEntityManager()->getRepository('UVDeskCoreFrameworkBundle:Ticket')
+        $ticketsCollection = $this->getEntityManager()->getRepository(Ticket::class)
                    ->getAllTickets(null, $container);
 
         if ($ticketsCollection)
@@ -447,7 +449,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select('COUNT(ticket.id) as tickets')
-            ->from('UVDeskCoreFrameworkBundle:Ticket', 'ticket')
+            ->from(Ticket::class, 'ticket')
             ->leftJoin('ticket.priority', 'p')
             ->leftJoin('ticket.status', 's')
             ->leftJoin('ticket.agent', 'a')
@@ -462,8 +464,8 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->orderBy('ticket.id', Criteria::DESC);
 
         $agent = $userService->getCurrentUser();
-        $supportGroupReference = $this->getEntityManager()->getRepository('UVDeskCoreFrameworkBundle:User')->getUserSupportGroupReferences($agent);
-        $supportTeamReference  = $this->getEntityManager()->getRepository('UVDeskCoreFrameworkBundle:User')->getUserSupportTeamReferences($agent);
+        $supportGroupReference = $this->getEntityManager()->getRepository(User::class)->getUserSupportGroupReferences($agent);
+        $supportTeamReference  = $this->getEntityManager()->getRepository(User::class)->getUserSupportTeamReferences($agent);
         
         $this->addPermissionFilter($queryBuilder, $agent, $supportGroupReference, $supportTeamReference);
 
@@ -473,7 +475,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
     public function isLabelAlreadyAdded($ticket,$label)
     {
         $qb = $this->getEntityManager()->createQueryBuilder();
-        $qb->select('COUNT(t.id) as ticketCount')->from("UVDeskCoreFrameworkBundle:Ticket", 't')
+        $qb->select('COUNT(t.id) as ticketCount')->from(Ticket::class, 't')
                 ->leftJoin('t.supportLabels','tl')
                 ->andwhere('tl.id = :labelId')
                 ->andwhere('t.id = :ticketId')
@@ -565,8 +567,8 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 ->orderBy('ticket.id', Criteria::DESC);
 
         $user = $userService->getCurrentUser();
-        $supportGroupReference = $this->getEntityManager()->getRepository('UVDeskCoreFrameworkBundle:User')->getUserSupportGroupReferences($user);
-        $supportTeamReference  = $this->getEntityManager()->getRepository('UVDeskCoreFrameworkBundle:User')->getUserSupportTeamReferences($user);
+        $supportGroupReference = $this->getEntityManager()->getRepository(User::class)->getUserSupportGroupReferences($user);
+        $supportTeamReference  = $this->getEntityManager()->getRepository(User::class)->getUserSupportTeamReferences($user);
 
         // if($currentUser->getRole() == "ROLE_AGENT" && $currentUser->detail['agent']->getTicketView() != UserData::GLOBAL_ACCESS) {
         //     $this->em->getRepository('WebkulTicketBundle:Ticket')->addPermissionFilter($qb, $this->container, false);
@@ -699,7 +701,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
     public function getAgentTickets($agentId,$container) {
         $qb = $this->getEntityManager()->createQueryBuilder();
-        $qb->select('t')->from("UVDeskCoreFrameworkBundle:Ticket", 't');
+        $qb->select('t')->from(Ticket::class, 't');
 
         $qb->andwhere('t.agent = :agentId');
         $qb->setParameter('agentId',$agentId);

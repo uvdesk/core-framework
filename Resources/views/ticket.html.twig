@@ -555,7 +555,7 @@
                         <label class="uv-aside-select-label">{{ 'Type'|trans }}</label>
                         <div>
                             {% if user_service.isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_TYPE') %}
-                                <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.type ? ticket.type.id : '-- --' }}">{{ ticket.type ? ticket.type.description : 'Not Assigned'|trans }}</span>
+                                <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.type ? ticket.type.id : '-- --' }}">{{ ticket.type ? ticket.type.code : 'Not Assigned'|trans }}</span>
                                 <div class="uv-dropdown-list uv-bottom-left">
                                     <div class="uv-dropdown-container">
                                         <label>{{ 'Type'|trans }}</label>
@@ -565,14 +565,14 @@
                                     </div>
 
                                     <ul class="uv-search-list type" data-action="type">
-                                        {% for type in ticketTypeCollection %}
-                                            <li data-index="{{ type.id }}"><a href="#">{{ type.code }}</a></li>
+                                        {% for type in ticket_service.getTypes()  %}
+                                            <li data-index="{{ type.id }}"><a href="#">{{ type.name }}</a></li>
                                         {% endfor %}
                                     </ul>
                                 </div>
                             {% else %}
                                 <span class="uv-aside-select-value">
-                                    {{ ticket.type ? ticket.type.description : 'Not Assigned'|trans }}
+                                    {{ ticket.type ? ticket.type.code : 'Not Assigned'|trans }}
                                 </span>
                             {% endif %}
                         </div>

@@ -8,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\EmailTemplates;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -30,7 +30,7 @@ class Email extends AbstractController
 
     protected function getTemplate($request)
     {
-        $emailTemplateRepository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates');
+        $emailTemplateRepository = $this->getDoctrine()->getRepository(EmailTemplates::class);
 
         $data = $emailTemplateRepository->findOneby([
             'id' => $request->attributes->get('template'),
@@ -62,7 +62,7 @@ class Email extends AbstractController
         if ($request->attributes->get('template')) {
             $template = $this->getTemplate($request);
         } else {
-            $template = new Entity\EmailTemplates();
+            $template = new EmailTemplates();
         }
 
         if (!$template) {
@@ -115,7 +115,7 @@ class Email extends AbstractController
         $error = false;
         if ($request->isXmlHttpRequest()) {
             if ($request->getMethod() == 'GET') {
-                $repository = $this->getDoctrine()->getRepository('UVDeskCoreFrameworkBundle:EmailTemplates');
+                $repository = $this->getDoctrine()->getRepository(EmailTemplates::class);
                 $json =  $repository->getEmailTemplates($request->query, $container);
             } else {
                 if ($request->attributes->get('template')){
