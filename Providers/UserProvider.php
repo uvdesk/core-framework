@@ -38,61 +38,68 @@ class UserProvider implements UserProviderInterface
     {
         $request = $this->requestStack->getCurrentRequest();
         $recaptchaDetails = $this->recaptchaService->getRecaptchaDetails();
-        if($request->getMethod() == 'POST' &&  $recaptchaDetails && $recaptchaDetails->getIsActive() == true 
-        && ($request->attributes->get('_route') == 'helpdesk_member_handle_login' || $request->attributes->get('_route') == 'helpdesk_customer_login') && $this->recaptchaService->getReCaptchaResponse($request->request->get('g-recaptcha-response'))) {
+
+        if (
+            $request->getMethod() == 'POST' &&  $recaptchaDetails && $recaptchaDetails->getIsActive() == true 
+            && ($request->attributes->get('_route') == 'helpdesk_member_handle_login' || $request->attributes->get('_route') == 'helpdesk_customer_login') 
+            && $this->recaptchaService->getReCaptchaResponse($request->request->get('g-recaptcha-response'))
+        ) {
             $this->session->getFlashBag()->add('warning',"Warning ! Please select correct CAPTCHA or login again with correct CAPTCHA !");
+
             throw new UsernameNotFoundException('Please select correct CAPTCHA for'.$username);
         } else {
             $queryBuilder = $this->entityManager->createQueryBuilder()
-            ->select('user, userInstance')
-            ->from(User::class, 'user')
-            ->leftJoin(UserInstance::class, 'userInstance', 'WITH', 'user.id = userInstance.user')
-            ->leftJoin('userInstance.supportRole', 'supportRole')
-            ->where('user.email = :email')->setParameter('email', trim($username))
-            ->andWhere('userInstance.isActive = :isActive')->setParameter('isActive', true)
-            ->setMaxResults(1);
+                ->select('user, userInstance')
+                ->from(User::class, 'user')
+                ->leftJoin(UserInstance::class, 'userInstance', 'WITH', 'user.id = userInstance.user')
+                ->leftJoin('userInstance.supportRole', 'supportRole')
+                ->where('user.email = :email')->setParameter('email', trim($username))
+                ->andWhere('userInstance.isActive = :isActive')->setParameter('isActive', true)
+                ->setMaxResults(1)
+            ;
 
-        // Retrieve user instances based on active firewall
-        $activeFirewall = $this->firewall->getFirewallConfig($this->requestStack->getCurrentRequest())->getName();
+            // Retrieve user instances based on active firewall
+            $activeFirewall = $this->firewall->getFirewallConfig($this->requestStack->getCurrentRequest())->getName();
 
-        switch (strtolower($activeFirewall)) {
-            case 'member':
-            case 'back_support':
-                $queryBuilder
-                    ->andWhere('supportRole.id = :roleOwner OR supportRole.id = :roleAdmin OR supportRole.id = :roleAgent')
-                    ->setParameter('roleOwner', 1)
-                    ->setParameter('roleAdmin', 2)
-                    ->setParameter('roleAgent', 3);
-                break;
-            case 'customer':
-            case 'front_support':
-                $queryBuilder
-                    ->andWhere('supportRole.id = :roleCustomer')
-                    ->setParameter('roleCustomer', 4);
-                break;
-            default:
-                throw new UsernameNotFoundException('Firewall not supported.');
-                break;
-        }
-        
-        $response = $queryBuilder->getQuery()->getResult();
-
-        try {
-            if (!empty($response) && is_array($response)) {
-                list($user, $userInstance) = $response;
-
-                // Set currently active instance
-                $user->setCurrentInstance($userInstance);
-                $user->setRoles((array) $userInstance->getSupportRole()->getCode());
-
-                return $user;
+            switch (strtolower($activeFirewall)) {
+                case 'member':
+                case 'back_support':
+                    $queryBuilder
+                        ->andWhere('supportRole.code = :roleOwner OR supportRole.code = :roleAdmin OR supportRole.code = :roleAgent')
+                        ->setParameter('roleOwner', 'ROLE_SUPER_ADMIN')
+                        ->setParameter('roleAdmin', 'ROLE_ADMIN')
+                        ->setParameter('roleAgent', 'ROLE_AGENT')
+                    ;
+                    break;
+                case 'customer':
+                case 'front_support':
+                    $queryBuilder
+                        ->andWhere('supportRole.code = :roleCustomer')
+                        ->setParameter('roleCustomer', 'ROLE_CUSTOMER')
+                    ;
+                    break;
+                default:
+                    throw new UsernameNotFoundException('Firewall not supported.');
+                    break;
             }
-        } catch (\Exception $e) {
-            // Do nothing...
-        }
+        
+            $response = $queryBuilder->getQuery()->getResult();
 
-        throw new UsernameNotFoundException(sprintf('Username "%s" does not exist.', $username));
+            try {
+                if (!empty($response) && is_array($response)) {
+                    list($user, $userInstance) = $response;
 
+                    // Set currently active instance
+                    $user->setCurrentInstance($userInstance);
+                    $user->setRoles((array) $userInstance->getSupportRole()->getCode());
+
+                    return $user;
+                }
+            } catch (\Exception $e) {
+                // Do nothing...
+            }
+
+            throw new UsernameNotFoundException(sprintf('Username "%s" does not exist.', $username));
         }
     }
 
