@@ -46,9 +46,9 @@
         padding-left: 300px !important;
     }
 
-    .uv-wrapper-gap {
-        padding-left: 232px !important;
-    }
+    {# .uv-wrapper-gap {
+        padding-left: 300px !important;
+    } #}
 
     @media screen and (min-width: 1400px) {
         .uv-sidebar .uv-soft-top a.uv-logo {
@@ -76,7 +76,6 @@
             $(window).resize(function() {
                 var uvView = $(window).width();
                 if(uvView && uvView >= 1340) {
-                    console.log(uvView);
 				    document.cookie = "uv-sidebar-status=1; expires=Wed, 01 Jan 2020 00:00:00 GMT;path=/";
 			    }
             });
@@ -150,10 +149,10 @@
         var uvView = $(window).width();
         if(uvView && uvView >= 1340) {
             var uvHamburger =  document.querySelector(".uv-hamburger");
-            var uvWrapper =  document.querySelector(".uv-paper");
+            var uvWrapper =  document.querySelector(".uv-wrapper");
             var uvViewT =  document.querySelector(".uv-view");
+            var uvSideBarT = document.querySelector(".uv-wrapper");
 
-            console.log(uvWrapper );
             uvHamburger.addEventListener("click", () => {
                 var uvSideBar = document.querySelector(".uv-logo");
                 var uvSoftTop = document.querySelector(".uv-soft-top");
@@ -163,11 +162,15 @@
                     	uvViewT.classList.add('open-uvt');
 
                     uvHamburger.classList.remove('open-hamburger');
+                    
                     uvHamburger.style.margin = '24px 20px'; 
                     uvSideBar.style.display = 'none';
                     uvSideBar.style.margin = '10px 7px'; 
                     uvSoftTop.style.display = 'block';
+                    uvSideBarT.style.left = '60px';
+                    
                 } else {
+                
 					if (uvViewT)
                     	uvViewT.classList.add('open-uvt');
 
@@ -176,6 +179,7 @@
                     uvSideBar.style.display = 'block';
                     uvSideBar.style.margin = '10px 18px'; 
                     uvSoftTop.style.display = 'flex';
+                    uvSideBarT.style.left = '300px';
 
                 }
             }); 
