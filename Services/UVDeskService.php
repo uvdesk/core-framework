@@ -100,6 +100,8 @@ class UVDeskService
             'es' => $translator->trans("Spanish"),
             'tr' => $translator->trans("Turkish"),
             'da' => $translator->trans("Danish"),
+            'zh' => $translator->trans("Chinese"),
+            'pl' => $translator->trans("Polish"),
         ];
     }
 
