@@ -2,19 +2,20 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedFilters;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Filesystem\Filesystem as Fileservice;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedFilters;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 
 class AccountXHR extends AbstractController
 {
@@ -45,52 +46,61 @@ class AccountXHR extends AbstractController
 
     public function deleteAgent(Request $request)
     {
-        if($request->getMethod() == "DELETE") {
-            $em = $this->getDoctrine()->getManager();
-            $id = $request->query->get('id');
-            /*
-                Original Code: $user = $em->getRepository('WebkulUserBundle:User')->findUserByCompany($id,$company->getId());
-                Using findUserByCompany() won't execute the UserListener, so user roles won't be set and user with ROLE_SUPER_ADMIN can be deleted as a result.
-                To trigger UserListener to set roles, you need to only select 'u' instead of both 'u, dt' in query select clause.
-                Doing this here instead of directly making changes to userRepository->findUserByCompany().
-             */
-            $user = $em->createQuery('SELECT u FROM UVDeskCoreFrameworkBundle:User u JOIN u.userInstance userInstance WHERE u.id = :userId  AND userInstance.supportRole != :roles')
-                ->setParameter('userId', $id)
-                ->setParameter('roles', 4)
-                ->getOneOrNullResult();
-
-            if ($user) {
-                if($user->getAgentInstance()->getSupportRole() != "ROLE_SUPER_ADMIN") {
-
-                    // Trigger agent delete event
-                    $event = new GenericEvent(CoreWorkflowEvents\Agent\Delete::getId(), [
-                        'entity' => $user,
-                    ]);
-
-                    $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
-
-                    // Removing profile image from physical path
-                    $fileService = new Fileservice;
-                    if ($user->getAgentInstance()->getProfileImagePath()) {
-                        $fileService->remove($this->getParameter('kernel.project_dir').'/public'.$user->getAgentInstance()->getProfileImagePath());
-                    }
-
-                    $this->userService->removeAgent($user);
-
-                    $json['alertClass'] = 'success';
-                    $json['alertMessage'] = $this->translator->trans('Success ! Agent removed successfully.');
-                } else {
-                    $json['alertClass'] = 'warning';
-                    $json['alertMessage'] = $this->translator->trans("Warning ! You are allowed to remove account owner's account.");
-                }
-            } else {
-                $json['alertClass'] = 'danger';
-                $json['alertMessage'] = $this->translator->trans('Error ! Invalid user id.');
-            }
+        if ($request->getMethod() != "DELETE") {
+            return new JsonResponse([
+                'alertClass' => 'warning', 
+                'alertMessage' => $this->translator->trans("How did you land here?"), 
+            ], 404);
         }
-        $response = new Response(json_encode($json));
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
+
+        $id = $request->query->get('id');
+        $entityManager = $this->getDoctrine()->getManager();
+
+        /*
+            Original Code: $user = $em->getRepository('WebkulUserBundle:User')->findUserByCompany($id,$company->getId());
+            Using findUserByCompany() won't execute the UserListener, so user roles won't be set and user with ROLE_SUPER_ADMIN can be deleted as a result.
+            To trigger UserListener to set roles, you need to only select 'u' instead of both 'u, dt' in query select clause.
+            Doing this here instead of directly making changes to userRepository->findUserByCompany().
+         */
+        $user = $entityManager->createQueryBuilder()
+            ->select('u')
+            ->from(User::class, 'u')
+            ->leftJoin('u.userInstance', 'userInstance')
+            ->where('u.id = :userId')->setParameter('userId', $id)
+            ->andWhere('userInstance.supportRole != :roles')->setParameter('roles', 4)
+            ->getOneOrNullResult(1)
+        ;
+
+        if ($user) {
+            if ($user->getAgentInstance()->getSupportRole() != "ROLE_SUPER_ADMIN") {
+                // Trigger agent delete event
+                $event = new GenericEvent(CoreWorkflowEvents\Agent\Delete::getId(), [
+                    'entity' => $user,
+                ]);
+
+                $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
+
+                // Removing profile image from physical path
+                $fileService = new Fileservice;
+
+                if ($user->getAgentInstance()->getProfileImagePath()) {
+                    $fileService->remove($this->getParameter('kernel.project_dir'). '/public' . $user->getAgentInstance()->getProfileImagePath());
+                }
+
+                $this->userService->removeAgent($user);
+
+                $json['alertClass'] = 'success';
+                $json['alertMessage'] = $this->translator->trans('Success ! Agent removed successfully.');
+            } else {
+                $json['alertClass'] = 'warning';
+                $json['alertMessage'] = $this->translator->trans("Warning ! You are allowed to remove account owner's account.");
+            }
+        } else {
+            $json['alertClass'] = 'danger';
+            $json['alertMessage'] = $this->translator->trans('Error ! Invalid user id.');
+        }
+
+        return new JsonResponse($json);
     }
 
     public function savedFiltersXHR(Request $request)
