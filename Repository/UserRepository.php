@@ -203,17 +203,15 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
 
     public function getAgentByEmail($username)
     {
-        $query = $this->getEntityManager()
-            ->createQuery(
-                'SELECT u, dt FROM UVDeskCoreFrameworkBundle:User u
-                JOIN u.userInstance dt
-                WHERE u.email = :email 
-                AND dt.supportRole != :roles' 
-            )
-            ->setParameter('email', $username)
-            ->setParameter('roles', 4);
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder()
+            ->select('u, dt')
+            ->from(User::class, 'u')
+            ->leftJoin('u.userInstance', 'dt')
+            ->where('u.email = :email')->setParameter('email', $username)
+            ->andWhere('dt.supportRole != :roles')->setParameter('roles', 4)
+        ;
 
-        return $query->getOneOrNullResult();
+        return $queryBuilder->getQuery()->getOneOrNullResult();
     }
     
     public function getSupportGroups(Request $request = null)
