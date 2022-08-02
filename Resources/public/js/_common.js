@@ -667,12 +667,15 @@ $(function() {
 
         $(window).resize(function() {
             var windowSize = $(window).width();
-            if(windowSize && windowSize <= 1340) {
+            if(windowSize && windowSize <= 1310) {
+                uvSidebar.classList.add('uv-sidebar-active');
                 var uvSideBar = document.querySelector(".uv-logo");
                 var uvOpenHamburger = document.querySelector(".open-hamburger");
                 if (uvOpenHamburger && !uvOpenHamburger.is(":hidden")) {
-                    uvSideBar.style.display = 'block';
+                    uvSideBar.style.display = 'block'; 
                 }
+            } else {
+                uvSidebar.classList.add('uv-sidebar-active');
             }
         });
 
@@ -709,7 +712,7 @@ $(function() {
             }); 
         }
 
-        if(windowSize && windowSize >= 1340) {
+        if(windowSize && windowSize >= 1310) {
             uvSidebar.classList.add('uv-sidebar-active');
             uvWrapper.classList.remove('uv-wrapper-gap');
             uvPaper.classList.remove('uv-wrapper-padding');
