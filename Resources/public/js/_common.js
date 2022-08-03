@@ -687,7 +687,6 @@ $(function() {
                 var uvSideBar = document.querySelector(".uv-logo");
                 var uvSoftTop = document.querySelector(".uv-soft-top");
                 var uvOpenHamburger = document.querySelector(".open-hamburger");
-                console.log("Happy Test");
                 if (uvOpenHamburger) {
                     if (uvViewT)
                         uvViewT.classList.add('open-uvt');

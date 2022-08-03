@@ -32,23 +32,9 @@
         padding: 17px 18px;
     }
 
-    {# .uv-logo-image {
-		height: 50px;
-		width: 50px;	
-	}
-
-	.hamburger-click-area{
-		width: 30px;
-		height: 30px;
-	} #}
-
     .uv-wrapper-padding  {
         padding-left: 300px !important;
     }
-
-       {# padding-left: 232px !important;
-    }    .uv-wrapper-gap {
-  #}
 
     @media screen and (min-width: 1400px) {
         .uv-sidebar .uv-soft-top a.uv-logo {
@@ -142,49 +128,3 @@
 		</li>
 	</ul>
 </div>
-
-{# <script type="text/javascript">
-    {# var windowSize = $(window).width();
-    if(windowSize && windowSize >= 1340) {
-        var uvHamburger =  document.querySelector(".uv-hamburger");
-        var uvPaper =  document.querySelector(".uv-paper");
-        var uvViewT =  document.querySelector(".uv-view");
-
-        uvHamburger.addEventListener("click", () => {
-            var uvSideBar = document.querySelector(".uv-logo");
-            var uvSoftTop = document.querySelector(".uv-soft-top");
-            var uvOpenHamburger = document.querySelector(".open-hamburger");
-            if (uvOpenHamburger) {
-                if (uvViewT)
-                    uvViewT.classList.add('open-uvt');
-
-                uvHamburger.classList.remove('open-hamburger');
-                uvHamburger.style.margin = '24px 20px'; 
-                uvSideBar.style.display = 'none';
-                uvSideBar.style.margin = '10px 7px'; 
-                uvSoftTop.style.display = 'block';
-            } else {
-                if (uvViewT)
-                    uvViewT.classList.add('open-uvt');
-
-                uvHamburger.classList.add('open-hamburger');
-                uvHamburger.style.margin = '24px 7px'; 
-                uvSideBar.style.display = 'block';
-                uvSideBar.style.margin = '10px 18px'; 
-                uvSoftTop.style.display = 'flex';
-
-            }
-        }); 
-    } #}
-
-    {# $(window).resize(function() {
-        var windowSize = $(window).width();
-        if(windowSize && windowSize <= 1340) {
-            var uvSideBar = document.querySelector(".uv-logo");
-            var uvOpenHamburger = document.querySelector(".open-hamburger");
-            if (uvOpenHamburger && !uvOpenHamburger.is(":hidden")) {
-                uvSideBar.style.display = 'block';
-            }
-        }
-    }); #}
-</script> #}
