@@ -10,6 +10,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\ValidationService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketType;
+use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity as CommunityPackageEntities;
 
 class CustomFieldsService {
 
@@ -385,7 +386,7 @@ class CustomFieldsService {
 		
         if (!empty($customFieldCollection)) {
 	        $ticketCustomFieldArrayCollection = [];
-	        $ticketCustomFieldCollection = $this->entityManager->getRepository('UVDeskFormComponentPackage:TicketCustomFieldsValues')->findBy(['ticket' => $ticket]);
+	        $ticketCustomFieldCollection = $this->entityManager->getRepository(CommunityPackageEntities\TicketCustomFieldsValues::class)->findBy(['ticket' => $ticket]);
 
 	        if (!empty($ticketCustomFieldCollection)) {
 	        	foreach ($ticketCustomFieldCollection as $ticketCustomField) {
@@ -459,7 +460,7 @@ class CustomFieldsService {
 	{   
         $customFieldCollection = $this->getCustomFieldsArray('customer');
 		$ticketCustomFieldArrayCollection = [];
-		$ticketCustomFieldCollection = $this->entityManager->getRepository('UVDeskFormComponentPackage:TicketCustomFieldsValues')->findBy(['ticket' => $ticket]);
+		$ticketCustomFieldCollection = $this->entityManager->getRepository(CommunityPackageEntities\TicketCustomFieldsValues::class)->findBy(['ticket' => $ticket]);
 
 		/* load custom fields whose value is already present in ticket */ 
 		$existingCfIds = array_column($customFieldCollection, 'id');
