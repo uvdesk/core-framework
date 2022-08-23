@@ -186,7 +186,7 @@ class Customer extends AbstractController
 
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
-                    $this->addFlash('success', $this->translator->trans('Success ! Customer information updated successfully.'));
+                    $this->addFlash('success', $this->translator->trans('Success ! Customer information updated successfully.:)'));
                     return $this->redirect($this->generateUrl('helpdesk_member_manage_customer_account_collection'));
                 } else {
                     $this->addFlash('warning', $this->translator->trans('Error ! User with same email is already exist.'));
