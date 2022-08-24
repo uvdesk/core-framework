@@ -270,7 +270,7 @@ class CustomFieldsService {
             throw new \Exception('getCustomFieldsArray() expects parameter 1 to be string.');
         }
         $qb = $this->entityManager->createQueryBuilder()
-        			->from('UVDeskFormComponentPackage:CustomFields', 'c')
+        			->from(CommunityPackageEntities\CustomFields::class, 'c')
                     ->leftJoin("c.customFieldsDependency",'cfd')
         			->select('c,cfv,cfd')
                     ->leftJoin("c.customFieldValues",'cfv')
@@ -306,7 +306,7 @@ class CustomFieldsService {
         }
 
         $queryBuilder = $this->entityManager->createQueryBuilder()
-                            ->from('UVDeskFormComponentPackage:CustomFields', 's')
+                            ->from(CommunityPackageEntities\CustomFields::class, 's')
                             ->leftJoin("s.customFieldValues",'cfv')
                             ->leftJoin('s.customFieldsDependency','cfd')
                             ->select('s, cfv, cfd')
