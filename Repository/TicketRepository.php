@@ -91,7 +91,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $results = $paginator->paginate(
             $qb->getQuery()->setHydrationMode(Query::HYDRATE_ARRAY)->setHint('knp_paginator.count', $newQb->getQuery()->getSingleScalarResult()),
             isset($data['page']) ? $data['page'] : 1,
-            self::isset($data['limit']) && !empty($data['limit']) ? $data['limit'] : LIMIT,
+            isset($data['limit']) && !empty($data['limit']) ? $data['limit'] : self::LIMIT,
             array('distinct' => true)
         );
 
