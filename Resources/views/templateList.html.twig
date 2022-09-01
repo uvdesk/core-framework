@@ -118,7 +118,6 @@
 				},
 				syncData : function() {
 					app.appView.showLoader();
-					console.log(this.getValidParameters());
 					this.fetch({
 						data : this.getValidParameters(),
 						reset: true,
@@ -196,7 +195,6 @@
 				},
 				render : function () {
 					this.$el.find("tr").remove();
-					console.log("template List Colection",templateCollection);
 					if(templateCollection.length) {
 						_.each(templateCollection.models, function (item) {
 							this.renderTemplate(item);

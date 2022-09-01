@@ -487,7 +487,6 @@
 						this.$el.find('.uv-btn').attr('disabled', 'disabled');
 			            this.$el.submit();
 			        } else {
-                        console.log('invalid user, ', this.model);
 
                         $('.uv-field-message').each(function(e) {
                             $(".uv-tabs li[for='" + $(this).parents('.uv-tab-view').attr('id') + "']:not(.uv-tab-active)").addClass('uv-tab-error')
