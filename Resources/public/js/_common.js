@@ -664,5 +664,69 @@ $(function() {
             else
                 document.cookie = "uv-sidebar=0; uv-wrapper-status=0;"
         });
+
+        $(window).resize(function() {
+            var windowSize = $(window).width();
+            if(windowSize && windowSize <= 1310) {
+                uvSidebar.classList.add('uv-sidebar-active');
+                var uvSideBar = document.querySelector(".uv-logo");
+                var uvOpenHamburger = document.querySelector(".open-hamburger");
+                if (uvOpenHamburger && !uvOpenHamburger.is(":hidden")) {
+                    uvSideBar.style.display = 'block'; 
+                }
+            } else {
+                uvSidebar.classList.add('uv-sidebar-active');
+            }
+        });
+
+        var windowSize = $(window).width();
+        if(windowSize && windowSize >= 1340) {
+            var uvViewT =  document.querySelector(".uv-view");
+    
+            uvHamburger.addEventListener("click", () => {
+                var uvSideBar = document.querySelector(".uv-logo");
+                var uvSoftTop = document.querySelector(".uv-soft-top");
+                var uvOpenHamburger = document.querySelector(".open-hamburger");
+                if (uvOpenHamburger) {
+                    if (uvViewT)
+                        uvViewT.classList.add('open-uvt');
+    
+                    uvHamburger.classList.remove('open-hamburger');
+                    uvHamburger.style.margin = '24px 20px'; 
+                    uvSideBar.style.display = 'none';
+                    uvSideBar.style.margin = '10px 7px'; 
+                    uvSoftTop.style.display = 'block';
+                    uvWrapper.style.left = '60px';
+                } else {
+                    if (uvViewT)
+                        uvViewT.classList.add('open-uvt');
+    
+                    uvHamburger.classList.add('open-hamburger');
+                    uvHamburger.style.margin = '24px 7px'; 
+                    uvSideBar.style.display = 'block';
+                    uvSideBar.style.margin = '10px 18px'; 
+                    uvSoftTop.style.display = 'flex';
+                    uvWrapper.style.left = '300px';
+                }
+            }); 
+        }
+
+        if(windowSize && windowSize >= 1310) {
+            uvSidebar.classList.add('uv-sidebar-active');
+            uvWrapper.classList.remove('uv-wrapper-gap');
+            uvPaper.classList.remove('uv-wrapper-padding');
+        } else {
+            uvSidebar.classList.remove('uv-sidebar-active');
+            uvPaper.classList.remove('uv-wrapper-padding');
+            uvWrapper.classList.add('uv-wrapper-gap');
+
+            var uvSideBar = document.querySelector(".uv-logo");
+            var uvOpenHamburger = document.querySelector(".open-hamburger");
+            if (uvOpenHamburger) {
+                if (!uvOpenHamburger.is(":hidden")) {
+                    uvSideBar.style.display = 'block';
+                }
+            } 
+        }
 	} 
 });

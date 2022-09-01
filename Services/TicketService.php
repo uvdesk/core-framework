@@ -39,6 +39,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Webkul\UVDesk\SupportCenterBundle\Entity\Article;
 use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
 use Webkul\UVDesk\AutomationBundle\Entity\PreparedResponses;
+use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity as CommunityPackageEntities;
 
 
 class TicketService
@@ -1837,7 +1838,7 @@ class TicketService
     {
         $ticket = $thread->getTicket();
         $skipFileUpload = false;
-        $customFieldsCollection = $this->entityManager->getRepository('UVDeskFormComponentPackage:CustomFields')->findAll();
+        $customFieldsCollection = $this->entityManager->getRepository(CommunityPackageEntities\CustomFields::class)->findAll();
         foreach ($customFieldsCollection as $customFields) {
             if(in_array($customFields->getFieldType(), ['select', 'checkbox', 'radio']) && !count($customFields->getCustomFieldValues()))
                 continue;
@@ -1846,7 +1847,7 @@ class TicketService
                 if(count($customFields->getCustomFieldsDependency()) && !in_array($ticket->getType(), $customFields->getCustomFieldsDependency()->toArray()))
                     continue;
 
-                $ticketCustomField = new Entity\TicketCustomFieldsValues();
+                $ticketCustomField = new CommunityPackageEntities\TicketCustomFieldsValues();
                 $ticketCustomField->setTicket($ticket);
                 //custom field
                 $ticketCustomField->setTicketCustomFieldsValues($customFields);
@@ -1856,11 +1857,11 @@ class TicketService
                     //add custom field values mapping too
                     if(is_array($requestCustomFields[$customFields->getId()])) {
                         foreach ($requestCustomFields[$customFields->getId()] as $value) {
-                            if($ticketCustomFieldValues = $this->entityManager->getRepository('UVDeskFormComponentPackage:CustomFieldsValues')
+                            if($ticketCustomFieldValues = $this->entityManager->getRepository(CommunityPackageEntities\CustomFieldsValues::class)
                                 ->findOneBy(['customFields' => $customFields, 'id' => $value]))
                                 $ticketCustomField->setTicketCustomFieldValueValues($ticketCustomFieldValues);
                         }
-                    } elseif($ticketCustomFieldValues = $this->entityManager->getRepository('UVDeskFormComponentPackage:CustomFieldsValues')
+                    } elseif($ticketCustomFieldValues = $this->entityManager->getRepository(CommunityPackageEntities\CustomFieldsValues::class)
                             ->findOneBy(['customFields' => $customFields, 'id' => $requestCustomFields[$customFields->getId()]]))                                                        
                         $ticketCustomField->setTicketCustomFieldValueValues($ticketCustomFieldValues);
                 }
@@ -1878,7 +1879,7 @@ class TicketService
                     //save files entry to attachment table
                     $newFilesNames = $this->customFieldsService->addFilesEntryToAttachmentTable([$fileNames], $thread);
                     foreach ($newFilesNames as $value) {
-                        $ticketCustomField = new Entity\TicketCustomFieldsValues();
+                        $ticketCustomField = new CommunityPackageEntities\TicketCustomFieldsValues();
                         $ticketCustomField->setTicket($ticket);
                         //custom field
                         $ticketCustomField->setTicketCustomFieldsValues($customFields);
