@@ -3,7 +3,8 @@ CHANGELOG for 1.1.x
 
 This changelog references any relevant changes introduced in 1.1 minor versions.
 
-* 1.1.x
+* 1.1.1 (2022-09-13)
+    * Bug #584: Fix sidebar from flickering during page reload & resize (vipin-shrivastava)
     * PR #576: Entity reference updates; Enable locale change; Set global timeformat; attachment is not going within ticket assign email workflow, sidebar flicker issue (vipin-shrivastava)
     * Bug #569: Wrong saved replies pagination results (papnoisanjeev)
     * PR #566: List ticket types in alphabetical order and display ticket type name instead of description (papnoisanjeev)
