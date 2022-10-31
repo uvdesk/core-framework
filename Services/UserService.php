@@ -57,7 +57,7 @@ class UserService
 
         $customerCustomFieldSnippet = !empty($customFieldsService) ? $customFieldsService->getCustomerCustomFieldSnippet($ticket) : [];
 
-        if (sizeof($getCustomerCustomFieldSnippet["customFieldCollection"]) > 0 ) {
+        if (sizeof($customerCustomFieldSnippet["customFieldCollection"]) > 0 ) {
             return $this->twig->render('@_uvdesk_extension_uvdesk_form_component/widgets/CustomFields/customFieldSnippetCustomer.html.twig', $customerCustomFieldSnippet);
         }
 
