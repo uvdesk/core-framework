@@ -12,7 +12,6 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\DataProxies as CoreFrameworkBundleDataProxies;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Tickets\QuickActionButtonCollection;
-use Webkul\UVDesk\CoreFrameworkBundle\Services\CustomFieldsService;
 use Webkul\UVDesk\CoreFrameworkBundle\Repository\TicketRepository;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -41,9 +40,8 @@ class Ticket extends AbstractController
     private $ticketService;
     private $emailService;
     private $kernel;
-    private $customFieldsService;
 
-    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcherInterface $eventDispatcher, KernelInterface $kernel, CustomFieldsService $customFieldsService)
+    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcherInterface $eventDispatcher, KernelInterface $kernel)
     {
         $this->userService = $userService;
         $this->emailService = $emailService;
@@ -51,7 +49,6 @@ class Ticket extends AbstractController
         $this->ticketService = $ticketService;
         $this->eventDispatcher = $eventDispatcher;
         $this->kernel = $kernel;
-        $this->customFieldsService = $customFieldsService;
     }
 
     public function listTicketCollection(Request $request)
@@ -200,10 +197,24 @@ class Ticket extends AbstractController
 
         $ticketType = $entityManager->getRepository(TicketType::class)->findOneById($requestParams['type']);
 
-        extract($this->customFieldsService->customFieldsValidation($request, 'user'));
+        try {
+            if ($this->userService->isfileExists('apps/uvdesk/custom-fields')) {
+                $customFieldsService = $this->get('uvdesk_package_custom_fields.service');
+            } else if ($this->userService->isfileExists('apps/uvdesk/form-component')) {
+                $customFieldsService = $this->get('uvdesk_package_form_component.service');
+            }
+
+            if (!empty($customFieldsService)) {
+                extract($customFieldsService->customFieldsValidation($request, 'user'));
+            }
+        } catch (\Exception $e) {
+            // @TODO: Log execption message
+        }
+
         if(!empty($errorFlashMessage)) {
             $this->addFlash('warning', $errorFlashMessage);
         }
+        
         $ticketProxy = new CoreFrameworkBundleDataProxies\CreateTicketDataClass();
         $form = $this->createForm(CoreFrameworkBundleForms\CreateTicket::class, $ticketProxy);
 
@@ -267,7 +278,8 @@ class Ticket extends AbstractController
                 'entity' =>  $thread->getTicket(),
             ]);
 
-            $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute', );
+                dump($e->getMessage());
+            $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
         } catch (\Exception $e) {
             // Skip Automation
         }
