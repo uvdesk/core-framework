@@ -43,13 +43,22 @@ class UserService
     public function getCustomFieldTemplateCustomer()
     {
         $request = $this->requestStack->getCurrentRequest();
-        //get the ticket
         $ticket = $this->entityManager->getRepository(Ticket::class)->findOneById($request->attributes->get('id'));
-        $getCustomerCustomFieldSnippet = $this->container->get('custom.field.service')->getCustomerCustomFieldSnippet($ticket);
 
-        if (sizeof($getCustomerCustomFieldSnippet["customFieldCollection"]) > 0 ) {
-            return $this->twig->render('@_uvdesk_extension_uvdesk_form_component/widgets/CustomFields/customFieldSnippetCustomer.html.twig', 
-                $getCustomerCustomFieldSnippet);
+        try {
+            if ($this->isfileExists('apps/uvdesk/custom-fields')) {
+                $customFieldsService = $this->container->get('uvdesk_package_custom_fields.service');
+            } else if ($this->isfileExists('apps/uvdesk/form-component')) {
+                $customFieldsService = $this->container->get('uvdesk_package_form_component.service');
+            }
+        } catch (\Exception $e) {
+            // @TODO: Log execption message
+        }
+
+        $customerCustomFieldSnippet = !empty($customFieldsService) ? $customFieldsService->getCustomerCustomFieldSnippet($ticket) : [];
+
+        if (sizeof($customerCustomFieldSnippet["customFieldCollection"]) > 0 ) {
+            return $this->twig->render('@_uvdesk_extension_uvdesk_form_component/widgets/CustomFields/customFieldSnippetCustomer.html.twig', $customerCustomFieldSnippet);
         }
 
         return ;
