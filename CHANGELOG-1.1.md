@@ -3,6 +3,9 @@ CHANGELOG for 1.1.x
 
 This changelog references any relevant changes introduced in 1.1 minor versions.
 
+* 1.1.2 (2022-11-02)
+    * PR #614: Changes to custom-fields app integration (Komal-sharma-2712)
+
 * 1.1.1 (2022-09-13)
     * Bug #584: Fix sidebar from flickering during page reload & resize (vipin-shrivastava)
     * PR #576: Entity reference updates; Enable locale change; Set global timeformat; attachment is not going within ticket assign email workflow, sidebar flicker issue (vipin-shrivastava)
