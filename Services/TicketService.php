@@ -206,7 +206,7 @@ class TicketService
             if ($this->userService->isfileExists('apps/uvdesk/custom-fields')) {
                 $customFields = $this->container->get('uvdesk_package_custom_fields.service')->getCustomFieldsArray('customer');
             } else if ($this->userService->isfileExists('apps/uvdesk/form-component')) {
-                $customFields = $this->container->get('uvdesk_package_custom_fields.service')->getCustomFieldsArray('customer');
+                $customFields = $this->container->get('uvdesk_package_form_component.service')->getCustomFieldsArray('customer');
             }
         } catch (\Exception $e) {
             // @TODO: Log execption message
@@ -1889,9 +1889,9 @@ class TicketService
 
                         try {
                             if ($this->userService->isfileExists('apps/uvdesk/custom-fields')) {
-                                $customFieldsService = $this->container->get('uvdesk_package_custom_fields.service');
+                                $customFieldsService = $this->get('uvdesk_package_custom_fields.service');
                             } else if ($this->userService->isfileExists('apps/uvdesk/form-component')) {
-                                $customFieldsService = $this->container->get('uvdesk_package_form_component.service');
+                                $customFieldsService = $this->get('uvdesk_package_form_component.service');
                             }
                         } catch (\Exception $e) {
                             // @TODO: Log execption message
