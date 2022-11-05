@@ -34,7 +34,7 @@
                 </div>
 
 				<div class="uv-action-bar-col-rt">
-					<a href="{{ path('helpdesk_member_swiftmailer_create_mailer_configuration') }}" type="button" class="uv-btn-action">{{ 'Create Configuration'|trans }}</a>
+					<a href="{{ path('helpdesk_member_mailer_create_mailer_configuration') }}" type="button" class="uv-btn-action">{{ 'Create Configuration'|trans }}</a>
 				</div>
             </div>
 
@@ -91,7 +91,7 @@
     </script>
 
 	<script type="text/javascript">
-		var path = "{{ path('helpdesk_member_swiftmailer_update_mailer_configuration', {'id': 'replaceId' }) }}";
+		var path = "{{ path('helpdesk_member_mailer_update_mailer_configuration', {'id': 'replaceId' }) }}";
 
 		$(function () {
 			var globalMessageResponse = "";
@@ -102,7 +102,7 @@
 
 			var ConfigurationCollection = AppCollection.extend({
 				model: ConfigurationModel,
-				url: "{{ path('helpdesk_member_swiftmailer_load_configurations_xhr') }}",
+				url: "{{ path('helpdesk_member_mailer_load_configurations_xhr') }}",
 				filterParameters : {
 					"isActive" : "",
 					"search" : ""
@@ -156,7 +156,7 @@
 					self = this;
 					
 					$.ajax({
-						url: "{{ path('helpdesk_member_swiftmailer_remove_mailer_configuration_xhr') }}?id="+this.model.id,
+						url: "{{ path('helpdesk_member_mailer_remove_mailer_configuration_xhr') }}?id="+this.model.id,
 						success: function (response) {
 							app.appView.hideLoader();
 							globalMessageResponse = response;

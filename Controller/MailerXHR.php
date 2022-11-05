@@ -10,7 +10,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer as SwiftMailerService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class SwiftMailerXHR extends AbstractController
+class MailerXHR extends AbstractController
 {
     private $translator;
     private $swiftMailer;

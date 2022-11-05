@@ -13,13 +13,13 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer as SwiftMailerService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class SwiftMailer extends AbstractController
+class Mailer extends AbstractController
 {
     private $userService;
     private $translator;
     private $swiftMailer;
     
-    public function __construct(UserService $userService, TranslatorInterface $translator,SwiftMailerService $swiftMailer)
+    public function __construct(UserService $userService, TranslatorInterface $translator, SwiftMailerService $swiftMailer)
     {
         $this->userService = $userService;
         $this->translator = $translator;
@@ -53,7 +53,7 @@ class SwiftMailer extends AbstractController
                 try {
                     $swiftmailer->writeSwiftMailerConfigurations($configurations);
                     $this->addFlash('success', $this->translator->trans('SwiftMailer configuration created successfully.'));
-                    return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_settings'));
+                    return new RedirectResponse($this->generateUrl('helpdesk_member_mailer_settings'));
                 } catch (\Exception $e) {
                     $this->addFlash('warning', $e->getMessage());
                 }
@@ -96,7 +96,7 @@ class SwiftMailer extends AbstractController
             $swiftmailerService->writeSwiftMailerConfigurations($swiftmailerConfigurations);
             
             $this->addFlash('success', $this->translator->trans('SwiftMailer configuration updated successfully.'));
-            return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_settings'));
+            return new RedirectResponse($this->generateUrl('helpdesk_member_mailer_settings'));
         }
 
         return $this->render('@UVDeskCoreFramework//SwiftMailer//manageConfigurations.html.twig', [

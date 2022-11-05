@@ -5,24 +5,24 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\UIComponents\Dashboard\Panel\Items\S
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\PanelSidebarItemInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\UIComponents\Dashboard\Panel\Sidebars\Settings;
 
-class SwiftMailer implements PanelSidebarItemInterface
+class Mailer implements PanelSidebarItemInterface
 {
     public static function getTitle() : string
     {
-        return "Swift Mailer";
+        return "Mailer";
     }
 
     public static function getRouteName() : string
     {
-        return 'helpdesk_member_swiftmailer_settings';
+        return 'helpdesk_member_mailer_settings';
     }
 
     public static function getSupportedRoutes() : array
     {
         return [
-            'helpdesk_member_swiftmailer_settings',
-            'helpdesk_member_swiftmailer_create_mailer_configuration',
-            'helpdesk_member_swiftmailer_update_mailer_configuration',
+            'helpdesk_member_mailer_settings',
+            'helpdesk_member_mailer_create_mailer_configuration',
+            'helpdesk_member_mailer_update_mailer_configuration',
         ];
     }
 

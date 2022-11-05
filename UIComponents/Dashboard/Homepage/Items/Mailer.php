@@ -5,7 +5,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\UIComponents\Dashboard\Homepage\Item
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\HomepageSectionItem;
 use Webkul\UVDesk\CoreFrameworkBundle\UIComponents\Dashboard\Homepage\Sections\Settings;
 
-class SwiftMailer extends HomepageSectionItem
+class Mailer extends HomepageSectionItem
 {
     CONST SVG = <<<SVG
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="60px" height="60px" viewBox="0 0 60 60">
@@ -20,12 +20,12 @@ SVG;
 
     public static function getTitle() : string
     {
-        return "Swift Mailer";
+        return "Mailer";
     }
 
     public static function getRouteName() : string
     {
-        return 'helpdesk_member_swiftmailer_settings';
+        return 'helpdesk_member_mailer_settings';
     }
 
     public static function getRoles() : array
