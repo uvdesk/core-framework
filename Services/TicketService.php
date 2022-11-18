@@ -1916,21 +1916,6 @@ class TicketService
         }
     }
 
-    /**
-    * return ticket todo ticket increment Id
-    */
-    public function getTicketTodoById($ticketId) {
-        $currentUser = $this->container->get('user.service')->getCurrentUser();
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('td')->from('UVDeskTodoListPackage:Todo', 'td')
-                ->andwhere('td.ticket = :ticketId')
-                ->andwhere('td.agent = :userId')
-                ->setParameter('ticketId', $ticketId)
-                ->setParameter('userId', $currentUser->getId());
-
-        return $qb->getQuery()->getArrayResult();
-    }
-
     // return attachemnt for initial thread
     public function getInitialThread($ticketId)
     {
