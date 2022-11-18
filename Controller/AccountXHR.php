@@ -68,7 +68,8 @@ class AccountXHR extends AbstractController
             ->leftJoin('u.userInstance', 'userInstance')
             ->where('u.id = :userId')->setParameter('userId', $id)
             ->andWhere('userInstance.supportRole != :roles')->setParameter('roles', 4)
-            ->getOneOrNullResult(1)
+            ->getQuery()
+            ->getOneOrNullResult()
         ;
 
         if ($user) {
