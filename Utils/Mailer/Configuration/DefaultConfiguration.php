@@ -1,17 +1,13 @@
 <?php
 
-namespace Webkul\UVDesk\CoreFrameworkBundle\Utils\SwiftMailer\Configuration;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration;
 
-use Webkul\UVDesk\CoreFrameworkBundle\Utils\SwiftMailer\BaseConfiguration;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\BaseConfiguration;
 
-class Yahoo extends BaseConfiguration
+class DefaultConfiguration extends BaseConfiguration
 {
-    CONST HOST = 'smtp.mail.yahoo.com';
-    CONST PORT = '587';
-    CONST ENCRYPTION_MODE = 'tls';
-    CONST AUTHENTICATION_MODE = 'login';
-    CONST TRANSPORT_CODE = 'yahoo';
-    CONST TRANSPORT_NAME = 'Yahoo';
+    CONST TRANSPORT_CODE = 'smtp';
+    CONST TRANSPORT_NAME = 'SMTP';
 
     CONST TEMPLATE = <<<MAILER
         [[ id ]]:
@@ -27,6 +23,11 @@ class Yahoo extends BaseConfiguration
             [[ disable_delivery ]]
 
 MAILER;
+    
+    private $host;
+    private $port;
+    private $encryptionMode;
+    private $authenticationMode;
 
     public static function getTransportCode()
     {
@@ -38,24 +39,44 @@ MAILER;
         return self::TRANSPORT_NAME;
     }
 
+    public function setHost($host)
+    {
+        $this->host = $host;
+    }
+
     public function getHost()
     {
-        return self::HOST;
+        return $this->host;
+    }
+
+    public function setPort($port)
+    {
+        $this->port = $port;
     }
 
     public function getPort()
     {
-        return self::PORT;
+        return $this->port;
+    }
+
+    public function setEncryptionMode($encryptionMode)
+    {
+        $this->encryptionMode = $encryptionMode;
     }
 
     public function getEncryptionMode()
     {
-        return self::ENCRYPTION_MODE;
+        return $this->encryptionMode;
+    }
+
+    public function setAuthenticationMode($authenticationMode)
+    {
+        $this->authenticationMode= $authenticationMode;
     }
 
     public function getAuthenticationMode()
     {
-        return self::AUTHENTICATION_MODE;
+        return $this->authenticationMode;
     }
 
     public function getWritableConfigurations()
@@ -68,8 +89,8 @@ MAILER;
             '[[ port ]]' => sprintf("port: %s", $this->getPort()),
             '[[ encryption ]]' => sprintf("encryption: %s", $this->getEncryptionMode()),
             '[[ authentication ]]' => sprintf("auth_mode: %s", $this->getAuthenticationMode()),
-            '[[ sender_address ]]' => '# sender_address: ~',
-            '[[ delivery_addresses ]]' => '# delivery_addresses: ~',
+            '[[ sender_address ]]' => sprintf("sender_address: %s", $this->getSenderAddress()),
+            '[[ delivery_addresses ]]' => "delivery_addresses: ['".$this->getDeliveryAddress()."']",
             '[[ disable_delivery ]]' => "disable_delivery: " . ($this->getDeliveryStatus() ? "false" : "true"),
         ];
 
@@ -128,13 +149,14 @@ MAILER;
             $method = 'set' . ucfirst($param);
 
             switch ($param) {
-                case 'host':
-                case 'port':
-                case 'auth_mode':
-                case 'encryption':
-                    break;
                 case 'disable_delivery':
                     $this->setDeliveryStatus(!(bool) $value);
+                    break;
+                case 'auth_mode':
+                    $this->setAuthenticationMode($value);
+                    break;
+                case 'encryption':
+                    $this->setEncryptionMode($value);
                     break;
                 default:
                     $method = 'set' . ucfirst($param);

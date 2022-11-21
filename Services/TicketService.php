@@ -88,8 +88,8 @@ class TicketService
         }
         // Read configurations from package config.
         $mailboxConfiguration = new MailboxConfiguration();
-        $swiftmailerService = $this->container->get('swiftmailer.service');
-        $swiftmailerConfigurations = $swiftmailerService->parseSwiftMailerConfigurations();
+        $swiftmailerService = $this->container->get('mailer');
+        $swiftmailerConfigurations = $swiftmailerService->parseMailerConfigurations();
 
         foreach (Yaml::parse(file_get_contents($path))['uvdesk_mailbox']['mailboxes'] ?? [] as $id => $params) {
             // Swiftmailer Configuration
@@ -1914,21 +1914,6 @@ class TicketService
                 }
             }
         }
-    }
-
-    /**
-    * return ticket todo ticket increment Id
-    */
-    public function getTicketTodoById($ticketId) {
-        $currentUser = $this->container->get('user.service')->getCurrentUser();
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('td')->from('UVDeskTodoListPackage:Todo', 'td')
-                ->andwhere('td.ticket = :ticketId')
-                ->andwhere('td.agent = :userId')
-                ->setParameter('ticketId', $ticketId)
-                ->setParameter('userId', $currentUser->getId());
-
-        return $qb->getQuery()->getArrayResult();
     }
 
     // return attachemnt for initial thread

@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer;
+use Webkul\UVDesk\CoreFrameworkBundle\Mailer\MailerService;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class EmailSettingsXHR extends AbstractController
@@ -18,7 +18,7 @@ class EmailSettingsXHR extends AbstractController
     private $swiftMailer;
     private $kernel;
 
-    public function __construct(UserService $userService, TranslatorInterface $translator,SwiftMailer $swiftMailer, KernelInterface $kernel)
+    public function __construct(UserService $userService, TranslatorInterface $translator, MailerService $swiftMailer, KernelInterface $kernel)
     {
         $this->userService = $userService;
         $this->translator = $translator;

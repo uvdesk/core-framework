@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreFrameworkBundle\Utils\SwiftMailer;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer;
 
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 

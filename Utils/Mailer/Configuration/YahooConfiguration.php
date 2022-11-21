@@ -1,19 +1,27 @@
 <?php
 
-namespace Webkul\UVDesk\CoreFrameworkBundle\Utils\SwiftMailer\Configuration;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration;
 
-use Webkul\UVDesk\CoreFrameworkBundle\Utils\SwiftMailer\BaseConfiguration;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\BaseConfiguration;
 
-class Gmail extends BaseConfiguration
+class YahooConfiguration extends BaseConfiguration
 {
-    CONST TRANSPORT_CODE = 'gmail';
-    CONST TRANSPORT_NAME = 'Gmail';
+    CONST HOST = 'smtp.mail.yahoo.com';
+    CONST PORT = '587';
+    CONST ENCRYPTION_MODE = 'tls';
+    CONST AUTHENTICATION_MODE = 'login';
+    CONST TRANSPORT_CODE = 'yahoo';
+    CONST TRANSPORT_NAME = 'Yahoo';
 
     CONST TEMPLATE = <<<MAILER
         [[ id ]]:
-            transport: gmail
+            transport: smtp
             [[ username ]]
             [[ password ]]
+            [[ host ]]
+            [[ port ]]
+            [[ encryption ]]
+            [[ authentication ]]
             [[ sender_address ]]
             [[ delivery_addresses ]]
             [[ disable_delivery ]]
@@ -30,12 +38,36 @@ MAILER;
         return self::TRANSPORT_NAME;
     }
 
+    public function getHost()
+    {
+        return self::HOST;
+    }
+
+    public function getPort()
+    {
+        return self::PORT;
+    }
+
+    public function getEncryptionMode()
+    {
+        return self::ENCRYPTION_MODE;
+    }
+
+    public function getAuthenticationMode()
+    {
+        return self::AUTHENTICATION_MODE;
+    }
+
     public function getWritableConfigurations()
     {
         $params = [
             '[[ id ]]' => $this->getId(),
             '[[ username ]]' => sprintf("username: %s", $this->getUsername()),
             '[[ password ]]' => sprintf("password: %s", $this->getPassword()),
+            '[[ host ]]' => sprintf("host: %s", $this->getHost()),
+            '[[ port ]]' => sprintf("port: %s", $this->getPort()),
+            '[[ encryption ]]' => sprintf("encryption: %s", $this->getEncryptionMode()),
+            '[[ authentication ]]' => sprintf("auth_mode: %s", $this->getAuthenticationMode()),
             '[[ sender_address ]]' => '# sender_address: ~',
             '[[ delivery_addresses ]]' => '# delivery_addresses: ~',
             '[[ disable_delivery ]]' => "disable_delivery: " . ($this->getDeliveryStatus() ? "false" : "true"),
@@ -51,8 +83,12 @@ MAILER;
             'id' => $this->getId(),
             'username' => $this->getUsername(),
             'password' => $this->getPassword(),
-            'sender_address' => $this->getSenderAddress(),
+            'host' => $this->getHost(),
+            'port' => $this->getPort(),
+            'encryption' => $this->getEncryptionMode(),
+            'authentication' => $this->getAuthenticationMode(),
             'delivery_addresses' => $this->getDeliveryAddress(),
+            'sender_address' => $this->getSenderAddress(),
             'deliveryStatus' => $this->getDeliveryStatus(),
         ];
     }
@@ -92,6 +128,11 @@ MAILER;
             $method = 'set' . ucfirst($param);
 
             switch ($param) {
+                case 'host':
+                case 'port':
+                case 'auth_mode':
+                case 'encryption':
+                    break;
                 case 'disable_delivery':
                     $this->setDeliveryStatus(!(bool) $value);
                     break;

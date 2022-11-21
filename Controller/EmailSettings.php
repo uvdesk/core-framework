@@ -7,19 +7,15 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer;
+use Webkul\UVDesk\CoreFrameworkBundle\Mailer\MailerService;
 
 class EmailSettings extends AbstractController
 {
-    private $userService;
-    private $translator;
-    private $swiftMailer;
-
-    public function __construct(UserService $userService, TranslatorInterface $translator,SwiftMailer $swiftMailer)
+    public function __construct(UserService $userService, TranslatorInterface $translator, MailerService $mailerService)
     {
-        $this->userService = $userService;
+        $this->mailerService = $mailerService;
         $this->translator = $translator;
-        $this->swiftMailer = $swiftMailer;
+        $this->userService = $userService;
     }
 
     public function loadSettings()
@@ -30,7 +26,7 @@ class EmailSettings extends AbstractController
 
         $swiftmailerConfigurations = array_map(function ($configuartion) {
             return $configuartion->getId();
-        }, $this->swiftMailer->parseSwiftMailerConfigurations());
+        }, $this->mailerService->parseMailerConfigurations());
 
         return $this->render('@UVDeskCoreFramework//Email//emailSettings.html.twig', [
             'swiftmailers' => $swiftmailerConfigurations,

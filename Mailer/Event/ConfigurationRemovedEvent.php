@@ -1,17 +1,17 @@
 <?php
 
-namespace Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\Event;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Mailer\Event;
 
 use Symfony\Contracts\EventDispatcher\Event;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\SwiftMailer\BaseConfiguration;
 
 /**
- * The swiftmailer.configuration.removed event is dispatched each time a mailer configuration
+ * The mailer.configuration.removed event is dispatched each time a mailer configuration
  * is removed from the system.
  */
 class ConfigurationRemovedEvent extends Event
 {
-    CONST NAME = 'swiftmailer.configuration.removed';
+    CONST NAME = 'mailer.configuration.removed';
 
     private $configuration;
 

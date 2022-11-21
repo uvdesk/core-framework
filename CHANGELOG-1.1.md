@@ -3,6 +3,9 @@ CHANGELOG for 1.1.x
 
 This changelog references any relevant changes introduced in 1.1 minor versions.
 
+* 1.1.x
+    * Bug #604: Error in deleting agent accounts from members dashboard (Komal-sharma-2712)
+
 * 1.1.2 (2022-11-02)
     * PR #614: Changes to custom-fields app integration (Komal-sharma-2712)
 

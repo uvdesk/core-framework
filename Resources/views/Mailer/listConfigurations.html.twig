@@ -1,6 +1,6 @@
 {% extends "@UVDeskCoreFramework/Templates/layout.html.twig" %}
 
-{% block title %}Swift Mailer{% endblock %}
+{% block title %}Mailers{% endblock %}
 
 {% block templateCSS %}
     <style>
@@ -30,7 +30,7 @@
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
 			<div class="uv-action-bar">
                 <div class="uv-action-bar-col-lt">
-					<h1>{{ 'SwiftMailer Configurations'|trans }}</h1>
+					<h1>{{ 'Mailer Configurations'|trans }}</h1>
                 </div>
 
 				<div class="uv-action-bar-col-rt">
@@ -64,7 +64,7 @@
         <div class="uv-app-screen">
             <div class="uv-app-splash" style="text-align: center;">
                 <img class="uv-app-splash-image" src="{{ asset('bundles/uvdeskcoreframework/images/splash/mailbox.png') }}" alt="Tasks">
-                <h2 class="uv-margin-top-10">{{ 'No swiftmailer configurations found'|trans }}</h2>
+                <h2 class="uv-margin-top-10">{{ 'No mailer configurations found'|trans }}</h2>
             </div>
         </div>	
 	</script>

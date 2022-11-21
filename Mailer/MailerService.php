@@ -1,18 +1,20 @@
 <?php
 
-namespace Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Mailer;
 
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Utils\SwiftMailer\Configuration as MailerConfigurations;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\DefaultConfiguration;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\GmailConfiguration;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\YahooConfiguration;
 
-class SwiftMailer
+class MailerService
 {
-    const PATH_TO_CONFIG = '/config/packages/swiftmailer.yaml';
-    const SWIFTMAILER_TEMPLATE = __DIR__ . "/../Templates/SwiftMailer/configurations.php";
-    const SWIFTMAILER_NULL_TEMPLATE = __DIR__ . "/../Templates/SwiftMailer/null-configurations.php";
+    const PATH_TO_CONFIG = '/config/packages/mailer.yaml';
+    const SWIFTMAILER_TEMPLATE = __DIR__ . "/../Templates/Mailer/configurations.php";
+    const SWIFTMAILER_NULL_TEMPLATE = __DIR__ . "/../Templates/Mailer/null-configurations.php";
 
 	protected $container;
 
@@ -30,13 +32,13 @@ class SwiftMailer
     {
         switch ($transport) {
             case 'smtp':
-                $configuration = new MailerConfigurations\SMTP($id);
+                $configuration = new DefaultConfiguration($id);
                 break;
             case 'gmail':
-                $configuration = new MailerConfigurations\Gmail($id);
+                $configuration = new GmailConfiguration($id);
                 break;
             case 'yahoo':
-                $configuration = new MailerConfigurations\Yahoo($id);
+                $configuration = new YahooConfiguration($id);
                 break;
             default:
                 break;
@@ -45,7 +47,7 @@ class SwiftMailer
         return $configuration ?? null;
     }
 
-    public function parseSwiftMailerConfigurations() 
+    public function parseMailerConfigurations() 
     {
         $configurations = [];
         $pathToFile = $this->getPathToConfigurationFile();
@@ -53,30 +55,44 @@ class SwiftMailer
         if (file_exists($pathToFile)) {
             $parsedConfigurations = Yaml::parse(file_get_contents($pathToFile));
 
-            if (!empty($parsedConfigurations['swiftmailer'])) {
-                if (empty($parsedConfigurations['swiftmailer']['mailers']) && !empty($parsedConfigurations['swiftmailer']['transport'])) {
+            dump($parsedConfigurations);
+            // die;
+
+            if (!empty($parsedConfigurations['framework']['mailer'])) {
+                if (empty($parsedConfigurations['framework']['mailer']['transports']) && !empty($parsedConfigurations['framework']['mailer']['dsn'])) {
                     // Only one single mailer is defined
-                    $configurations[] = $this->resolveTransportConfigurations($parsedConfigurations['swiftmailer']);
-                } else if (!empty($parsedConfigurations['swiftmailer']['mailers'])) {
+                    $configurations[] = $this->resolveTransportConfigurations($parsedConfigurations['framework']['mailer']['dsn']);
+                } else if (!empty($parsedConfigurations['framework']['mailer']['transports'])) {
                     // Multiple mailers defined
-                    foreach ($parsedConfigurations['swiftmailer']['mailers'] as $mailer_id => $mailer_configurations) {
+                    foreach ($parsedConfigurations['framework']['mailer']['transports'] as $mailerId => $mailerConfigurations) {
                         $configuration = null;
 
-                        switch ($mailer_configurations['transport'] ?? '') {
+                        if (strpos($mailerConfigurations, '%env(') !== false) {
+                            $envId = str_replace(['%env(', ')%'], '', $mailerConfigurations);
+                            $mailerConfigurations = !empty($_SERVER[$envId]) ? $_SERVER[$envId] : null;
+                        }
+
+                        $dsnConfigurations = parse_url($mailerConfigurations);
+
+                        dump($mailerId, $dsnConfigurations);
+                        die;
+
+                        switch ($mailerConfigurations['scheme'] ?? '') {
                             case 'smtp':
-                                if ('smtp.mail.yahoo.com' == $mailer_configurations['host']) {
-                                    $configuration = new MailerConfigurations\Yahoo($mailer_id);
+                                // if ($mailerConfigurations['host'])
+                                if ('smtp.mail.yahoo.com' == $mailerConfigurations['host']) {
+                                    $configuration = new YahooConfiguration($mailerId);
                                 } else {
-                                    $configuration = new MailerConfigurations\SMTP($mailer_id);
+                                    $configuration = new DefaultConfiguration($mailerId);
                                 }
                                 
-                                $configuration->resolveTransportConfigurations($mailer_configurations);
+                                $configuration->resolveTransportConfigurations($mailerConfigurations);
 
                                 $configurations[] = $configuration;
                                 break;
                             case 'gmail':
-                                $configuration = new MailerConfigurations\Gmail($mailer_id);
-                                $configuration->resolveTransportConfigurations($mailer_configurations);
+                                $configuration = new GmailConfiguration($mailerId);
+                                $configuration->resolveTransportConfigurations($mailerConfigurations);
 
                                 $configurations[] = $configuration;
                                 break;
