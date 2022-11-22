@@ -8,13 +8,6 @@ abstract class BaseConfiguration
 {
     CONST TOKEN_RANGE = '0123456789';
 
-    protected $id;
-    protected $username;
-    protected $password;
-    protected $senderAddress;
-    protected $deliveryAddress;
-    protected $deliveryStatus = false;
-
     public function __construct($id = null)
     {
         $this->setId($id ?: sprintf("mailer_%s", TokenGenerator::generateToken(4, self::TOKEN_RANGE)));
@@ -37,53 +30,23 @@ abstract class BaseConfiguration
         return $this->id;
     }
 
-    public function setUsername($username)
+    public function setUser($user)
     {
-        $this->username = $username;
+        $this->user = $user;
     }
 
-    public function getUsername()
+    public function getUser()
     {
-        return $this->username;
+        return $this->user;
     }
 
-    public function setPassword($password)
+    public function setPass($pass)
     {
-        $this->password = $password;
+        $this->pass = $pass;
     }
 
-    public function getPassword()
+    public function getPass()
     {
-        return $this->password;
-    }
-
-    public function setSenderAddress($senderAddress)
-    {
-        $this->senderAddress = $senderAddress;
-    }
-
-    public function getSenderAddress()
-    {
-        return $this->senderAddress;
-    }
-
-    public function setDeliveryAddress($deliveryAddress)
-    {
-        $this->deliveryAddress = $deliveryAddress;
-    }
-
-    public function getDeliveryAddress()
-    {
-        return $this->deliveryAddress;
-    }
-
-    public function setDeliveryStatus(bool $deliveryStatus = true)
-    {
-        $this->deliveryStatus = $deliveryStatus;
-    }
-
-    public function getDeliveryStatus()
-    {
-        return $this->deliveryStatus;
+        return $this->pass;
     }
 }

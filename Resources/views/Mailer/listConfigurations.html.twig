@@ -45,7 +45,6 @@
                             <th>{{ 'ID'|trans }}</th>
                             <th>{{ 'Email'|trans }}</th>
                             <th>{{ 'Type'|trans }}</th>
-							<th>{{ 'Status'|trans }}</th>
                             <th class="uv-last">{{ 'Action'|trans }}</th>
                         </tr>
                     </thead>
@@ -73,12 +72,6 @@
 		<td><span class="mailer-id"><%- id %></span></td>
 		<td><%- email %></td>
 		<td><%- transport %></td>
-
-		<% if (isActive) { %>
-			<td><span class="uv-text-success">{{ 'Enabled'|trans }}</span></td>
-		<% } else { %>
-			<td><span class="uv-text-danger">{{ 'Disabled'|trans }}</span></td>
-		<% } %>
 
 		<td data-value="{{ 'Action'|trans }}" class="uv-last">
 			<a href="<%= path.replace('replaceId', id) %>" class="uv-btn-stroke edit-type">

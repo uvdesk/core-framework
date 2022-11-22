@@ -93,10 +93,10 @@
             <label class="uv-field-label">{{ 'Email'|trans }}</label>
 
             <div class="uv-field-block">
-                <% if (typeof(username) != 'undefined' && username != '') { %>
-                    <input type="text" name="username" class="uv-field" value="<%- username %>" />
+                <% if (typeof(user) != 'undefined' && user != '') { %>
+                    <input type="text" name="user" class="uv-field" value="<%- user %>" />
                 <% } else { %>
-                    <input type="text" name="username" class="uv-field" value="" />
+                    <input type="text" name="user" class="uv-field" value="" />
                 <% } %>
             </div>
         </div>
@@ -105,7 +105,7 @@
             <label class="uv-field-label">{{ 'Password'|trans }}</label>
 
             <div class="uv-field-block">
-                <input type="password" name="password" class="uv-field" value="" />
+                <input type="password" name="pass" class="uv-field" value="" />
             </div>
         </div>
 	</script>
@@ -115,10 +115,10 @@
             <label class="uv-field-label">{{ 'Email'|trans }}</label>
 
             <div class="uv-field-block">
-                <% if (typeof(username) != 'undefined' && username != '') { %>
-                    <input type="text" name="username" class="uv-field" value="<%- username %>" />
+                <% if (typeof(user) != 'undefined' && user != '') { %>
+                    <input type="text" name="user" class="uv-field" value="<%- user %>" />
                 <% } else { %>
-                    <input type="text" name="username" class="uv-field" value="" />
+                    <input type="text" name="user" class="uv-field" value="" />
                 <% } %>
             </div>
         </div>
@@ -127,7 +127,7 @@
             <label class="uv-field-label">{{ 'Password'|trans }}</label>
 
             <div class="uv-field-block">
-                <input type="password" name="password" class="uv-field" value="" />
+                <input type="password" name="pass" class="uv-field" value="" />
             </div>
         </div>
 	</script>
@@ -149,10 +149,10 @@
             <label class="uv-field-label">{{ 'Email'|trans }}</label>
             
             <div class="uv-field-block">
-                <% if (typeof(username) != 'undefined' && username != '') { %>
-                    <input type="text" name="username" class="uv-field" value="<%- username %>" />
+                <% if (typeof(user) != 'undefined' && user != '') { %>
+                    <input type="text" name="user" class="uv-field" value="<%- user %>" />
                 <% } else { %>
-                    <input type="text" name="username" class="uv-field" value="" />
+                    <input type="text" name="user" class="uv-field" value="" />
                 <% } %>
             </div>
         </div>
@@ -161,7 +161,7 @@
             <label class="uv-field-label">{{ 'Password'|trans }}</label>
             
             <div class="uv-field-block">
-                <input type="password" name="password" class="uv-field" value="" />
+                <input type="password" name="pass" class="uv-field" value="" />
             </div>
         </div>
 
@@ -176,65 +176,6 @@
                 <% } %>
             </div>
         </div>
-
-        {# Optional Fields #}
-
-        <div class="uv-element-block">
-            <label class="uv-field-label">{{ 'Encryption Mode'|trans }}</label>
-            
-            <div class="uv-field-block">
-                <select name="encryptionMode" class="uv-select">
-                    <option value="ssl" 
-                        <% if (typeof(encryption) == 'undefined' || encryption == 'ssl') { print('selected'); } %>
-                    >{{ 'ssl'|trans }}</option>
-                    <option value="tls" 
-                        <% if (typeof(encryption) != 'undefined' && encryption == 'tls') { print('selected'); } %>
-                    >{{ 'tls'|trans }}</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="uv-element-block">
-            <label class="uv-field-label">{{ 'Authentication Mode'|trans }}</label>
-            
-            <div class="uv-field-block">
-                <select name="authenticationMode" class="uv-select">
-                    <option value="login"
-                        <% if (typeof(authentication) == 'undefined' || authentication == 'login') { print('selected'); } %>
-                    >{{ 'login'|trans }}</option>
-                    <option value="plain"
-                        <% if (typeof(authentication) != 'undefined' && authentication == 'plain') { print('selected'); } %>
-                    >{{ 'Plain'|trans }}</option>
-                    <option value="cram-md5"
-                        <% if (typeof(authentication) != 'undefined' && authentication == 'cram-md5') { print('selected'); } %>
-                    >{{ 'Cram-MD5'|trans }}</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="uv-element-block">
-            <label class="uv-field-label">{{ 'Sender Address'|trans }}</label>
-            
-            <div class="uv-field-block">
-                <% if (typeof(senderAddress) != 'undefined' && senderAddress != '') { %>
-                    <input type="text" name="senderAddress" class="uv-field" value="<%- senderAddress %>" />
-                <% } else { %>
-                    <input type="text" name="senderAddress" class="uv-field" value="" />
-                <% } %>
-            </div>
-        </div>
-
-        <div class="uv-element-block">
-            <label class="uv-field-label">{{ 'Delivery Address'|trans }}</label>
-            
-            <div class="uv-field-block">
-                <% if (typeof(deliveryAddress) != 'undefined' && deliveryAddress != '') { %>
-                    <input type="text" name="deliveryAddress" class="uv-field" value="<%- deliveryAddress %>" />
-                <% } else { %>
-                    <input type="text" name="deliveryAddress" class="uv-field" value="" />
-                <% } %>
-            </div>
-        </div>
 	</script>
 
 	<script type="text/javascript">
@@ -242,7 +183,7 @@
 			var SwiftMailerSettingsModel = Backbone.Model.extend({
                 idAttribute: "id",
                 validation: {
-                    username: [
+                    user: [
                         {
                             required: true,
                             msg: '{{ "Please specify a valid email address"|trans }}'
@@ -252,7 +193,7 @@
                             msg: '{{ "Please specify a valid email address"|trans }}'
                         }
                     ],
-                    password: function(value) {
+                    pass: function(value) {
                         if (value == undefined || value == '') {
                             return "Please enter the password associated with your email address";
                         }

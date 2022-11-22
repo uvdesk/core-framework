@@ -2,36 +2,29 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\Event\ConfigurationUpdatedEvent;
-use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Mailer\Event\ConfigurationUpdatedEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Mailer\MailerService;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 
 class Mailer extends AbstractController
 {
-    public function __construct(UserService $userService, TranslatorInterface $translator, MailerService $mailer)
+    public function loadMailers(UserService $userService)
     {
-        $this->mailer = $mailer;
-        $this->translator = $translator;
-        $this->userService = $userService;
-    }
-
-    public function loadMailers()
-    {
-        if (!$this->userService->isAccessAuthorized('ROLE_ADMIN')) {
+        if (!$userService->isAccessAuthorized('ROLE_ADMIN')) {
             throw new AccessDeniedException("Insufficient account privileges");
         }
 
         return $this->render('@UVDeskCoreFramework//Mailer//listConfigurations.html.twig');
     }
     
-    public function createMailerConfiguration(Request $request, MailerService $mailer)
+    public function createMailerConfiguration(Request $request, MailerService $mailer, TranslatorInterface $translator)
     {
         if ($request->getMethod() == 'POST') {
             $params = $request->request->all();
@@ -53,8 +46,8 @@ class Mailer extends AbstractController
                 $configurations[] = $mailerConfiguration;
                 
                 try {
-                    $mailer->writeSwiftMailerConfigurations($configurations);
-                    $this->addFlash('success', $this->translator->trans('SwiftMailer configuration created successfully.'));
+                    $mailer->writeMailerConfigurations($configurations);
+                    $this->addFlash('success', $translator->trans('Mailer configuration created successfully.'));
                     return new RedirectResponse($this->generateUrl('helpdesk_member_mailer_settings'));
                 } catch (\Exception $e) {
                     $this->addFlash('warning', $e->getMessage());
@@ -65,44 +58,55 @@ class Mailer extends AbstractController
         return $this->render('@UVDeskCoreFramework//Mailer//manageConfigurations.html.twig');
     }
 
-    public function updateMailerConfiguration($id, Request $request, ContainerInterface $container)
+    public function updateMailerConfiguration($id, Request $request, ContainerInterface $container, MailerService $mailer, TranslatorInterface $translator)
     {
-        $swiftmailerService = $this->swiftMailer;;
-        $swiftmailerConfigurations = $swiftmailerService->parseMailerConfigurations();
+        $mailerConfigurations = $mailer->parseMailerConfigurations();
         
-        foreach ($swiftmailerConfigurations as $index => $configuration) {
+        foreach ($mailerConfigurations as $index => $configuration) {
             if ($configuration->getId() == $id) {
-                $swiftmailerConfiguration = $configuration;
+                $mailerConfiguration = $configuration;
                 break;
             }
         }
        
-        if (empty($swiftmailerConfiguration)) {
+        if (empty($mailerConfiguration)) {
             return new Response('', 404);
         }
 
         if ($request->getMethod() == 'POST') {
             $params = $request->request->all(); 
-            $params['password'] = base64_encode($params['password']);  
-            $existingSwiftmailerConfiguration = clone $swiftmailerConfiguration;
-            $swiftmailerConfiguration = $swiftmailerService->createConfiguration($params['transport'], $params['id']);
-            $swiftmailerConfiguration->initializeParams($params);
-              
-            // Dispatch swiftmailer configuration updated event
-            $event = new ConfigurationUpdatedEvent($swiftmailerConfiguration, $existingSwiftmailerConfiguration);
-            
-            $container->get('uvdesk.core.event_dispatcher')->dispatch($event, ConfigurationUpdatedEvent::NAME);
+            $params['pass'] = base64_encode($params['pass']);
 
-            // Updated swiftmailer configuration file
-            $swiftmailerConfigurations[$index] = $swiftmailerConfiguration;            
-            $swiftmailerService->writeSwiftMailerConfigurations($swiftmailerConfigurations);
+            dump($params);
+
+            $existingMailerConfiguration = clone $mailerConfiguration;
+            $mailerConfiguration = $mailer->createConfiguration($params['transport'], $params['id']);
+
+            dump($existingMailerConfiguration, $mailerConfiguration);
+
+            $mailerConfiguration->initializeParams($params);
             
-            $this->addFlash('success', $this->translator->trans('SwiftMailer configuration updated successfully.'));
+            dump($mailerConfiguration);
+              
+            // // Dispatch mailer configuration updated event
+            // $event = new ConfigurationUpdatedEvent($mailerConfiguration, $existingMailerConfiguration);
+            
+            // $container->get('uvdesk.core.event_dispatcher')->dispatch($event, ConfigurationUpdatedEvent::NAME);
+
+            // Updated mailer configuration file
+            $mailerConfigurations[$index] = $mailerConfiguration;
+            
+            $mailer->writeMailerConfigurations($mailerConfigurations);
+            
+            dump($mailerConfigurations);
+            die;
+            
+            $this->addFlash('success', $translator->trans('Mailer configuration updated successfully.'));
             return new RedirectResponse($this->generateUrl('helpdesk_member_mailer_settings'));
         }
 
         return $this->render('@UVDeskCoreFramework//Mailer//manageConfigurations.html.twig', [
-            'configuration' => $swiftmailerConfiguration->castArray(),
+            'configuration' => $mailerConfiguration->castArray(),
         ]);
     }
 }

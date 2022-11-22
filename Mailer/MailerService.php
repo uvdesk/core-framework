@@ -55,8 +55,7 @@ class MailerService
         if (file_exists($pathToFile)) {
             $parsedConfigurations = Yaml::parse(file_get_contents($pathToFile));
 
-            dump($parsedConfigurations);
-            // die;
+            // dump($parsedConfigurations);
 
             if (!empty($parsedConfigurations['framework']['mailer'])) {
                 if (empty($parsedConfigurations['framework']['mailer']['transports']) && !empty($parsedConfigurations['framework']['mailer']['dsn'])) {
@@ -74,27 +73,30 @@ class MailerService
 
                         $dsnConfigurations = parse_url($mailerConfigurations);
 
-                        dump($mailerId, $dsnConfigurations);
-                        die;
+                        // dump($mailerId, $dsnConfigurations);
 
-                        switch ($mailerConfigurations['scheme'] ?? '') {
+                        switch ($dsnConfigurations['scheme'] ?? '') {
                             case 'smtp':
-                                // if ($mailerConfigurations['host'])
-                                if ('smtp.mail.yahoo.com' == $mailerConfigurations['host']) {
-                                    $configuration = new YahooConfiguration($mailerId);
-                                } else {
-                                    $configuration = new DefaultConfiguration($mailerId);
+                                switch ($dsnConfigurations['host']) {
+                                    // case 'smtp.gmail.com':
+                                    //     $configuration = new GmailConfiguration($mailerId);
+
+                                    //     break;
+                                    // case 'smtp.mail.yahoo.com':
+                                    //     $configuration = new YahooConfiguration($mailerId);
+
+                                    //     break;
+                                    default:
+                                        $configuration = new DefaultConfiguration($mailerId);
+
+                                        break;
                                 }
-                                
-                                $configuration->resolveTransportConfigurations($mailerConfigurations);
+
+                                $configuration->resolveTransportConfigurations($dsnConfigurations);
 
                                 $configurations[] = $configuration;
-                                break;
-                            case 'gmail':
-                                $configuration = new GmailConfiguration($mailerId);
-                                $configuration->resolveTransportConfigurations($mailerConfigurations);
+                                // dump($configuration);
 
-                                $configurations[] = $configuration;
                                 break;
                             default:
                                 break;
@@ -107,7 +109,7 @@ class MailerService
         return $configurations;
     }
 
-    public function writeSwiftMailerConfigurations(array $configurations = [], array $defaults = [])
+    public function writeMailerConfigurations(array $configurations = [], array $defaults = [])
     {
         if (empty($configurations) && empty($defaults)) {
             $stream = require self::SWIFTMAILER_NULL_TEMPLATE;
@@ -124,10 +126,13 @@ class MailerService
         // Iteratively build up mailers config.
         foreach ($configurations as $configuration) {
             if (in_array($configuration->getId(), $references)) {
-                throw new \Exception('SwiftMailer configuration already exist with same id.');
+                throw new \Exception('Mailer configuration already exist with same id.');
             }
 
             $references[] = $configuration->getId();
+
+            dump($references);
+            
             $configurationStream .= $configuration->getWritableConfigurations();
         }
 

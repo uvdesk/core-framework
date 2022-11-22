@@ -2,36 +2,33 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\Event\ConfigurationRemovedEvent;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Mailer\Event\ConfigurationRemovedEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Mailer\MailerService;
 
 class MailerXHR extends AbstractController
 {
-    private $translator;
-    private $swiftMailer;
-    
-    public function __construct(TranslatorInterface $translator, MailerService $swiftMailer)
-    {
-        $this->translator = $translator;
-        $this->swiftMailer = $swiftMailer;
-    }
-
-    public function loadMailersXHR(Request $request)
+    public function loadMailersXHR(Request $request, MailerService $mailerService)
     {
         if (true === $request->isXmlHttpRequest()) {
+            $configurations = $mailerService->parseMailerConfigurations();
+
+            // dump($configurations);
+
             $collection = array_map(function ($configuartion) {
                 return [
                     'id' => $configuartion->getId(),
-                    'email' => $configuartion->getUsername(),
+                    'email' => $configuartion->getUser(),
                     'transport' => $configuartion->getTransportName(),
-                    'isActive' => $configuartion->getDeliveryStatus(),
                 ];
-            }, $this->swiftMailer->parseMailerConfigurations());
+            }, $configurations);
+
+            // dump($collection);
+            // die;
 
             return new JsonResponse($collection);
         } 
@@ -39,40 +36,39 @@ class MailerXHR extends AbstractController
         return new JsonResponse([], 404);
     }
 
-    public function removeMailerConfiguration(Request $request, ContainerInterface $container)
+    public function removeMailerConfiguration(Request $request, ContainerInterface $container, MailerService $mailerService, TranslatorInterface $translator)
     {
         $params = $request->query->all();
-        $swiftmailer = $this->swiftMailer;
-        $configurations = $swiftmailer->parseMailerConfigurations();
+        $configurations = $mailerService->parseMailerConfigurations();
        
         if (!empty($configurations)) {
             foreach ($configurations as $index => $configuration) {
                 if ($configuration->getId() == $params['id']) {
-                    $swiftmailerConfiguration = $configuration;
+                    $mailerConfiguration = $configuration;
                     break;
                 }
             }
 
-            if (!empty($swiftmailerConfiguration)) {
+            if (!empty($mailerConfiguration)) {
                 unset($configurations[$index]);
 
-                // Dispatch swiftmailer configuration removed event
-                $event = new ConfigurationRemovedEvent($swiftmailerConfiguration);
+                // Dispatch mailer configuration removed event
+                $event = new ConfigurationRemovedEvent($mailerConfiguration);
                 $container->get('uvdesk.core.event_dispatcher')->dispatch($event,ConfigurationRemovedEvent::NAME);
 
-                // Update swiftmailer configuration file
-                $swiftmailer->writeSwiftMailerConfigurations($configurations);
+                // Update mailer configuration file
+                $mailerService->writeMailerConfigurations($configurations);
                 
                 return new JsonResponse([
                     'alertClass' => 'success',
-                    'alertMessage' => $this->translator->trans('Swiftmailer configuration removed successfully.'),
+                    'alertMessage' => $translator->trans('Mailer configuration removed successfully.'),
                 ]);
             }
         }
 
         return new JsonResponse([
             'alertClass' => 'error',
-            'alertMessage' => $this->translator->trans('No swiftmailer configurations found for mailer id:') . $params['id'],
+            'alertMessage' => $translator->trans('No mailer configurations found for mailer id:') . $params['id'],
         ], 404);
     }
 }

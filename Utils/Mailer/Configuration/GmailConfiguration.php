@@ -94,18 +94,20 @@ MAILER;
         foreach ($params as $param => $value) {
             $method = 'set' . ucfirst($param);
 
-            switch ($param) {
-                case 'disable_delivery':
-                    $this->setDeliveryStatus(!(bool) $value);
-                    break;
-                default:
-                    $method = 'set' . ucfirst($param);
+            dump($method);
+
+            // switch ($param) {
+            //     case 'disable_delivery':
+            //         $this->setDeliveryStatus(!(bool) $value);
+            //         break;
+            //     default:
+            //         $method = 'set' . ucfirst($param);
                     
-                    if (is_callable([$this, $method])) {
-                        $this->{$method}($value);
-                    }
-                    break;
-            }
+            //         if (is_callable([$this, $method])) {
+            //             $this->{$method}($value);
+            //         }
+            //         break;
+            // }
         }
     }
 }
