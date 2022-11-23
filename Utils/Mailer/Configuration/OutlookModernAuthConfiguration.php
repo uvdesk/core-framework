@@ -4,14 +4,14 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration;
 
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\BaseConfiguration;
 
-class YahooConfiguration extends BaseConfiguration
+class OutlookModernAuthConfiguration extends BaseConfiguration
 {
-    CONST SCHEME = 'smtp';
-    CONST TRANSPORT_CODE = 'yahoo';
-    CONST TRANSPORT_NAME = 'Yahoo';
+    CONST SCHEME = 'outlook_oauth';
+    CONST TRANSPORT_CODE = 'outlook_modern_auth';
+    CONST TRANSPORT_NAME = 'Outlook Modern Auth';
 
-    CONST HOST = 'smtp.mail.yahoo.com';
-    CONST PORT = '587';
+    CONST HOST = 'smtp.outlook_auth.com';
+    CONST PORT = '465';
 
     public static function getScheme()
     {
@@ -32,7 +32,7 @@ class YahooConfiguration extends BaseConfiguration
     {
         return self::HOST;
     }
-
+    
     public function getPort()
     {
         return self::PORT;

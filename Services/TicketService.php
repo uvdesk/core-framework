@@ -2,16 +2,21 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 
-use Doctrine\ORM\Query;
-use Symfony\Component\Yaml\Yaml;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Yaml\Yaml;
+use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity;
+use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity as CommunityPackageEntities;
+use Webkul\UVDesk\AutomationBundle\Entity\PreparedResponses;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\AgentActivity;
-use Webkul\UVDesk\MailboxBundle\Utils\Mailbox\Mailbox;
-use Symfony\Component\EventDispatcher\GenericEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Tag;
@@ -25,21 +30,16 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportLabel;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedReplies;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
-use Webkul\UVDesk\MailboxBundle\Utils\MailboxConfiguration;
+use Webkul\UVDesk\CoreFrameworkBundle\Mailer\MailerService;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
-use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity;
+use Webkul\UVDesk\MailboxBundle\Utils\Mailbox\Mailbox;
+use Webkul\UVDesk\MailboxBundle\Utils\MailboxConfiguration;
 use Webkul\UVDesk\MailboxBundle\Utils\Imap\Configuration as ImapConfiguration;
-use Symfony\Component\Filesystem\Filesystem;
 use Webkul\UVDesk\SupportCenterBundle\Entity\Article;
 use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
-use Webkul\UVDesk\AutomationBundle\Entity\PreparedResponses;
-use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity as CommunityPackageEntities;
-
 
 class TicketService
 {
@@ -56,13 +56,15 @@ class TicketService
         RequestStack $requestStack, 
         EntityManagerInterface $entityManager, 
         FileUploadService $fileUploadService,
-        UserService $userService)
-    {
+        UserService $userService, 
+        MailerService $mailerService
+    ) {
         $this->container = $container;
 		$this->requestStack = $requestStack;
         $this->entityManager = $entityManager;
         $this->fileUploadService = $fileUploadService;
         $this->userService = $userService;
+        $this->mailerService = $mailerService;
     }
 
     public function getAllMailboxes()
@@ -86,35 +88,41 @@ class TicketService
         if (!file_exists($path)) {
             throw new \Exception("File '$path' not found.");
         }
+
         // Read configurations from package config.
         $mailboxConfiguration = new MailboxConfiguration();
-        $swiftmailerService = $this->container->get('mailer');
-        $swiftmailerConfigurations = $swiftmailerService->parseMailerConfigurations();
+        $mailerConfigurations = $this->mailerService->parseMailerConfigurations();
 
         foreach (Yaml::parse(file_get_contents($path))['uvdesk_mailbox']['mailboxes'] ?? [] as $id => $params) {
-            // Swiftmailer Configuration
-            $swiftmailerConfiguration = null;
-            foreach ($swiftmailerConfigurations as $configuration) {
+            // Mailer Configuration
+            $mailerConfiguration = null;
+
+            foreach ($mailerConfigurations as $configuration) {
                 if ($configuration->getId() == $params['smtp_server']['mailer_id']) {
-                    $swiftmailerConfiguration = $configuration;
+                    $mailerConfiguration = $configuration;
                     break;
                 }
             }
+
             // IMAP Configuration
-            ($imapConfiguration = ImapConfiguration::guessTransportDefinition($params['imap_server']['host']))
+            $imapConfiguration = ImapConfiguration::guessTransportDefinition($params['imap_server']['host']);
+            $imapConfiguration
                 ->setUsername($params['imap_server']['username'])
-                ->setPassword($params['imap_server']['password']);
+                ->setPassword($params['imap_server']['password'])
+            ;
 
             // Mailbox Configuration
-            ($mailbox = new Mailbox($id))
+            $mailbox = new Mailbox($id);
+            $mailbox
                 ->setName($params['name'])
                 ->setIsEnabled($params['enabled'])
-                ->setImapConfiguration($imapConfiguration);
+                ->setImapConfiguration($imapConfiguration)
+            ;
             
-            if (!empty($swiftmailerConfiguration)) {
-                $mailbox->setSwiftMailerConfiguration($swiftmailerConfiguration);
+            if (!empty($mailerConfiguration)) {
+                $mailbox->setMailerConfiguration($mailerConfiguration);
             } else if (!empty($params['smtp_server']['mailer_id']) && true === $ignoreInvalidAttributes) {
-                $mailbox->setSwiftMailerConfiguration($swiftmailerService->createConfiguration('smtp', $params['smtp_server']['mailer_id']));
+                $mailbox->setMailerConfiguration($this->mailerService->createConfiguration('smtp', $params['smtp_server']['mailer_id']));
             }
 
             $mailboxConfiguration->addMailbox($mailbox);

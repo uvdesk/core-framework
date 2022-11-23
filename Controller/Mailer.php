@@ -24,30 +24,24 @@ class Mailer extends AbstractController
         return $this->render('@UVDeskCoreFramework//Mailer//listConfigurations.html.twig');
     }
     
-    public function createMailerConfiguration(Request $request, MailerService $mailer, TranslatorInterface $translator)
+    public function createMailerConfiguration(Request $request, MailerService $mailerService, TranslatorInterface $translator)
     {
         if ($request->getMethod() == 'POST') {
             $params = $request->request->all();
-            $params['password'] = urlencode($params['password']);
+            $params['pass'] = urlencode($params['pass']);
 
-            dump($params);
+            $mailerConfiguration = $mailerService->createConfiguration($params['transport'], $params['id']);
 
-            $mailerConfiguration = $mailer->createConfiguration($params['transport'], $params['id']);
-
-            dump($mailerConfiguration);
-            
             if (!empty($mailerConfiguration)) {
                 $mailerConfiguration->initializeParams($params);
-                $configurations = $mailer->parseMailerConfigurations();
+                $configurations = $mailerService->parseMailerConfigurations();
                 
-                dump($mailerConfiguration);
-                die;
-
                 $configurations[] = $mailerConfiguration;
                 
                 try {
-                    $mailer->writeMailerConfigurations($configurations);
+                    $mailerService->writeMailerConfigurations($configurations);
                     $this->addFlash('success', $translator->trans('Mailer configuration created successfully.'));
+
                     return new RedirectResponse($this->generateUrl('helpdesk_member_mailer_settings'));
                 } catch (\Exception $e) {
                     $this->addFlash('warning', $e->getMessage());
@@ -58,9 +52,9 @@ class Mailer extends AbstractController
         return $this->render('@UVDeskCoreFramework//Mailer//manageConfigurations.html.twig');
     }
 
-    public function updateMailerConfiguration($id, Request $request, ContainerInterface $container, MailerService $mailer, TranslatorInterface $translator)
+    public function updateMailerConfiguration($id, Request $request, ContainerInterface $container, MailerService $mailerService, TranslatorInterface $translator)
     {
-        $mailerConfigurations = $mailer->parseMailerConfigurations();
+        $mailerConfigurations = $mailerService->parseMailerConfigurations();
         
         foreach ($mailerConfigurations as $index => $configuration) {
             if ($configuration->getId() == $id) {
@@ -75,33 +69,24 @@ class Mailer extends AbstractController
 
         if ($request->getMethod() == 'POST') {
             $params = $request->request->all(); 
-            $params['pass'] = base64_encode($params['pass']);
-
-            dump($params);
+            $params['pass'] = urlencode($params['pass']);
 
             $existingMailerConfiguration = clone $mailerConfiguration;
-            $mailerConfiguration = $mailer->createConfiguration($params['transport'], $params['id']);
-
-            dump($existingMailerConfiguration, $mailerConfiguration);
+            $mailerConfiguration = $mailerService->createConfiguration($params['transport'], $params['id']);
 
             $mailerConfiguration->initializeParams($params);
             
-            dump($mailerConfiguration);
-              
-            // // Dispatch mailer configuration updated event
-            // $event = new ConfigurationUpdatedEvent($mailerConfiguration, $existingMailerConfiguration);
+            // Dispatch mailer configuration updated event
+            $event = new ConfigurationUpdatedEvent($mailerConfiguration, $existingMailerConfiguration);
             
-            // $container->get('uvdesk.core.event_dispatcher')->dispatch($event, ConfigurationUpdatedEvent::NAME);
+            $container->get('uvdesk.core.event_dispatcher')->dispatch($event, ConfigurationUpdatedEvent::NAME);
 
             // Updated mailer configuration file
             $mailerConfigurations[$index] = $mailerConfiguration;
             
-            $mailer->writeMailerConfigurations($mailerConfigurations);
-            
-            dump($mailerConfigurations);
-            die;
-            
+            $mailerService->writeMailerConfigurations($mailerConfigurations);
             $this->addFlash('success', $translator->trans('Mailer configuration updated successfully.'));
+
             return new RedirectResponse($this->generateUrl('helpdesk_member_mailer_settings'));
         }
 

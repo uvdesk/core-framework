@@ -17,8 +17,6 @@ class MailerXHR extends AbstractController
         if (true === $request->isXmlHttpRequest()) {
             $configurations = $mailerService->parseMailerConfigurations();
 
-            // dump($configurations);
-
             $collection = array_map(function ($configuartion) {
                 return [
                     'id' => $configuartion->getId(),
@@ -26,9 +24,6 @@ class MailerXHR extends AbstractController
                     'transport' => $configuartion->getTransportName(),
                 ];
             }, $configurations);
-
-            // dump($collection);
-            // die;
 
             return new JsonResponse($collection);
         } 

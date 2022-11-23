@@ -3,7 +3,7 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\Mailer\Event;
 
 use Symfony\Contracts\EventDispatcher\Event;
-use Webkul\UVDesk\CoreFrameworkBundle\Utils\SwiftMailer\BaseConfiguration;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\BaseConfiguration;
 
 /**
  * The mailer.configuration.removed event is dispatched each time a mailer configuration
@@ -20,7 +20,7 @@ class ConfigurationRemovedEvent extends Event
         $this->configuration = $configuration;
     }
 
-    public function getSwiftMailerConfiguration(): BaseConfiguration
+    public function getMailerConfiguration(): BaseConfiguration
     {
         return $this->configuration;
     }

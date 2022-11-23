@@ -6,14 +6,18 @@ use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\BaseConfiguration;
 
 class DefaultConfiguration extends BaseConfiguration
 {
+    CONST SCHEME = 'smtp';
     CONST TRANSPORT_CODE = 'smtp';
     CONST TRANSPORT_NAME = 'SMTP';
-
-    CONST TEMPLATE = <<<MAILER
-            [[ id ]]: [[ scheme ]]://[[ user ]]:[[ pass ]]@[[ host ]][[ port ]][[ options ]]
-
-MAILER;
     
+    private $host = null;
+    private $port = null;
+
+    public static function getScheme()
+    {
+        return self::SCHEME;
+    }
+
     public static function getTransportCode()
     {
         return self::TRANSPORT_CODE;
@@ -22,11 +26,6 @@ MAILER;
     public static function getTransportName()
     {
         return self::TRANSPORT_NAME;
-    }
-
-    public function getScheme()
-    {
-        return 'smtp';
     }
 
     public function setHost($host)
@@ -38,7 +37,7 @@ MAILER;
     {
         return $this->host;
     }
-
+    
     public function setPort($port)
     {
         $this->port = $port;
@@ -49,35 +48,21 @@ MAILER;
         return $this->port;
     }
 
-    public function getWritableConfigurations()
-    {
-        $params = [
-            '[[ id ]]' => $this->getId(),
-            '[[ scheme ]]' => $this->getScheme(),
-            '[[ user ]]' => $this->getUser(),
-            '[[ pass ]]' => $this->getPass(),
-            '[[ host ]]' => $this->getHost(),
-            '[[ port ]]' => $this->getPort(),
-            '[[ options ]]' => '', 
-        ];
-
-        // dump(self::TEMPLATE, strtr(self::TEMPLATE, $params));
-
-        return strtr(self::TEMPLATE, $params);
-    }
-
     public function castArray()
     {
         return [
-            'transport' => $this->getTransportCode(),
-            'id' => $this->getId(),
-            'user' => $this->getUser(),
-            'pass' => $this->getPass(),
-            'host' => $this->getHost(),
-            'port' => $this->getPort(),
+            'scheme' => $this->getScheme(), 
+            'transport' => $this->getTransportCode(), 
+            'id' => $this->getId(), 
+            'user' => $this->getUser(), 
+            'pass' => $this->getPass(), 
+            'host' => $this->getHost(), 
+            'port' => $this->getPort(), 
+            'useStrictMode' => $this->getUseStrictMode(), 
+            'disableEmailDelivery' => $this->getDisableEmailDelivery(), 
         ];
     }
-
+    
     public function initializeParams(array $params, $reset = false)
     {
         foreach ($params as $param => $value) {
@@ -86,12 +71,19 @@ MAILER;
                     if (true == $reset) {
                         $this->setId($value);
                     }
+
+                    break;
+                case 'useStrictMode':
+                    $this->setUseStrictMode($value == 'on' ? true : false);
+
+                    break;
+                case 'disableEmailDelivery':
+                    $this->setDisableEmailDelivery($value == 'on' ? true : false);
+
                     break;
                 default:
                     $method = 'set' . ucfirst($param);
 
-                    // dump($method);
-                    
                     if (is_callable([$this, $method])) {
                         $this->{$method}($value);
                     }
@@ -101,44 +93,68 @@ MAILER;
         }
     }
 
+    public function getWritableConfigurations($defaultMailerDsnConfig = null)
+    {
+        $options = [];
+
+        if (false == $this->getUseStrictMode()) {
+            $options['verify_peer'] = 0;
+        }
+
+        if ($this->getDisableEmailDelivery()) {
+            $options['disableDelivery'] = 1;
+        }
+
+        $params = [
+            '[[ scheme ]]' => $this->getScheme(),
+            '[[ user ]]' => $this->getUser(),
+            '[[ pass ]]' => $this->getPass(),
+            '[[ host ]]' => $this->getHost(),
+            '[[ port ]]' => $this->getPort() ? ":" . $this->getPort() : '', 
+            '[[ options ]]' => !empty($options) ? '?' . http_build_query($options) : '', 
+        ];
+
+        $configuration = strtr(BaseConfiguration::CONFIGURATION, $params);
+
+        if (!empty($defaultMailerDsnConfig) && $configuration == $defaultMailerDsnConfig) {
+            $configuration = "'%env(MAILER_DSN)%'";
+        }
+
+        $params = [
+            '[[ id ]]' => $this->getId(),
+            '[[ configuration ]]' => $configuration,
+        ];
+
+        return strtr(BaseConfiguration::TEMPLATE, $params);
+    }
+
     public function resolveTransportConfigurations(array $params = [])
     {
         foreach ($params as $param => $value) {
             $method = 'set' . ucfirst($param);
 
             switch ($param) {
-                case 'host':
-                    $this->setHost($value);
+                case 'query':
+                    $options = [];
+                    
+                    parse_str($value, $options);
 
-                    break;
-                case 'user':
-                    $this->setUser($value);
-                    
-                    break;
-                case 'pass':
-                    $this->setPass($value);
-                    
-                    break;
-                case 'port':
-                    $this->setPort($value);
-                    
-                    break;
-                // case 'disable_delivery':
-                //     $this->setDeliveryStatus(!(bool) $value);
-                //     break;
-                // case 'auth_mode':
-                //     $this->setAuthenticationMode($value);
-                //     break;
-                // case 'encryption':
-                //     $this->setEncryptionMode($value);
-                //     break;
+                    foreach ($options as $option => $optionValue) {
+                        switch ($option) {
+                            case 'verify_peer':
+                                $this->setUseStrictMode((int) $optionValue == 0 ? false : true);
+
+                                break;
+                            default:
+                                break;
+                        }
+                    }
                 default:
-                    // dump($method);
-                    // $method = 'set' . ucfirst($param);
+                    $method = 'set' . ucfirst($param);
                     
-                    // if (is_callable([$this, $method])) {
-                    //     $this->{$method}($value);
-                    // }
+                    if (is_callable([$this, $method])) {
+                        $this->{$method}($value);
+                    }
 
                     break;
             }

@@ -68,7 +68,7 @@
         </div>	
 	</script>
 
-	<script id="swiftmailer_configuration_item_template" type="text/template">
+	<script id="mailer_configuration_item_template" type="text/template">
 		<td><span class="mailer-id"><%- id %></span></td>
 		<td><%- email %></td>
 		<td><%- transport %></td>
@@ -132,7 +132,7 @@
 
 			var ConfigurationView = Backbone.View.extend({
 				tagName: "tr",
-				template: _.template($("#swiftmailer_configuration_item_template").html()),
+				template: _.template($("#mailer_configuration_item_template").html()),
 				events: {
 					'click .delete-type' : "confirmRemove"
 				},

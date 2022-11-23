@@ -3,7 +3,7 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\Mailer\Event;
 
 use Symfony\Contracts\EventDispatcher\Event;
-use Webkul\UVDesk\CoreFrameworkBundle\Utils\SwiftMailer\BaseConfiguration;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\BaseConfiguration;
 
 /**
  * The mailer.configuration.updated event is dispatched each time a mailer configuration
@@ -22,12 +22,12 @@ class ConfigurationUpdatedEvent extends Event
         $this->existingConfiguration = $existingConfiguration;
     }
 
-    public function getUpdatedSwiftMailerConfiguration(): BaseConfiguration
+    public function getUpdatedMailerConfiguration(): BaseConfiguration
     {
         return $this->updatedConfiguration;
     }
 
-    public function getExistingSwiftMailerConfiguration(): BaseConfiguration
+    public function getExistingMailerConfiguration(): BaseConfiguration
     {
         return $this->existingConfiguration;
     }

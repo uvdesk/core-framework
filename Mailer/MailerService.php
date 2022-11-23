@@ -9,12 +9,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\DefaultConfiguration;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\GmailConfiguration;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\YahooConfiguration;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\OutlookConfiguration;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\OutlookModernAuthConfiguration;
 
 class MailerService
 {
     const PATH_TO_CONFIG = '/config/packages/mailer.yaml';
-    const SWIFTMAILER_TEMPLATE = __DIR__ . "/../Templates/Mailer/configurations.php";
-    const SWIFTMAILER_NULL_TEMPLATE = __DIR__ . "/../Templates/Mailer/null-configurations.php";
+    const MAILER_TEMPLATE = __DIR__ . "/../Templates/Mailer/configurations.php";
+    const MAILER_NULL_TEMPLATE = __DIR__ . "/../Templates/Mailer/null-configurations.php";
 
 	protected $container;
 
@@ -40,6 +42,12 @@ class MailerService
             case 'yahoo':
                 $configuration = new YahooConfiguration($id);
                 break;
+            case 'outlook':
+                $configuration = new OutlookConfiguration($id);
+                break;
+            case 'outlook_modern_auth':
+                $configuration = new OutlookModernAuthConfiguration($id);
+                break;
             default:
                 break;
         }
@@ -55,8 +63,6 @@ class MailerService
         if (file_exists($pathToFile)) {
             $parsedConfigurations = Yaml::parse(file_get_contents($pathToFile));
 
-            // dump($parsedConfigurations);
-
             if (!empty($parsedConfigurations['framework']['mailer'])) {
                 if (empty($parsedConfigurations['framework']['mailer']['transports']) && !empty($parsedConfigurations['framework']['mailer']['dsn'])) {
                     // Only one single mailer is defined
@@ -68,34 +74,34 @@ class MailerService
 
                         if (strpos($mailerConfigurations, '%env(') !== false) {
                             $envId = str_replace(['%env(', ')%'], '', $mailerConfigurations);
-                            $mailerConfigurations = !empty($_SERVER[$envId]) ? $_SERVER[$envId] : null;
+                            $mailerConfigurations = !empty($_ENV[$envId]) ? $_ENV[$envId] : null;
                         }
 
-                        $dsnConfigurations = parse_url($mailerConfigurations);
+                        $mailerConfigurations = parse_url($mailerConfigurations);
 
-                        // dump($mailerId, $dsnConfigurations);
-
-                        switch ($dsnConfigurations['scheme'] ?? '') {
+                        switch ($mailerConfigurations['scheme'] ?? '') {
                             case 'smtp':
-                                switch ($dsnConfigurations['host']) {
-                                    // case 'smtp.gmail.com':
-                                    //     $configuration = new GmailConfiguration($mailerId);
+                                switch ($mailerConfigurations['host']) {
+                                    case 'smtp.gmail.com':
+                                        $configuration = new GmailConfiguration($mailerId);
 
-                                    //     break;
-                                    // case 'smtp.mail.yahoo.com':
-                                    //     $configuration = new YahooConfiguration($mailerId);
+                                        break;
+                                    case 'smtp.mail.yahoo.com':
+                                        $configuration = new YahooConfiguration($mailerId);
 
-                                    //     break;
+                                        break;
+                                    case 'smtp.office365.com':
+                                        $configuration = new OutlookConfiguration($mailerId);
+
+                                        break;
                                     default:
                                         $configuration = new DefaultConfiguration($mailerId);
 
                                         break;
                                 }
 
-                                $configuration->resolveTransportConfigurations($dsnConfigurations);
-
+                                $configuration->resolveTransportConfigurations($mailerConfigurations);
                                 $configurations[] = $configuration;
-                                // dump($configuration);
 
                                 break;
                             default:
@@ -112,10 +118,11 @@ class MailerService
     public function writeMailerConfigurations(array $configurations = [], array $defaults = [])
     {
         if (empty($configurations) && empty($defaults)) {
-            $stream = require self::SWIFTMAILER_NULL_TEMPLATE;
+            $stream = require self::MAILER_NULL_TEMPLATE;
 
             // Write to configs.
             file_put_contents($this->getPathToConfigurationFile(), $stream);
+
             return;
         }
         
@@ -131,22 +138,21 @@ class MailerService
 
             $references[] = $configuration->getId();
 
-            dump($references);
-            
-            $configurationStream .= $configuration->getWritableConfigurations();
+            $configurationStream .= $configuration->getWritableConfigurations($_ENV['MAILER_DSN'] ?? null);
         }
 
         // Default_mailer configuration
         // @TODO: Needs to be improved. We shouldn't just randomly set the first mailer as the default mailer.
-        $stream = require self::SWIFTMAILER_TEMPLATE;
+        $stream = require self::MAILER_TEMPLATE;
 
-        if (!empty($references[0])) {
-            $stream = strtr($stream, [
-                '[[ DEFAULT_MAILER ]]' => $references[0],
-            ]);
-        }
+        // @TODO: Setup a default mailer id
+        // if (!empty($references[0])) {
+        //     $stream = strtr($stream, [
+        //         '[[ DEFAULT_MAILER ]]' => $references[0],
+        //     ]);
+        // }
 
-        // Prepare the complete swiftmailer configuration file
+        // Prepare the complete mailer configuration file
         $stream = strtr($stream, [
             '[[ CONFIGURATIONS ]]' => $configurationStream,
         ]);

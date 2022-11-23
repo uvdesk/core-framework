@@ -1,11 +1,11 @@
 <?php
 
-return <<<SWIFTMAILER
-swiftmailer:
-    default_mailer: [[ DEFAULT_MAILER ]]
-    mailers:
+return <<<MAILER
+framework:
+    mailer:
+        transports:
 [[ CONFIGURATIONS ]]
 
-SWIFTMAILER;
+MAILER;
 
 ?>

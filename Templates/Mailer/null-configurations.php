@@ -1,8 +1,10 @@
 <?php
 
-return <<<SWIFTMAILER
-swiftmailer: ~
+return <<<MAILER
+framework:
+    mailer:
+        dsn: '%env(MAILER_DSN)%'
 
-SWIFTMAILER;
+MAILER;
 
 ?>

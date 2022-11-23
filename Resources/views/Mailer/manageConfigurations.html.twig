@@ -1,7 +1,7 @@
 {% extends "@UVDeskCoreFramework//Templates//layout.html.twig" %}
 
 {% block title %} 
-	{{ 'Swift Mailer Settings'|trans }}
+	{{ 'Mailer Settings'|trans }}
 {% endblock %}
 
 {% block pageContent %}
@@ -21,8 +21,8 @@
 
             <div class="uv-hr"></div>
 			
-			<form method="post" action="" id="swiftmailer-settings-view">
-                <div class="swiftmailer-setting-type">
+			<form method="post" action="" id="mailer-settings-view">
+                <div class="mailer-setting-type">
                     {# Mailer Id #}
                     <div class="uv-element-block">
                         <label class="uv-field-label">{{ 'Mailer ID'|trans }}</label>
@@ -41,16 +41,20 @@
                         <label class="uv-field-label">{{ 'Transport Type'|trans }}</label>
 
                         {% if configuration is defined and configuration is not empty %}
-                            <select name="transport" id="cta-swiftmailer-transport" class="uv-select">
+                            <select name="transport" id="cta-mailer-transport" class="uv-select">
                                 <option value="smtp" {% if configuration.transport == 'smtp' %}selected{% endif %}>{{ 'SMTP'|trans }}</option>
                                 <option value="gmail" {% if configuration.transport == 'gmail' %}selected{% endif %}>{{ 'Gmail'|trans }}</option>
                                 <option value="yahoo" {% if configuration.transport == 'yahoo' %}selected{% endif %}>{{ 'Yahoo'|trans }} </option>
+                                <option value="outlook" {% if configuration.transport == 'outlook' %}selected{% endif %}>{{ 'Outlook'|trans }} </option>
+                                <option value="outlook_modern_auth" {% if configuration.transport == 'outlook_modern_auth' %}selected{% endif %}>{{ 'Outlook Modern Auth'|trans }} </option>
                             </select>
                         {% else %}
-                            <select name="transport" id="cta-swiftmailer-transport" class="uv-select">
+                            <select name="transport" id="cta-mailer-transport" class="uv-select">
                                 <option value="smtp" selected>{{ 'SMTP'|trans }}</option>
                                 <option value="gmail">{{ 'Gmail'|trans }}</option>
                                 <option value="yahoo">{{ 'Yahoo'|trans }}</option>
+                                <option value="outlook">{{ 'Outlook'|trans }} </option>
+                                <option value="outlook_modern_auth">{{ 'Outlook Modern Auth'|trans }} </option>
                             </select>
                         {% endif %}
                     </div>
@@ -59,23 +63,40 @@
                     <div class="uv-element-block">
                         <label>
                             <div class="uv-checkbox">
-                                {% if configuration.deliveryStatus is defined and configuration.deliveryStatus == true %}
-                                    <input name="deliveryStatus" type="checkbox" checked="">
+                                {% if configuration.disableEmailDelivery is defined and configuration.disableEmailDelivery == true %}
+                                    <input name="disableEmailDelivery" type="checkbox" checked="">
                                 {% else %}
-                                    <input name="deliveryStatus" type="checkbox">
+                                    <input name="disableEmailDelivery" type="checkbox">
                                 {% endif %}
 
                                 <span class="uv-checkbox-view"></span>
                             </div>
 
-                            <span class="uv-checkbox-label">{{ 'Enable Delivery'|trans }}</span>
+                            <span class="uv-checkbox-label">{{ 'Disable Delivery'|trans }}</span>
+                        </label>
+                    </div>
+
+                    {# Security Check #}
+                    <div class="uv-element-block">
+                        <label>
+                            <div class="uv-checkbox">
+                                {% if configuration.useStrictMode is defined and configuration.useStrictMode == true %}
+                                    <input name="useStrictMode" type="checkbox" checked="">
+                                {% else %}
+                                    <input name="useStrictMode" type="checkbox">
+                                {% endif %}
+
+                                <span class="uv-checkbox-view"></span>
+                            </div>
+
+                            <span class="uv-checkbox-label">{{ 'Use Strict Security Mode'|trans }}</span>
                         </label>
                     </div>
                 </div>
 
                 <div class="uv-hr"></div>
 
-                <div class="swiftmailer-transport-setting-references">
+                <div class="mailer-transport-setting-references">
 
                 </div>
 
@@ -180,7 +201,7 @@
 
 	<script type="text/javascript">
 		$(function () {
-			var SwiftMailerSettingsModel = Backbone.Model.extend({
+			var MailerSettingsModel = Backbone.Model.extend({
                 idAttribute: "id",
                 validation: {
                     user: [
@@ -215,12 +236,12 @@
 				}
 			});
 
-			var SwiftMailerSettingsView = Backbone.View.extend({
+			var MailerSettingsView = Backbone.View.extend({
                 swft_conf_template_custom: _.template($("#swft_conf_template_custom").html()),
                 swft_conf_template_gmail: _.template($("#swft_conf_template_gmail").html()),
                 swft_conf_template_yahoo: _.template($("#swft_conf_template_yahoo").html()),
 				events: {
-                    'change #cta-swiftmailer-transport': 'ctaTransportType',
+                    'change #cta-mailer-transport': 'ctaTransportType',
 					'click .uv-btn' : "validateSubmission",
 				},
 				initialize: function() {
@@ -237,13 +258,13 @@
                 renderTransportConfigurations: function() {
                     switch (this.model.get('transport')) {
                         case 'smtp':
-                            $('.swiftmailer-transport-setting-references').html(this.swft_conf_template_custom(this.model.attributes));
+                            $('.mailer-transport-setting-references').html(this.swft_conf_template_custom(this.model.attributes));
                             break;
                         case 'gmail':
-                            $('.swiftmailer-transport-setting-references').html(this.swft_conf_template_gmail(this.model.attributes));
+                            $('.mailer-transport-setting-references').html(this.swft_conf_template_gmail(this.model.attributes));
                             break;
                         case 'yahoo':
-                            $('.swiftmailer-transport-setting-references').html(this.swft_conf_template_yahoo(this.model.attributes));
+                            $('.mailer-transport-setting-references').html(this.swft_conf_template_yahoo(this.model.attributes));
                             break;
                         default:
                             break;
@@ -260,14 +281,14 @@
 			});
 
             {% if configuration is defined and configuration is not empty %}
-                new SwiftMailerSettingsView({
-                    el: $("#swiftmailer-settings-view"),
-                    model: new SwiftMailerSettingsModel($.parseJSON('{{ configuration|json_encode|raw }}'))
+                new MailerSettingsView({
+                    el: $("#mailer-settings-view"),
+                    model: new MailerSettingsModel($.parseJSON('{{ configuration|json_encode|raw }}'))
                 });	
             {% else %}
-                new SwiftMailerSettingsView({
-                    el: $("#swiftmailer-settings-view"),
-                    model: new SwiftMailerSettingsModel({ transport: 'smtp' })
+                new MailerSettingsView({
+                    el: $("#mailer-settings-view"),
+                    model: new MailerSettingsModel({ transport: 'smtp' })
                 });	
             {% endif %}
 		});
