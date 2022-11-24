@@ -203,11 +203,14 @@
 		.uv-mob-aside {
 			display: none;
 		}
-		#btndisclaimer {
-  			position: fixed;
-  			right: 25px;
-  			bottom: 10px;
-			background: url("");
+		#helpdeskClearCachePta {
+			position: fixed;
+			right: 25px;
+			bottom: 25px;
+			font-size: 13px;
+			font-weight: bold;
+			background-color: #cd1f1f;
+			padding: 4px 7px;
 		}
 	</style>
 {% endblock %}
@@ -222,26 +225,25 @@
         </div>
 
 		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-    		<button type="submit" class="btn btn-primary btn-md" id="btndisclaimer" title={{'clear cache'|trans }}><img src="https://api.iconify.design/mdi:delete-restore.svg?height=24" aria-hidden="true"></button>
+    		<button type="submit" class="btn btn-primary btn-md" id="helpdeskClearCachePta" title={{'Clear Cache'|trans }}>Clear Cache</button>
   		</div>
     </div>
-
-<script>
-	$('#btndisclaimer').click(function(e){
-
-    	$.ajax({
-        	url : "{{ path('helpdesk_member_cache_clear') }}",
-        	method: 'POST',
-        	data: "",
-        	success : function(response) {
-				app.appView.renderResponseAlert(response);
-        	},
-        	error: function (xhr) {
-            	app.appView.renderResponseAlert(xhr);
-        	}
-    	});
-    });
-</script>
+	
+	<script>
+		$('#helpdeskClearCachePta').click(function(e) {
+			$.ajax({
+				url : "{{ path('helpdesk_member_cache_clear') }}",
+				method: 'POST',
+				data: "",
+				success : function(response) {
+					app.appView.renderResponseAlert(response);
+				},
+				error: function (xhr) {
+					app.appView.renderResponseAlert(xhr);
+				}
+			});
+		});
+	</script>
 {% endblock %}
 
 {% block footer %}
