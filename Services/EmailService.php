@@ -521,43 +521,43 @@ class EmailService
             }
         }
 
-        // Specify mailer to be used for sending emails
-        $headers['X-Transport'] = $mailerID;
-
-        // Create a message
+        // Prepare email
         $email = new Email();
         $email
             ->from(new Address($supportEmail, $supportEmailName))
-            ->to($recipient)
             ->subject($subject)
             ->text(strip_tags($content))
             ->html($content)
         ;
 
-        if (!empty($cc) || !empty($bcc)) {
-            dump($cc, $bcc);
-            die;
+        // Manage email recipients
+        if (!empty($recipient)) {
+            $email->to($recipient);
         }
 
-        // $message = (new \Swift_Message($subject))
-        //     ->setFrom([$supportEmail => $supportEmailName])
-        //     ->setTo($recipient)
-        //     ->setBcc($bcc)
-        //     ->setCc($cc)
-        //     ->setBody($content, 'text/html')
-        //     ->addPart(strip_tags($content), 'text/plain')
-        // ;
+        foreach ($cc as $emailAddress) {
+            $email->addCc($emailAddress);
+        }
 
-        // foreach ($attachments as $attachment) {
-        //     if (!empty($attachment['path']) && !empty($attachment['name'])) {
-        //         $message->attach(\Swift_Attachment::fromPath($attachment['path'])->setFilename($attachment['name']));
+        foreach ($bcc as $emailAddress) {
+            $email->addBcc($emailAddress);
+        }
+
+        // Manage email attachments
+        foreach ($attachments as $attachment) {
+            if (!empty($attachment['path']) && !empty($attachment['name'])) {
+                $email->attachFromPath($attachment['path'], $attachment['name']);
                 
-        //         continue;
-        //     } 
+                continue;
+            } 
 
-        //     $message->attach(\Swift_Attachment::fromPath($attachment));
-        // }
+            $email->attachFromPath($attachment);
+        }
 
+        // Configure the mailer to be used for sending this email
+        $headers['X-Transport'] = $mailerID;
+        
+        // Configure email headers
         $emailHeaders = $email->getHeaders();
 
         foreach ($headers as $name => $value) {
@@ -568,6 +568,7 @@ class EmailService
             $emailHeaders->addTextHeader($name, $value);
         }
 
+        // Send email
         $messageId = null;
 
         try {
@@ -577,6 +578,10 @@ class EmailService
                 $messageId = $sentMessage->getMessageId();
             }
         } catch (\Exception $e) {
+            dump('Email Service: Send Email');
+            dump($e->getMessage());
+            die;
+
             // @TODO: Log exception
             $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans('An unexpected error occurred while trying to send email. Please try again later.'));
             $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans($e->getMessage()));
@@ -587,33 +592,36 @@ class EmailService
 
     public function getCollaboratorName($ticket)
     {
-        $ticket->lastCollaborator = null;
         $name = null;
-        if($ticket->getCollaborators() != null && count($ticket->getCollaborators()) > 0) {
+        $ticket->lastCollaborator = null;
+
+        if ($ticket->getCollaborators() != null && count($ticket->getCollaborators()) > 0) {
             try {
                 $ticket->lastCollaborator = $ticket->getCollaborators()[ -1 + count($ticket->getCollaborators()) ];
             } catch(\Exception $e) {
             }
         }
-        if($ticket->lastCollaborator != null) {
+
+        if ($ticket->lastCollaborator != null) {
             $name =  $ticket->lastCollaborator->getFirstName()." ".$ticket->lastCollaborator->getLastName();
         }
         
         return $name != null ? $name : '';
-        
     }
 
     public function getCollaboratorEmail($ticket)
     {
-        $ticket->lastCollaborator = null;
         $email = null;
-        if($ticket->getCollaborators() != null && count($ticket->getCollaborators()) > 0) {
+        $ticket->lastCollaborator = null;
+
+        if ($ticket->getCollaborators() != null && count($ticket->getCollaborators()) > 0) {
             try {
                 $ticket->lastCollaborator = $ticket->getCollaborators()[ -1 + count($ticket->getCollaborators()) ];
             } catch(\Exception $e) {
             }
         }
-        if($ticket->lastCollaborator != null) {
+
+        if ($ticket->lastCollaborator != null) {
             $email = $ticket->lastCollaborator->getEmail();
         }
         
