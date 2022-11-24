@@ -126,26 +126,26 @@ helpdesk_member_helpdesk_theme:
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Theme::updateHelpdeskTheme
     defaults: { id: 0 }
 
-# Swiftmailer
-helpdesk_member_swiftmailer_settings:
-    path:     /settings/swiftmailer
-    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\SwiftMailer::loadMailers
+# Mailer
+helpdesk_member_mailer_settings:
+    path:     /settings/mailer
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Mailer::loadMailers
 
-helpdesk_member_swiftmailer_load_configurations_xhr:
-    path:     /settings/swiftmailer/xhr
-    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\SwiftMailerXHR::loadMailersXHR
+helpdesk_member_mailer_load_configurations_xhr:
+    path:     /settings/mailer/xhr
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MailerXHR::loadMailersXHR
 
-helpdesk_member_swiftmailer_create_mailer_configuration:
-    path:     /settings/swiftmailer/create
-    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\SwiftMailer::createMailerConfiguration
+helpdesk_member_mailer_create_mailer_configuration:
+    path:     /settings/mailer/create
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Mailer::createMailerConfiguration
 
-helpdesk_member_swiftmailer_update_mailer_configuration:
-    path:     /settings/swiftmailer/update/{id}
-    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\SwiftMailer::updateMailerConfiguration
+helpdesk_member_mailer_update_mailer_configuration:
+    path:     /settings/mailer/update/{id}
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Mailer::updateMailerConfiguration
 
-helpdesk_member_swiftmailer_remove_mailer_configuration_xhr:
-    path:     /settings/swiftmailer/xhr/remove-configurations
-    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\SwiftMailerXHR::removeMailerConfiguration
+helpdesk_member_mailer_remove_mailer_configuration_xhr:
+    path:     /settings/mailer/xhr/remove-configurations
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MailerXHR::removeMailerConfiguration
 
 # Email Settigs
 helpdesk_member_emails_settings:

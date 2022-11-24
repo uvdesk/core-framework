@@ -45,6 +45,7 @@ class CoreFramework extends Extension
 
         // Load bundle configurations
         $configuration = $this->getConfiguration($configs, $container);
+
         foreach ($this->processConfiguration($configuration, $configs) as $param => $value) {
             switch ($param) {
                 case 'support_email':
@@ -52,6 +53,7 @@ class CoreFramework extends Extension
                     foreach ($value as $field => $fieldValue) {
                         $container->setParameter("uvdesk.$param.$field", $fieldValue);
                     }
+
                     break;
                 case 'default':
                     foreach ($value as $defaultItem => $defaultItemValue) {
@@ -71,9 +73,11 @@ class CoreFramework extends Extension
                                 break;
                         }
                     }
+
                     break;
                 default:
                     $container->setParameter("uvdesk.$param", $value);
+                    
                     break;
             }
         }

@@ -2,33 +2,18 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
-use Symfony\Component\Yaml\Yaml;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Yaml\Yaml;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class EmailSettingsXHR extends AbstractController
 {
-    private $userService;
-    private $translator;
-    private $swiftMailer;
-    private $kernel;
-
-    public function __construct(UserService $userService, TranslatorInterface $translator,SwiftMailer $swiftMailer, KernelInterface $kernel)
+    public function updateSettingsXHR(Request $request, TranslatorInterface $translator, KernelInterface $kernel)
     {
-        $this->userService = $userService;
-        $this->translator = $translator;
-        $this->swiftMailer = $swiftMailer;
-        $this->kernel = $kernel;
-    }
-
-    public function updateSettingsXHR(Request $request)
-    {
-        $filePath = $this->kernel->getProjectDir() . '/config/packages/uvdesk.yaml';
+        $filePath = $kernel->getProjectDir() . '/config/packages/uvdesk.yaml';
 
         $memberPrefix = $this->getParameter('uvdesk_site_path.member_prefix') ?? 'member';
         $customerPrefix = $this->getParameter('uvdesk_site_path.knowledgebase_customer_prefix') ?? 'customer';
@@ -66,7 +51,7 @@ class EmailSettingsXHR extends AbstractController
                 'name' => $supportEmailConfiguration['name'],
                 'mailer_id' => $supportEmailConfiguration['mailer_id'],
             ],
-            'alertMessage' => $this->translator->trans('Success ! Email settings are updated successfully.'),
+            'alertMessage' => $translator->trans('Success ! Email settings are updated successfully.'),
         ];
 
         return new Response(json_encode($result), 200, ['Content-Type' => 'application/json']);

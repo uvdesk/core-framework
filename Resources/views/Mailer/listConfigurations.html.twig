@@ -1,6 +1,6 @@
 {% extends "@UVDeskCoreFramework/Templates/layout.html.twig" %}
 
-{% block title %}Swift Mailer{% endblock %}
+{% block title %}Mailers{% endblock %}
 
 {% block templateCSS %}
     <style>
@@ -30,11 +30,11 @@
 		<div class="uv-view {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}uv-aside-view{% endif %}">
 			<div class="uv-action-bar">
                 <div class="uv-action-bar-col-lt">
-					<h1>{{ 'SwiftMailer Configurations'|trans }}</h1>
+					<h1>{{ 'Mailer Configurations'|trans }}</h1>
                 </div>
 
 				<div class="uv-action-bar-col-rt">
-					<a href="{{ path('helpdesk_member_swiftmailer_create_mailer_configuration') }}" type="button" class="uv-btn-action">{{ 'Create Configuration'|trans }}</a>
+					<a href="{{ path('helpdesk_member_mailer_create_mailer_configuration') }}" type="button" class="uv-btn-action">{{ 'Create Configuration'|trans }}</a>
 				</div>
             </div>
 
@@ -45,7 +45,6 @@
                             <th>{{ 'ID'|trans }}</th>
                             <th>{{ 'Email'|trans }}</th>
                             <th>{{ 'Type'|trans }}</th>
-							<th>{{ 'Status'|trans }}</th>
                             <th class="uv-last">{{ 'Action'|trans }}</th>
                         </tr>
                     </thead>
@@ -64,21 +63,15 @@
         <div class="uv-app-screen">
             <div class="uv-app-splash" style="text-align: center;">
                 <img class="uv-app-splash-image" src="{{ asset('bundles/uvdeskcoreframework/images/splash/mailbox.png') }}" alt="Tasks">
-                <h2 class="uv-margin-top-10">{{ 'No swiftmailer configurations found'|trans }}</h2>
+                <h2 class="uv-margin-top-10">{{ 'No mailer configurations found'|trans }}</h2>
             </div>
         </div>	
 	</script>
 
-	<script id="swiftmailer_configuration_item_template" type="text/template">
+	<script id="mailer_configuration_item_template" type="text/template">
 		<td><span class="mailer-id"><%- id %></span></td>
 		<td><%- email %></td>
 		<td><%- transport %></td>
-
-		<% if (isActive) { %>
-			<td><span class="uv-text-success">{{ 'Enabled'|trans }}</span></td>
-		<% } else { %>
-			<td><span class="uv-text-danger">{{ 'Disabled'|trans }}</span></td>
-		<% } %>
 
 		<td data-value="{{ 'Action'|trans }}" class="uv-last">
 			<a href="<%= path.replace('replaceId', id) %>" class="uv-btn-stroke edit-type">
@@ -91,7 +84,7 @@
     </script>
 
 	<script type="text/javascript">
-		var path = "{{ path('helpdesk_member_swiftmailer_update_mailer_configuration', {'id': 'replaceId' }) }}";
+		var path = "{{ path('helpdesk_member_mailer_update_mailer_configuration', {'id': 'replaceId' }) }}";
 
 		$(function () {
 			var globalMessageResponse = "";
@@ -102,7 +95,7 @@
 
 			var ConfigurationCollection = AppCollection.extend({
 				model: ConfigurationModel,
-				url: "{{ path('helpdesk_member_swiftmailer_load_configurations_xhr') }}",
+				url: "{{ path('helpdesk_member_mailer_load_configurations_xhr') }}",
 				filterParameters : {
 					"isActive" : "",
 					"search" : ""
@@ -139,7 +132,7 @@
 
 			var ConfigurationView = Backbone.View.extend({
 				tagName: "tr",
-				template: _.template($("#swiftmailer_configuration_item_template").html()),
+				template: _.template($("#mailer_configuration_item_template").html()),
 				events: {
 					'click .delete-type' : "confirmRemove"
 				},
@@ -156,7 +149,7 @@
 					self = this;
 					
 					$.ajax({
-						url: "{{ path('helpdesk_member_swiftmailer_remove_mailer_configuration_xhr') }}?id="+this.model.id,
+						url: "{{ path('helpdesk_member_mailer_remove_mailer_configuration_xhr') }}?id="+this.model.id,
 						success: function (response) {
 							app.appView.hideLoader();
 							globalMessageResponse = response;

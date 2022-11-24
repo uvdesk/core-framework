@@ -71,11 +71,11 @@ Edit: Редактировать
 Delete: Удалять
 'Email Settings': 'Настройки электронной почты'
 'Email Id': 'Email ID'
-'Swiftmailer id (Select from drop down)': 'Идентификатор Swiftmailer (выберите из выпадающего списка)'
+'Mailer id (Select from drop down)': 'Идентификатор mailer (выберите из выпадающего списка)'
 Proceed: Проследовать
 'Please enter a mailer id': 'Пожалуйста, введите идентификатор отправителя'
 'Please enter a valid e-mail id': 'Пожалуйста, введите действительный идентификатор электронной почты'
-'Please select a swiftmailer id': 'Пожалуйста, выберите идентификатор Swiftmailer'
+'Please select a mailer id': 'Пожалуйста, выберите идентификатор mailer'
 'Send Mail': 'Отправить письмо'
 'Add Group': 'Добавить группу'
 Description: Описание
@@ -109,8 +109,8 @@ Body: Тело
 'Saved reply Body': 'Сохраненный ответ Body'
 Placeholders: Заполнители
 'Ticket Count': 'Счетчик заявок'
-'No swiftmailer configurations found': 'Конфигурации swiftmailer не найдены'
-'Swift Mailer Settings': 'Настройки Swift Mailer'
+'No mailer configurations found': 'Конфигурации mailer не найдены'
+'Mailer Settings': 'Настройки Mailer'
 'Please specify a valid email address': 'Пожалуйста, укажите действительный адрес электронной почты'
 'Add Team': 'Добавить команду'
 'Team Status': 'Статус команды'
@@ -135,7 +135,7 @@ Agents: Агенты
 'Ticket Types': 'Типы Заявок'
 Tags: Теги
 Branding: Брендинг
-'Swift Mailer': 'Swift Mailer'
+'Mailer': 'Mailer'
 'Learn more about %deliveryStatus%.': 'Узнайте больше о% deliveryStatus%.'
 'ticket delivery status': 'Статус доставки заявки'
 'Your browser does not support JavaScript or You disabled JavaScript, Please enable those !': 'Ваш браузер не поддерживает JavaScript или Вы отключили JavaScript, пожалуйста, включите их!'

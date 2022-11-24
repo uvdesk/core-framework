@@ -45,15 +45,15 @@
                     </div>
                 </div>
                 <div class="uv-element-block">
-                    <label class="uv-field-label">{{ 'Swiftmailer id (Select from drop down)'|trans }}</label>
+                    <label class="uv-field-label">{{ 'Mailer id (Select from drop down)'|trans }}</label>
                     <div class="uv-field-block">
                         <select name="mailer_id" class="uv-select" type="text" value='<%= (typeof(mailer_id) !== "undefined") ? mailer_id : "" %>'>
                             <% if (typeof(mailer_id) == "undefined") { %>
-                                <option>Select swiftmailer</option>
+                                <option>Select mailer</option>
                             <% } %>
 
-                            {% for swiftmailer in swiftmailers %}
-                                <option <%= typeof(mailer_id) !== 'undefined' && mailer_id == "{{swiftmailer}}" ? selected="selected" : "" %>>{{ swiftmailer }}</option>
+                            {% for mailer in mailers %}
+                                <option <%= typeof(mailer_id) !== 'undefined' && mailer_id == "{{mailer}}" ? selected="selected" : "" %>>{{ mailer }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -90,8 +90,8 @@
                     },
                 ],
                 "mailer_id": function (id) {
-					if (id == "Select swiftmailer")
-						return '{{ "Please select a swiftmailer id"|trans }}';
+					if (id == "Select mailer")
+						return '{{ "Please select a mailer id"|trans }}';
 				},
             }
         });
