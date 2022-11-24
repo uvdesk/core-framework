@@ -10,7 +10,6 @@ use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\DefaultConfigur
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\GmailConfiguration;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\YahooConfiguration;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\OutlookConfiguration;
-use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\OutlookModernAuthConfiguration;
 
 class MailerService
 {
@@ -44,9 +43,6 @@ class MailerService
                 break;
             case 'outlook':
                 $configuration = new OutlookConfiguration($id);
-                break;
-            case 'outlook_modern_auth':
-                $configuration = new OutlookModernAuthConfiguration($id);
                 break;
             default:
                 break;

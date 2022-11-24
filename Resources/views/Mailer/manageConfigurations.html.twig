@@ -46,7 +46,6 @@
                                 <option value="gmail" {% if configuration.transport == 'gmail' %}selected{% endif %}>{{ 'Gmail'|trans }}</option>
                                 <option value="yahoo" {% if configuration.transport == 'yahoo' %}selected{% endif %}>{{ 'Yahoo'|trans }} </option>
                                 <option value="outlook" {% if configuration.transport == 'outlook' %}selected{% endif %}>{{ 'Outlook'|trans }} </option>
-                                <option value="outlook_modern_auth" {% if configuration.transport == 'outlook_modern_auth' %}selected{% endif %}>{{ 'Outlook Modern Auth'|trans }} </option>
                             </select>
                         {% else %}
                             <select name="transport" id="cta-mailer-transport" class="uv-select">
@@ -54,7 +53,6 @@
                                 <option value="gmail">{{ 'Gmail'|trans }}</option>
                                 <option value="yahoo">{{ 'Yahoo'|trans }}</option>
                                 <option value="outlook">{{ 'Outlook'|trans }} </option>
-                                <option value="outlook_modern_auth">{{ 'Outlook Modern Auth'|trans }} </option>
                             </select>
                         {% endif %}
                     </div>
