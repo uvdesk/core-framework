@@ -163,7 +163,15 @@ uvdesk_member_core_framework_microsoft_apps_settings_create_configuration:
 uvdesk_member_core_framework_microsoft_apps_settings_update_configuration:
     path:     /settings/microsoft-apps/update/{id}
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MicrosoftApps::updateConfiguration
-    defaults: { id: ''}
+    defaults: { id: '' }
+
+uvdesk_member_core_framework_microsoft_apps_settings_remove_configuration:
+    path:     /settings/microsoft-apps/xhr/remove-configurations
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MicrosoftApps::removeConfiguration
+
+uvdesk_member_core_framework_integrations_microsoft_apps_add_account:
+    path:     /integrations/microsoft-apps/add-account/{appId}/{origin}
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MicrosoftApps::addMicrosoftAccount
 
 uvdesk_member_core_framework_integrations_microsoft_apps_oauth_login:
     path:     /integrations/microsoft-apps/oauth/login

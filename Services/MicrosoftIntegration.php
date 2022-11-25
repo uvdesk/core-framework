@@ -15,7 +15,7 @@ class MicrosoftIntegration
         $this->entityManager = $entityManager;
     }
 
-    public function getAuthorizationUrl(MicrosoftApp $app, $redirectEndpoint, $state = null)
+    public function getAuthorizationUrl(MicrosoftApp $app, $redirectEndpoint, array $state = [])
     {
         $params = [
             '{tenant}' => $app->getTenantId(), 
@@ -25,7 +25,7 @@ class MicrosoftIntegration
         ];
 
         if (!empty($state)) {
-            $params['{state}'] = $state;
+            $params['{state}'] = urlencode(json_encode($state));
         }
 
         return strtr(self::MICROSOFT_OAUTH, $params);
@@ -56,8 +56,6 @@ class MicrosoftIntegration
 
         if (curl_errno($curlHandler)) {
             $error_msg = curl_error($curlHandler);
-
-            dump($error_msg);
         }
 
         curl_close($curlHandler);

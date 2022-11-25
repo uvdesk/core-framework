@@ -2,18 +2,18 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\MicrosoftApp;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\MicrosoftAccount;
 use Webkul\UVDesk\MailboxBundle\Utils\MailboxConfiguration;
 use Webkul\UVDesk\MailboxBundle\Services\MailboxService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\MicrosoftIntegration;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Symfony\Component\HttpKernel\KernelInterface;
-use Doctrine\ORM\EntityManagerInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\MicrosoftApp;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\MicrosoftAccount;
 
 class MicrosoftAppsXHR extends AbstractController
 {
@@ -24,7 +24,6 @@ class MicrosoftAppsXHR extends AbstractController
                 'id' => $app->getId(),
                 'name' => $app->getName(),
                 'isEnabled' => $app->getIsEnabled(),
-                // 'isDeleted' => $app->getIsVerified() ? $mailbox->getIsDeleted() : false,
                 'isVerified' => $app->getIsVerified() ? $app->getIsVerified() : false,
             ];
         }, $entityManager->getRepository(MicrosoftApp::class)->findAll());

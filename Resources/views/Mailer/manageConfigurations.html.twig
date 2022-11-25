@@ -46,6 +46,7 @@
                                 <option value="gmail" {% if configuration.transport == 'gmail' %}selected{% endif %}>{{ 'Gmail'|trans }}</option>
                                 <option value="yahoo" {% if configuration.transport == 'yahoo' %}selected{% endif %}>{{ 'Yahoo'|trans }} </option>
                                 <option value="outlook" {% if configuration.transport == 'outlook' %}selected{% endif %}>{{ 'Outlook'|trans }} </option>
+                                <option value="outlook_oauth" {% if configuration.transport == 'outlook_oauth' %}selected{% endif %}>{{ 'Outlook Modern Auth'|trans }} </option>
                             </select>
                         {% else %}
                             <select name="transport" id="cta-mailer-transport" class="uv-select">
@@ -53,6 +54,7 @@
                                 <option value="gmail">{{ 'Gmail'|trans }}</option>
                                 <option value="yahoo">{{ 'Yahoo'|trans }}</option>
                                 <option value="outlook">{{ 'Outlook'|trans }} </option>
+                                <option value="outlook_oauth">{{ 'Outlook Modern Auth'|trans }} </option>
                             </select>
                         {% endif %}
                     </div>
@@ -98,7 +100,7 @@
 
                 </div>
 
-				<input class="uv-btn" href="#" value="{{ 'Save Changes'|trans }}" type="submit">
+				<input id="submitMailerConfigurations" class="uv-btn" href="#" value="{{ 'Save Changes'|trans }}" type="submit">
 			</form>
 		</div>
 	</div>
@@ -107,51 +109,7 @@
 {% block footer %}
 	{{ parent() }}
 
-    <script id="swft_conf_template_gmail" type="text/template">
-        <div class="uv-element-block">
-            <label class="uv-field-label">{{ 'Email'|trans }}</label>
-
-            <div class="uv-field-block">
-                <% if (typeof(user) != 'undefined' && user != '') { %>
-                    <input type="text" name="user" class="uv-field" value="<%- user %>" />
-                <% } else { %>
-                    <input type="text" name="user" class="uv-field" value="" />
-                <% } %>
-            </div>
-        </div>
-
-        <div class="uv-element-block">
-            <label class="uv-field-label">{{ 'Password'|trans }}</label>
-
-            <div class="uv-field-block">
-                <input type="password" name="pass" class="uv-field" value="" />
-            </div>
-        </div>
-	</script>
-
-    <script id="swft_conf_template_yahoo" type="text/template">
-        <div class="uv-element-block">
-            <label class="uv-field-label">{{ 'Email'|trans }}</label>
-
-            <div class="uv-field-block">
-                <% if (typeof(user) != 'undefined' && user != '') { %>
-                    <input type="text" name="user" class="uv-field" value="<%- user %>" />
-                <% } else { %>
-                    <input type="text" name="user" class="uv-field" value="" />
-                <% } %>
-            </div>
-        </div>
-
-        <div class="uv-element-block">
-            <label class="uv-field-label">{{ 'Password'|trans }}</label>
-
-            <div class="uv-field-block">
-                <input type="password" name="pass" class="uv-field" value="" />
-            </div>
-        </div>
-	</script>
-
-    <script id="swft_conf_template_custom" type="text/template">
+    <script id="default_mailer_configuration_template" type="text/template">
         <div class="uv-element-block">
             <label class="uv-field-label">{{ 'Server'|trans }}</label>
 
@@ -197,24 +155,133 @@
         </div>
 	</script>
 
+    <script id="gmail_mailer_configuration_template" type="text/template">
+        <div class="uv-element-block">
+            <label class="uv-field-label">{{ 'Email'|trans }}</label>
+
+            <div class="uv-field-block">
+                <% if (typeof(user) != 'undefined' && user != '') { %>
+                    <input type="text" name="user" class="uv-field" value="<%- user %>" />
+                <% } else { %>
+                    <input type="text" name="user" class="uv-field" value="" />
+                <% } %>
+            </div>
+        </div>
+
+        <div class="uv-element-block">
+            <label class="uv-field-label">{{ 'Password'|trans }}</label>
+
+            <div class="uv-field-block">
+                <input type="password" name="pass" class="uv-field" value="" />
+            </div>
+        </div>
+	</script>
+
+    <script id="yahoo_mailer_configuration_template" type="text/template">
+        <div class="uv-element-block">
+            <label class="uv-field-label">{{ 'Email'|trans }}</label>
+
+            <div class="uv-field-block">
+                <% if (typeof(user) != 'undefined' && user != '') { %>
+                    <input type="text" name="user" class="uv-field" value="<%- user %>" />
+                <% } else { %>
+                    <input type="text" name="user" class="uv-field" value="" />
+                <% } %>
+            </div>
+        </div>
+
+        <div class="uv-element-block">
+            <label class="uv-field-label">{{ 'Password'|trans }}</label>
+
+            <div class="uv-field-block">
+                <input type="password" name="pass" class="uv-field" value="" />
+            </div>
+        </div>
+	</script>
+
+    <script id="outlook_mailer_configuration_template" type="text/template">
+        <div class="uv-element-block">
+            <label class="uv-field-label">{{ 'Email'|trans }}</label>
+
+            <div class="uv-field-block">
+                <% if (typeof(user) != 'undefined' && user != '') { %>
+                    <input type="text" name="user" class="uv-field" value="<%- user %>" />
+                <% } else { %>
+                    <input type="text" name="user" class="uv-field" value="" />
+                <% } %>
+            </div>
+        </div>
+
+        <div class="uv-element-block">
+            <label class="uv-field-label">{{ 'Password'|trans }}</label>
+
+            <div class="uv-field-block">
+                <input type="password" name="pass" class="uv-field" value="" />
+            </div>
+        </div>
+	</script>
+
+    <script id="outlook_oauth_mailer_configuration_template" type="text/template">
+        <div class="uv-element-block">
+            <label class="uv-field-label">{{ 'Microsoft App'|trans }}</label>
+
+            {% if microsoftAppCollection is defined and microsoftAppCollection is not empty %}
+                <select name="app" class="uv-select">
+                    {% for microsoftApp in microsoftAppCollection %}
+                        <option value="{{ microsoftApp.id }}" selected>{{ microsoftApp.name }}</option>
+                    {% endfor %}
+                </select>
+            {% else %}
+                <select name="app" class="uv-select" disabled>
+                    <option selected>{{ 'No configured microsoft app currently available'|trans }}</option>
+                </select>
+            {% endif %}
+        </div>
+
+        <p class="uv-field-info">Continue by signing in through microsoft to add a new account.</p>
+
+        <a href="{{ path('uvdesk_member_core_framework_integrations_microsoft_apps_add_account', { appId: '1', origin: 'helpdesk_member_mailer_create_mailer_configuration' }) }}" class="uv-btn" style="background-color: #00a1f1;">Continue with Microsoft</a>
+
+        <div class="uv-hr"></div>
+
+        <p class="uv-field-info">Or select from one of the previously configured microsoft accounts.</p>
+
+        <div class="uv-element-block">
+            <label class="uv-field-label">{{ 'Email'|trans }}</label>
+
+            {% if microsoftAccountCollection is defined and microsoftAccountCollection is not empty %}
+                <select name="user" class="uv-select">
+                    {% for microsoftAccount in microsoftAccountCollection %}
+                        <option value="{{ microsoftAccount.id }}" selected>{{ microsoftAccount.email }}</option>
+                    {% endfor %}
+                </select>
+            {% else %}
+                <select name="user" class="uv-select" disabled>
+                    <option selected>{{ 'No microsoft account currently available'|trans }}</option>
+                </select>
+            {% endif %}
+        </div>
+	</script>
+
 	<script type="text/javascript">
 		$(function () {
 			var MailerSettingsModel = Backbone.Model.extend({
                 idAttribute: "id",
                 validation: {
-                    user: [
-                        {
-                            required: true,
-                            msg: '{{ "Please specify a valid email address"|trans }}'
-                        },
-                        {
-                            pattern: /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
-                            msg: '{{ "Please specify a valid email address"|trans }}'
+                    user: function(value) {
+                        if ('outlook_oauth' != this.get('transport')) {
+                            if (value == undefined || value == '') {
+                                return "Please enter a valid email address";
+                            } else if (/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(value) == false) {
+                                return "Please specify a valid email address";
+                            }
                         }
-                    ],
+                    },
                     pass: function(value) {
-                        if (value == undefined || value == '') {
-                            return "Please enter the password associated with your email address";
+                        if ('outlook_oauth' != this.get('transport')) {
+                            if (value == undefined || value == '') {
+                                return "Please enter the password associated with your email address";
+                            }
                         }
                     },
                     host: function(value) {
@@ -235,18 +302,20 @@
 			});
 
 			var MailerSettingsView = Backbone.View.extend({
-                swft_conf_template_custom: _.template($("#swft_conf_template_custom").html()),
-                swft_conf_template_gmail: _.template($("#swft_conf_template_gmail").html()),
-                swft_conf_template_yahoo: _.template($("#swft_conf_template_yahoo").html()),
+                default_mailer_configuration_template: _.template($("#default_mailer_configuration_template").html()),
+                gmail_mailer_configuration_template: _.template($("#gmail_mailer_configuration_template").html()),
+                yahoo_mailer_configuration_template: _.template($("#yahoo_mailer_configuration_template").html()),
+                outlook_mailer_configuration_template: _.template($("#outlook_mailer_configuration_template").html()),
+                outlook_oauth_mailer_configuration_template: _.template($("#outlook_oauth_mailer_configuration_template").html()),
 				events: {
-                    'change #cta-mailer-transport': 'ctaTransportType',
-					'click .uv-btn' : "validateSubmission",
+                    'change #cta-mailer-transport': 'changeTransportType',
+					'click #submitMailerConfigurations' : "submitMailerConfigurations",
 				},
 				initialize: function() {
                     Backbone.Validation.bind(this);
                     this.renderTransportConfigurations();
 				},
-                ctaTransportType: function(e) {
+                changeTransportType: function(e) {
                     if (true) {
                         this.model.set('transport', $(e.target).val());
                     }
@@ -256,19 +325,25 @@
                 renderTransportConfigurations: function() {
                     switch (this.model.get('transport')) {
                         case 'smtp':
-                            $('.mailer-transport-setting-references').html(this.swft_conf_template_custom(this.model.attributes));
+                            $('.mailer-transport-setting-references').html(this.default_mailer_configuration_template(this.model.attributes));
                             break;
                         case 'gmail':
-                            $('.mailer-transport-setting-references').html(this.swft_conf_template_gmail(this.model.attributes));
+                            $('.mailer-transport-setting-references').html(this.gmail_mailer_configuration_template(this.model.attributes));
                             break;
                         case 'yahoo':
-                            $('.mailer-transport-setting-references').html(this.swft_conf_template_yahoo(this.model.attributes));
+                            $('.mailer-transport-setting-references').html(this.yahoo_mailer_configuration_template(this.model.attributes));
+                            break;
+                        case 'outlook':
+                            $('.mailer-transport-setting-references').html(this.outlook_mailer_configuration_template(this.model.attributes));
+                            break;
+                        case 'outlook_oauth':
+                            $('.mailer-transport-setting-references').html(this.outlook_oauth_mailer_configuration_template(this.model.attributes));
                             break;
                         default:
                             break;
                     }
                 },
-                validateSubmission: function(e) {
+                submitMailerConfigurations: function(e) {
                     e.preventDefault();
                     this.model.set(this.$el.serializeObject());
 

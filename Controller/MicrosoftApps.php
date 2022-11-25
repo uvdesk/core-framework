@@ -61,7 +61,9 @@ class MicrosoftApps extends AbstractController
             $entityManager->persist($microsoftApp);
             $entityManager->flush();
 
-            return new RedirectResponse($microsoftIntegration->getAuthorizationUrl($microsoftApp, $redirectEndpoint, $microsoftApp->getId()));
+            return new RedirectResponse($microsoftIntegration->getAuthorizationUrl($microsoftApp, $redirectEndpoint, [
+                'app' => $microsoftApp->getId()
+            ]));
         }
 
         return $this->render('@UVDeskCoreFramework//MicrosoftApps//manageConfigurations.html.twig', [
@@ -99,13 +101,42 @@ class MicrosoftApps extends AbstractController
             $entityManager->persist($microsoftApp);
             $entityManager->flush();
 
-            return new RedirectResponse($microsoftIntegration->getAuthorizationUrl($microsoftApp, $redirectEndpoint, $microsoftApp->getId()));
+            return new RedirectResponse($microsoftIntegration->getAuthorizationUrl($microsoftApp, $redirectEndpoint, [
+                'app' => $microsoftApp->getId()
+            ]));
         }
 
         return $this->render('@UVDeskCoreFramework//MicrosoftApps//manageConfigurations.html.twig', [
             'microsoftApp' => $microsoftApp, 
             'redirectEndpoint' => $redirectEndpoint,
         ]);
+    }
+
+    public function removeConfiguration($id, Request $request, UserService $userService, EntityManagerInterface $entityManager, MicrosoftIntegration $microsoftIntegration)
+    {
+        dump('removeConfiguration');
+        die;
+        
+        return;
+    }
+
+    public function addMicrosoftAccount($appId, $origin, Request $request, EntityManagerInterface $entityManager, MicrosoftIntegration $microsoftIntegration)
+    {
+        $microsoftApp = $entityManager->getRepository(MicrosoftApp::class)->findOneById($appId);
+
+        if (empty($microsoftApp)) {
+            $this->addFlash('warning', $translator->trans('No microsoft app was found for the provided details.'));
+
+            return new RedirectResponse($this->generateUrl($origin));
+        }
+
+        $redirectEndpoint = str_replace('http', 'https', $this->generateUrl('uvdesk_member_core_framework_integrations_microsoft_apps_oauth_login', [], UrlGeneratorInterface::ABSOLUTE_URL));
+
+        return new RedirectResponse($microsoftIntegration->getAuthorizationUrl($microsoftApp, $redirectEndpoint, [
+            'app' => $microsoftApp->getId(), 
+            'origin' => $origin, 
+            'action' => 'add_account', 
+        ]));
     }
 
     public function handleOAuthCallback(Request $request, MicrosoftIntegration $microsoftIntegration, TranslatorInterface $translator)
@@ -117,7 +148,9 @@ class MicrosoftApps extends AbstractController
             return new Response("Invalid request.", 404);
         }
 
-        $microsoftApp = $entityManager->getRepository(MicrosoftApp::class)->findOneById($params['state']);
+        $state = !empty($params['state']) ? json_decode($params['state'], true) : [];
+
+        $microsoftApp = $entityManager->getRepository(MicrosoftApp::class)->findOneById($state['app']);
         $redirectEndpoint = str_replace('http', 'https', $this->generateUrl('uvdesk_member_core_framework_integrations_microsoft_apps_oauth_login', [], UrlGeneratorInterface::ABSOLUTE_URL));
 
         $accessTokenResponse = $microsoftIntegration->getAccessToken($microsoftApp, $params['code'], $redirectEndpoint);
@@ -150,10 +183,22 @@ class MicrosoftApps extends AbstractController
                 $entityManager->persist($account);
                 $entityManager->flush();
     
-                $this->addFlash('success', $translator->trans('Microsoft app has been integrated successfully.'));
+                if (!empty($state['action']) && $state['action'] == 'add_account') {
+                    $this->addFlash('success', $translator->trans('Microsoft account has been added successfully.'));
+                } else {
+                    $this->addFlash('success', $translator->trans('Microsoft app has been integrated successfully.'));
+                }
             }
         } else {
             $this->addFlash('warning', $translator->trans('Microsoft app settings could not be verifired successfully. Please check your settings and try again later.'));
+        }
+
+        try {
+            if (!empty($state['origin'])) {
+                return new RedirectResponse($this->generateUrl($state['origin']));
+            }
+        } catch (\Exception $e) {
+            // Invalid endpoint provided. Ignoring exception...
         }
 
         return new RedirectResponse($this->generateUrl('uvdesk_member_core_framework_microsoft_apps_settings'));

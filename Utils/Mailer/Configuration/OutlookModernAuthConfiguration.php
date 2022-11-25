@@ -4,14 +4,17 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration;
 
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\BaseConfiguration;
 
-class GmailConfiguration extends BaseConfiguration
+class OutlookModernAuthConfiguration extends BaseConfiguration
 {
-    CONST SCHEME = 'smtp';
-    CONST TRANSPORT_CODE = 'gmail';
-    CONST TRANSPORT_NAME = 'Gmail';
+    CONST SCHEME = 'microsoftgraph';
+    CONST TRANSPORT_CODE = 'outlook_oauth';
+    CONST TRANSPORT_NAME = 'Outlook Modern Auth';
 
-    CONST HOST = 'smtp.gmail.com';
-    CONST PORT = '465';
+    CONST CONFIGURATION = <<<MAILER
+[[ scheme ]]://[[ user ]]@[[ client ]][[ options ]]
+MAILER;
+
+    private $client = null;
 
     public static function getScheme()
     {
@@ -28,14 +31,16 @@ class GmailConfiguration extends BaseConfiguration
         return self::TRANSPORT_NAME;
     }
 
-    public function getHost()
+    public function getClient()
     {
-        return self::HOST;
+        return $this->client;
     }
     
-    public function getPort()
+    public function setClient($client)
     {
-        return self::PORT;
+        $this->client = $client;
+
+        return $this;
     }
 
     public function castArray()
@@ -45,9 +50,7 @@ class GmailConfiguration extends BaseConfiguration
             'transport' => $this->getTransportCode(), 
             'id' => $this->getId(), 
             'user' => $this->getUser(), 
-            'pass' => $this->getPass(), 
-            'host' => $this->getHost(), 
-            'port' => $this->getPort(), 
+            'client' => $this->getClient(), 
             'useStrictMode' => $this->getUseStrictMode(), 
             'disableEmailDelivery' => $this->getDisableEmailDelivery(), 
         ];
@@ -87,10 +90,6 @@ class GmailConfiguration extends BaseConfiguration
     {
         $options = [];
 
-        if (false == $this->getUseStrictMode()) {
-            $options['verify_peer'] = 0;
-        }
-
         if ($this->getDisableEmailDelivery()) {
             $options['disableDelivery'] = 1;
         }
@@ -98,13 +97,11 @@ class GmailConfiguration extends BaseConfiguration
         $params = [
             '[[ scheme ]]' => $this->getScheme(),
             '[[ user ]]' => $this->getUser(),
-            '[[ pass ]]' => $this->getPass(),
-            '[[ host ]]' => $this->getHost(),
-            '[[ port ]]' => $this->getPort() ? ":" . $this->getPort() : '', 
+            '[[ client ]]' => $this->getClient(),
             '[[ options ]]' => !empty($options) ? '?' . http_build_query($options) : '', 
         ];
 
-        $configuration = strtr(BaseConfiguration::CONFIGURATION, $params);
+        $configuration = strtr(self::CONFIGURATION, $params);
 
         if (!empty($defaultMailerDsnConfig) && $configuration == $defaultMailerDsnConfig) {
             $configuration = "'%env(MAILER_DSN)%'";
@@ -131,14 +128,18 @@ class GmailConfiguration extends BaseConfiguration
 
                     foreach ($options as $option => $optionValue) {
                         switch ($option) {
-                            case 'verify_peer':
-                                $this->setUseStrictMode((int) $optionValue == 0 ? false : true);
+                            case 'disableDelivery':
+                                $this->setDisableEmailDelivery((int) $optionValue == 0 ? false : true);
 
                                 break;
                             default:
                                 break;
                         }
                     }
+
+                    break;
+                case 'host':
+                    $this->setClient($value);
 
                     break;
                 default:
