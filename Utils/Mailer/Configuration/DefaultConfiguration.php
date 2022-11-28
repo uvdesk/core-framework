@@ -149,6 +149,8 @@ class DefaultConfiguration extends BaseConfiguration
                                 break;
                         }
                     }
+
+                    break;
                 default:
                     $method = 'set' . ucfirst($param);
                     

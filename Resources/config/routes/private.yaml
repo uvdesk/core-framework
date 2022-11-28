@@ -147,6 +147,36 @@ helpdesk_member_mailer_remove_mailer_configuration_xhr:
     path:     /settings/mailer/xhr/remove-configurations
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MailerXHR::removeMailerConfiguration
 
+# Microsoft Apps
+uvdesk_member_core_framework_microsoft_apps_settings:
+    path:     /settings/microsoft-apps
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MicrosoftApps::loadSettings
+
+uvdesk_member_core_framework_microsoft_apps_settings_load_configurations_xhr:
+    path:     /settings/microsoft-apps/xhr
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MicrosoftAppsXHR::loadSettingsXHR
+
+uvdesk_member_core_framework_microsoft_apps_settings_create_configuration:
+    path:     /settings/microsoft-apps/create
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MicrosoftApps::createConfiguration
+
+uvdesk_member_core_framework_microsoft_apps_settings_update_configuration:
+    path:     /settings/microsoft-apps/update/{id}
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MicrosoftApps::updateConfiguration
+    defaults: { id: '' }
+
+uvdesk_member_core_framework_microsoft_apps_settings_remove_configuration:
+    path:     /settings/microsoft-apps/xhr/remove-configurations
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MicrosoftApps::removeConfiguration
+
+uvdesk_member_core_framework_integrations_microsoft_apps_add_account:
+    path:     /integrations/microsoft-apps/add-account/{appId}/{origin}
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MicrosoftApps::addMicrosoftAccount
+
+uvdesk_member_core_framework_integrations_microsoft_apps_oauth_login:
+    path:     /integrations/microsoft-apps/oauth/login
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MicrosoftApps::handleOAuthCallback
+
 # Email Settigs
 helpdesk_member_emails_settings:
     path:     /settings/email/settings

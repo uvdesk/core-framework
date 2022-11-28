@@ -2,6 +2,7 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -9,6 +10,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\MicrosoftApp;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\MicrosoftAccount;
 use Webkul\UVDesk\CoreFrameworkBundle\Mailer\Event\ConfigurationUpdatedEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Mailer\MailerService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
@@ -24,11 +27,48 @@ class Mailer extends AbstractController
         return $this->render('@UVDeskCoreFramework//Mailer//listConfigurations.html.twig');
     }
     
-    public function createMailerConfiguration(Request $request, MailerService $mailerService, TranslatorInterface $translator)
+    public function createMailerConfiguration(Request $request, EntityManagerInterface $entityManager, MailerService $mailerService, TranslatorInterface $translator)
     {
+        $microsoftAppCollection = $entityManager->getRepository(MicrosoftApp::class)->findBy(['isEnabled' => true, 'isVerified' => true]);
+        $microsoftAccountCollection = $entityManager->getRepository(MicrosoftAccount::class)->findAll();
+
+        $microsoftAppCollection = array_map(function ($microsoftApp) {
+            return [
+                'id' => $microsoftApp->getId(), 
+                'name' => $microsoftApp->getName(), 
+            ];
+        }, $microsoftAppCollection);
+
+        $microsoftAccountCollection = array_map(function ($microsoftAccount) {
+            return [
+                'id' => $microsoftAccount->getId(), 
+                'name' => $microsoftAccount->getName(), 
+                'email' => $microsoftAccount->getEmail(), 
+            ];
+        }, $microsoftAccountCollection);
+
         if ($request->getMethod() == 'POST') {
             $params = $request->request->all();
-            $params['pass'] = urlencode($params['pass']);
+
+            if (!empty($params['pass'])) {
+                $params['pass'] = urlencode($params['pass']);
+            }
+
+            if ($params['transport'] == 'outlook_oauth') {
+                $microsoftAccount = $entityManager->getRepository(MicrosoftAccount::class)->findOneById($params['user']);
+
+                if (empty($microsoftAccount)) {
+                    $this->addFlash('warning', 'No configuration details were found for the provided microsoft account.');
+
+                    return $this->render('@UVDeskCoreFramework//Mailer//manageConfigurations.html.twig', [
+                        'microsoftAppCollection' => $microsoftAppCollection, 
+                        'microsoftAccountCollection' => $microsoftAccountCollection, 
+                    ]);
+                }
+
+                $params['user'] = $microsoftAccount->getEmail();
+                $params['client'] = $microsoftAccount->getMicrosoftApp()->getClientId();
+            }
 
             $mailerConfiguration = $mailerService->createConfiguration($params['transport'], $params['id']);
 
@@ -37,7 +77,7 @@ class Mailer extends AbstractController
                 $configurations = $mailerService->parseMailerConfigurations();
                 
                 $configurations[] = $mailerConfiguration;
-                
+
                 try {
                     $mailerService->writeMailerConfigurations($configurations);
                     $this->addFlash('success', $translator->trans('Mailer configuration created successfully.'));
@@ -49,10 +89,13 @@ class Mailer extends AbstractController
             }
         }
 
-        return $this->render('@UVDeskCoreFramework//Mailer//manageConfigurations.html.twig');
+        return $this->render('@UVDeskCoreFramework//Mailer//manageConfigurations.html.twig', [
+            'microsoftAppCollection' => $microsoftAppCollection, 
+            'microsoftAccountCollection' => $microsoftAccountCollection, 
+        ]);
     }
 
-    public function updateMailerConfiguration($id, Request $request, ContainerInterface $container, MailerService $mailerService, TranslatorInterface $translator)
+    public function updateMailerConfiguration($id, Request $request, EntityManagerInterface $entityManager, ContainerInterface $container, MailerService $mailerService, TranslatorInterface $translator)
     {
         $mailerConfigurations = $mailerService->parseMailerConfigurations();
         
@@ -66,6 +109,24 @@ class Mailer extends AbstractController
         if (empty($mailerConfiguration)) {
             return new Response('', 404);
         }
+
+        $microsoftAppCollection = $entityManager->getRepository(MicrosoftApp::class)->findBy(['isEnabled' => true, 'isVerified' => true]);
+        $microsoftAccountCollection = $entityManager->getRepository(MicrosoftAccount::class)->findAll();
+
+        $microsoftAppCollection = array_map(function ($microsoftApp) {
+            return [
+                'id' => $microsoftApp->getId(), 
+                'name' => $microsoftApp->getName(), 
+            ];
+        }, $microsoftAppCollection);
+
+        $microsoftAccountCollection = array_map(function ($microsoftAccount) {
+            return [
+                'id' => $microsoftAccount->getId(), 
+                'name' => $microsoftAccount->getName(), 
+                'email' => $microsoftAccount->getEmail(), 
+            ];
+        }, $microsoftAccountCollection);
 
         if ($request->getMethod() == 'POST') {
             $params = $request->request->all(); 
@@ -91,7 +152,9 @@ class Mailer extends AbstractController
         }
 
         return $this->render('@UVDeskCoreFramework//Mailer//manageConfigurations.html.twig', [
-            'configuration' => $mailerConfiguration->castArray(),
+            'configuration' => $mailerConfiguration->castArray(), 
+            'microsoftAppCollection' => $microsoftAppCollection, 
+            'microsoftAccountCollection' => $microsoftAccountCollection, 
         ]);
     }
 }

@@ -10,6 +10,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\DefaultConfigur
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\GmailConfiguration;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\YahooConfiguration;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\OutlookConfiguration;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\OutlookModernAuthConfiguration;
 
 class MailerService
 {
@@ -44,6 +45,9 @@ class MailerService
             case 'outlook':
                 $configuration = new OutlookConfiguration($id);
                 break;
+            case 'outlook_oauth':
+                $configuration = new OutlookModernAuthConfiguration($id);
+                break;
             default:
                 break;
         }
@@ -72,7 +76,7 @@ class MailerService
                             $envId = str_replace(['%env(', ')%'], '', $mailerConfigurations);
                             $mailerConfigurations = !empty($_ENV[$envId]) ? $_ENV[$envId] : null;
                         }
-
+                        
                         $mailerConfigurations = parse_url($mailerConfigurations);
 
                         switch ($mailerConfigurations['scheme'] ?? '') {
@@ -97,6 +101,14 @@ class MailerService
                                 }
 
                                 $configuration->resolveTransportConfigurations($mailerConfigurations);
+
+                                $configurations[] = $configuration;
+
+                                break;
+                            case 'microsoftgraph':
+                                $configuration = new OutlookModernAuthConfiguration($mailerId);
+                                $configuration->resolveTransportConfigurations($mailerConfigurations);
+
                                 $configurations[] = $configuration;
 
                                 break;
