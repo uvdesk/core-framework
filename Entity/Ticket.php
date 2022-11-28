@@ -50,6 +50,12 @@ class Ticket
     private $referenceIds;
 
     /**
+     * @var string
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $outlookConversationId;
+
+    /**
      * @var boolean
      * @ORM\Column(type="boolean", options={"default": true})
      */
@@ -309,6 +315,30 @@ class Ticket
     public function getReferenceIds()
     {
         return $this->referenceIds;
+    }
+
+    /**
+     * Set outlookConversationId
+     *
+     * @param string $outlookConversationId
+     *
+     * @return Ticket
+     */
+    public function setOutlookConversationId($outlookConversationId)
+    {
+        $this->outlookConversationId = $outlookConversationId;
+
+        return $this;
+    }
+
+    /**
+     * Get outlookConversationId
+     *
+     * @return string
+     */
+    public function getOutlookConversationId()
+    {
+        return $this->outlookConversationId;
     }
 
     /**

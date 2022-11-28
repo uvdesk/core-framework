@@ -56,7 +56,7 @@
 
             <div class="uv-hr"></div>
 			
-			<form method="post" action="" id="mailbox-settings-view">
+			<form method="post" action="" id="app-settings-view">
 				{# App Name #}
 				<div class="uv-element-block">
 					<label class="uv-field-label">{{ 'Name'|trans }}</label>
@@ -124,10 +124,10 @@
 					</div>
 				</div>
 
-				{% if mailbox is defined and mailbox.id is not empty %}
-					<input id="saveConfigurationSettings" class="uv-btn" href="#" value="{{ 'Add App'|trans }}" type="submit">
-				{% else %}
+				{% if microsoftApp is defined and microsoftApp is not empty and microsoftApp.id is not empty %}
 					<input id="saveConfigurationSettings" class="uv-btn" href="#" value="{{ 'Update App'|trans }}" type="submit">
+				{% else %}
+					<input id="saveConfigurationSettings" class="uv-btn" href="#" value="{{ 'Add App'|trans }}" type="submit">
 				{% endif %}
 
 				<div class="uv-hr"></div>
@@ -147,7 +147,7 @@
 							<li>Redirect URI:</li>
 							<ul>
 								<li>Select Platform: Web</li>
-								<li>Enter the following redirect uri: http://2ced-115-113-191-18.ngrok.io/community-skeleton/public/en/member/integrations/microsoft-apps/oauth/login</li>
+								<li>Enter the following redirect uri: {{ redirectEndpoint }}</li>
 							</ul>
 							<li>Proceed to create your application</li>
 						</ul>
@@ -203,7 +203,7 @@
                 validation: {
 					name: function(value) {
 						if (value == undefined || value == '') {
-							return "Please specify a valid name for your mailbox.";
+							return "Please specify a valid name for your app.";
 						}
                     },
 					tenantId: function(value) {
@@ -243,7 +243,7 @@
 
             {% if microsoftApp is defined and microsoftApp is not empty %}
 				new MicrosoftAppConfigurationView({
-					el: $("#mailbox-settings-view"),
+					el: $("#app-settings-view"),
 					model: new MicrosoftAppConfigurationModel({
 						name: "{{ microsoftApp.name }}",
 						tenantId: "{{ microsoftApp.tenantId }}",
@@ -253,7 +253,7 @@
 				});
             {% else %}
                 new MicrosoftAppConfigurationView({
-                    el: $("#mailbox-settings-view"),
+                    el: $("#app-settings-view"),
                     model: new MicrosoftAppConfigurationModel({})
                 });
             {% endif %}

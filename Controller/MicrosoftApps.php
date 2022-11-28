@@ -46,10 +46,11 @@ class MicrosoftApps extends AbstractController
             $microsoftApp = $entityManager->getRepository(MicrosoftApp::class)->findOneByClientId($params['clientId']);
 
             if (empty($microsoftApp)) {
-                $app = new MicrosoftApp();
+                $microsoftApp = new MicrosoftApp();
             }
 
             $microsoftApp
+                ->setName($params['name'])
                 ->setTenantId($params['tenantId'])
                 ->setClientId($params['clientId'])
                 ->setClientSecret($params['clientSecret'])
@@ -89,7 +90,9 @@ class MicrosoftApps extends AbstractController
 
         if ($request->getMethod() == 'POST') {
             $params = $request->request->all();
+
             $microsoftApp
+                ->setName($params['name'])
                 ->setTenantId($params['tenantId'])
                 ->setClientId($params['clientId'])
                 ->setClientSecret($params['clientSecret'])

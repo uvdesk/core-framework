@@ -62,4 +62,36 @@ class MicrosoftIntegration
 
         return $jsonResponse;
     }
+
+    public function refreshAccessToken(MicrosoftApp $app, $refreshToken)
+    {
+        $tenantId = $app->getTenantId();
+        $endpoint = "https://login.microsoftonline.com/$tenantId/oauth2/v2.0/token";
+
+        $curlHandler = curl_init();
+
+        curl_setopt($curlHandler, CURLOPT_HEADER, 0);
+        curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curlHandler, CURLOPT_POST, 1);
+        curl_setopt($curlHandler, CURLOPT_URL, $endpoint);
+        curl_setopt($curlHandler, CURLOPT_POSTFIELDS, http_build_query([
+            'tenant' => $app->getTenantId(), 
+            'client_id' => $app->getClientId(), 
+            'grant_type' => 'refresh_token', 
+            'scope' => urldecode(implode(' ', $app->getApiPermissions())), 
+            'refresh_token' => $refreshToken, 
+            'client_secret' => $app->getClientSecret(), 
+        ]));
+
+        $curlResponse = curl_exec($curlHandler);
+        $jsonResponse = json_decode($curlResponse, true);
+
+        if (curl_errno($curlHandler)) {
+            $error_msg = curl_error($curlHandler);
+        }
+
+        curl_close($curlHandler);
+
+        return $jsonResponse;
+    }
 }
