@@ -40,6 +40,7 @@ use Webkul\UVDesk\MailboxBundle\Utils\MailboxConfiguration;
 use Webkul\UVDesk\MailboxBundle\Utils\Imap\Configuration as ImapConfiguration;
 use Webkul\UVDesk\SupportCenterBundle\Entity\Article;
 use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
+use Webkul\UVDesk\MailboxBundle\Services\MailboxService;
 
 class TicketService
 {
@@ -57,7 +58,8 @@ class TicketService
         EntityManagerInterface $entityManager, 
         FileUploadService $fileUploadService,
         UserService $userService, 
-        MailerService $mailerService
+        MailerService $mailerService, 
+        MailboxService $mailboxService
     ) {
         $this->container = $container;
 		$this->requestStack = $requestStack;
@@ -65,6 +67,7 @@ class TicketService
         $this->fileUploadService = $fileUploadService;
         $this->userService = $userService;
         $this->mailerService = $mailerService;
+        $this->mailboxService = $mailboxService;
     }
 
     public function getAllMailboxes()
@@ -76,59 +79,9 @@ class TicketService
                 'isEnabled' => $mailbox->getIsEnabled(),
                 'email'     => $mailbox->getImapConfiguration()->getUsername(),
             ];
-        }, $this->parseMailboxConfigurations()->getMailboxes());
+        }, $this->mailboxService->parseMailboxConfigurations()->getMailboxes());
 
         return $collection;
-    }
-
-    public function parseMailboxConfigurations(bool $ignoreInvalidAttributes = false) 
-    {
-        $path = $this->getPathToConfigurationFile();
-
-        if (!file_exists($path)) {
-            throw new \Exception("File '$path' not found.");
-        }
-
-        // Read configurations from package config.
-        $mailboxConfiguration = new MailboxConfiguration();
-        $mailerConfigurations = $this->mailerService->parseMailerConfigurations();
-
-        foreach (Yaml::parse(file_get_contents($path))['uvdesk_mailbox']['mailboxes'] ?? [] as $id => $params) {
-            // Mailer Configuration
-            $mailerConfiguration = null;
-
-            foreach ($mailerConfigurations as $configuration) {
-                if ($configuration->getId() == $params['smtp_server']['mailer_id']) {
-                    $mailerConfiguration = $configuration;
-                    break;
-                }
-            }
-
-            // IMAP Configuration
-            $imapConfiguration = ImapConfiguration::guessTransportDefinition($params['imap_server']['host']);
-            $imapConfiguration
-                ->setUsername($params['imap_server']['username'])
-                ->setPassword($params['imap_server']['password'])
-            ;
-
-            // Mailbox Configuration
-            $mailbox = new Mailbox($id);
-            $mailbox
-                ->setName($params['name'])
-                ->setIsEnabled($params['enabled'])
-                ->setImapConfiguration($imapConfiguration)
-            ;
-            
-            if (!empty($mailerConfiguration)) {
-                $mailbox->setMailerConfiguration($mailerConfiguration);
-            } else if (!empty($params['smtp_server']['mailer_id']) && true === $ignoreInvalidAttributes) {
-                $mailbox->setMailerConfiguration($this->mailerService->createConfiguration('smtp', $params['smtp_server']['mailer_id']));
-            }
-
-            $mailboxConfiguration->addMailbox($mailbox);
-        }
-
-        return $mailboxConfiguration;
     }
 
     public function getPathToConfigurationFile()

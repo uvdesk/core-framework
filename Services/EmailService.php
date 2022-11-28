@@ -14,6 +14,12 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Website;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
+use Webkul\UVDesk\MailboxBundle\Utils\Imap\Configuration as ImapConfiguration;
+use Webkul\UVDesk\MailboxBundle\Utils\Imap\AppConfigurationInterface;
+use Webkul\UVDesk\MailboxBundle\Utils\Imap\SimpleConfigurationInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\Microsoft\Graph as MicrosoftGraph;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\MicrosoftApp;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\MicrosoftAccount;
 
 class EmailService
 {
@@ -521,6 +527,8 @@ class EmailService
             }
         }
 
+        $imapConfiguration = ImapConfiguration::guessTransportDefinition($mailbox['imap_server']);
+
         // Prepare email
         $email = new Email();
         $email
@@ -572,16 +580,71 @@ class EmailService
         $messageId = null;
 
         try {
-            $sentMessage = $this->mailer->send($email);
-            
-            if (!empty($sentMessage)) {
-                $messageId = $sentMessage->getMessageId();
+            if ($imapConfiguration instanceof AppConfigurationInterface) {
+                $microsoftApp = $this->entityManager->getRepository(MicrosoftApp::class)->findOneByClientId($mailbox['imap_server']['client']);
+
+                if (empty($microsoftApp)) {
+                    $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans('An unexpected error occurred while trying to send email. Please try again later.'));
+                    $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans('No associated microsoft apps were found for configured mailbox.'));
+
+                    return null;
+                }
+
+                $microsoftAccount = $this->entityManager->getRepository(MicrosoftAccount::class)->findOneBy([
+                    'email' => $mailbox['imap_server']['username'], 
+                    'microsoftApp' => $microsoftApp, 
+                ]);
+
+                if (empty($microsoftAccount)) {
+                    $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans('An unexpected error occurred while trying to send email. Please try again later.'));
+                    $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans('No associated microsoft account was found for configured mailbox.'));
+
+                    return null;
+                }
+
+                $credentials = json_decode($microsoftAccount->getCredentials(), true);
+                $emailParams = [
+                    'subject' => $subject, 
+                    'body' => [
+                        'contentType' => 'HTML', 
+                        'content' => $content, 
+                    ], 
+                    'toRecipients' => [
+                        [
+                            'emailAddress' => [
+                                'address' => $recipient, 
+                            ], 
+                        ], 
+                    ], 
+                    'internetMessageHeaders' => [], 
+                ];
+
+                foreach ($headers as $name => $value) {
+                    if ($name == 'X-Transport') {
+                        continue;
+                    }
+
+                    if (is_array($value)) {
+                        $value = $value['messageId'];
+                    }
+
+                    $emailParams['internetMessageHeaders'][] = [
+                        'name' => "x-$name", 
+                        'value' => $value, 
+                    ];
+                }
+
+                MicrosoftGraph\Me::sendMail($credentials['access_token'], $emailParams);
+
+                return null;
+            } else {
+                $sentMessage = $this->mailer->send($email);
+
+                if (!empty($sentMessage)) {
+                    $messageId = $sentMessage->getMessageId();
+                }
             }
         } catch (\Exception $e) {
-            dump('Email Service: Send Email');
-            dump($e->getMessage());
-            die;
-
             // @TODO: Log exception
             $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans('An unexpected error occurred while trying to send email. Please try again later.'));
             $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans($e->getMessage()));
