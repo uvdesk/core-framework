@@ -10,16 +10,15 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\EmailTemplates;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\MicrosoftApp;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\MicrosoftAccount;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Website;
-use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
-use Webkul\UVDesk\MailboxBundle\Utils\Imap\Configuration as ImapConfiguration;
-use Webkul\UVDesk\MailboxBundle\Utils\Imap\AppConfigurationInterface;
-use Webkul\UVDesk\MailboxBundle\Utils\Imap\SimpleConfigurationInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Mailer\MailerService;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\OutlookModernAuthConfiguration;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\Microsoft\Graph as MicrosoftGraph;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\MicrosoftApp;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\MicrosoftAccount;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 
 class EmailService
 {
@@ -29,13 +28,14 @@ class EmailService
     private $session;
     private $mailer;
 
-    public function __construct(ContainerInterface $container, RequestStack $request, EntityManagerInterface $entityManager, SessionInterface $session, TransportInterface $mailer)
+    public function __construct(ContainerInterface $container, RequestStack $request, EntityManagerInterface $entityManager, SessionInterface $session, TransportInterface $mailer, MailerService $mailerService)
     {
         $this->request = $request;
         $this->container = $container;
         $this->entityManager = $entityManager;
         $this->session = $session;
         $this->mailer = $mailer;
+        $this->mailerService = $mailerService;
     }
 
     public function trans($text)
@@ -494,11 +494,46 @@ class EmailService
 
     public function sendMail($subject, $content, $recipient, array $headers = [], $mailboxEmail = null, array $attachments = [], $cc = [], $bcc = [])
     {
+        // Send emails only if any mailer configuration is available
+        $mailer = null;
+        $mailerConfigurations = $this->mailerService->parseMailerConfigurations();
+
+        if (empty($mailerConfigurations)) {
+            return;
+        }
+
         if (empty($mailboxEmail)) {
             // Send email on behalf of support helpdesk
             $supportEmail = $this->container->getParameter('uvdesk.support_email.id');
             $supportEmailName = $this->container->getParameter('uvdesk.support_email.name');
-            $mailerID = $this->container->getParameter('uvdesk.support_email.mailer_id');
+
+            $mailerId = $this->container->getParameter('uvdesk.support_email.mailer_id');
+
+            if (empty($supportEmail) && empty($mailerId)) {
+                return;
+            } else {
+                if (!empty($mailerId)) {
+                    foreach ($mailerConfigurations as $mailerConfiguration) {
+                        if ($mailerId == $mailerConfiguration->getId()) {
+                            $mailer = $mailerConfiguration;
+
+                            if (empty($supportEmail)) {
+                                $supportEmail = $mailer->getUser();
+                            }
+
+                            break;
+                        }
+                    }
+                } else if (!empty($supportEmail)) {
+                    foreach ($mailerConfigurations as $mailerConfiguration) {
+                        if ($supportEmail == $mailerConfiguration->getUser()) {
+                            $mailer = $mailerConfiguration;
+
+                            break;
+                        }
+                    }
+                }
+            }
         } else {
             // Register automations conditionally if AutomationBundle has been added as an dependency.
             if (!array_key_exists('UVDeskMailboxBundle', $this->container->getParameter('kernel.bundles'))) {
@@ -512,7 +547,16 @@ class EmailService
                 if (true === $mailbox['enabled']) {
                     $supportEmail = $mailbox['email'];
                     $supportEmailName = $mailbox['name'];
-                    $mailerID = $mailbox['smtp_server']['mailer_id'];
+
+                    $mailerId = $mailbox['smtp_server']['mailer_id'];
+
+                    foreach ($mailerConfigurations as $mailerConfiguration) {
+                        if ($mailerId == $mailerConfiguration->getId()) {
+                            $mailer = $mailerConfiguration;
+
+                            break;
+                        }
+                    }
                 } else {
                     // @TODO: Log mailbox disabled notice
                     $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans("The selected mailbox for email address '$mailboxEmail' is currently disabled. Please review your settings and try again later."));
@@ -522,12 +566,14 @@ class EmailService
             } catch (\Exception $e) {
                 // @TODO: Log exception - Mailbox not found
                 $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans("No mailbox was found for email address '$mailboxEmail'. Please review your settings and try again later."));
-
-                return null;
+                
+                return;
             }
         }
 
-        $imapConfiguration = ImapConfiguration::guessTransportDefinition($mailbox['imap_server']);
+        if (empty($mailer)) {
+            return;
+        }
 
         // Prepare email
         $email = new Email();
@@ -563,7 +609,7 @@ class EmailService
         }
 
         // Configure the mailer to be used for sending this email
-        $headers['X-Transport'] = $mailerID;
+        $headers['X-Transport'] = $mailer->getId();
         
         // Configure email headers
         $emailHeaders = $email->getHeaders();
@@ -580,8 +626,8 @@ class EmailService
         $messageId = null;
 
         try {
-            if ($imapConfiguration instanceof AppConfigurationInterface) {
-                $microsoftApp = $this->entityManager->getRepository(MicrosoftApp::class)->findOneByClientId($mailbox['imap_server']['client']);
+            if ($mailer instanceof OutlookModernAuthConfiguration) {
+                $microsoftApp = $this->entityManager->getRepository(MicrosoftApp::class)->findOneByClientId($mailer->getClient());
 
                 if (empty($microsoftApp)) {
                     $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans('An unexpected error occurred while trying to send email. Please try again later.'));
@@ -591,7 +637,7 @@ class EmailService
                 }
 
                 $microsoftAccount = $this->entityManager->getRepository(MicrosoftAccount::class)->findOneBy([
-                    'email' => $mailbox['imap_server']['username'], 
+                    'email' => $mailer->getUser(), 
                     'microsoftApp' => $microsoftApp, 
                 ]);
 
