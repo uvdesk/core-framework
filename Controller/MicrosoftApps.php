@@ -38,7 +38,7 @@ class MicrosoftApps extends AbstractController
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
-        $redirectEndpoint = str_replace('http', 'https', $this->generateUrl('uvdesk_member_core_framework_integrations_microsoft_apps_oauth_login', [], UrlGeneratorInterface::ABSOLUTE_URL));
+        $redirectEndpoint = str_replace('http://', 'https://', $this->generateUrl('uvdesk_member_core_framework_integrations_microsoft_apps_oauth_login', [], UrlGeneratorInterface::ABSOLUTE_URL));
 
         if ($request->getMethod() == 'POST') {
             $params = $request->request->all();
@@ -80,7 +80,7 @@ class MicrosoftApps extends AbstractController
         }
 
         $microsoftApp = $entityManager->getRepository(MicrosoftApp::class)->findOneById($id);
-        $redirectEndpoint = str_replace('http', 'https', $this->generateUrl('uvdesk_member_core_framework_integrations_microsoft_apps_oauth_login', [], UrlGeneratorInterface::ABSOLUTE_URL));
+        $redirectEndpoint = str_replace('http://', 'https://', $this->generateUrl('uvdesk_member_core_framework_integrations_microsoft_apps_oauth_login', [], UrlGeneratorInterface::ABSOLUTE_URL));
 
         if (empty($microsoftApp)) {
             $this->addFlash('warning', $translator->trans('No microsoft app was found for the provided details.'));
@@ -133,7 +133,7 @@ class MicrosoftApps extends AbstractController
             return new RedirectResponse($this->generateUrl($origin));
         }
 
-        $redirectEndpoint = str_replace('http', 'https', $this->generateUrl('uvdesk_member_core_framework_integrations_microsoft_apps_oauth_login', [], UrlGeneratorInterface::ABSOLUTE_URL));
+        $redirectEndpoint = str_replace('http://', 'https://', $this->generateUrl('uvdesk_member_core_framework_integrations_microsoft_apps_oauth_login', [], UrlGeneratorInterface::ABSOLUTE_URL));
 
         return new RedirectResponse($microsoftIntegration->getAuthorizationUrl($microsoftApp, $redirectEndpoint, [
             'app' => $microsoftApp->getId(), 
