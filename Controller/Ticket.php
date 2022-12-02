@@ -278,7 +278,6 @@ class Ticket extends AbstractController
                 'entity' =>  $thread->getTicket(),
             ]);
 
-                dump($e->getMessage());
             $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
         } catch (\Exception $e) {
             // Skip Automation
@@ -286,9 +285,11 @@ class Ticket extends AbstractController
 
         if (!empty($thread)) {
             $ticket = $thread->getTicket();
-            if($request->request->get('customFields') || $request->files->get('customFields')) {
+
+            if ($request->request->get('customFields') || $request->files->get('customFields')) {
                 $this->ticketService->addTicketCustomFields($thread, $request->request->get('customFields'), $request->files->get('customFields'));                        
             }
+
             $this->addFlash('success', $this->translator->trans('Success ! Ticket has been created successfully.'));
 
             if ($this->userService->isAccessAuthorized('ROLE_ADMIN')) {
@@ -319,8 +320,9 @@ class Ticket extends AbstractController
         $errorContext = [];
         $em = $this->getDoctrine()->getManager();
 
-        if($id = $request->attributes->get('ticketTypeId')) {
+        if ($id = $request->attributes->get('ticketTypeId')) {
             $type = $em->getRepository(TicketType::class)->find($id);
+            
             if (!$type) {
                 $this->noResultFound();
             }
