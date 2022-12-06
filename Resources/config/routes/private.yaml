@@ -177,15 +177,6 @@ uvdesk_member_core_framework_integrations_microsoft_apps_oauth_login:
     path:     /integrations/microsoft-apps/oauth/login
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MicrosoftApps::handleOAuthCallback
 
-# Email Settigs
-helpdesk_member_emails_settings:
-    path:     /settings/email/settings
-    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\EmailSettings::loadSettings
-
-helpdesk_member_update_emails_settings_xhr:
-    path:     /email/xhr/settings_update
-    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\EmailSettingsXHR::updateSettingsXHR
-
 # Ticket List Resources
 helpdesk_member_ticket_collection:
     path:     /tickets

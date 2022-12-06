@@ -37,7 +37,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Webkul\UVDesk\MailboxBundle\Utils\Mailbox\Mailbox;
 use Webkul\UVDesk\MailboxBundle\Utils\MailboxConfiguration;
-use Webkul\UVDesk\MailboxBundle\Utils\Imap\Configuration as ImapConfiguration;
+use Webkul\UVDesk\MailboxBundle\Utils\IMAP\Configuration as ImapConfiguration;
 use Webkul\UVDesk\SupportCenterBundle\Entity\Article;
 use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
 use Webkul\UVDesk\MailboxBundle\Services\MailboxService;
@@ -89,6 +89,7 @@ class TicketService
         return $this->container->get('kernel')->getProjectDir() . self::PATH_TO_CONFIG;
     }
 
+    // @TODO: Deprecate support_email
     public function getRandomRefrenceId($email = null)
     {
         $email = !empty($email) ? $email : $this->container->getParameter('uvdesk.support_email.id');

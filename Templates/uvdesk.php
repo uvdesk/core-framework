@@ -24,11 +24,6 @@ uvdesk:
     upload_manager:
         id: Webkul\UVDesk\CoreFrameworkBundle\FileSystem\UploadManagers\Localhost
     
-    support_email:
-        id: {{ SUPPORT_EMAIL_ID }}
-        name: {{ SUPPORT_EMAIL_NAME }}
-        mailer_id: {{ SUPPORT_EMAIL_MAILER_ID }}
-    
     # Default resources
     default:
         ticket:

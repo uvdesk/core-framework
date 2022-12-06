@@ -503,6 +503,7 @@ class EmailService
         }
 
         if (empty($mailboxEmail)) {
+            // @TODO: Deprecate support_email
             // Send email on behalf of support helpdesk
             $supportEmail = $this->container->getParameter('uvdesk.support_email.id');
             $supportEmailName = $this->container->getParameter('uvdesk.support_email.name');
