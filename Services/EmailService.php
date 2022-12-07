@@ -15,8 +15,6 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\MicrosoftAccount;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Website;
-use Webkul\UVDesk\CoreFrameworkBundle\Mailer\MailerService;
-use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\OutlookModernAuthConfiguration;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\Microsoft\Graph as MicrosoftGraph;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 
@@ -28,14 +26,13 @@ class EmailService
     private $session;
     private $mailer;
 
-    public function __construct(ContainerInterface $container, RequestStack $request, EntityManagerInterface $entityManager, SessionInterface $session, TransportInterface $mailer, MailerService $mailerService)
+    public function __construct(ContainerInterface $container, RequestStack $request, EntityManagerInterface $entityManager, SessionInterface $session, TransportInterface $mailer)
     {
         $this->request = $request;
         $this->container = $container;
         $this->entityManager = $entityManager;
         $this->session = $session;
         $this->mailer = $mailer;
-        $this->mailerService = $mailerService;
     }
 
     public function trans($text)

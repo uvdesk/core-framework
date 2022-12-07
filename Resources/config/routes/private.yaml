@@ -126,27 +126,6 @@ helpdesk_member_helpdesk_theme:
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Theme::updateHelpdeskTheme
     defaults: { id: 0 }
 
-# Mailer
-helpdesk_member_mailer_settings:
-    path:     /settings/mailer
-    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Mailer::loadMailers
-
-helpdesk_member_mailer_load_configurations_xhr:
-    path:     /settings/mailer/xhr
-    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MailerXHR::loadMailersXHR
-
-helpdesk_member_mailer_create_mailer_configuration:
-    path:     /settings/mailer/create
-    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Mailer::createMailerConfiguration
-
-helpdesk_member_mailer_update_mailer_configuration:
-    path:     /settings/mailer/update/{id}
-    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Mailer::updateMailerConfiguration
-
-helpdesk_member_mailer_remove_mailer_configuration_xhr:
-    path:     /settings/mailer/xhr/remove-configurations
-    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MailerXHR::removeMailerConfiguration
-
 # Microsoft Apps
 uvdesk_member_core_framework_microsoft_apps_settings:
     path:     /settings/microsoft-apps
@@ -165,9 +144,15 @@ uvdesk_member_core_framework_microsoft_apps_settings_update_configuration:
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MicrosoftApps::updateConfiguration
     defaults: { id: '' }
 
+uvdesk_member_core_framework_microsoft_apps_settings_toggle_configuration_status:
+    path:     /settings/microsoft-apps/xhr/status/{id}
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MicrosoftAppsXHR::toggleConfigurationStatus
+    defaults: { id: '' }
+
 uvdesk_member_core_framework_microsoft_apps_settings_remove_configuration:
-    path:     /settings/microsoft-apps/xhr/remove-configurations
-    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MicrosoftApps::removeConfiguration
+    path:     /settings/microsoft-apps/xhr/remove/{id}
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\MicrosoftAppsXHR::removeConfiguration
+    defaults: { id: '' }
 
 uvdesk_member_core_framework_integrations_microsoft_apps_add_account:
     path:     /integrations/microsoft-apps/add-account/{appId}/{origin}

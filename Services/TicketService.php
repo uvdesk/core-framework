@@ -30,7 +30,6 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportLabel;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedReplies;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
-use Webkul\UVDesk\CoreFrameworkBundle\Mailer\MailerService;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
@@ -58,7 +57,6 @@ class TicketService
         EntityManagerInterface $entityManager, 
         FileUploadService $fileUploadService,
         UserService $userService, 
-        MailerService $mailerService, 
         MailboxService $mailboxService
     ) {
         $this->container = $container;
@@ -66,7 +64,6 @@ class TicketService
         $this->entityManager = $entityManager;
         $this->fileUploadService = $fileUploadService;
         $this->userService = $userService;
-        $this->mailerService = $mailerService;
         $this->mailboxService = $mailboxService;
     }
 

@@ -203,22 +203,22 @@
                 validation: {
 					name: function(value) {
 						if (value == undefined || value == '') {
-							return "Please specify a valid name for your app.";
+							return "Please enter a valid name for your app.";
 						}
                     },
 					tenantId: function(value) {
 						if (value == undefined || value == '' || value == 'none') {
-							return "Please select a valid mailer configuration.";
+							return "Please enter a valid tenant id.";
 						}
                     },
 					clientId: function(value) {
 						if (value == undefined || value == '' || value == 'none') {
-							return "Please select a valid mailer configuration.";
+							return "Please enter a valid client id.";
 						}
                     },
 					clientSecret: function(value) {
 						if (value == undefined || value == '' || value == 'none') {
-							return "Please select a valid mailer configuration.";
+							return "Please enter a valid client secret.";
 						}
                     }
 				}
