@@ -83,7 +83,7 @@
 						msg: "{{ 'This field is mandatory'|trans }}"
 					}
 					,{
-						pattern: '^(?!.*[!@#$%^&*()<_+])',
+						pattern: '^((?![$%<>.}{+=|\~`!@#^&*()-_"]).)*$',
 						msg: "{{ 'Name must have characters only' }}"
 					},
 					,{
@@ -94,6 +94,10 @@
 						required: true,
 						msg: "{{ 'This field is mandatory'|trans }}"
 					}
+					,{
+						pattern: '^((?![$%<>.}{+=|\~`!@#^&*()-_"]).)*$',
+						msg: "{{ 'Description must have characters only' }}"
+					},
 					,{
 						maxLength:200,
 						msg: "{{ 'This field contain maximum 200 characters.'|trans }}"
