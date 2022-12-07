@@ -83,7 +83,7 @@
 						msg: "{{ 'This field is mandatory'|trans }}"
 					}
 					,{
-						pattern: '^((?![$%<>.}{+=|\~`!@#^&*()-_"]).)*$',
+						pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
 						msg: "{{ 'Name must have characters only' }}"
 					},
 					,{
