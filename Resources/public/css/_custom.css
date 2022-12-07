@@ -616,6 +616,11 @@ body {
     cursor: not-allowed;
     color: white;
 }
+.uv-btn-stroke.preview-category:disabled, .uv-btn-stroke.preview-category[disabled] {
+    background: #B1B1AE;
+    cursor: not-allowed;
+    color: white;
+}
 .uv-channel-disqus-engage {
     background-position: -57px -18px;
 }
