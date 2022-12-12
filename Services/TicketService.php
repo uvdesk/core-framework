@@ -30,14 +30,13 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportLabel;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedReplies;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
-use Webkul\UVDesk\CoreFrameworkBundle\Mailer\MailerService;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Webkul\UVDesk\MailboxBundle\Utils\Mailbox\Mailbox;
 use Webkul\UVDesk\MailboxBundle\Utils\MailboxConfiguration;
-use Webkul\UVDesk\MailboxBundle\Utils\Imap\Configuration as ImapConfiguration;
+use Webkul\UVDesk\MailboxBundle\Utils\IMAP\Configuration as ImapConfiguration;
 use Webkul\UVDesk\SupportCenterBundle\Entity\Article;
 use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
 use Webkul\UVDesk\MailboxBundle\Services\MailboxService;
@@ -58,7 +57,6 @@ class TicketService
         EntityManagerInterface $entityManager, 
         FileUploadService $fileUploadService,
         UserService $userService, 
-        MailerService $mailerService, 
         MailboxService $mailboxService
     ) {
         $this->container = $container;
@@ -66,7 +64,6 @@ class TicketService
         $this->entityManager = $entityManager;
         $this->fileUploadService = $fileUploadService;
         $this->userService = $userService;
-        $this->mailerService = $mailerService;
         $this->mailboxService = $mailboxService;
     }
 
@@ -89,6 +86,7 @@ class TicketService
         return $this->container->get('kernel')->getProjectDir() . self::PATH_TO_CONFIG;
     }
 
+    // @TODO: Deprecate support_email
     public function getRandomRefrenceId($email = null)
     {
         $email = !empty($email) ? $email : $this->container->getParameter('uvdesk.support_email.id');

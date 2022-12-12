@@ -5,7 +5,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\Mailer\Transport\TransportInterface;
+use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -15,10 +15,10 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\MicrosoftAccount;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Website;
-use Webkul\UVDesk\CoreFrameworkBundle\Mailer\MailerService;
-use Webkul\UVDesk\CoreFrameworkBundle\Utils\Mailer\Configuration\OutlookModernAuthConfiguration;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\Microsoft\Graph as MicrosoftGraph;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
+use Webkul\UVDesk\MailboxBundle\Services\MailboxService;
+use Webkul\UVDesk\MailboxBundle\Utils\SMTP\Transport\AppTransportConfigurationInterface;
 
 class EmailService
 {
@@ -28,14 +28,13 @@ class EmailService
     private $session;
     private $mailer;
 
-    public function __construct(ContainerInterface $container, RequestStack $request, EntityManagerInterface $entityManager, SessionInterface $session, TransportInterface $mailer, MailerService $mailerService)
+    public function __construct(ContainerInterface $container, RequestStack $request, EntityManagerInterface $entityManager, SessionInterface $session, MailboxService $mailboxService)
     {
         $this->request = $request;
         $this->container = $container;
         $this->entityManager = $entityManager;
         $this->session = $session;
-        $this->mailer = $mailer;
-        $this->mailerService = $mailerService;
+        $this->mailboxService = $mailboxService;
     }
 
     public function trans($text)
@@ -496,85 +495,49 @@ class EmailService
     {
         // Send emails only if any mailer configuration is available
         $mailer = null;
-        $mailerConfigurations = $this->mailerService->parseMailerConfigurations();
-
-        if (empty($mailerConfigurations)) {
-            return;
-        }
+        $mailboxConfigurations = $this->mailboxService->parseMailboxConfigurations();
 
         if (empty($mailboxEmail)) {
-            // Send email on behalf of support helpdesk
-            $supportEmail = $this->container->getParameter('uvdesk.support_email.id');
-            $supportEmailName = $this->container->getParameter('uvdesk.support_email.name');
+            $mailbox = $mailboxConfigurations->getDefaultMailbox();
 
-            $mailerId = $this->container->getParameter('uvdesk.support_email.mailer_id');
-
-            if (empty($supportEmail) && empty($mailerId)) {
+            if (empty($mailbox)) {
                 return;
-            } else {
-                if (!empty($mailerId)) {
-                    foreach ($mailerConfigurations as $mailerConfiguration) {
-                        if ($mailerId == $mailerConfiguration->getId()) {
-                            $mailer = $mailerConfiguration;
-
-                            if (empty($supportEmail)) {
-                                $supportEmail = $mailer->getUser();
-                            }
-
-                            break;
-                        }
-                    }
-                } else if (!empty($supportEmail)) {
-                    foreach ($mailerConfigurations as $mailerConfiguration) {
-                        if ($supportEmail == $mailerConfiguration->getUser()) {
-                            $mailer = $mailerConfiguration;
-
-                            break;
-                        }
-                    }
-                }
+            } else if (false == $mailbox->getIsEnabled()) {
+                return;
             }
+
+            $mailboxSmtpConfiguration = $mailbox->getSmtpConfiguration();
+
+            // Send email on behalf of support helpdesk
+            $supportEmailName = $mailbox->getName();
+            $supportEmail = $mailboxSmtpConfiguration->getUsername();
         } else {
             // Register automations conditionally if AutomationBundle has been added as an dependency.
             if (!array_key_exists('UVDeskMailboxBundle', $this->container->getParameter('kernel.bundles'))) {
                 return;
             }
 
+            $mailbox = $mailboxConfigurations->getMailbox($mailboxEmail);
+
             // Send email on behalf of configured mailbox
-            try {
-                $mailbox = $this->container->get('uvdesk.mailbox')->getMailboxByEmail($mailboxEmail);
-
-                if (true === $mailbox['enabled']) {
-                    $supportEmail = $mailbox['email'];
-                    $supportEmailName = $mailbox['name'];
-
-                    $mailerId = $mailbox['smtp_server']['mailer_id'];
-
-                    foreach ($mailerConfigurations as $mailerConfiguration) {
-                        if ($mailerId == $mailerConfiguration->getId()) {
-                            $mailer = $mailerConfiguration;
-
-                            break;
-                        }
-                    }
-                } else {
-                    // @TODO: Log mailbox disabled notice
-                    $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans("The selected mailbox for email address '$mailboxEmail' is currently disabled. Please review your settings and try again later."));
-
-                    return;
-                }
-            } catch (\Exception $e) {
+            if (empty($mailbox)) {
                 // @TODO: Log exception - Mailbox not found
                 $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans("No mailbox was found for email address '$mailboxEmail'. Please review your settings and try again later."));
                 
                 return;
+            } else if (false == $mailbox->getIsEnabled()) {
+                // @TODO: Log mailbox disabled notice
+                $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans("The selected mailbox for email address '$mailboxEmail' is currently disabled. Please review your settings and try again later."));
+    
+                return;
             }
-        }
+            
+            $mailboxSmtpConfiguration = $mailbox->getSmtpConfiguration();
 
-        if (empty($mailer)) {
-            return;
+            $supportEmailName = $mailbox->getName();
+            $supportEmail = $mailboxSmtpConfiguration->getUsername();
         }
-
+        
         // Prepare email
         $email = new Email();
         $email
@@ -608,9 +571,6 @@ class EmailService
             $email->attachFromPath($attachment);
         }
 
-        // Configure the mailer to be used for sending this email
-        $headers['X-Transport'] = $mailer->getId();
-        
         // Configure email headers
         $emailHeaders = $email->getHeaders();
 
@@ -626,8 +586,8 @@ class EmailService
         $messageId = null;
 
         try {
-            if ($mailer instanceof OutlookModernAuthConfiguration) {
-                $microsoftApp = $this->entityManager->getRepository(MicrosoftApp::class)->findOneByClientId($mailer->getClient());
+            if ($mailboxSmtpConfiguration instanceof AppTransportConfigurationInterface) {
+                $microsoftApp = $this->entityManager->getRepository(MicrosoftApp::class)->findOneByClientId($mailboxSmtpConfiguration->getClient());
 
                 if (empty($microsoftApp)) {
                     $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans('An unexpected error occurred while trying to send email. Please try again later.'));
@@ -637,7 +597,7 @@ class EmailService
                 }
 
                 $microsoftAccount = $this->entityManager->getRepository(MicrosoftAccount::class)->findOneBy([
-                    'email' => $mailer->getUser(), 
+                    'email' => $mailboxSmtpConfiguration->getUsername(), 
                     'microsoftApp' => $microsoftApp, 
                 ]);
 
@@ -680,11 +640,22 @@ class EmailService
                     ];
                 }
 
-                MicrosoftGraph\Me::sendMail($credentials['access_token'], $emailParams);
-
                 return null;
             } else {
-                $sentMessage = $this->mailer->send($email);
+                $dsn = strtr("smtp://{email}:{password}@{host}:{port}", [
+                    "{email}" => $mailboxSmtpConfiguration->getUsername(), 
+                    "{password}" => $mailboxSmtpConfiguration->getPassword(), 
+                    "{host}" => $mailboxSmtpConfiguration->getHost(), 
+                    "{port}" => $mailboxSmtpConfiguration->getPort(), 
+                ]);
+
+                if (false == $mailbox->getIsStrictModeEnabled()) {
+                    $dsn .= "?verify_peer=0";
+                }
+
+                $transport = Transport::fromDsn($dsn);
+
+                $sentMessage = $transport->send($email);
 
                 if (!empty($sentMessage)) {
                     $messageId = $sentMessage->getMessageId();

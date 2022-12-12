@@ -48,7 +48,6 @@ class CoreFramework extends Extension
 
         foreach ($this->processConfiguration($configuration, $configs) as $param => $value) {
             switch ($param) {
-                case 'support_email':
                 case 'upload_manager':
                     foreach ($value as $field => $fieldValue) {
                         $container->setParameter("uvdesk.$param.$field", $fieldValue);
