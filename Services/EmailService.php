@@ -575,7 +575,7 @@ class EmailService
         $emailHeaders = $email->getHeaders();
 
         foreach ($headers as $name => $value) {
-            if (is_array($value)) {
+            if (is_array($value) && !empty($value['messageId'])) {
                 $value = $value['messageId'];
             }
 
@@ -640,7 +640,7 @@ class EmailService
                     ];
                 }
 
-                return null;
+                MicrosoftGraph\Me::sendMail($credentials['access_token'], $emailParams);
             } else {
                 $dsn = strtr("smtp://{email}:{password}@{host}:{port}", [
                     "{email}" => $mailboxSmtpConfiguration->getUsername(), 
