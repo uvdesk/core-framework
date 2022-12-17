@@ -31,6 +31,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportRole;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketPriority;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
+use Webkul\UVDesk\MailboxBundle\Services\MailboxService;
 
 class Ticket extends AbstractController
 {
@@ -51,14 +52,29 @@ class Ticket extends AbstractController
         $this->kernel = $kernel;
     }
 
-    public function listTicketCollection(Request $request)
+    public function listTicketCollection(Request $request, MailboxService $mailboxService)
     {
         $entityManager = $this->getDoctrine()->getManager();
 
+        $mailboxCollection = [];
+        $mailboxConfiguration = $mailboxService->parseMailboxConfigurations();
+        
+        foreach ($mailboxConfiguration->getMailboxes() as $mailbox) {
+            $imapConfiguration = $mailbox->getImapConfiguration();
+
+            if (!empty($imapConfiguration)) {
+                $mailboxCollection[] = [
+                    'name' => $mailbox->getName(), 
+                    'email' => $imapConfiguration->getUsername(), 
+                ];
+            }
+        }
+
         return $this->render('@UVDeskCoreFramework//ticketList.html.twig', [
-            'ticketStatusCollection' => $entityManager->getRepository(TicketStatus::class)->findAll(),
-            'ticketTypeCollection' => $entityManager->getRepository(TicketType::class)->findByIsActive(true),
-            'ticketPriorityCollection' => $entityManager->getRepository(TicketPriority::class)->findAll(),
+            'mailboxCollection' => $mailboxCollection, 
+            'ticketStatusCollection' => $entityManager->getRepository(TicketStatus::class)->findAll(), 
+            'ticketTypeCollection' => $entityManager->getRepository(TicketType::class)->findByIsActive(true), 
+            'ticketPriorityCollection' => $entityManager->getRepository(TicketPriority::class)->findAll(), 
         ]);
     }
 
