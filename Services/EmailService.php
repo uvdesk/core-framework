@@ -524,14 +524,44 @@ class EmailService
             return;
         }
 
+        // Format email address collections
+        $ccAddresses = [];
+        
+        foreach ($cc as $_emailAddress) {
+            if (strpos($_emailAddress, "<") !== false && strpos($_emailAddress, ">") !== false) {
+                $_recipientName = trim(substr($_emailAddress, 0, strpos($_emailAddress, "<")));
+                $_recipientAddress = substr($_emailAddress, strpos($_emailAddress, "<") + 1);
+                $_recipientAddress = substr($_recipientAddress, 0, strpos($_recipientAddress, ">"));
+                
+                $ccAddresses[$_recipientAddress] = $_recipientName;
+            } else {
+                $ccAddresses[] = $_emailAddress;
+            }
+        }
+        
+        $bccAddresses = [];
+
+        foreach ($bcc as $_emailAddress) {
+            if (strpos($_emailAddress, "<") !== false && strpos($_emailAddress, ">") !== false) {
+                $_recipientName = trim(substr($_emailAddress, 0, strpos($_emailAddress, "<")));
+                $_recipientAddress = substr($_emailAddress, strpos($_emailAddress, "<") + 1);
+                $_recipientAddress = substr($_recipientAddress, 0, strpos($_recipientAddress, ">"));
+
+                $bccAddresses[$_recipientAddress] = $_recipientName;
+            } else {
+                $bccAddresses[] = $_emailAddress;
+            }
+        }
+
         // Create a message
         $message = (new \Swift_Message($subject))
             ->setFrom([$supportEmail => $supportEmailName])
             ->setTo($recipient)
-            ->setBcc($bcc)
-            ->setCc($cc)
+            ->setBcc($bccAddresses)
+            ->setCc($ccAddresses)
             ->setBody($content, 'text/html')
-            ->addPart(strip_tags($content), 'text/plain');
+            ->addPart(strip_tags($content), 'text/plain')
+        ;
 
         foreach ($attachments as $attachment) {
             if (!empty($attachment['path']) && !empty($attachment['name'])) {
@@ -544,6 +574,7 @@ class EmailService
         }
 
         $messageHeaders = $message->getHeaders();
+        
         foreach ($headers as $headerName => $headerValue) {
             if(is_array($headerValue)) {
                 $headerValue = $headerValue['messageId'];
