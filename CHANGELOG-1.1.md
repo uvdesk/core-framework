@@ -4,6 +4,8 @@ CHANGELOG for 1.1.x
 This changelog references any relevant changes introduced in 1.1 minor versions.
 
 * 1.1.x
+    * Update: Correctly format email address collections for addresses with both name & address details while sending emails
+    * PR #615: Use ticket.createdAt instead of initialThread.createdAt for displaying created at timestamp in ticket details (Komal-sharma-2712)
     * Bug #604: Error in deleting agent accounts from members dashboard (Komal-sharma-2712)
 
 * 1.1.2 (2022-11-02)
