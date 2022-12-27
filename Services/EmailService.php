@@ -517,7 +517,7 @@ class EmailService
                 return;
             }
 
-            $mailbox = $mailboxConfigurations->getMailbox($mailboxEmail);
+            $mailbox = $mailboxConfigurations->getOutgoingMailboxByEmailAddress($mailboxEmail);
 
             // Send email on behalf of configured mailbox
             if (empty($mailbox)) {

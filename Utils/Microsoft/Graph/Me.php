@@ -31,7 +31,32 @@ class Me
         return $jsonResponse;
     }
 
-    public static function messages($accessToken, array $filters = [])
+    public static function mailFolders($accessToken, array $filters = [])
+    {
+    	$endpoint = self::BASE_ENDPOINT . '/mailFolders';
+
+        $curlHandler = curl_init();
+
+        curl_setopt($curlHandler, CURLOPT_HEADER, 0);
+        curl_setopt($curlHandler, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $accessToken, 
+        ]);
+        curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curlHandler, CURLOPT_URL, $endpoint);
+
+        $curlResponse = curl_exec($curlHandler);
+        $jsonResponse = json_decode($curlResponse, true);
+
+        if (curl_errno($curlHandler)) {
+            $error_msg = curl_error($curlHandler);
+        }
+
+        curl_close($curlHandler);
+
+        return $jsonResponse;
+    }
+
+    public static function messages($accessToken, $mailFolderId = null, array $filters = [])
     {
         $resolvedFilters = [];
 
@@ -46,7 +71,11 @@ class Me
             }
         }
 
-    	$endpoint = self::BASE_ENDPOINT . '/messages?$count=true';
+        if (empty($mailFolderId)) {
+            $endpoint = self::BASE_ENDPOINT . '/messages?$count=true';
+        } else {
+            $endpoint = self::BASE_ENDPOINT . '/mailFolders/' . $mailFolderId . '/messages?$count=true';
+        }
 
         if (!empty($resolvedFilters)) {
             $endpoint .= "&\$filter=" . urlencode(implode(' and ', $resolvedFilters));
