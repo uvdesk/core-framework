@@ -1992,7 +1992,7 @@
                             inputElement.removeClass('uv-dropdown-btn-active')
                             inputElement.siblings('.uv-dropdown-list').hide()
                             if(!currentTab.find(".cc-bcc-list input[value='" + email + "']." + inputName).length) {
-                                currentTab.find('.cc-bcc-list').append("<span><input type='hidden' name='" + inputName + "[]' value='" + email + "' class='" + inputName + "'/><a class=uv-btn-tag uv-lowercase' href='#'><span class='uv-icon-remove-dark-before'></span>" + email + " : <span class='uv-uppercase'>" + type + "</span></a></span>")
+                                currentTab.find('.cc-bcc-list').append("<span><input type='hidden' name='" + inputName + "[]' value='" + email + "' class='" + inputName + "'/><a class='uv-btn-tag uv-lowercase' href='#'><span class='uv-icon-remove-dark-before'></span><span class='uv-uppercase' style='margin-right: 4px;'>" + type + ":</span>" + email + "</a></span>")
                             }
                         }
                     }
@@ -2004,7 +2004,7 @@
                     inputName = currentTab.find('.cc-bcc-select').val()
                     if(!currentTab.find(".cc-bcc-list input[value='" + email + "']." + inputName).length) {
                         currentTab.find('.uv-element-block.cc-bcc .uv-group-field.uv-dropdown-other').val('').trigger('input')
-                        currentTab.find('.cc-bcc-list').append("<span><input type='hidden' name='" + inputName + "[]' value='" + email + "' class='" + inputName + "'/><a class=uv-btn-tag uv-lowercase' href='#'><span class='uv-icon-remove-dark-before'></span>" + email + " : <span class='uv-uppercase'>" + type + "</span></a></span>")
+                        currentTab.find('.cc-bcc-list').append("<span><input type='hidden' name='" + inputName + "[]' value='" + email + "' class='" + inputName + "'/><a class='uv-btn-tag uv-lowercase' href='#'><span class='uv-icon-remove-dark-before'></span><span class='uv-uppercase' style='margin-right: 4px;'>" + type + ":</span>" + email + "</a></span>")
                     }
                 },
                 removeEmail: function(e) {

@@ -76,8 +76,6 @@ class MailCustomer extends WorkflowAction
                 $thread = ($thread != null) ? $thread : $createdThread;
                 $ticketCollaborators = (($thread != null) && !empty($thread->getTicket()) && $thread != "" ) ? $thread->getTicket()->getCollaborators() : [];
 
-                $headers = ['References' => $entity->getReferenceIds()]; 
-
                 if (!empty($thread)) {
                     $headers = ['References' => $entity->getReferenceIds()];
                 
@@ -88,8 +86,11 @@ class MailCustomer extends WorkflowAction
                     $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getCustomer()->getEmail(), $headers, $entity->getMailboxEmail(), $attachments ?? []);
 
                     if (!empty($messageId)) {
-                        $updatedReferenceIds = $entity->getReferenceIds() . ' ' . $messageId;            
-                        $entity->setReferenceIds($updatedReferenceIds);
+                        $updatedReferenceIds = $entity->getReferenceIds() . ' ' . $messageId;
+
+                        $entity
+                            ->setReferenceIds($updatedReferenceIds)
+                        ;
 
                         $entityManager->persist($entity);
                         $entityManager->flush();
@@ -116,9 +117,10 @@ class MailCustomer extends WorkflowAction
     {
         $cc = [];
         $collaboratorsEmailCollection = [];
+
         $entityManager = $container->get('doctrine.orm.entity_manager');
 
-        if ($thread->getCc() != null){
+        if ($thread->getCc() != null) {
             foreach ($thread->getCc() as $recipient){
                 if ($entityManager->getRepository(Ticket::class)->isTicketCollaborator($thread->getTicket(), $recipient) != false){
                     $collaboratorsEmailCollection[] = $recipient;
@@ -129,6 +131,8 @@ class MailCustomer extends WorkflowAction
         }
 
         $collabratorEmail = !empty($thread) && $thread->getCreatedBy() == "collaborator" ? $thread->getUser()->getEmail() : null;
+
+        $updatedReferenceIds = $entity->getReferenceIds();
 
         if (!empty($collaboratorsEmailCollection) || (is_countable($ticketCollaborators) && count($ticketCollaborators) > 0)) {
             if (empty($collaboratorsEmailCollection) && (is_countable($ticketCollaborators) && count($ticketCollaborators) > 0)) {
@@ -142,27 +146,42 @@ class MailCustomer extends WorkflowAction
             $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $collaboratorsEmailCollection ?? [], []); 
 
             if (!empty($messageId)) {
-                $updatedReferenceIds = $entity->getReferenceIds() . ' ' . $messageId;
-                $entity->setReferenceIds($updatedReferenceIds);
-
-                $entityManager->persist($entity);
-                $entityManager->flush();
+                $updatedReferenceIds .= ' ' . $messageId;
             }
 
             if ($collaboratorsEmailCollection != null && $thread->getCc() != null && count($thread->getCc()) == count($collaboratorsEmailCollection) && $thread->getBcc() != null) {
                 $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
-                $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], [], $thread->getBcc() ?? []);  
+                $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], [], $thread->getBcc() ?? []);
+
+                if (!empty($messageId)) {
+                    $updatedReferenceIds .= ' ' . $messageId;
+                }
             }
         }
 
         if ($cc != null && !empty($cc)) {
             $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
-            $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $cc ?? [], $thread->getBcc() ?? []);    
+            $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $cc ?? [], $thread->getBcc() ?? []);
+
+            if (!empty($messageId)) {
+                $updatedReferenceIds .= ' ' . $messageId;
+            }
         }
            
         if ($thread->getBcc() != null && $thread->getCc() == null) {
             $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
-            $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?? [], $thread->getBcc() ?? []);  
+            $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $entity->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?? [], $thread->getBcc() ?? []);
+
+            if (!empty($messageId)) {
+                $updatedReferenceIds .= ' ' . $messageId;
+            }
         }
+
+        $entity
+            ->setReferenceIds($updatedReferenceIds)
+        ;
+
+        $entityManager->persist($entity);
+        $entityManager->flush();
     }
 }
