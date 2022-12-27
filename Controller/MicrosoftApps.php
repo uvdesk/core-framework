@@ -73,7 +73,7 @@ class MicrosoftApps extends AbstractController
         ]);
     }
 
-    public function updateConfiguration($id, Request $request, UserService $userService, EntityManagerInterface $entityManager, MicrosoftIntegration $microsoftIntegration)
+    public function updateConfiguration($id, Request $request, UserService $userService, EntityManagerInterface $entityManager, MicrosoftIntegration $microsoftIntegration, TranslatorInterface $translator)
     {
         if (!$userService->isAccessAuthorized('ROLE_ADMIN')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
@@ -115,7 +115,7 @@ class MicrosoftApps extends AbstractController
         ]);
     }
 
-    public function addMicrosoftAccount($appId, $origin, Request $request, EntityManagerInterface $entityManager, MicrosoftIntegration $microsoftIntegration)
+    public function addMicrosoftAccount($appId, $origin, Request $request, EntityManagerInterface $entityManager, MicrosoftIntegration $microsoftIntegration, TranslatorInterface $translator)
     {
         $microsoftApp = $entityManager->getRepository(MicrosoftApp::class)->findOneById($appId);
 

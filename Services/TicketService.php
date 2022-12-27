@@ -67,20 +67,6 @@ class TicketService
         $this->mailboxService = $mailboxService;
     }
 
-    public function getAllMailboxes()
-    {
-        $collection = array_map(function ($mailbox) {
-            return [
-                'id' => $mailbox->getId(),
-                'name' => $mailbox->getName(),
-                'isEnabled' => $mailbox->getIsEnabled(),
-                'email'     => $mailbox->getImapConfiguration()->getUsername(),
-            ];
-        }, $this->mailboxService->parseMailboxConfigurations()->getMailboxes());
-
-        return $collection;
-    }
-
     public function getPathToConfigurationFile()
     {
         return $this->container->get('kernel')->getProjectDir() . self::PATH_TO_CONFIG;
@@ -220,7 +206,7 @@ class TicketService
         if ('email' == $ticketData['source']) {
             try {
                 if (array_key_exists('UVDeskMailboxBundle', $this->container->getParameter('kernel.bundles'))) {
-                    $mailbox = $this->container->get('uvdesk.mailbox')->getMailboxByEmail($ticketData['mailboxEmail']);
+                    $mailbox = $this->mailboxService->getMailboxByEmail($ticketData['mailboxEmail']);
                     $ticketData['mailboxEmail'] = $mailbox['email'];
                 }
             } catch (\Exception $e) {
