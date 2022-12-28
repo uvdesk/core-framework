@@ -19,6 +19,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Utils\Microsoft\Graph as MicrosoftGraph;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Webkul\UVDesk\MailboxBundle\Services\MailboxService;
 use Webkul\UVDesk\MailboxBundle\Utils\SMTP\Transport\AppTransportConfigurationInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\MicrosoftIntegration;
 
 class EmailService
 {
@@ -28,13 +29,14 @@ class EmailService
     private $session;
     private $mailer;
 
-    public function __construct(ContainerInterface $container, RequestStack $request, EntityManagerInterface $entityManager, SessionInterface $session, MailboxService $mailboxService)
+    public function __construct(ContainerInterface $container, RequestStack $request, EntityManagerInterface $entityManager, SessionInterface $session, MailboxService $mailboxService, MicrosoftIntegration $microsoftIntegration)
     {
         $this->request = $request;
         $this->container = $container;
         $this->entityManager = $entityManager;
         $this->session = $session;
         $this->mailboxService = $mailboxService;
+        $this->microsoftIntegration = $microsoftIntegration;
     }
 
     public function trans($text)
@@ -537,7 +539,7 @@ class EmailService
             $supportEmailName = $mailbox->getName();
             $supportEmail = $mailboxSmtpConfiguration->getUsername();
         }
-        
+
         // Prepare email
         $email = new Email();
         $email
@@ -622,7 +624,6 @@ class EmailService
                             ], 
                         ], 
                     ], 
-                    'internetMessageHeaders' => [], 
                 ];
 
                 foreach ($headers as $name => $value) {
@@ -640,7 +641,27 @@ class EmailService
                     ];
                 }
 
-                MicrosoftGraph\Me::sendMail($credentials['access_token'], $emailParams);
+                $graphResponse = MicrosoftGraph\Me::sendMail($credentials['access_token'], $emailParams);
+
+                // Refresh access token if expired
+                if (!empty($graphResponse['error'])) {
+                    if (!empty($graphResponse['error']['code']) && $graphResponse['error']['code'] == 'InvalidAuthenticationToken') {
+                        $tokenResponse = $this->microsoftIntegration->refreshAccessToken($microsoftApp, $credentials['refresh_token']);
+
+                        if (!empty($tokenResponse['access_token'])) {
+                            $microsoftAccount
+                                ->setCredentials(json_encode($tokenResponse))
+                            ;
+                            
+                            $this->entityManager->persist($microsoftAccount);
+                            $this->entityManager->flush();
+                            
+                            $credentials = json_decode($microsoftAccount->getCredentials(), true);
+
+                            $graphResponse = MicrosoftGraph\Me::sendMail($credentials['access_token'], $emailParams);
+                        }
+                    }
+                }
             } else {
                 $dsn = strtr("smtp://{email}:{password}@{host}:{port}", [
                     "{email}" => $mailboxSmtpConfiguration->getUsername(), 

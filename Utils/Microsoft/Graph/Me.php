@@ -138,6 +138,7 @@ class Me
             'Authorization: Bearer ' . $accessToken, 
             'Content-Type: application/json', 
         ]);
+        
         curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curlHandler, CURLOPT_URL, $endpoint);
         curl_setopt($curlHandler, CURLOPT_POST, 1);
