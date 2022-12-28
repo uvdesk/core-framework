@@ -57,6 +57,7 @@ class MailCustomer extends WorkflowAction
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $emailPlaceholders);
                 
                 $messageId = $container->get('email.service')->sendMail($subject, $message, $entity->getEmail());
+
                 break;
             default:
                 break;
