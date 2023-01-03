@@ -75,9 +75,10 @@ class AccountXHR extends AbstractController
         if ($user) {
             if ($user->getAgentInstance()->getSupportRole() != "ROLE_SUPER_ADMIN") {
                 // Trigger agent delete event
-                $event = new GenericEvent(CoreWorkflowEvents\Agent\Delete::getId(), [
-                    'entity' => $user,
-                ]);
+                $event = new CoreWorkflowEvents\Agent\Delete();
+                $event
+                    ->setUser($user)
+                ;
 
                 $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 

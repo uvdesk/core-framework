@@ -2,18 +2,17 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events\Agent;
 
-use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
-use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events\UserForgotPassword as UserForgotPasswordEvent;
+use Webkul\UVDesk\AutomationBundle\Workflow\Events\AgentActivity;
 
-class ForgotPassword extends UserForgotPasswordEvent
+class ForgotPassword extends AgentActivity
 {
+    public static function getId()
+    {
+        return 'uvdesk.user.forgot_password';
+    }
+
     public static function getDescription()
     {
         return "Agent Forgot Password";
-    }
-
-    public static function getFunctionalGroup()
-    {
-        return FunctionalGroup::AGENT;
     }
 }

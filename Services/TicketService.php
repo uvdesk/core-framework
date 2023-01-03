@@ -236,7 +236,6 @@ class TicketService
             }
 
             $params['role'] = 4;
-            $params['mailboxEmail'] = current($params['replyTo']); 
             $params['customer'] = $params['user'] = $user;
 
             return $this->createTicketBase($params);
@@ -295,6 +294,7 @@ class TicketService
         }
 
         $collaboratorEmails = array_merge(!empty($threadData['cccol']) ? $threadData['cccol'] : [], !empty($threadData['cc']) ? $threadData['cc'] : []);
+        
         if (!empty($collaboratorEmails)) {
             $threadData['cc'] = $collaboratorEmails;
         }
@@ -881,9 +881,10 @@ class TicketService
                     }
 
                     // Trigger ticket delete event
-                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Delete::getId(), [
-                        'entity' => $ticket,
-                    ]);
+                    $event = new CoreWorkflowEvents\Ticket\Delete();
+                    $event
+                        ->setTicket($ticket)
+                    ;
 
                     $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
 
@@ -920,9 +921,10 @@ class TicketService
                         $this->entityManager->persist($ticket);
     
                         // Trigger Agent Assign event
-                        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Agent::getId(), [
-                            'entity' => $ticket,
-                        ]);
+                        $event = new CoreWorkflowEvents\Ticket\Agent();
+                        $event
+                            ->setTicket($ticket)
+                        ;
     
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
@@ -936,9 +938,10 @@ class TicketService
                         $this->entityManager->persist($ticket);
 
                         // Trigger ticket status event
-                        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Status::getId(), [
-                            'entity' => $ticket,
-                        ]);
+                        $event = new CoreWorkflowEvents\Ticket\Status();
+                        $event
+                            ->setTicket($ticket)
+                        ;
                         
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
@@ -953,9 +956,10 @@ class TicketService
                         $this->entityManager->persist($ticket);
     
                         // Trigger ticket type event
-                        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Type::getId(), [
-                            'entity' => $ticket,
-                        ]);
+                        $event = new CoreWorkflowEvents\Ticket\Type();
+                        $event
+                            ->setTicket($ticket)
+                        ;
     
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
@@ -970,9 +974,10 @@ class TicketService
                         $this->entityManager->persist($ticket);
     
                         // Trigger Support group event
-                        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Group::getId(), [
-                            'entity' => $ticket,
-                        ]);
+                        $event = new CoreWorkflowEvents\Ticket\Group();
+                        $event
+                            ->setTicket($ticket)
+                        ;
     
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
@@ -987,9 +992,10 @@ class TicketService
                         $this->entityManager->persist($ticket);
         
                         // Trigger team event
-                        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Team::getId(), [
-                            'entity' => $ticket,
-                        ]);
+                        $event = new CoreWorkflowEvents\Ticket\Team();
+                        $event
+                            ->setTicket($ticket)
+                        ;
         
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
@@ -1004,9 +1010,10 @@ class TicketService
                         $this->entityManager->persist($ticket);
     
                         // Trigger ticket Priority event
-                        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Priority::getId(), [
-                            'entity' => $ticket,
-                        ]);
+                        $event = new CoreWorkflowEvents\Ticket\Priority();
+                        $event
+                            ->setTicket($ticket)
+                        ;
     
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }

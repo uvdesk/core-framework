@@ -180,9 +180,10 @@ class Customer extends AbstractController
                     $em->flush();
 
                     // Trigger customer created event
-                    $event = new GenericEvent(CoreWorkflowEvents\Customer\Update::getId(), [
-                        'entity' => $user,
-                    ]);
+                    $event = new CoreWorkflowEvents\Customer\Update();
+                    $event
+                        ->setUser($user)
+                    ;
 
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 

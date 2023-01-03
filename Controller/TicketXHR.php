@@ -264,9 +264,10 @@ class TicketXHR extends AbstractController
                     $entityManager->flush();
 
                     // Trigger Agent Assign event
-                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Agent::getId(), [
-                        'entity' => $ticket,
-                    ]);
+                    $event = new CoreWorkflowEvents\Ticket\Agent();
+                    $event
+                        ->setTicket($ticket)
+                    ;
 
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
@@ -303,9 +304,10 @@ class TicketXHR extends AbstractController
                     $entityManager->flush();
 
                     // Trigger ticket status event
-                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Status::getId(), [
-                        'entity' => $ticket,
-                    ]);
+                    $event = new CoreWorkflowEvents\Ticket\Status();
+                    $event
+                        ->setTicket($ticket)
+                    ;
 
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
@@ -343,9 +345,10 @@ class TicketXHR extends AbstractController
                     $entityManager->flush();
 
                     // Trigger ticket Priority event
-                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Priority::getId(), [
-                        'entity' => $ticket,
-                    ]);
+                    $event = new CoreWorkflowEvents\Ticket\Priority();
+                    $event
+                        ->setTicket($ticket)
+                    ;
 
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
@@ -395,9 +398,10 @@ class TicketXHR extends AbstractController
                     $entityManager->flush();
 
                     // Trigger Support group event
-                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Group::getId(), [
-                        'entity' => $ticket,
-                    ]);
+                    $event = new CoreWorkflowEvents\Ticket\Group();
+                    $event
+                        ->setTicket($ticket)
+                    ;
 
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
@@ -445,9 +449,10 @@ class TicketXHR extends AbstractController
                     $entityManager->flush();
 
                     // Trigger ticket delete event
-                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Team::getId(), [
-                        'entity' => $ticket,
-                    ]);
+                    $event = new CoreWorkflowEvents\Ticket\Team();
+                    $event
+                        ->setTicket($ticket)
+                    ;
 
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
@@ -481,9 +486,10 @@ class TicketXHR extends AbstractController
                     $entityManager->flush();
 
                     // Trigger ticket delete event
-                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Type::getId(), [
-                        'entity' => $ticket,
-                    ]);
+                    $event = new CoreWorkflowEvents\Ticket\Type();
+                    $event
+                        ->setTicket($ticket)
+                    ;
 
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
@@ -920,14 +926,16 @@ class TicketXHR extends AbstractController
 
                     $ticket->lastCollaborator = $collaborator;
 
-                    if ($collaborator->getCustomerInstance())
+                    if ($collaborator->getCustomerInstance()) {
                         $json['collaborator'] = $collaborator->getCustomerInstance()->getPartialDetails();
-                    else
+                    } else {
                         $json['collaborator'] = $collaborator->getAgentInstance()->getPartialDetails();
+                    }
 
-                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Collaborator::getId(), [
-                        'entity' => $ticket,
-                    ]);
+                    $event = new CoreWorkflowEvents\Ticket\Collaborator();
+                    $event
+                        ->setTicket($ticket)
+                    ;
 
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 

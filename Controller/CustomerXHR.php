@@ -61,9 +61,10 @@ class CustomerXHR extends AbstractController
 
                 $this->userService->removeCustomer($user);
                 // Trigger customer created event
-                $event = new GenericEvent(CoreWorkflowEvents\Customer\Delete::getId(), [
-                    'entity' => $user,
-                ]);
+                $event = new CoreWorkflowEvents\Customer\Delete();
+                $event
+                    ->setUser($user)
+                ;
 
                 $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 

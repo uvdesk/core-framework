@@ -260,8 +260,10 @@ class UserService
             $user->addUserInstance($userInstance);
 
             // Trigger user created event
-            $eventId = 'ROLE_CUSTOMER' == $role->getCode() ? CoreWorkflowEvents\Customer\Create::getId() : CoreWorkflowEvents\Agent\Create::getId();
-            $event = new GenericEvent($eventId, ['entity' => $user]);
+            $event = $role->getCode() == 'ROLE_CUSTOMER' ? new CoreWorkflowEvents\Customer\Create() : new CoreWorkflowEvents\Agent\Create();
+            $event
+                ->setUser($user)
+            ;
 
             $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
         }
@@ -278,37 +280,46 @@ class UserService
             ->leftJoin('userInstance.supportRole', 'supportRole')
             ->where('supportRole.code != :customerRole')->setParameter('customerRole', 'ROLE_CUSTOMER')
             ->andWhere('userInstance.isActive = :isUserActive')->setParameter('isUserActive', true)
-            ->orderBy('name', Criteria::ASC);
+            ->orderBy('name', Criteria::ASC)
+        ;
 
         if ($request && null != $request->query->get('query')) {
             $queryBuilder
                 ->andWhere("CONCAT(user.firstName,' ', user.lastName) LIKE :customerName")
-                ->setParameter('customerName', '%'.urldecode($request->query->get('query')).'%');
+                ->setParameter('customerName', '%' . urldecode($request->query->get('query')) . '%')
+            ;
         }
 
         if ($request && null != $request->query->get('not')) {
             $queryBuilder
                 ->andwhere("u.id NOT IN (:ids)")
-                ->setParameter('ids', explode(',', urldecode($request->query->get('not'))));
+                ->setParameter('ids', explode(',', urldecode($request->query->get('not'))))
+            ;
         }
 
         return $queryBuilder->getQuery()->getArrayResult();
     }
 
-    public function getAgentsPartialDetails(Request $request = null) {
+    public function getAgentsPartialDetails(Request $request = null)
+    {
         static $agents;
-        if (null !== $agents)
+
+        if (null !== $agents) {
             return $agents;
+        }
 
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("u.id, userInstance.id as udId,u.email,CONCAT(u.firstName,' ', u.lastName) AS name,userInstance.profileImagePath as smallThumbnail")->from(User::class, 'u')
-                ->leftJoin('u.userInstance', 'userInstance')
-                ->andwhere('userInstance.supportRole != :roles')
-                ->setParameter('roles', 4)
-                ->andwhere('userInstance.isActive = 1')
-                ->orderBy('name','ASC');
+        $qb
+            ->select("u.id, userInstance.id as udId,u.email,CONCAT(u.firstName,' ', u.lastName) AS name,userInstance.profileImagePath as smallThumbnail")
+            ->from(User::class, 'u')
+            ->leftJoin('u.userInstance', 'userInstance')
+            ->andwhere('userInstance.supportRole != :roles')
+            ->setParameter('roles', 4)
+            ->andwhere('userInstance.isActive = 1')
+            ->orderBy('name','ASC')
+        ;
 
-        if($request) {
+        if ($request) {
             $qb->andwhere("CONCAT(u.firstName,' ', u.lastName) LIKE :customerName");
             $qb->setParameter('customerName', '%'.urldecode($request->query->get('query')).'%');
             $qb->andwhere("u.id NOT IN (:ids)");
@@ -316,19 +327,26 @@ class UserService
         }
 
         $data = $agents = $qb->getQuery()->getArrayResult();
+
         return $data;
     }
 
-    public function getAgentDetailById($agentId) {
-        if(!$agentId) return;
+    public function getAgentDetailById($agentId)
+    {
+        if (!$agentId) {
+            return;
+        }
+
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("DISTINCT u.id,u.email,CONCAT(u.firstName,' ', COALESCE(u.lastName,'')) AS name,u.firstName,u.lastName,u.isEnabled,userInstance.profileImagePath,userInstance.profileImagePath as smallThumbnail,userInstance.isActive, userInstance.isVerified, userInstance.designation, userInstance.contactNumber,userInstance.signature,userInstance.ticketAccessLevel")
+        $qb
+            ->select("DISTINCT u.id,u.email,CONCAT(u.firstName,' ', COALESCE(u.lastName,'')) AS name,u.firstName,u.lastName,u.isEnabled,userInstance.profileImagePath,userInstance.profileImagePath as smallThumbnail,userInstance.isActive, userInstance.isVerified, userInstance.designation, userInstance.contactNumber,userInstance.signature,userInstance.ticketAccessLevel")
             ->from(User::class, 'u')
             ->leftJoin('u.userInstance', 'userInstance')
             ->andwhere('userInstance.supportRole != :roles')
             ->andwhere('u.id = :agentId')
             ->setParameter('roles', 4)
-            ->setParameter('agentId', $agentId);
+            ->setParameter('agentId', $agentId)
+        ;
 
         $result = $qb->getQuery()->getResult();
 
@@ -341,12 +359,14 @@ class UserService
         $qb->select("DISTINCT user.id, user.email, CONCAT(user.firstName, ' ', user.lastName) AS name, userInstance.profileImagePath as smallThumbnail")
             ->from(User::class, 'user')
             ->leftJoin('user.userInstance', 'userInstance')
-                ->leftJoin('userInstance.supportGroups', 'supportGroup')
-                ->andWhere('userInstance.supportRole != :roles')->setParameter('roles', 4)
-                ->andwhere('supportGroup.id = :groupId')->setParameter('groupId', $groupId)
-                ->andwhere('userInstance.isActive = 1');
+            ->leftJoin('userInstance.supportGroups', 'supportGroup')
+            ->andWhere('userInstance.supportRole != :roles')->setParameter('roles', 4)
+            ->andwhere('supportGroup.id = :groupId')->setParameter('groupId', $groupId)
+            ->andwhere('userInstance.isActive = 1')
+        ;
 
         $data = $qb->getQuery()->getArrayResult();
+        
         return $data;
     }
 

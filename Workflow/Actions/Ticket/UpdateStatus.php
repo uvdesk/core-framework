@@ -7,6 +7,9 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\AutomationBundle\Workflow\Event;
+use Webkul\UVDesk\AutomationBundle\Workflow\Events\AgentActivity;
+use Webkul\UVDesk\AutomationBundle\Workflow\Events\TicketActivity;
 
 class UpdateStatus extends WorkflowAction
 {
@@ -37,15 +40,26 @@ class UpdateStatus extends WorkflowAction
         }, $entityManager->getRepository(TicketStatus::class)->findAll());
     }
 
-    public static function applyAction(ContainerInterface $container, $entity, $value = null)
+    public static function applyAction(ContainerInterface $container, Event $event, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
 
-        if ($entity instanceof Ticket && !empty($value)) {
-            $ticketStatus = $entityManager->getRepository(TicketStatus::class)->findOneById($value);
-            $entity->setStatus($ticketStatus);
-            $entityManager->persist($entity);
-            $entityManager->flush();
+        if (!$event instanceof TicketActivity) {
+            return;
+        } else {
+            $ticket = $event->getTicket();
+            $status = $entityManager->getRepository(TicketStatus::class)->findOneById($value);
+            
+            if (empty($ticket) || empty($status)) {
+                return;
+            }
         }
+
+        $ticket
+            ->setStatus($status)
+        ;
+
+        $entityManager->persist($ticket);
+        $entityManager->flush();
     }
 }

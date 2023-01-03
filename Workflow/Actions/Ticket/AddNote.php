@@ -6,6 +6,8 @@ use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\AutomationBundle\Workflow\Event;
+use Webkul\UVDesk\AutomationBundle\Workflow\Events\TicketActivity;
 
 class AddNote extends WorkflowAction
 {
@@ -29,19 +31,26 @@ class AddNote extends WorkflowAction
         return [];
     }
 
-    public static function applyAction(ContainerInterface $container, $entity, $value = null)
+    public static function applyAction(ContainerInterface $container, Event $entity, $value = null)
     {
-        if($entity instanceof Ticket && $entity->getIsTrashed())
+        if (!$event instanceof TicketActivity) {
             return;
-        if($entity instanceof Ticket) {
+        } else {
+            $ticket = $event->getTicket();
             
-            $data = array();
-            $data['ticket'] = $entity;
-            $data['threadType'] = 'note';
-            $data['source'] = 'website';
-            $data['message'] = $value; 
-            $data['createdBy'] = 'System';
-            $container->get('ticket.service')->createThread($entity, $data);
+            if (empty($ticket)) {
+                return;
+            }
         }
+
+        $params = [
+            'ticket' => $ticket, 
+            'message' => $value, 
+            'source' => 'website', 
+            'threadType' => 'note', 
+            'createdBy' => 'System', 
+        ];
+
+        $container->get('ticket.service')->createThread($ticket, $params);
     }
 }

@@ -7,6 +7,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\AutomationBundle\Workflow\Event;
+use Webkul\UVDesk\AutomationBundle\Workflow\Events\AgentActivity;
+use Webkul\UVDesk\AutomationBundle\Workflow\Events\CustomerActivity;
 
 class TransferTickets extends WorkflowAction
 {
@@ -42,26 +45,43 @@ class TransferTickets extends WorkflowAction
         return $agentCollection;
     }
 
-    public static function applyAction(ContainerInterface $container, $entity, $value = null)
+    public static function applyAction(ContainerInterface $container, Event $event, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        
-        if ($entity instanceof User) {
-            if ($value == 'responsePerforming') {
-                $user = $container->get('security.tokenstorage')->getToken()->getUser();
-            } else {
-                $user = $entityManager->getRepository(User::class)->find($value);
-            }
-            
-            if (!empty($user) && $user != 'anon.') {
-                $tickets = $entityManager->getRepository(Ticket::class)->getAgentTickets($entity->getId(), $container);
 
-                foreach ($tickets as $ticket) {
-                    $ticket->setAgent($user);
-                    $entityManager->persist($ticket);
-                    $entityManager->flush();
+        if (!$event instanceof AgentActivity) {
+            return;
+        } else {
+            $user = $event->getUser();
+
+            if (empty($user)) {
+                return;
+            } else {
+                if ($value == 'responsePerforming') {
+                    $targetUser = $container->get('security.tokenstorage')->getToken()->getUser();
+                } else {
+                    $targetUser = $entityManager->getRepository(User::class)->find($value);
+                }
+
+                if (empty($targetUser) || $targetUser == 'anon.') {
+                    return;
                 }
             }
+
+        }
+        
+        $tickets = $entityManager->getRepository(Ticket::class)->getAgentTickets($user->getId(), $container);
+
+        if (!empty($tickets)) {
+            foreach ($tickets as $ticket) {
+                $ticket
+                    ->setAgent($targetUser)
+                ;
+    
+                $entityManager->persist($ticket);
+            }
+    
+            $entityManager->flush();
         }
     }
 }

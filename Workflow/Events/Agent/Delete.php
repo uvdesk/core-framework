@@ -2,11 +2,9 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events\Agent;
 
-use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\AutomationBundle\Workflow\Event as WorkflowEvent;
+use Webkul\UVDesk\AutomationBundle\Workflow\Events\AgentActivity;
 
-class Delete extends WorkflowEvent
+class Delete extends AgentActivity
 {
     public static function getId()
     {
@@ -16,10 +14,5 @@ class Delete extends WorkflowEvent
     public static function getDescription()
     {
         return "Agent Deleted";
-    }
-
-    public static function getFunctionalGroup()
-    {
-        return FunctionalGroup::AGENT;
     }
 }

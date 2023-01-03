@@ -125,10 +125,11 @@ class Thread extends AbstractController
         // check for thread types
         switch ($thread->getThreadType()) {
             case 'note':
-                $event = new GenericEvent(CoreWorkflowEvents\Ticket\Note::getId(), [
-                    'entity' =>  $ticket,
-                    'thread' =>  $thread
-                ]);
+                $event = new CoreWorkflowEvents\Ticket\Note();
+                $event
+                    ->setTicket($ticket)
+                    ->setThread($thread)
+                ;
 
                 $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
@@ -136,10 +137,11 @@ class Thread extends AbstractController
                 $this->addFlash('success', $this->translator->trans('Note added to ticket successfully.'));
                 break;
             case 'reply':
-                $event = new GenericEvent(CoreWorkflowEvents\Ticket\AgentReply::getId(), [
-                    'entity' =>  $ticket,
-                    'thread' =>  $thread
-                ]);
+                $event = new CoreWorkflowEvents\Ticket\AgentReply();
+                $event
+                    ->setTicket($ticket)
+                    ->setThread($thread)
+                ;
 
                 $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
@@ -234,9 +236,10 @@ class Thread extends AbstractController
                 $ticket->currentThread = $thread;
 
                 // Trigger agent reply event
-                $event = new GenericEvent(CoreWorkflowEvents\Ticket\ThreadUpdate::getId(), [
-                    'entity' =>  $ticket,
-                ]);
+                $event = new CoreWorkflowEvents\Ticket\ThreadUpdate();
+                $event
+                    ->setTicket($ticket)
+                ;
 
                 $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
@@ -272,14 +275,18 @@ class Thread extends AbstractController
             
             if ($thread) {
                 $this->fileUploadService->fileRemoveFromFolder($projectDir."/public/assets/threads/".$threadId);
+                
                 // Trigger thread deleted event
-                //  $event = new GenericEvent(CoreWorkflowEvents\Ticket\ThreadUpdate::getId(), [
-                //     'entity' =>  $ticket,
-                // ]);
-                // $this->eventDispatcher->dispatch('uvdesk.automation.workflow.execute', $event);
+                // $event = new CoreWorkflowEvents\Ticket\ThreadDeleted();
+                // $event
+                //     ->setTicket($ticket)
+                // ;
+                // 
+                // $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                 $em->remove($thread);
                 $em->flush();
+
                 $json['alertClass'] = 'success';
                 $json['alertMessage'] = $this->translator->trans('Success ! Thread removed successfully.');
             } else {

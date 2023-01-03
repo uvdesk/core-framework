@@ -101,9 +101,10 @@ class Authentication extends AbstractController
 
                     if (!empty($user)) {
                         // Trigger agent forgot password event
-                        $event = new GenericEvent(CoreWorkflowEvents\UserForgotPassword::getId(), [
-                            'entity' => $user,
-                        ]);
+                        $event = new CoreWorkflowEvents\Agent\ForgotPassword();
+                        $event
+                            ->setUser($user)
+                        ;
                             
                         $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
                         $this->addFlash('success', $this->translator->trans('Please check your mail for password update'));

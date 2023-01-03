@@ -381,9 +381,10 @@ class Account extends AbstractController
                     $em->flush();
 
                     // Trigger customer Update event
-                    $event = new GenericEvent(CoreWorkflowEvents\Agent\Update::getId(), [
-                        'entity' => $user,
-                    ]);
+                    $event = new CoreWorkflowEvents\Agent\Update();
+                    $event
+                        ->setUser($user)
+                    ;
 
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 

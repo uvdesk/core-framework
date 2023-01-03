@@ -274,11 +274,11 @@ class Ticket extends AbstractController
 
         // Trigger ticket created event
         try {
-            $event = new GenericEvent(CoreWorkflowEvents\Ticket\Create::getId(), [
-                'entity' =>  $thread->getTicket(),
-            ]);
+            $event = new CoreWorkflowEvents\Ticket\Create();
+            $event
+                ->setTicket($thread->getTicket())
+            ;
 
-                dump($e->getMessage());
             $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
         } catch (\Exception $e) {
             // Skip Automation
@@ -418,11 +418,13 @@ class Ticket extends AbstractController
         }
 
         // Trigger ticket delete event
-        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Delete::getId(), [
-            'entity' => $ticket,
-        ]);
+        $event = new CoreWorkflowEvents\Ticket\Delete();
+        $event
+            ->setTicket($ticket)
+        ;
 
         $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
+        
         $this->addFlash('success', $this->translator->trans('Success ! Ticket moved to trash successfully.'));
 
         return $this->redirectToRoute('helpdesk_member_ticket_collection');
