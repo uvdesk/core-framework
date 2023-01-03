@@ -31,7 +31,7 @@ class AddNote extends WorkflowAction
         return [];
     }
 
-    public static function applyAction(ContainerInterface $container, Event $entity, $value = null)
+    public static function applyAction(ContainerInterface $container, Event $event, $value = null)
     {
         if (!$event instanceof TicketActivity) {
             return;

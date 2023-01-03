@@ -58,7 +58,7 @@ class MailGroup extends WorkflowAction
         ];
     }
 
-    public static function applyAction(ContainerInterface $container, Event $entity, $value = null)
+    public static function applyAction(ContainerInterface $container, Event $event, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
 
