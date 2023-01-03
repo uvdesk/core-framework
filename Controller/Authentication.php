@@ -101,7 +101,7 @@ class Authentication extends AbstractController
 
                     if (!empty($user)) {
                         // Trigger agent forgot password event
-                        $event = new CoreWorkflowEvents\Agent\ForgotPassword();
+                        $event = new CoreWorkflowEvents\User\ForgotPassword();
                         $event
                             ->setUser($user)
                         ;
