@@ -67,14 +67,17 @@ class MailAgent extends WorkflowAction
         if ($entity instanceof Ticket) {
             $emailTemplate = $entityManager->getRepository(EmailTemplates::class)->findOneById($value['value']);
             $emails = self::getAgentMails($value['for'], (($ticketAgent = $entity->getAgent()) ? $ticketAgent->getEmail() : ''), $container);
+            
             $ticketCollaborators = []; 
+
             if ($emails || $emailTemplate) {
                 $queryBuilder = $entityManager->createQueryBuilder()
                     ->select('th.messageId as messageId')
                     ->from(Thread::class, 'th')
                     ->where('th.createdBy = :userType')->setParameter('userType', 'agent')
                     ->orderBy('th.id', 'DESC')
-                    ->setMaxResults(1);
+                    ->setMaxResults(1)
+                ;
                 
                 $inReplyTo = $queryBuilder->getQuery()->getOneOrNullResult();
 

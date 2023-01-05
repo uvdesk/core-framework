@@ -577,7 +577,11 @@ class EmailService
         $emailHeaders = $email->getHeaders();
 
         foreach ($headers as $name => $value) {
-            if (is_array($value) && !empty($value['messageId'])) {
+            if (is_array($value)) {
+                if (empty($value['messageId'])) {
+                    continue;
+                }
+
                 $value = $value['messageId'];
             }
 
