@@ -34,7 +34,7 @@ class MicrosoftAccount
 
     /**
      * @ORM\ManyToOne(targetEntity=MicrosoftApp::class)
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $microsoftApp;
 

@@ -30,7 +30,6 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportLabel;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedReplies;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
-use Webkul\UVDesk\CoreFrameworkBundle\Mailer\MailerService;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
@@ -58,7 +57,6 @@ class TicketService
         EntityManagerInterface $entityManager, 
         FileUploadService $fileUploadService,
         UserService $userService, 
-        MailerService $mailerService, 
         MailboxService $mailboxService
     ) {
         $this->container = $container;
@@ -66,22 +64,7 @@ class TicketService
         $this->entityManager = $entityManager;
         $this->fileUploadService = $fileUploadService;
         $this->userService = $userService;
-        $this->mailerService = $mailerService;
         $this->mailboxService = $mailboxService;
-    }
-
-    public function getAllMailboxes()
-    {
-        $collection = array_map(function ($mailbox) {
-            return [
-                'id' => $mailbox->getId(),
-                'name' => $mailbox->getName(),
-                'isEnabled' => $mailbox->getIsEnabled(),
-                'email'     => $mailbox->getImapConfiguration()->getUsername(),
-            ];
-        }, $this->mailboxService->parseMailboxConfigurations()->getMailboxes());
-
-        return $collection;
     }
 
     public function getPathToConfigurationFile()
@@ -89,13 +72,24 @@ class TicketService
         return $this->container->get('kernel')->getProjectDir() . self::PATH_TO_CONFIG;
     }
 
-    // @TODO: Deprecate support_email
-    public function getRandomRefrenceId($email = null)
+    public function generateRandomEmailReferenceId()
     {
-        $email = !empty($email) ? $email : $this->container->getParameter('uvdesk.support_email.id');
-        $emailDomain = substr($email, strpos($email, '@'));
+        $emailDomain = null;
+        $mailbox = $this->mailboxService->parseMailboxConfigurations()->getDefaultMailbox();
 
-        return sprintf("<%s%s>", TokenGenerator::generateToken(20, '0123456789abcdefghijklmnopqrstuvwxyz'), $emailDomain);
+        if (!empty($mailbox)) {
+            $smtpConfiguration = $mailbox->getSmtpConfiguration();
+
+            if (!empty($smtpConfiguration)) {
+                $emailDomain = substr($smtpConfiguration->getUsername(), strpos($smtpConfiguration->getUsername(), '@'));
+            }
+        }
+
+        if (!empty($emailDomain)) {
+            return sprintf("<%s%s>", TokenGenerator::generateToken(20, '0123456789abcdefghijklmnopqrstuvwxyz'), $emailDomain);
+        }
+
+        return null;
     }
 
     // @TODO: Refactor this out of this service. Use UserService::getSessionUser() instead.
@@ -212,8 +206,7 @@ class TicketService
         if ('email' == $ticketData['source']) {
             try {
                 if (array_key_exists('UVDeskMailboxBundle', $this->container->getParameter('kernel.bundles'))) {
-                    $mailbox = $this->container->get('uvdesk.mailbox')->getMailboxByEmail($ticketData['mailboxEmail']);
-                    $ticketData['mailboxEmail'] = $mailbox['email'];
+                    $mailbox = $this->mailboxService->getMailboxByEmail($ticketData['mailboxEmail']);
                 }
             } catch (\Exception $e) {
                 // No mailbox found for this email. Skip ticket creation.
@@ -225,7 +218,12 @@ class TicketService
         $ticketType = !empty($ticketData['type']) ? $ticketData['type'] : $this->getDefaultType();
         $ticketStatus = !empty($ticketData['status']) ? $ticketData['status'] : $this->getDefaultStatus();
         $ticketPriority = !empty($ticketData['priority']) ? $ticketData['priority'] : $this->getDefaultPriority();
-        $ticketMessageId = 'email' == $ticketData['source'] ? (!empty($ticketData['messageId']) ? $ticketData['messageId'] : null) : $this->getRandomRefrenceId();
+
+        if ('email' == $ticketData['source']) {
+            $ticketMessageId = !empty($ticketData['messageId']) ? $ticketData['messageId'] : null;
+        } else {
+            $ticketMessageId = $this->generateRandomEmailReferenceId();
+        }
 
         $ticketData['type'] = $ticketType;
         $ticketData['status'] = $ticketStatus;
@@ -234,6 +232,7 @@ class TicketService
         $ticketData['isTrashed'] = false;
 
         $ticket = new Ticket();
+
         foreach ($ticketData as $property => $value) {
             $callable = 'set' . ucwords($property);
 
@@ -257,6 +256,7 @@ class TicketService
         }
 
         $collaboratorEmails = array_merge(!empty($threadData['cccol']) ? $threadData['cccol'] : [], !empty($threadData['cc']) ? $threadData['cc'] : []);
+        
         if (!empty($collaboratorEmails)) {
             $threadData['cc'] = $collaboratorEmails;
         }

@@ -788,15 +788,18 @@
                                     <label>{{ 'Filter With'|trans }}</label>
                                     <ul class="">
                                         {% set options = [] %}
-                                        {% for mailbox in ticket_service.getAllMailboxes() %}
+                                        {% for mailbox in mailboxCollection %}
                                             {% set options = options|merge([{'id': mailbox.email, 'name': mailbox.name}]) %}
+
                                             <li data-id="{{mailbox.email}}">
                                                 {{ mailbox.name|trans }}
                                             </li>
                                         {% endfor %}
+
                                         <li class="uv-no-results" style="display: none;">
                                             {{ 'No result found'|trans }}
                                         </li>
+                                        
                                         {% set filterContext = filterContext|merge({'mailbox': options}) %}
                                     </ul>
                                 </div>

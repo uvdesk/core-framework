@@ -2,18 +2,18 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
-use Webkul\UVDesk\CoreFrameworkBundle\Services\MicrosoftIntegration;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\MicrosoftApp;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\MicrosoftAccount;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\MicrosoftIntegration;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\Microsoft\Graph as MicrosoftGraph;
-use Doctrine\ORM\EntityManagerInterface;
 
 class MicrosoftApps extends AbstractController
 {
@@ -73,7 +73,7 @@ class MicrosoftApps extends AbstractController
         ]);
     }
 
-    public function updateConfiguration($id, Request $request, UserService $userService, EntityManagerInterface $entityManager, MicrosoftIntegration $microsoftIntegration)
+    public function updateConfiguration($id, Request $request, UserService $userService, EntityManagerInterface $entityManager, MicrosoftIntegration $microsoftIntegration, TranslatorInterface $translator)
     {
         if (!$userService->isAccessAuthorized('ROLE_ADMIN')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
@@ -115,15 +115,7 @@ class MicrosoftApps extends AbstractController
         ]);
     }
 
-    public function removeConfiguration($id, Request $request, UserService $userService, EntityManagerInterface $entityManager, MicrosoftIntegration $microsoftIntegration)
-    {
-        dump('removeConfiguration');
-        die;
-        
-        return;
-    }
-
-    public function addMicrosoftAccount($appId, $origin, Request $request, EntityManagerInterface $entityManager, MicrosoftIntegration $microsoftIntegration)
+    public function addMicrosoftAccount($appId, $origin, Request $request, EntityManagerInterface $entityManager, MicrosoftIntegration $microsoftIntegration, TranslatorInterface $translator)
     {
         $microsoftApp = $entityManager->getRepository(MicrosoftApp::class)->findOneById($appId);
 

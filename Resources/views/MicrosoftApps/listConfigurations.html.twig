@@ -9,14 +9,6 @@
 			padding-bottom: 10px;
 		}
 
-		.mailer-id {
-			font-weight: 600;
-			border: 1px solid #333;
-			background: #cecece;
-			padding: 2px 4px 2px;
-			border-radius: 2px;
-		}
-
 		.uv-app-list-brick {
 			width: 310px;
 			max-width: 100%;
@@ -102,15 +94,13 @@
 			vertical-align: middle;
 		} #}
 
-		.delete-microsoft-app {
-		    padding: 8px 10px;
-    		border-radius: 3px;
+		.uv-custom-btn {
 			cursor: pointer;
-			/* vertical-align: middle; */
+			background: unset;
+			border: unset;
+			margin-right: 10px;
+			padding: unset;
 			font-size: 15px;
-			display: inline-block;
-			margin: 5px 0px;
-			color: #e00d0d;
 		}
 	</style>
 {% endblock %}
@@ -143,7 +133,7 @@
 {% block footer %}
 	{{ parent() }}
 	
-	<script type="text/template" id="no_mailers_template">
+	<script type="text/template" id="no_configurations_template">
         <div class="uv-app-screen">
             <div class="uv-app-splash" style="text-align: center;">
                 <img class="uv-app-splash-image" src="{{ asset('bundles/uvdeskcoreframework/images/splash/mailbox.png') }}" alt="Tasks">
@@ -152,7 +142,7 @@
         </div>	
 	</script>
 
-	<script id="mailer_configuration_item_template" type="text/template">
+	<script id="app_configuration_item_template" type="text/template">
 		<div class="uv-app-list-brick-rt" title="<%- id %>" style="width: 100%;">
 			<p style="line-height: 1.4em; margin: unset; margin-bottom: 4px;">
 				<span style="font-weight: 700; text-transform: uppercase;"><%- name %></span>
@@ -164,6 +154,7 @@
 				<% } else { %>
 					<span class="uv-app-list-flag-inactive">Disabled</span>
 				<% } %>
+
                 <% if (isVerified) { %>
 					<span class="uv-app-list-flag-active">Verified</span>
 				<% } else { %>
@@ -171,14 +162,18 @@
 				<% } %>
 			</p>
 
-			<div class="uv-app-list-actions">
-				<a href="{{ path('uvdesk_member_core_framework_microsoft_apps_settings_update_configuration', {'id': '' }) }}/<%- id %>">
+			<div class="uv-app-list-actions" style="display: flex; align-items: center; margin-top: 1.6rem;">
+				<% if (isEnabled) { %>
+					<button class="uv-custom-btn toggle-microsoft-app-status" data-status="disable" style="color: #e00d0d;">{{ "Disable"|trans }}</button>
+				<% } else { %>
+					<button class="uv-custom-btn toggle-microsoft-app-status" data-status="enable" style="color: #2750C4;">{{ "Enable"|trans }}</button>
+				<% } %>
+
+				<a href="{{ path('uvdesk_member_core_framework_microsoft_apps_settings_update_configuration', {'id': '' }) }}/<%- id %>" class="uv-custom-btn">
 					{{ "Edit"|trans }}
 				</a>
-                
-				<div id="deleteMicrosoftApp" class="delete-microsoft-app">
-					{{ "Delete"|trans }}
-				</div>
+
+				<button class="uv-custom-btn delete-microsoft-app" style="color: #e00d0d;">{{ "Delete"|trans }}</button>
 			</div>
 		</div>
     </script>
@@ -212,7 +207,7 @@
 					this.fetch({
 						data: this.getValidParameters(),
 						reset: true,
-						success: function(model,response) {
+						success: function(model, response) {
 							app.appView.hideLoader();
 							var configurationListView = new ConfigurationList(response);
 
@@ -233,9 +228,10 @@
 			var ConfigurationView = Backbone.View.extend({
 				tagName: "div",
 				className: "uv-app-list-brick",
-				template: _.template($("#mailer_configuration_item_template").html()),
+				template: _.template($("#app_configuration_item_template").html()),
 				events: {
-					'click #deleteMicrosoftApp': "deleteMicrosoftApp"
+					'click .delete-microsoft-app': "deleteMicrosoftApp", 
+					'click .toggle-microsoft-app-status': "toggleMicrosoftAppStatus"
 				},
 				render: function() {
 					this.$el.html(this.template(this.model));
@@ -245,13 +241,43 @@
 					e.preventDefault();
 					app.appView.openConfirmModal(this)
 				},
+				toggleMicrosoftAppStatus: function(e) {
+					e.preventDefault();
+					app.appView.showLoader();
+
+					let status = $(e.target).data('status');
+
+					$.ajax({
+						url: "{{ path('uvdesk_member_core_framework_microsoft_apps_settings_toggle_configuration_status') }}/" + this.model.id, 
+						data: { status: status }, 
+						success: function (response) {
+							app.appView.hideLoader();
+							globalMessageResponse = response;
+							configurationCollection.syncData();
+						}, 
+						error: function (model, xhr, options) {
+							if (url = xhr.getResponseHeader('Location')) {
+								window.location = url;
+							}
+
+							var response = warningResponse;
+							
+							if (xhr.responseJSON) {
+								response = xhr.responseJSON;
+							}
+
+							app.appView.hideLoader();
+							app.appView.renderResponseAlert(response);
+						}
+					});
+				},
 				removeItem: function (e) {
 					app.appView.showLoader();
 					self = this;
 				
 					$.ajax({
-						url: "{{ path('helpdesk_member_mailbox_remove_configuration_xhr') }}/" + this.model.id,
-							success: function (response) {
+						url: "{{ path('uvdesk_member_core_framework_microsoft_apps_settings_remove_configuration') }}/" + this.model.id,
+						success: function (response) {
 							app.appView.hideLoader();
 							globalMessageResponse = response;
 							configurationCollection.syncData();
@@ -276,7 +302,7 @@
 
 			var ConfigurationList = Backbone.View.extend({
 				el: $(".mailbox-collection"),
-				template: _.template($("#no_mailers_template").html()),
+				template: _.template($("#no_configurations_template").html()),
 				initialize : function(listItems) {
 					this.render(listItems);
 				},

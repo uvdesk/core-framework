@@ -7,13 +7,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\MicrosoftApp;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\MicrosoftAccount;
-use Webkul\UVDesk\MailboxBundle\Utils\MailboxConfiguration;
-use Webkul\UVDesk\MailboxBundle\Services\MailboxService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\MicrosoftIntegration;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 
 class MicrosoftAppsXHR extends AbstractController
 {
@@ -31,41 +28,63 @@ class MicrosoftAppsXHR extends AbstractController
         return new JsonResponse($collection ?? []);
     }
 
-    public function removeMailboxConfiguration($id, Request $request)
+    public function toggleConfigurationStatus($id, Request $request, UserService $userService, EntityManagerInterface $entityManager, MicrosoftIntegration $microsoftIntegration, TranslatorInterface $translator)
     {
-        $mailboxService = $this->mailboxService;
-        $existingMailboxConfiguration = $mailboxService->parseMailboxConfigurations();
+        $status = $request->query->get('status');
 
-        foreach ($existingMailboxConfiguration->getMailboxes() as $configuration) {
-            if ($configuration->getId() == $id) {
-                $mailbox = $configuration;
-
-                break;
-            }
-        }
-
-        if (empty($mailbox)) {
+        if (empty($status) || !in_array($status, ['enable', 'disable'])) {
             return new JsonResponse([
                 'alertClass' => 'danger',
-                'alertMessage' => "No mailbox found with id '$id'.",
+                'alertMessage' => $translator->trans("Unrecognized status of type '$status' provided."),
+            ]);
+        }
+
+        $isEnabled = ($status == 'enable') ? true : false;
+
+        $microsoftApp = $entityManager->getRepository(MicrosoftApp::class)->findOneById($id);
+
+        if (empty($microsoftApp)) {
+            return new JsonResponse([
+                'alertClass' => 'danger',
+                'alertMessage' => $translator->trans("No microsoft app was found for the provided id '$id'."),
             ], 404);
+        } else if ($microsoftApp->getIsEnabled() == $isEnabled) {
+            return new JsonResponse([
+                'alertClass' => 'success',
+                'alertMessage' => $translator->trans('No changes in app configuration details were found.'),
+            ]);
         }
 
-        $mailboxConfiguration = new MailboxConfiguration();
+        $microsoftApp
+            ->setIsEnabled($isEnabled)
+        ;
 
-        foreach ($existingMailboxConfiguration->getMailboxes() as $configuration) {
-            if ($configuration->getId() == $id) {
-                continue;
-            }
-
-            $mailboxConfiguration->addMailbox($configuration);
-        }
-
-        file_put_contents($mailboxService->getPathToConfigurationFile(), (string) $mailboxConfiguration);
+        $entityManager->persist($microsoftApp);
+        $entityManager->flush();
 
         return new JsonResponse([
             'alertClass' => 'success',
-            'alertMessage' => $this->translator->trans('Mailbox configuration removed successfully.'),
+            'alertMessage' => $translator->trans('Microsoft app has been updated successfully.'),
+        ]);
+    }
+
+    public function removeConfiguration($id, Request $request, UserService $userService, EntityManagerInterface $entityManager, MicrosoftIntegration $microsoftIntegration, TranslatorInterface $translator)
+    {
+        $microsoftApp = $entityManager->getRepository(MicrosoftApp::class)->findOneById($id);
+
+        if (empty($microsoftApp)) {
+            return new JsonResponse([
+                'alertClass' => 'danger',
+                'alertMessage' => $translator->trans("No microsoft app was found for the provided id '$id'."),
+            ], 404);
+        }
+
+        $entityManager->remove($microsoftApp);
+        $entityManager->flush();
+
+        return new JsonResponse([
+            'alertClass' => 'success',
+            'alertMessage' => $translator->trans('Microsoft app has been deleted successfully.'),
         ]);
     }
 }
