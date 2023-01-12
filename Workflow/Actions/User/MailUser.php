@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions\User;
 
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
@@ -9,7 +9,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\EmailTemplates;
 use Webkul\UVDesk\AutomationBundle\Workflow\Event;
-use Webkul\UVDesk\AutomationBundle\Workflow\Events\AgentActivity;
+use Webkul\UVDesk\AutomationBundle\Workflow\Events\UserActivity;
 use Webkul\UVDesk\AutomationBundle\Workflow\Events\CustomerActivity;
 
 class MailUser extends WorkflowAction
@@ -43,18 +43,18 @@ class MailUser extends WorkflowAction
 
     public static function applyAction(ContainerInterface $container, Event $event, $value = null)
     {
+        if (!$event instanceof UserActivity) {
+            return;
+        }
+        
+        $user = $event->getUser();
         $entityManager = $container->get('doctrine.orm.entity_manager');
 
-        if (!$event instanceof AgentActivity && !$event instanceof CustomerActivity) {
+        $emailTemplate = $entityManager->getRepository(EmailTemplates::class)->findOneById($value);
+
+        if (empty($user) || empty($emailTemplate)) {
+            // @TODO: Send default email template
             return;
-        } else {
-            $user = $event->getUser();
-            $emailTemplate = $entityManager->getRepository(EmailTemplates::class)->findOneById($value);
-    
-            if (empty($user) || empty($emailTemplate)) {
-                // @TODO: Send default email template
-                return;
-            }
         }
 
         $emailPlaceholders = $container->get('email.service')->getEmailPlaceholderValues($user);

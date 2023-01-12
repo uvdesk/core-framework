@@ -483,7 +483,6 @@ class EmailService
 
     public function sendMail($subject, $content, $recipient, array $headers = [], $mailboxEmail = null, array $attachments = [], $cc = [], $bcc = [])
     {
-        $error_check = false;
         if (empty($mailboxEmail)) {
             // Send email on behalf of support helpdesk
             $supportEmail = $this->container->getParameter('uvdesk.support_email.id');
@@ -507,7 +506,6 @@ class EmailService
                         return;
                     }
                 } catch (\Exception $e) {
-                    $error_check = true;
                     // @TODO: Log exception - Mailbox not found
                     return;
                 }
@@ -519,7 +517,6 @@ class EmailService
             $mailer = $this->container->get('swiftmailer.mailer' . (('default' == $mailerID) ? '' : ".$mailerID"));
             $mailer->getTransport()->setPassword(base64_decode($mailer->getTransport()->getPassword()));
         } catch (\Exception $e) {
-            $error_check = true;
             // @TODO: Log exception - Mailer not found
             return;
         }
@@ -588,12 +585,8 @@ class EmailService
             
             return "<$messageId>";
         } catch (\Exception $e) {
-            $error_check = true;
             // @TODO: Log exception
-        }
-
-        if ($error_check == true) {
-            $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans('Warning ! Swiftmailer not working. An error has occurred while sending emails!'));   
+            $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans('Warning! Swiftmailer not working. An error has occurred while sending emails!'));   
         }
 
         return null;
