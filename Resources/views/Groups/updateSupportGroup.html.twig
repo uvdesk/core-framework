@@ -149,10 +149,13 @@
 						maxLength:50,
                         msg: "{{ 'Maximum character length is 50'|trans }}"
 					}],
-					'description': {
+					'description': [{
 						required: true,
 						msg: "{{ 'This field is mandatory'|trans }}"
-					}
+					},{
+                        pattern: /^((?![!@#$%^&*()<_+]).)*$/,
+                        msg: "{{ 'This field must have characters only'|trans }}"
+                    }]
 				}
 			});
 
