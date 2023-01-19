@@ -95,7 +95,7 @@
 						msg: "{{ 'This field is mandatory'|trans }}"
 					}
 					,{
-						pattern: '^((?![$%<>.}{+=|\~`!@#^&*()-_"]).)*$',
+						pattern: /^[a-zA-Z][a-zA-Z ]+[a-zA-Z]$/,
 						msg: "{{ 'Description must have characters only' }}"
 					},
 					,{
