@@ -253,7 +253,7 @@ class TicketXHR extends AbstractController
                 if ($ticket->getAgent() && $agent->getId() === $ticket->getAgent()->getId()) {
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => $this->translator->trans('Ticket already assigned to %agent%', [
+                        'alertMessage' => $this->translator->trans('Ticket is already assigned to agent', [
                             '%agent%' => $agentDetails['name'],
                         ]),
                     ]), 200, ['Content-Type' => 'application/json']);
@@ -272,7 +272,7 @@ class TicketXHR extends AbstractController
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => $this->translator->trans('Ticket successfully assigned to %agent%', [
+                        'alertMessage' => $this->translator->trans('Success ! Agent assigned successfully.', [
                             '%agent%' => $agentDetails['name'],
                         ]),
                     ]), 200, ['Content-Type' => 'application/json']);
@@ -292,7 +292,7 @@ class TicketXHR extends AbstractController
                 if ($ticketStatus->getId() === $ticket->getStatus()->getId()) {
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => $this->translator->trans('Ticket status already set to %status%', [
+                        'alertMessage' => $this->translator->trans('Ticket status is already set', [
                             '%status%' => $ticketStatus->getDescription()
                         ]),
                     ]), 200, ['Content-Type' => 'application/json']);
@@ -311,7 +311,7 @@ class TicketXHR extends AbstractController
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => $this->translator->trans('Ticket status update to %status%', [
+                        'alertMessage' => $this->translator->trans('Success ! Tickets status updated successfully.', [
                             '%status%' => $ticketStatus->getDescription()
                         ]),
                     ]), 200, ['Content-Type' => 'application/json']);
@@ -332,7 +332,7 @@ class TicketXHR extends AbstractController
                 if ($ticketPriority->getId() === $ticket->getPriority()->getId()) {
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => $this->translator->trans('Ticket priority already set to %priority%', [
+                        'alertMessage' => $this->translator->trans('Ticket priority is already set', [
                             '%priority%' => $ticketPriority->getDescription()
                         ]),
                     ]), 200, ['Content-Type' => 'application/json']);
@@ -351,7 +351,7 @@ class TicketXHR extends AbstractController
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => $this->translator->trans('Ticket priority updated to %priority%', [
+                        'alertMessage' => $this->translator->trans('Success ! Tickets priority updated successfully.', [
                             '%priority%' => $ticketPriority->getDescription()
                         ]),
                     ]), 200, ['Content-Type' => 'application/json']);
@@ -371,13 +371,13 @@ class TicketXHR extends AbstractController
                         $responseCode = 200;
                         $response = [
                             'alertClass' => 'success',
-                            'alertMessage' => $this->translator->trans('Ticket support group updated successfully'),
+                            'alertMessage' => $this->translator->trans('Ticket group is updated successfully'),
                         ];
                     } else {
                         $responseCode = 404;
                         $response = [
                             'alertClass' => 'danger',
-                            'alertMessage' => $this->translator->trans('Unable to retrieve support group details'),
+                            'alertMessage' => $this->translator->trans('Unable to retrieve group details'),
                         ];
                     }
 
@@ -387,7 +387,7 @@ class TicketXHR extends AbstractController
                 if ($ticket->getSupportGroup() != null && $supportGroup->getId() === $ticket->getSupportGroup()->getId()) {
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => 'Ticket already assigned to support group ' . $supportGroup->getName(),
+                        'alertMessage' => $this->translator->trans('Ticket is already assigned to group'),
                     ]), 200, ['Content-Type' => 'application/json']);
                 } else {
                     $ticket->setSupportGroup($supportGroup);
@@ -403,7 +403,7 @@ class TicketXHR extends AbstractController
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => $this->translator->trans('Ticket assigned to support group '). $supportGroup->getName(),
+                        'alertMessage' => $this->translator->trans('Success ! Tickets group updated successfully.'),
                     ]), 200, ['Content-Type' => 'application/json']);
                 }
                 break;
@@ -421,13 +421,13 @@ class TicketXHR extends AbstractController
                         $responseCode = 200;
                         $response = [
                             'alertClass' => 'success',
-                            'alertMessage' => $this->translator->trans('Ticket support team updated successfully'),
+                            'alertMessage' => $this->translator->trans('Ticket team is updated successfully'),
                         ];
                     } else {
                         $responseCode = 404;
                         $response = [
                             'alertClass' => 'danger',
-                            'alertMessage' => $this->translator->trans('Unable to retrieve support team details'),
+                            'alertMessage' => $this->translator->trans('Unable to retrieve team details'),
                         ];
                     }
 
@@ -437,7 +437,7 @@ class TicketXHR extends AbstractController
                 if ($ticket->getSupportTeam() != null && $supportTeam->getId() === $ticket->getSupportTeam()->getId()) {
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => 'Ticket already assigned to support team ' . $supportTeam->getName(),
+                        'alertMessage' => $this->translator->trans('Ticket is already assigned to team'),
                     ]), 200, ['Content-Type' => 'application/json']);
                 } else {
                     $ticket->setSupportTeam($supportTeam);
@@ -453,7 +453,7 @@ class TicketXHR extends AbstractController
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => 'Ticket assigned to support team ' . $supportTeam->getName(),
+                        'alertMessage' => $this->translator->trans('Success ! Tickets team updated successfully.'),
                     ]), 200, ['Content-Type' => 'application/json']);
                 }
                 break;
@@ -462,7 +462,7 @@ class TicketXHR extends AbstractController
                 $ticketType = $entityManager->getRepository(TicketType::class)->findOneById($requestContent['value']);
 
                 if (empty($ticketType)) {
-                    // Selected ticket priority does not exist
+                    // Selected ticket type does not exist
                     return new Response(json_encode([
                         'alertClass' => 'danger',
                         'alertMessage' => 'Unable to retrieve ticket type details',
@@ -472,7 +472,7 @@ class TicketXHR extends AbstractController
                 if (null != $ticket->getType() && $ticketType->getId() === $ticket->getType()->getId()) {
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => 'Ticket type already set to ' . $ticketType->getDescription(),
+                        'alertMessage' => $this->translator->trans('Ticket type is already set'),
                     ]), 200, ['Content-Type' => 'application/json']);
                 } else {
                     $ticket->setType($ticketType);
@@ -489,7 +489,7 @@ class TicketXHR extends AbstractController
 
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => 'Ticket type updated to ' . $ticketType->getDescription(),
+                        'alertMessage' => $this->translator->trans('Success ! Tickets type updated successfully.'),
                     ]), 200, ['Content-Type' => 'application/json']);
                 }
                 break;

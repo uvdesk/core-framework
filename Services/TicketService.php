@@ -40,6 +40,7 @@ use Webkul\UVDesk\MailboxBundle\Utils\IMAP\Configuration as ImapConfiguration;
 use Webkul\UVDesk\SupportCenterBundle\Entity\Article;
 use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
 use Webkul\UVDesk\MailboxBundle\Services\MailboxService;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TicketService
 {
@@ -57,7 +58,8 @@ class TicketService
         EntityManagerInterface $entityManager, 
         FileUploadService $fileUploadService,
         UserService $userService, 
-        MailboxService $mailboxService
+        MailboxService $mailboxService, 
+        TranslatorInterface $translator
     ) {
         $this->container = $container;
 		$this->requestStack = $requestStack;
@@ -65,6 +67,7 @@ class TicketService
         $this->fileUploadService = $fileUploadService;
         $this->userService = $userService;
         $this->mailboxService = $mailboxService;
+        $this->translator = $translator;
     }
 
     public function getPathToConfigurationFile()
@@ -820,7 +823,21 @@ class TicketService
 
     public function massXhrUpdate(Request $request)
     {
+        $permissionMessages = [
+            'trashed' => ['permission' => 'ROLE_AGENT_DELETE_TICKET', 'message' => $this->translator->trans('Success ! Tickets moved to trashed successfully.')],
+            'delete' => ['permission' =>  'ROLE_AGENT_DELETE_TICKET', 'message' => $this->translator->trans('Success ! Tickets removed successfully.')],
+            'restored' => ['permission' =>  'ROLE_AGENT_RESTORE_TICKET', 'message' => $this->translator->trans('Success ! Tickets restored successfully.')],
+            'agent' => ['permission' =>  'ROLE_AGENT_ASSIGN_TICKET', 'message' => $this->translator->trans('Success ! Agent assigned successfully.')],
+            'status' => ['permission' =>  'ROLE_AGENT_UPDATE_TICKET_STATUS', 'message' => $this->translator->trans('Success ! Tickets status updated successfully.')],
+            'type' => ['permission' =>  'ROLE_AGENT_ASSIGN_TICKET_TYPE', 'message' => $this->translator->trans('Success ! Tickets type updated successfully.')],
+            'group' => ['permission' =>  'ROLE_AGENT_ASSIGN_TICKET_GROUP', 'message' => $this->translator->trans('Success ! Tickets group updated successfully.')],
+            'team' => ['permission' =>  'ROLE_AGENT_ASSIGN_TICKET_GROUP', 'message' => $this->translator->trans('Success ! Tickets team updated successfully.')],
+            'priority' => ['permission' =>  'ROLE_AGENT_UPDATE_TICKET_PRIORITY', 'message' => $this->translator->trans('Success ! Tickets priority updated successfully.')],
+            'label' => ['permission' =>  '', 'message' => $this->translator->trans('Success ! Tickets added to label successfully.')]
+        ];
+
         $params = $request->request->get('data');
+        $responseMessage = 'Tickets details have been updated successfully';
 
         foreach ($params['ids'] as $ticketId) {
             $ticket = $this->entityManager->getRepository(Ticket::class)->find($ticketId);
@@ -848,7 +865,7 @@ class TicketService
                     ]);
 
                     $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
-
+                    $responseMessage = "Success ! Tickets moved to trashed successfully.";
                     break;
                 case 'delete':
 
@@ -863,14 +880,16 @@ class TicketService
                     }
 
                     $this->entityManager->remove($ticket);
+                    $responseMessage = "Success ! Tickets removed successfully.";
                     
-
                     break;
                 case 'restored':
                     if (true == $ticket->getIsTrashed()) {
                         $ticket->setIsTrashed(false);
 
                         $this->entityManager->persist($ticket);
+                        $responseMessage = "Success ! Tickets restored successfully.";
+                        
                     }
                     break;
                 case 'agent':
@@ -887,6 +906,8 @@ class TicketService
                         ]);
     
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
+
+                        $responseMessage = "Success ! Agent assigned successfully.";
                     }
                     break;
                 case 'status':
@@ -903,6 +924,7 @@ class TicketService
                         ]);
                         
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
+                        $responseMessage = "Success ! Tickets status updated successfully.";
                     }
                     
                     break;
@@ -920,6 +942,7 @@ class TicketService
                         ]);
     
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
+                        $responseMessage = "Success ! Tickets type updated successfully.";
                     }
 
                     break;
@@ -937,6 +960,7 @@ class TicketService
                         ]);
     
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
+                        $responseMessage = "Success ! Tickets group updated successfully.";
                     }
 
                     break;
@@ -954,6 +978,7 @@ class TicketService
                         ]);
         
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
+                        $responseMessage = "Success ! Tickets team updated successfully.";
                     }
 
                     break;
@@ -971,6 +996,7 @@ class TicketService
                         ]);
     
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
+                        $responseMessage = "Success ! Tickets priority updated successfully.";
                     }
 
                     break;
@@ -982,6 +1008,7 @@ class TicketService
                     }
                     
                     $this->entityManager->persist($ticket);
+                    $responseMessage = "Success ! Tickets label updated successfully.";
 
                     break;
                 default:
@@ -991,10 +1018,12 @@ class TicketService
 
         $this->entityManager->flush();
 
-        return [
+        return[
             'alertClass' => 'success',
-            'alertMessage' => $this->trans('Tickets have been updated successfully'),
+            'alertMessage' => $this->translator->trans($responseMessage),
         ];
+
+
     }
     
     public function getNotePlaceholderValues($ticket, $type = "customer")
