@@ -578,7 +578,7 @@ class TicketXHR extends AbstractController
 
                 $responseContent['alertClass'] = 'success';
                 $responseContent['alertMessage'] = $this->translator->trans(
-                    'Label %label% added to ticket successfully', [
+                    'Label added to ticket successfully', [
                     '%label%' => $supportLabel->getName(),
                 ]);
             } else {
@@ -597,13 +597,13 @@ class TicketXHR extends AbstractController
 
                     $responseContent['alertClass'] = 'success';
                     $responseContent['alertMessage'] = $this->translator->trans(
-                        'Label %label% added to ticket successfully', [
+                        'Label added to ticket successfully', [
                         '%label%' => $supportLabel->getName(),
                     ]);
                 } else {
                     $responseContent['alertClass'] = 'warning';
                     $responseContent['alertMessage'] = $this->translator->trans(
-                        'Label %label% already added to ticket', [
+                        'Label already added to ticket', [
                         '%label%' => $supportLabel->getName(),
                     ]);
                 }
