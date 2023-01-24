@@ -65,9 +65,9 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             if(!in_array($key,$this->safeFields)) {
                 if(isset($data['search']) && $key == 'search') {
                     $qb->andwhere("t.subject LIKE :subject OR a.email LIKE :agentName OR t.id LIKE :ticketId");
-                    $qb->setParameter('subject', '%'.urldecode($value).'%');
-                    $qb->setParameter('agentName', '%'.urldecode($value).'%');
-                    $qb->setParameter('ticketId', '%'.urldecode($value).'%');
+                    $qb->setParameter('subject', '%'.urldecode(trim($value)).'%');
+                    $qb->setParameter('agentName', '%'.urldecode(trim($value)).'%');
+                    $qb->setParameter('ticketId', '%'.urldecode(trim($value)).'%');
                 } elseif($key == 'status') {
                     $qb->andwhere('t.status = '.intval($value));
                 }
@@ -154,9 +154,9 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             if(!in_array($key,$this->safeFields)) {
                 if(isset($data['search']) && $key == 'search') {
                     $qb->andwhere("t.subject LIKE :subject OR a.email LIKE :agentName OR t.id LIKE :ticketId");
-                    $qb->setParameter('subject', '%'.urldecode($value).'%');
-                    $qb->setParameter('agentName', '%'.urldecode($value).'%');
-                    $qb->setParameter('ticketId', '%'.urldecode($value).'%');
+                    $qb->setParameter('subject', '%'.urldecode(trim($value)).'%');
+                    $qb->setParameter('agentName', '%'.urldecode(trim($value)).'%');
+                    $qb->setParameter('ticketId', '%'.urldecode(trim($value)).'%');
                 } elseif($key == 'status') {
                     $qb->andwhere('t.status = '.intval($value));
                 }
