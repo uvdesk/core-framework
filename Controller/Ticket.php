@@ -500,30 +500,34 @@ class Ticket extends AbstractController
     public function downloadAttachment(Request $request)
     {   
         $attachmentId = $request->attributes->get('attachmendId');
-        $attachmentRepository = $this->getDoctrine()->getManager()->getRepository(Attachment::class);
-        $attachment = $attachmentRepository->findOneById($attachmentId);
+        $attachment = $this->getDoctrine()->getManager()->getRepository(Attachment::class)->findOneById($attachmentId);
+        
         $baseurl = $request->getScheme() . '://' . $request->getHttpHost() . $request->getBasePath();
 
-        if (!$attachment) {
+        if (empty($attachment)) {
             $this->noResultFound();
         }
 
-        $ticket = $attachment->getThread()->getTicket();
-        $user = $this->userService->getSessionUser();
-        
-        // Proceed only if user has access to the resource
-        if (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) {
-            throw new \Exception('Access Denied', 403);
+        $thread = $attachment->getThread();
+
+        if (!empty($thread)) {
+            $ticket = $thread->getTicket();
+            $user = $this->userService->getSessionUser();
+
+            // Proceed only if user has access to the resource
+            if (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) {
+                throw new \Exception('Access Denied', 403);
+            }
         }
 
         $path = $this->kernel->getProjectDir() . "/public/". $attachment->getPath();
 
         $response = new Response();
-        $response->setStatusCode(200);
-
         $response->headers->set('Content-type', $attachment->getContentType());
         $response->headers->set('Content-Disposition', 'attachment; filename='. $attachment->getName());
         $response->headers->set('Content-Length', $attachment->getSize());
+
+        $response->setStatusCode(200);
         $response->sendHeaders();
         $response->setContent(readfile($path));
 
