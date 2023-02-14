@@ -3,6 +3,9 @@ CHANGELOG for 1.1.x
 
 This changelog references any relevant changes introduced in 1.1 minor versions.
 
+* 1.1.2.2 (2023-02-14)
+    * Feature: Add formatted function to render timestamp based on available user locale preferences
+
 * 1.1.2.1 (2023-01-31)
     * Fixes: Resolve issues while saving custom fields on a ticket
 
