@@ -441,11 +441,14 @@
                 'reply' : {
                     fn: function(value) {
                             var content = tinyMCE.activeEditor.getContent();
-							if (content) {
+							content1 = content.replace(/&nbsp;/g, '');
+							content2 = content1.replace(/<[^>]+>/g, '');
+							
+							if (content2.trim() == '') {
+								return true;
+							} else {
 								return false;
-							}else {
-                                return true;
-                            }
+							}
 
                             if(!tinyMCE.get("uv-edit-create-thread"))
                                 return false;
