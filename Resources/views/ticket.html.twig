@@ -410,8 +410,7 @@
 
                         <div class="uv-aside-ticket-brick">
                             <h3>{{ 'TimeStamp'|trans }}</h3>
-                            <span class="uv-icon-timestamp"></span> 
-                            <span>{{ ticket_service.timeZoneConverter(ticket.createdAt) }}</span>
+                            <span class="uv-icon-timestamp"></span> <span>{{ ticket_service.timeZoneConverter(initialThread.createdAt) }}</span>
                         </div>
 
                         <div class="uv-aside-ticket-brick">
@@ -785,7 +784,7 @@
                 <div class="uv-ticket-strip">
                     <span>
                         <span class="uv-ticket-strip-label">{{ 'Created'|trans }} - </span>
-                        <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(ticket.createdAt) }}</span>
+                        <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(initialThread.createdAt) }}</span>
                     </span>
 
                     <span>
@@ -1665,6 +1664,7 @@
                 model : TagModel,
                 isTagExist : function(name) {
                     var flag = 1;
+
                     _.each(tagCollection.models, function (item) {
                         if(item.get('name').toUpperCase() == name.toUpperCase())
                             flag = 0;
@@ -2164,7 +2164,7 @@
                         });
                         this.remove();
                         threadCollection.syncData();
-                        app.appView.renderResponseAlert(response);
+                        {# app.appView.renderResponseAlert(response); #}
                     }
                 },
                 confirmRemove: function(e) {
@@ -2619,7 +2619,8 @@
                 render : function() {
                     var self = this;
                     this.$el.find(".tag-list").html('');
-                    if(tagCollection.length) {
+                    
+                    if (tagCollection.length) {
                         _.each(tagCollection.models, function (item) {
                             this.renderTag(item);
                         }, this);
@@ -2645,24 +2646,41 @@
                         inputElement.parents('.uv-element-block').find('.uv-field-message').remove()
 
                         if (currentElement.is('li') || (e.which === 13 && text)) {
-                            if(text.length <= 20) {
-                                if(tagCollection.isTagExist(text)) {
-                                    var self = this;
+                            if (text.length <= 20) {
+                               
+                                if (tagCollection.isTagExist(text)) {
                                     inputElement.val('');
+
+                                    var self = this;
+
                                     this.model = new TagModel();
                                     this.model.set({name:text});
+
+                                    let tag = new TagModel();
+                                    tag.set({name:text});
+
                                     self = this;
 
                                     app.appView.showLoader();
-                                    this.model.save({}, {
+
+                                    
+
+                                    tag.save({}, {
                                         success: function (model, response, options) {
+                                            
+
                                             inputElement.parent().find("li:not(.uv-no-results)").remove()
                                             inputElement.parent().find(".uv-no-results").show()
-                                            if(!currentElement.is('li')) {
+                                            
+                                            if (!currentElement.is('li')) {
                                                 inputElement.trigger('click')
                                             }
-                                            if(response.alertClass == "success") {
-                                                tagCollection.add(model);
+                                            
+                                            if (response.alertClass == "success") {
+                                                tag.set({id: response.id});
+                                            
+                                                tagCollection.add(tag);
+
                                                 self.render();
                                             }
 
@@ -2892,7 +2910,7 @@
             var tagCollection = new TagCollection($.parseJSON('{{ ticket_service.getTicketTagsById(ticket.id)|json_encode|raw }}'));
             var tagListView = new TagList();
             tagListView.render();
-
+           
             var labelCollection = new LabelCollection($.parseJSON('{{ ticket_service.getTicketLabels(ticket.id)|json_encode|raw }}'));
             var labelListView = new LabelList();
             labelListView.render();
