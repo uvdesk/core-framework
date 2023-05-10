@@ -328,6 +328,15 @@ class Account extends AbstractController
                             $userInstance->removeSupportTeam($removeteam);
                             $em->persist($userInstance);
                         }
+                        
+                    } else {
+                        foreach ($oldSupportTeam as $supportTeam) {
+                            $userInstance->removeSupportTeam($supportTeam);
+
+                            $em->persist($userInstance);
+                        }
+
+                        $em->flush();
                     }
 
                     if(isset($data['groups'])){
