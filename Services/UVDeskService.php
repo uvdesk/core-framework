@@ -295,6 +295,7 @@ class UVDeskService
                 'ROLE_AGENT_MANAGE_KNOWLEDGEBASE' => $translator->trans('Can manage knowledgebase'),
                 'ROLE_AGENT_MANAGE_AGENT_ACTIVITY'  => $translator->trans("Can manage agent activity"),
                 'ROLE_AGENT_MANAGE_MARKETING_ANNOUNCEMENT' => $translator->trans("Can manage marketing announcement"),
+                'ROLE_AGENT_MANAGE_APP' => $translator->trans("Can manage apps")
             ]
         ];
     }
