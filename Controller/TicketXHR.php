@@ -834,7 +834,10 @@ class TicketXHR extends AbstractController
                 }
                 $em->persist($ticket);
                 $em->flush();
-                $json['id'] = $tag->getId();
+                
+                $tagID = $tag->getId() ? $tag->getId() : $checkTag->getId();
+                
+                $json['id'] = $tagID;
                 $json['alertClass'] = 'success';
                 $json['alertMessage'] = $this->translator->trans('Success ! Tag added successfully.');
             } else {
