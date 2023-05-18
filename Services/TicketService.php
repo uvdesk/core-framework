@@ -1036,10 +1036,35 @@ class TicketService
 
         $this->entityManager->flush();
 
+        if ($params['actionType'] == 'trashed') {
+            $message = 'Success ! Tickets moved to trashed successfully.';
+        } else if ($params['actionType'] == 'restored') {
+            $message = 'Success ! Tickets restored successfully.';
+        } else if ($params['actionType'] == 'delete') {
+            $message = 'Success ! Tickets removed successfully.';
+        } else if($params['actionType'] == 'agent'){
+            $message = 'Success ! Agent assigned successfully.';
+        } else if($params['actionType'] == 'status'){
+            $message = 'Success ! Tickets status updated successfully.';
+        } else if($params['actionType'] == 'type'){
+            $message = 'Success ! Tickets type updated successfully.';
+        } else if($params['actionType'] == 'group'){
+            $message = 'Success ! Tickets group updated successfully.';
+        } else if($params['actionType'] == 'team') {
+            $message = 'Success ! Tickets team updated successfully.';
+        } else if($params['actionType'] == 'priority') {
+            $message = 'Success ! Tickets priority updated successfully.';
+        } else if($params['actionType'] == 'label') {
+            $message = 'Success ! Tickets added to label successfully.';  
+        } else {
+            $message = 'Success ! Tickets have been updated successfully';
+        }
+
         return [
             'alertClass' => 'success',
-            'alertMessage' => $this->trans('Tickets have been updated successfully'),
+            'alertMessage' => $this->trans($message),
         ];
+        
     }
     
     public function getNotePlaceholderValues($ticket, $type = "customer")
