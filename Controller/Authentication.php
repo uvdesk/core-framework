@@ -18,6 +18,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\ReCaptchaService;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Security\Core\Security;
 
 class Authentication extends AbstractController
 {
@@ -63,10 +64,27 @@ class Authentication extends AbstractController
 
     public function login(Request $request)
     {
+        $session = $request->getSession();
+        
+        $error = $session->get(Security::AUTHENTICATION_ERROR);
+        $session->remove(Security::AUTHENTICATION_ERROR);
+        $errorMessage = '';
+        
+        if (!empty($error)){
+            if ($error->getMessageKey() == 'Invalid credentials.') {
+                
+                $errorMessage = 'Invalid credentials provide.';
+            } else {
+                $errorMessage = $error->getMessage();
+                
+            }
+        }
+
         if (null == $this->userService->getSessionUser()) {
             return $this->render('@UVDeskCoreFramework//login.html.twig', [
                 'last_username' => $this->authenticationUtils->getLastUsername(),
-                'error' => $this->authenticationUtils->getLastAuthenticationError(),
+                // 'error' => $this->authenticationUtils->getLastAuthenticationError(),
+                'error' => $errorMessage,
             ]);
         }
         
