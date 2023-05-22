@@ -618,7 +618,7 @@ class TicketXHR extends AbstractController
             $responseContent['label'] = [
                 'id' => $supportLabel->getId(),
                 'name' => $supportLabel->getName(),
-                'color' => $supportLabel->getColorCode(),
+                'colorCode' => $supportLabel->getColorCode(),
             ];
 
             return new Response(json_encode($responseContent), 200, ['Content-Type' => 'application/json']);
