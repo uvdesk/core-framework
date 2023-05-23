@@ -114,6 +114,8 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 'subject' => $ticket[0]['subject'],
                 'isCustomerView' => $ticket[0]['isCustomerViewed'],
                 'status' => $ticket[0]['status'],
+                'source' => $ticket[0]['source'],
+                'isStarred' => $ticket[0]['isStarred'],
                 'group' => $ticket[0]['supportGroup'],
                 'type' => $ticket[0]['type'],
                 'priority' => $ticket[0]['priority'],
