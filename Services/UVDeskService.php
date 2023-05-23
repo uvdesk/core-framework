@@ -422,4 +422,37 @@ class UVDeskService
             'Y-m-d H:i:sa' => 'Y-m-d H:i:s (1991-01-15 01:00:30pm)',
         );
     }
+
+    public function generateCompleteLocalResourcePathUri($resource)
+    {
+        $resourceUriComponent = parse_url($resource);
+
+        if (!empty($resourceUriComponent['scheme'])) {
+            return $resource;
+        }
+
+        if (empty($this->completeLocalResourcePathUri)) {
+            $router = $this->container->get('router');
+    
+            $scheme = $router->getContext()->getScheme();
+            $siteurl = $this->container->getParameter('uvdesk.site_url');
+    
+            $baseurl = "$scheme://$siteurl";
+            $urlComponents = parse_url($baseurl);
+    
+            $completeLocalResourcePathUri = "{$urlComponents['scheme']}://{$urlComponents['host']}{$urlComponents['path']}";
+    
+            if (substr($completeLocalResourcePathUri, -1) == '/') {
+                $completeLocalResourcePathUri = substr($completeLocalResourcePathUri, 0, -1);
+            }
+    
+            $this->completeLocalResourcePathUri = $completeLocalResourcePathUri;
+        }
+
+        if ($resource[0] != '/') {
+            $resource = "/$resource";
+        }
+
+        return $this->completeLocalResourcePathUri . $resource;
+    }
 }
