@@ -715,6 +715,10 @@ class TicketService
         }
 
         // for all tickets count
+        $queryBuilder->andwhere('ticket.status != 4');
+        $queryBuilder->andwhere('ticket.status != 5');
+        $queryBuilder->andwhere('ticket.status != 6');
+        
         $data['all'] = $queryBuilder->getQuery()->getSingleScalarResult();
 
         // for new tickets count
