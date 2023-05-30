@@ -201,6 +201,11 @@
                 $('.date').removeClass('uv-field-error');
                 var element = $(e.currentTarget);
                 var date = element.find('input').val();
+                if(new Date($(".date-to").val()) >= new Date($(".date-from").val())) {
+                    
+                } else{
+					$('.date').addClass('uv-field-error');
+                }
             });
 
             var AgentActivityModel = Backbone.Model.extend({

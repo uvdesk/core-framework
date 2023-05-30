@@ -144,13 +144,10 @@
                     }],
 					'customer_form[lastName]': function(value) {
                         if(value != undefined && value !== '') {
-                            [{
-                                pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
-                                msg: '{{ "This field must have characters only"|trans }}'
-                            },{
-                                maxLength:40,
-                                msg: '{{ "Maximum character length is 40"|trans }}'
-                            }]
+							if (!value.match(/^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/)) 
+								return '{{ "This field must have characters only"|trans }}';
+							if(value.length > 40)
+								return '{{ "Maximum character length is 40"|trans }}';
                         }
                     },
                     'customer_form[email]': [{
