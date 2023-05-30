@@ -436,13 +436,15 @@ class UVDeskService
     
             $scheme = $router->getContext()->getScheme();
             $siteurl = $this->container->getParameter('uvdesk.site_url');
-            $path = $router->getContext()->getBaseUrl();
             
-            $baseurl = "$scheme://$siteurl.$path";
+            $baseurl = "$scheme://$siteurl";
             $urlComponents = parse_url($baseurl);
+
+            $completeLocalResourcePathUri = "{$urlComponents['scheme']}" . "://" . $urlComponents['host'];
+            if (!empty($urlComponents['path'])) {
+                $completeLocalResourcePathUri = $completeLocalResourcePathUri . $urlComponents['path'];
+            }
             
-            $completeLocalResourcePathUri = "{$urlComponents['scheme']}://{$urlComponents['host']}{$urlComponents['path']}";
-    
             if (substr($completeLocalResourcePathUri, -1) == '/') {
                 $completeLocalResourcePathUri = substr($completeLocalResourcePathUri, 0, -1);
             }
