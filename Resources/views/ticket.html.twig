@@ -1537,7 +1537,7 @@
                         required: true,
                         msg: '{{ "This field is mandatory" }}'
                     }, {
-                        pattern: /^((?![!@#$%^&*()<_+]).)*$/,
+                        pattern: /^([a-zA-Z0-9]+\s?)*$/,
                         msg: '{{ "This field must have characters only"}}'
                     }],
                     'email': [{

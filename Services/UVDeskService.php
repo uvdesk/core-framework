@@ -436,10 +436,11 @@ class UVDeskService
     
             $scheme = $router->getContext()->getScheme();
             $siteurl = $this->container->getParameter('uvdesk.site_url');
-    
-            $baseurl = "$scheme://$siteurl";
+            $path = $router->getContext()->getBaseUrl();
+            
+            $baseurl = "$scheme://$siteurl.$path";
             $urlComponents = parse_url($baseurl);
-    
+            
             $completeLocalResourcePathUri = "{$urlComponents['scheme']}://{$urlComponents['host']}{$urlComponents['path']}";
     
             if (substr($completeLocalResourcePathUri, -1) == '/') {
