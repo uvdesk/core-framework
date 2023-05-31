@@ -439,9 +439,13 @@ class UVDeskService
     
             $baseurl = "$scheme://$siteurl";
             $urlComponents = parse_url($baseurl);
-    
-            $completeLocalResourcePathUri = "{$urlComponents['scheme']}://{$urlComponents['host']}{$urlComponents['path']}";
-    
+
+            $completeLocalResourcePathUri = "{$urlComponents['scheme']}://{$urlComponents['host']}";
+
+            if (!empty($urlComponents['path'])) {
+                $completeLocalResourcePathUri .= $urlComponents['path'];
+            }
+
             if (substr($completeLocalResourcePathUri, -1) == '/') {
                 $completeLocalResourcePathUri = substr($completeLocalResourcePathUri, 0, -1);
             }

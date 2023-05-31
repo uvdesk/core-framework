@@ -119,15 +119,15 @@ class FileSystem
     {
         $router = $this->container->get('router');
         $request = $this->requestStack->getCurrentRequest();
-        
+
         $baseURL = $router->generate('base_route', [], UrlGeneratorInterface::ABSOLUTE_URL);
     
         $assetDetails = [
             'id' => $attachment->getId(),
             'name' => $attachment->getName(),
-            'path' => $baseURL . $attachment->getPath(),
+            'path' => $this->container->get('uvdesk.service')->generateCompleteLocalResourcePathUri($attachment->getPath()), 
             'relativePath' => $attachment->getPath(),
-            'iconURL' => $baseURL . $this->getAssetIconURL($attachment),
+            'iconURL' => $this->container->get('uvdesk.service')->generateCompleteLocalResourcePathUri($this->getAssetIconURL($attachment)), 
             'downloadURL' => null,
         ];
 
@@ -139,6 +139,10 @@ class FileSystem
             $assetDetails['downloadURL'] = $router->generate('helpdesk_customer_download_ticket_attachment', [
                 'attachmendId' => $attachment->getId(),
             ]);
+        }
+
+        if (!empty($assetDetails['downloadURL'])) {
+            $assetDetails['downloadURL'] = $this->container->get('uvdesk.service')->generateCompleteLocalResourcePathUri($assetDetails['downloadURL']);
         }
 
         return $assetDetails;
