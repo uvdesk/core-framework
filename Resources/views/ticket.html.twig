@@ -2562,7 +2562,7 @@
             var TagItem = Backbone.View.extend({
                 tagName : "a",
                 className : "uv-btn-tag",
-                template : _.template("<span class='uv-tag'>{% if user_service.isAccessAuthorized('ROLE_AGENT_DELETE_TAG') %}<span class='uv-icon-remove-dark-before'></span>{% endif %}<%- name %></span>"),
+                template : _.template("<span class='uv-tag'>{% if user_service.isAccessAuthorized('ROLE_AGENT_DELETE_TAG') %}<span class='uv-icon-remove-dark-before'></span>{% endif %}<%= name %></span>"),
                 events : {
                     'click .uv-tag' : "confirmRemove"
                 },
