@@ -9,6 +9,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 
 class UVDeskService
 {
@@ -35,11 +36,12 @@ class UVDeskService
         '  ',
     ];
 
-	public function __construct(ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager)
+	public function __construct(ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager, UserService $userService)
 	{
 		$this->container = $container;
 		$this->requestStack = $requestStack;
 		$this->entityManager = $entityManager;
+        $this->userService = $userService;
 	}
 
     public function updatesLocales($locales)
@@ -260,6 +262,7 @@ class UVDeskService
     public function getSupportPrivelegesResources()
     {
         $translator = $this->container->get('translator');
+
         return [
             'ticket' => [
                 'ROLE_AGENT_CREATE_TICKET' => $translator->trans('Can create ticket'),
@@ -439,9 +442,13 @@ class UVDeskService
     
             $baseurl = "$scheme://$siteurl";
             $urlComponents = parse_url($baseurl);
-    
-            $completeLocalResourcePathUri = "{$urlComponents['scheme']}://{$urlComponents['host']}{$urlComponents['path']}";
-    
+
+            $completeLocalResourcePathUri = "{$urlComponents['scheme']}://{$urlComponents['host']}";
+
+            if (!empty($urlComponents['path'])) {
+                $completeLocalResourcePathUri .= $urlComponents['path'];
+            }
+
             if (substr($completeLocalResourcePathUri, -1) == '/') {
                 $completeLocalResourcePathUri = substr($completeLocalResourcePathUri, 0, -1);
             }
@@ -454,5 +461,39 @@ class UVDeskService
         }
 
         return $this->completeLocalResourcePathUri . $resource;
+    }
+
+    public function getAvailableUserAccessScopes($user, $userInstance)
+    {
+        $supportRole = $userInstance->getSupportRole();
+        $isAdminAccessGranted = in_array($supportRole->getId(), [1, 2]) ? true : false;
+
+        $availableSupportPrivileges = $this->getSupportPrivelegesResources();
+        $resolvedAvailableSupportPrivileges = [];
+
+        foreach ($availableSupportPrivileges as $index => $collection) {
+            foreach ($collection as $privilegeId => $privilegeDescription) {
+                $resolvedAvailableSupportPrivileges[] = $privilegeId;
+            }
+        }
+
+        if (false == $isAdminAccessGranted) {
+            $assignedUserSupportPrivileges = $this->userService->getAssignedUserSupportPrivilegeDetails($user, $userInstance);
+            $resolvedAssignedUserSupportPrivileges = [];
+
+            foreach ($assignedUserSupportPrivileges as $assignedSupportPrivilege) {
+                foreach ($assignedSupportPrivilege['privileges'] as $privilegeId) {
+                    $resolvedAssignedUserSupportPrivileges[] = $privilegeId;
+                }
+            }
+
+            return array_map(function ($supportPrivilege) {
+                return strtolower(str_replace('ROLE_AGENT_', '', $supportPrivilege));
+            }, $resolvedAssignedUserSupportPrivileges);
+        }
+        
+        return array_map(function ($supportPrivilege) {
+            return strtolower(str_replace('ROLE_AGENT_', '', $supportPrivilege));
+        }, $resolvedAvailableSupportPrivileges);
     }
 }

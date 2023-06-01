@@ -724,11 +724,14 @@ class UserService
     public function getUserPrivilegeIds($userId) 
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('supportPrivileges.id')->from(User::class, 'user')
-                ->leftJoin('user.userInstance','userInstance')
-                ->leftJoin('userInstance.supportPrivileges','supportPrivileges')
-                ->andwhere('user.id = :userId')
-                ->setParameter('userId', $userId);
+        $qb
+            ->select('supportPrivileges.id')
+            ->from(User::class, 'user')
+            ->leftJoin('user.userInstance','userInstance')
+            ->leftJoin('userInstance.supportPrivileges','supportPrivileges')
+            ->andwhere('user.id = :userId')
+            ->setParameter('userId', $userId)
+        ;
 
         return array_column($qb->getQuery()->getArrayResult(), 'id');
     }
@@ -887,5 +890,18 @@ class UserService
         $container->get('report.service')->addPermissionFilter($qb, $this->container, false);
 
         return $qb->getQuery()->getSingleScalarResult();
+    }
+
+    public function getAssignedUserSupportPrivilegeDetails($user, $userInstance) 
+    {
+        $queryBuilder = $this->entityManager->createQueryBuilder();
+        $queryBuilder
+            ->select('DISTINCT privilege.id, privilege.name, privilege.privileges')
+            ->from(SupportPrivilege::class, 'privilege')
+            ->leftJoin('privilege.users','userInstance')
+            ->where('userInstance.id = :userInstanceId')->setParameter('userInstanceId', $userInstance->getId())
+        ;
+
+        return $queryBuilder->getQuery()->getResult();
     }
 }
