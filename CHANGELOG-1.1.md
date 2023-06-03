@@ -7,6 +7,7 @@ This changelog references any relevant changes introduced in 1.1 minor versions.
     * Update: Correctly format email address collections for addresses with both name & address details while sending emails
     * PR #615: Use ticket.createdAt instead of initialThread.createdAt for displaying created at timestamp in ticket details (Komal-sharma-2712)
     * Bug #604: Error in deleting agent accounts from members dashboard (Komal-sharma-2712)
+    * Bug #622: Added viewport initial-scale in layout.html.twig file (Komal-sharma-2712)
 
 * 1.1.2 (2022-11-02)
     * PR #614: Changes to custom-fields app integration (Komal-sharma-2712)
