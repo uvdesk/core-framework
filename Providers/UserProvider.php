@@ -13,6 +13,7 @@ use Symfony\Bundle\SecurityBundle\Security\FirewallMap;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\DisabledException;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\ReCaptchaService;
 
 class UserProvider implements UserProviderInterface
@@ -102,7 +103,7 @@ class UserProvider implements UserProviderInterface
             }
 
             if (!empty($userInstance)) {
-                throw new \Exception("User account is disabled.");
+                throw new DisabledException("Account disabled.");
             }
 
             throw new UsernameNotFoundException(sprintf('Username "%s" does not exist.', $username));

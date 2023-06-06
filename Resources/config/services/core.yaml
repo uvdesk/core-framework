@@ -38,3 +38,8 @@ services:
         tags:
             - { name: kernel.event_listener, event: console.command }
             - { name: kernel.event_listener, event: console.terminate }
+
+       
+    Webkul\UVDesk\CoreFrameworkBundle\EventListener\Login\LoginExceptionListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception }
