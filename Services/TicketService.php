@@ -715,36 +715,62 @@ class TicketService
         }
 
         // for all tickets count
-        $queryBuilder->andwhere('ticket.status != 4');
-        $queryBuilder->andwhere('ticket.status != 5');
-        $queryBuilder->andwhere('ticket.status != 6');
+        $queryBuilder->andwhere('ticket.status != 4')
+                    ->andwhere('ticket.status != 5')
+                    ->andwhere('ticket.status != 6')
+                ;
         
         $data['all'] = $queryBuilder->getQuery()->getSingleScalarResult();
 
         // for new tickets count
         $newQb = clone $queryBuilder;
-        $newQb->andwhere('ticket.isNew = 1');
+        $newQb
+            ->andwhere('ticket.isNew = 1')
+            ->andwhere('ticket.status != 4')
+            ->andwhere('ticket.status != 5')
+            ->andwhere('ticket.status != 6')
+        ;
         $data['new'] = $newQb->getQuery()->getSingleScalarResult();
 
         // for unassigned tickets count
         $unassignedQb = clone $queryBuilder;
-        $unassignedQb->andwhere("ticket.agent is NULL");
+        $unassignedQb
+                ->andwhere("ticket.agent is NULL")
+                ->andwhere('ticket.status != 4')
+                ->andwhere('ticket.status != 5')
+                ->andwhere('ticket.status != 6')
+            ;
         $data['unassigned'] = $unassignedQb->getQuery()->getSingleScalarResult();
 
         // for unanswered ticket count
         $unansweredQb = clone $queryBuilder;
-        $unansweredQb->andwhere('ticket.isReplied = 0');
+        $unansweredQb
+                ->andwhere('ticket.isReplied = 0')
+                ->andwhere('ticket.status != 4')
+                ->andwhere('ticket.status != 5')
+                ->andwhere('ticket.status != 6')
+            ;
         $data['notreplied'] = $unansweredQb->getQuery()->getSingleScalarResult();
 
         // for my tickets count
         $mineQb = clone $queryBuilder;
-        $mineQb->andWhere("ticket.agent = :agentId")
-                ->setParameter('agentId', $currentUser->getId());
+        $mineQb
+                ->andWhere("ticket.agent = :agentId")
+                ->setParameter('agentId', $currentUser->getId())
+                ->andwhere('ticket.status != 4')
+                ->andwhere('ticket.status != 5')
+                ->andwhere('ticket.status != 6')
+            ;
         $data['mine'] = $mineQb->getQuery()->getSingleScalarResult();
 
         // for starred tickets count
         $starredQb = clone $queryBuilder;
-        $starredQb->andwhere('ticket.isStarred = 1');
+        $starredQb
+                ->andwhere('ticket.isStarred = 1')
+                ->andwhere('ticket.status != 4')
+                ->andwhere('ticket.status != 5')
+                ->andwhere('ticket.status != 6')
+            ;
         $data['starred'] = $starredQb->getQuery()->getSingleScalarResult();
 
         // for trashed tickets count
@@ -753,6 +779,13 @@ class TicketService
         if ($currentUser->getRoles()[0] != 'ROLE_SUPER_ADMIN' && $userInstance->getTicketAccesslevel() != 1) {
             $trashedQb->andwhere('ticket.agent = ' . $currentUser->getId());
         }
+        
+        $trashedQb
+                ->andwhere('ticket.status != 4')
+                ->andwhere('ticket.status != 5')
+                ->andwhere('ticket.status != 6')
+            ;
+
         $data['trashed'] = $trashedQb->getQuery()->getSingleScalarResult();
 
         return $data;
@@ -1325,7 +1358,11 @@ class TicketService
                 ->leftJoin('t.supportLabels','sl')
                 ->andwhere('sl.user = :userId')
                 ->setParameter('userId', $currentUser->getId())
-                ->groupBy('sl.id');
+                ->andwhere('t.status != 4')
+                ->andwhere('t.status != 5')
+                ->andwhere('t.status != 6')
+                ->groupBy('sl.id')
+            ;
 
         $ticketCountResult = $qb->getQuery()->getResult();
 
