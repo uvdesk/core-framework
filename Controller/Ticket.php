@@ -197,13 +197,6 @@ class Ticket extends AbstractController
             }
         }
 
-        $email = $request->request->get('from');
-        $website = $entityManager->getRepository(CoreEntites\Website::class)->findOneByCode('knowledgebase');
-        if(!empty($email) && $this->ticketService->isEmailBlocked($email, $website)) {
-            $request->getSession()->getFlashBag()->set('warning', $this->translator->trans('Warning ! Cannot create ticket, given email is blocked.'));
-            return $this->redirect($this->generateUrl('helpdesk_member_ticket_collection'));
-        }
-
         $ticketType = $entityManager->getRepository(TicketType::class)->findOneById($requestParams['type']);
 
         try {
@@ -257,6 +250,18 @@ class Ticket extends AbstractController
                     'active' => true
                 ]);
             }
+        }
+
+        $email = $request->request->get('from');
+        $website = $entityManager->getRepository(CoreEntites\Website::class)->findOneByCode('knowledgebase');
+        
+        if ($ticketValidationGroup == "CustomerCreateTicket") {
+            $email = $customer->getEmail();
+        }
+        
+        if(!empty($email) && $this->ticketService->isEmailBlocked($email, $website)) {
+            $request->getSession()->getFlashBag()->set('warning', $this->translator->trans('Warning ! Cannot create ticket, given email is blocked.'));
+            return $this->redirect($this->generateUrl('helpdesk_member_ticket_collection'));
         }
 
         $ticketData = [
