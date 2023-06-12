@@ -4,10 +4,17 @@ CHANGELOG for 1.1.x
 This changelog references any relevant changes introduced in 1.1 minor versions.
 
 * 1.1.x
+    * Update: Redefined workflow events & action, updated workflow triggers for improved compatibility support
     * Update: Correctly format email address collections for addresses with both name & address details while sending emails
     * PR #615: Use ticket.createdAt instead of initialThread.createdAt for displaying created at timestamp in ticket details (Komal-sharma-2712)
     * Bug #604: Error in deleting agent accounts from members dashboard (Komal-sharma-2712)
     * Bug #622: Added viewport initial-scale in layout.html.twig file (Komal-sharma-2712)
+
+* 1.1.2.2 (2023-02-14)
+    * Feature: Add formatted function to render timestamp based on available user locale preferences
+
+* 1.1.2.1 (2023-01-31)
+    * Fixes: Resolve issues while saving custom fields on a ticket
 
 * 1.1.2 (2022-11-02)
     * PR #614: Changes to custom-fields app integration (Komal-sharma-2712)
