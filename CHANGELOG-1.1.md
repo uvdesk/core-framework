@@ -4,6 +4,7 @@ CHANGELOG for 1.1.x
 This changelog references any relevant changes introduced in 1.1 minor versions.
 
 * 1.1.x
+    * Update: Dropped dependency on uvdesk/composer-plugin in support of symfony/flex
     * PR #638: Add RTL support for supported locales (ar) (Abhi12-gupta)
     * Update: Redefined workflow events & action, updated workflow triggers for improved compatibility support
     * Update: Correctly format email address collections for addresses with both name & address details while sending emails
