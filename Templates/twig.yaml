@@ -14,3 +14,4 @@ twig:
         email_service: "@email.service"
         uvdesk_extensibles: '@uvdesk.extensibles'
         uvdesk_core_file_system: '@uvdesk.core.file_system.service'
+        uvdesk_core_version: '%uvdesk.core.version%'

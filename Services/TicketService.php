@@ -235,7 +235,6 @@ class TicketService
             }
 
             $params['role'] = 4;
-            $params['mailboxEmail'] = current($params['replyTo']); 
             $params['customer'] = $params['user'] = $user;
 
             return $this->createTicketBase($params);
