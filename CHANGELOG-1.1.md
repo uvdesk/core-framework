@@ -3,6 +3,9 @@ CHANGELOG for 1.1.x
 
 This changelog references any relevant changes introduced in 1.1 minor versions.
 
+* 1.1.4 (2023-06-13)
+    * Update: Render package version number dynamically
+
 * 1.1.3 (2023-06-12)
     * Update: Dropped dependency on uvdesk/composer-plugin in support of symfony/flex
     * PR #638: Add RTL support for supported locales (ar) (Abhi12-gupta)
