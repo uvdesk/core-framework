@@ -21,6 +21,8 @@ use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\PanelSidebarItemInterfa
 
 class CoreFramework extends Extension
 {
+    const VERSION = 'v1.1.4';
+
     public function getAlias()
     {
         return 'uvdesk';
@@ -43,8 +45,11 @@ class CoreFramework extends Extension
             $services->load('automations.yaml');
         }
 
+        $container->setParameter("uvdesk.core.version", self::VERSION);
+        
         // Load bundle configurations
         $configuration = $this->getConfiguration($configs, $container);
+
         foreach ($this->processConfiguration($configuration, $configs) as $param => $value) {
             switch ($param) {
                 case 'support_email':
@@ -52,6 +57,7 @@ class CoreFramework extends Extension
                     foreach ($value as $field => $fieldValue) {
                         $container->setParameter("uvdesk.$param.$field", $fieldValue);
                     }
+
                     break;
                 case 'default':
                     foreach ($value as $defaultItem => $defaultItemValue) {
@@ -60,20 +66,25 @@ class CoreFramework extends Extension
                                 foreach ($defaultItemValue as $template => $templateValue) {
                                     $container->setParameter("uvdesk.default.templates.$template", $templateValue);
                                 }
+
                                 break;
                             case 'ticket':
                                 foreach ($defaultItemValue as $option => $optionValue) {
                                     $container->setParameter("uvdesk.default.ticket.$option", $optionValue);
                                 }
+
                                 break;
                             default:
                                 $container->setParameter("uvdesk.default.$defaultItem", $defaultItemValue);
+
                                 break;
                         }
                     }
+
                     break;
                 default:
                     $container->setParameter("uvdesk.$param", $value);
+
                     break;
             }
         }

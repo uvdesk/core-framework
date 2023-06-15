@@ -119,9 +119,7 @@ class FileSystem
     {
         $router = $this->container->get('router');
         $request = $this->requestStack->getCurrentRequest();
-
-        $baseURL = $router->generate('base_route', [], UrlGeneratorInterface::ABSOLUTE_URL);
-    
+        
         $assetDetails = [
             'id' => $attachment->getId(),
             'name' => $attachment->getName(),

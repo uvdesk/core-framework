@@ -29,6 +29,59 @@ class Attachment
      */
     private $name;
 
+    /**
+     * @var string
+     * @ORM\Column(name="path", type="text", nullable=true)
+     */
+    private $path;
+
+    /**
+     * @var string
+     * 
+     * @ORM\Column(name="content_type", length=255, type="string", nullable=true)
+     */
+    private $contentType;
+
+    /**
+     * @var integer
+     * 
+     * @ORM\Column(name="size", type="integer", nullable=true)
+     */
+    private $size;
+
+    /**
+     * @var string
+     * 
+     * 
+     */
+    public $attachmentThumb;
+
+    /**
+     * @var integer
+     */
+    public $attachmentOrginal;
+
+    /**
+     * @var string
+     * 
+     * @ORM\Column(name="content_id", type="string", length=255, nullable=true)
+     */
+    private $contentId;
+
+    /**
+     * @var string
+     * 
+     * @ORM\Column(name="file_system", type="string", length=255, nullable=true)
+     */
+    private $fileSystem;
+
+    /**
+     * @var \Webkul\TicketBundle\Entity\Thread
+     * 
+     * @ORM\ManyToOne(targetEntity="Thread", inversedBy="attachments")
+     * @ORM\JoinColumn(name="thread_id", referencedColumnName="id", onDelete="CASCADE")
+     */
+    private $thread;
 
     /**
      * Get id
@@ -62,12 +115,6 @@ class Attachment
     {
         return $this->name;
     }
-    /**
-     * @var string
-     * @ORM\Column(name="path", type="text", nullable=true)
-     */
-    private $path;
-
 
     /**
      * Set path
@@ -91,69 +138,11 @@ class Attachment
     {
         return $this->path;
     }
-    /**
-     * @var \Webkul\TicketBundle\Entity\Thread
-     * 
-     * @ORM\ManyToOne(targetEntity="Thread", inversedBy="attachments")
-     * @ORM\JoinColumn(name="thread_id", referencedColumnName="id", onDelete="CASCADE")
-     */
-    private $thread;
-
-
-    /**
-     * Set thread
-     *
-     * @param \Webkul\TicketBundle\Entity\Thread $thread
-     * @return Attachment
-     * 
-     */
-    public function setThread(\Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread $thread = null)
-    {
-        $this->thread = $thread;
-
-        return $this;
-    }
-
-    /**
-     * Get thread
-     *
-     * @return \Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread 
-     */
-    public function getThread()
-    {
-        return $this->thread;
-    }
-    
-    /**
-     * @var string
-     * 
-     * @ORM\Column(name="content_type", length=255, type="string", nullable=true)
-     */
-    private $contentType;
-
-    /**
-     * @var integer
-     * 
-     * @ORM\Column(name="size", type="integer", nullable=true)
-     */
-    private $size;
-
-    /**
-     * @var string
-     * 
-     * 
-     */
-    public $attachmentThumb;
 
     public function getAttachmentThumb()
     {
         return $this->attachmentThumb;
     }
-
-    /**
-     * @var integer
-     */
-    public $attachmentOrginal;
 
     public function getAttachmentOrginal()
     {
@@ -205,13 +194,6 @@ class Attachment
     {
         return $this->size;
     }
-    /**
-     * @var string
-     * 
-     * @ORM\Column(name="content_id", type="string", length=255, nullable=true)
-     */
-    private $contentId;
-
 
     /**
      * Set contentId
@@ -235,13 +217,6 @@ class Attachment
     {
         return $this->contentId;
     }
-    /**
-     * @var string
-     * 
-     * @ORM\Column(name="file_system", type="string", length=255, nullable=true)
-     */
-    private $fileSystem;
-
 
     /**
      * Set fileSystem
@@ -264,5 +239,29 @@ class Attachment
     public function getFileSystem()
     {
         return $this->fileSystem;
+    }
+
+    /**
+     * Set thread
+     *
+     * @param \Webkul\TicketBundle\Entity\Thread $thread
+     * @return Attachment
+     * 
+     */
+    public function setThread(\Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread $thread = null)
+    {
+        $this->thread = $thread;
+
+        return $this;
+    }
+
+    /**
+     * Get thread
+     *
+     * @return \Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread 
+     */
+    public function getThread()
+    {
+        return $this->thread;
     }
 }

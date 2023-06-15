@@ -38,8 +38,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Webkul\UVDesk\SupportCenterBundle\Entity\Article;
 use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
 use Webkul\UVDesk\AutomationBundle\Entity\PreparedResponses;
-use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity as CommunityPackageEntities;
-
+use UVDesk\CommunityPackages\UVDesk as UVDeskCommunityPackages;
 
 class TicketService
 {
@@ -294,7 +293,7 @@ class TicketService
         }
 
         $collaboratorEmails = array_merge(!empty($threadData['cccol']) ? $threadData['cccol'] : [], !empty($threadData['cc']) ? $threadData['cc'] : []);
-        
+
         if (!empty($collaboratorEmails)) {
             $threadData['cc'] = $collaboratorEmails;
         }
@@ -890,9 +889,9 @@ class TicketService
 
                     break;
                 case 'delete':
-
                     $threads = $ticket->getThreads();
                     $fileService = new Filesystem();
+
                     if (count($threads) > 0) {
                         foreach($threads as $thread) {
                             if (!empty($thread)) {
@@ -903,7 +902,6 @@ class TicketService
 
                     $this->entityManager->remove($ticket);
                     
-
                     break;
                 case 'restored':
                     if (true == $ticket->getIsTrashed()) {
@@ -911,6 +909,7 @@ class TicketService
 
                         $this->entityManager->persist($ticket);
                     }
+
                     break;
                 case 'agent':
                     if ($ticket->getAgent() == null || $ticket->getAgent() && $ticket->getAgent()->getId() != $params['targetId']) {
@@ -928,6 +927,7 @@ class TicketService
     
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
+
                     break;
                 case 'status':
                     if ($ticket->getStatus() == null || $ticket->getStatus() && $ticket->getStatus()->getId() != $params['targetId']) {
@@ -1848,70 +1848,112 @@ class TicketService
         return true;
     }
 
-    public function addTicketCustomFields($thread, $requestCustomFields = [], $filesCustomFields = [])
+    public function addTicketCustomFields($thread, $submittedCustomFields = [], $uploadedFilesCollection = [])
     {
+        $customFieldsService = null;
+        $customFieldsEntityReference = null;
+        
+        if ($this->userService->isfileExists('apps/uvdesk/custom-fields')) {
+            $customFieldsService = $this->container->get('uvdesk_package_custom_fields.service');
+            $customFieldsEntityReference = UVDeskCommunityPackages\CustomFields\Entity\CustomFields::class;
+            $customFieldValuesEntityReference = UVDeskCommunityPackages\CustomFields\Entity\CustomFieldsValues::class;
+            $ticketCustomFieldValuesEntityReference = UVDeskCommunityPackages\CustomFields\Entity\TicketCustomFieldsValues::class;
+        } else if ($this->userService->isfileExists('apps/uvdesk/form-component')) {
+            $customFieldsService = $this->container->get('uvdesk_package_form_component.service');
+            $customFieldsEntityReference = UVDeskCommunityPackages\FormComponent\Entity\CustomFields::class;
+            $customFieldValuesEntityReference = UVDeskCommunityPackages\FormComponent\Entity\CustomFieldsValues::class;
+            $ticketCustomFieldValuesEntityReference = UVDeskCommunityPackages\FormComponent\Entity\TicketCustomFieldsValues::class;
+        } else {
+            return;
+        }
+
         $ticket = $thread->getTicket();
-        $skipFileUpload = false;
-        $customFieldsCollection = $this->entityManager->getRepository(CommunityPackageEntities\CustomFields::class)->findAll();
+        $customFieldsCollection = $this->entityManager->getRepository($customFieldsEntityReference)->findAll();
+        $customFieldValuesEntityRepository = $this->entityManager->getRepository($customFieldValuesEntityReference);
+
         foreach ($customFieldsCollection as $customFields) {
-            if(in_array($customFields->getFieldType(), ['select', 'checkbox', 'radio']) && !count($customFields->getCustomFieldValues()))
+            if (in_array($customFields->getFieldType(), ['select', 'checkbox', 'radio']) && !count($customFields->getCustomFieldValues())) {
                 continue;
-            elseif('file' != $customFields->getFieldType() && $requestCustomFields && array_key_exists($customFields->getId(), $requestCustomFields) && $requestCustomFields[$customFields->getId()]) {
-
-                if(count($customFields->getCustomFieldsDependency()) && !in_array($ticket->getType(), $customFields->getCustomFieldsDependency()->toArray()))
+            }
+            
+            if (
+                !empty($submittedCustomFields) 
+                && $customFields->getFieldType() != 'file' 
+                && isset($submittedCustomFields[$customFields->getId()])
+            ) {
+                // Check if custom field dependency criterias are fullfilled
+                if (
+                    count($customFields->getCustomFieldsDependency()) 
+                    && !in_array($ticket->getType(), $customFields->getCustomFieldsDependency()->toArray())
+                ) {
                     continue;
+                }
 
-                $ticketCustomField = new CommunityPackageEntities\TicketCustomFieldsValues();
-                $ticketCustomField->setTicket($ticket);
-                //custom field
-                $ticketCustomField->setTicketCustomFieldsValues($customFields);
-                $ticketCustomField->setValue(json_encode($requestCustomFields[$customFields->getId()]));
+                // Save ticket custom fields
+                $ticketCustomField = new $ticketCustomFieldValuesEntityReference();
+                $ticketCustomField
+                    ->setTicket($ticket)
+                    ->setTicketCustomFieldsValues($customFields)
+                    ->setValue(json_encode($submittedCustomFields[$customFields->getId()]))
+                ;
 
-                if(in_array($customFields->getFieldType(), ['select', 'checkbox', 'radio'])) {
-                    //add custom field values mapping too
-                    if(is_array($requestCustomFields[$customFields->getId()])) {
-                        foreach ($requestCustomFields[$customFields->getId()] as $value) {
-                            if($ticketCustomFieldValues = $this->entityManager->getRepository(CommunityPackageEntities\CustomFieldsValues::class)
-                                ->findOneBy(['customFields' => $customFields, 'id' => $value]))
-                                $ticketCustomField->setTicketCustomFieldValueValues($ticketCustomFieldValues);
+                if (in_array($customFields->getFieldType(), ['select', 'checkbox', 'radio'])) {
+                    // Add custom field values mapping too
+                    if (is_array($submittedCustomFields[$customFields->getId()])) {
+                        foreach ($submittedCustomFields[$customFields->getId()] as $value) {
+                            $ticketCustomFieldValues = $customFieldValuesEntityRepository->findOneBy([
+                                'id' => $value, 
+                                'customFields' => $customFields, 
+                            ]);
+
+                            if (!empty($ticketCustomFieldValues)) {
+                                $ticketCustomField
+                                    ->setTicketCustomFieldValueValues($ticketCustomFieldValues)
+                                ;
+                            }
                         }
-                    } elseif($ticketCustomFieldValues = $this->entityManager->getRepository(CommunityPackageEntities\CustomFieldsValues::class)
-                            ->findOneBy(['customFields' => $customFields, 'id' => $requestCustomFields[$customFields->getId()]]))                                                        
-                        $ticketCustomField->setTicketCustomFieldValueValues($ticketCustomFieldValues);
+                    } else {
+                        $ticketCustomFieldValues = $customFieldValuesEntityRepository->findOneBy([
+                            'id' => $submittedCustomFields[$customFields->getId()], 
+                            'customFields' => $customFields, 
+                        ]);
+
+                        if (!empty($ticketCustomFieldValues)) {
+                            $ticketCustomField
+                                ->setTicketCustomFieldValueValues($ticketCustomFieldValues)
+                            ;
+                        }
+                    }
                 }
 
                 $this->entityManager->persist($ticketCustomField);
                 $this->entityManager->flush();
-            } elseif($filesCustomFields && array_key_exists($customFields->getId(), $filesCustomFields) && $filesCustomFields[$customFields->getId()] && !$skipFileUpload) {
-                $skipFileUpload = true;
-                //upload files
-            
+            } else if (
+                !empty($uploadedFilesCollection) 
+                && isset($uploadedFilesCollection[$customFields->getId()]) 
+            ) {
+                // Upload files
                 $path = '/custom-fields/ticket/' . $ticket->getId() . '/';
-                $fileNames = $this->fileUploadService->uploadFile($filesCustomFields[$customFields->getid()], $path, true);
+                $fileNames = $this->fileUploadService->uploadFile($uploadedFilesCollection[$customFields->getid()], $path, true);
 
-                if(!empty($fileNames)) {
-                    //save files entry to attachment table
+                if (!empty($fileNames)) {
+                    // Save files entry to attachment table
                     try {
-                        $customFieldsService = null;
-
-                        try {
-                            if ($this->userService->isfileExists('apps/uvdesk/custom-fields')) {
-                                $customFieldsService = $this->get('uvdesk_package_custom_fields.service');
-                            } else if ($this->userService->isfileExists('apps/uvdesk/form-component')) {
-                                $customFieldsService = $this->get('uvdesk_package_form_component.service');
-                            }
-                        } catch (\Exception $e) {
-                            // @TODO: Log execption message
-                        }
-
-                        $newFilesNames = !empty($customFieldsService) ? $customFieldsService->addFilesEntryToAttachmentTable([$fileNames], $thread) : [];
+                        $newFilesNames = $customFieldsService->addFilesEntryToAttachmentTable([$fileNames], $thread);
 
                         foreach ($newFilesNames as $value) {
-                            $ticketCustomField = new CommunityPackageEntities\TicketCustomFieldsValues();
-                            $ticketCustomField->setTicket($ticket);
-                            //custom field
-                            $ticketCustomField->setTicketCustomFieldsValues($customFields);
-                            $ticketCustomField->setValue(json_encode(['name' => $value['name'], 'path' => $value['path'], 'id' => $value['id']]));
+                            // Save ticket custom fields
+                            $ticketCustomField = new $ticketCustomFieldValuesEntityReference();
+                            $ticketCustomField
+                                ->setTicket($ticket)
+                                ->setTicketCustomFieldsValues($customFields)
+                                ->setValue(json_encode([
+                                    'name' => $value['name'], 
+                                    'path' => $value['path'], 
+                                    'id' => $value['id'], 
+                                ]))
+                            ;
+
                             $this->entityManager->persist($ticketCustomField);
                             $this->entityManager->flush();
                         }
@@ -1928,11 +1970,13 @@ class TicketService
     {
         $firstThread = null;
         $intialThread = $this->entityManager->getRepository(Thread::class)->findBy(['ticket'=>$ticketId]);
+        
         foreach ($intialThread as $key => $value) {
-            if($value->getThreadType() == "create"){
+            if ($value->getThreadType() == "create"){
                 $firstThread = $value;
             }
         }
+
         return $firstThread;
     }
 }

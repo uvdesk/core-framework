@@ -216,9 +216,9 @@
     <div class="uv-area">
         {{ uvdesk_extensibles.getRegisteredComponent('Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\Dashboard').getHomepageTemplate().render()|raw }}
 
-		{# @TODO: Version number should be loaded dynamically #}
         <div class="uv-copyright">
-            <span class="uv-credit-text">{{ 'Powered by'|trans }} <a href="https://www.uvdesk.com" target="_blank">UVdesk</a></span> | <span class="uv-credit-text">V -1.1.0</span>
+            <p style="margin: unset; font-size: 14px; line-height: 1.4em;">{{ 'Powered by'|trans }} <a href="https://www.uvdesk.com" target="_blank">Uvdesk</a></p>
+			<p style="color: #5a5a5a; margin: unset; font-size: 12px; line-height: 1.4em;">Version {{ uvdesk_version }}; Core Version {{ uvdesk_core_version }}</p>
         </div>
 
 		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
