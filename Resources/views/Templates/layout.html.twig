@@ -38,7 +38,14 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     </head>
 
-    <body>
+    {% set bodyClass = '' %}
+    {% set bodySkinClass = '' %}
+
+    {% if app.request.locale == "ar" %}
+        {% set bodyClass = 'uv-rtl' %}
+    {% endif %}
+    
+    <body class="{{ bodySkinClass ~ ' ' ~ bodyClass }}">
         <div class="uv-notifications-wrapper">
             <noscript>
                 <div class="uv-notification page-load uv-error">

@@ -581,17 +581,44 @@ class UserService
 
     public function convertToTimezone($date, $format = "d-m-Y H:ia")
     {
-        if(!$date)
+        if (!$date) {
             return "N/A";
-        $currentUser = $this->getCurrentUser();
-        $date = date_format($date,$format);
-        $dateTime = date('Y-m-d H:i:s',strtotime($date));
-        $scheduleDate = new \DateTime($dateTime, new \DateTimeZone(date_default_timezone_get()));
-        $this->domain = $this->container->get('router')->getContext()->getHost();
+        }
 
-        $scheduleDate->setTimeZone(new \DateTimeZone('Asia/Kolkata'));
+        $date = date_format($date, $format);
+        $dateTime = date('Y-m-d H:i:s', strtotime($date));
+        
+        $scheduleDate = new \DateTime($dateTime, new \DateTimeZone(date_default_timezone_get()));
+        $scheduleDate
+            ->setTimeZone(new \DateTimeZone('Asia/Kolkata'))
+        ;
 
         return $scheduleDate->format($format);
+    }
+
+    public function convertDateTimeToSupportedUserTimeFormat(\DateTime $date, $timezone = "Asia/Kolkata", $timeformat = "d-m-Y H:ia")
+    {
+        if (empty($date)) {
+            return "N/A";
+        }
+
+        $currentUser = $this->getCurrentUser();
+
+        if (!empty($currentUser)) {
+            if ($currentUser->getTimezone() != null) {
+                $timezone = $currentUser->getTimezone();
+            }
+
+            if ($currentUser->getTimeFormat() != null) {
+                $timeformat = $currentUser->getTimeFormat();
+            }
+        }
+
+        $date
+            ->setTimeZone(new \DateTimeZone($timezone))
+        ;
+
+        return $date->format($timeformat);
     }
 
     public function convertToDatetimeTimezoneTimestamp($date, $format = "d-m-Y h:ia")
@@ -890,18 +917,5 @@ class UserService
         $container->get('report.service')->addPermissionFilter($qb, $this->container, false);
 
         return $qb->getQuery()->getSingleScalarResult();
-    }
-
-    public function getAssignedUserSupportPrivilegeDetails($user, $userInstance) 
-    {
-        $queryBuilder = $this->entityManager->createQueryBuilder();
-        $queryBuilder
-            ->select('DISTINCT privilege.id, privilege.name, privilege.privileges')
-            ->from(SupportPrivilege::class, 'privilege')
-            ->leftJoin('privilege.users','userInstance')
-            ->where('userInstance.id = :userInstanceId')->setParameter('userInstanceId', $userInstance->getId())
-        ;
-
-        return $queryBuilder->getQuery()->getResult();
     }
 }
