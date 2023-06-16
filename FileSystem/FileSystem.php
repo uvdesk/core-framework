@@ -140,7 +140,10 @@ class FileSystem
         }
 
         if (!empty($assetDetails['downloadURL'])) {
-            $assetDetails['downloadURL'] = $this->container->get('uvdesk.service')->generateCompleteLocalResourcePathUri($assetDetails['downloadURL']);
+            $scheme = $this->container->get('router')->getContext()->getScheme();
+            $host = $this->container->get('router')->getContext()->getHost();
+            $baseUrl = "$scheme://$host";
+            $assetDetails['downloadURL'] = $baseUrl.$assetDetails['downloadURL'];
         }
 
         return $assetDetails;
