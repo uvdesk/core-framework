@@ -1706,10 +1706,20 @@ class TicketService
     {
         $flag = false;
         $email = strtolower($email);
+
         $knowlegeBaseWebsite = $this->entityManager->getRepository(KnowledgebaseWebsite::class)->findOneBy(['website' => $website->getId(), 'isActive' => 1]);
+
         $list = $this->container->get('user.service')->getWebsiteSpamDetails($knowlegeBaseWebsite);
+        
+        $blacklist = [];
+        if(!empty( $list['blackList']['email'])){
+            $blacklist = array_values(array_filter(array_map(function($email) {
+                return trim($email);
+            }, $list['blackList']['email'])));
+        }
 
         // Blacklist
+
         if (!empty($list['blackList']['email']) && in_array($email, $list['blackList']['email'])) {
             // Emails
             $flag = true;
@@ -1723,9 +1733,16 @@ class TicketService
             }
         }
 
+        $whitelist = [];
+        if (!empty($list['whiteList']['email'])) {
+            $whitelist = array_values(array_filter(array_map(function ($email) {
+                return trim($email);
+            }, $list['whiteList']['email'])));
+        }
+        
         // Whitelist
         if ($flag) {
-            if (isset($email, $list['whiteList']['email']) && in_array($email, $list['whiteList']['email'])) {
+            if (isset($email, $list['whiteList']['email']) && in_array($email, $whitelist)) {
                 // Emails
                 return false;
             } elseif (isset($list['whiteList']['domain'])) {

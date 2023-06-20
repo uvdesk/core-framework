@@ -778,7 +778,7 @@ class UserService
     {
         $list = array();
         foreach (explode(',', $str) as $value) {
-            if (filter_var($value, FILTER_VALIDATE_EMAIL)) {
+            if (filter_var(trim($value), FILTER_VALIDATE_EMAIL)) {
                 if (!isset($list['email'])) {
                     $list['email'] = array();
                 }
@@ -798,7 +798,7 @@ class UserService
                 array_push($list['domain'], strtolower($value));
             }
         }
-        
+
         return $list;
     }
 
