@@ -918,4 +918,16 @@ class UserService
 
         return $qb->getQuery()->getSingleScalarResult();
     }
+
+    public function getAssignedUserSupportPrivilegeDetails($user, $userInstance) 
+    {
+        $queryBuilder = $this->entityManager->createQueryBuilder(); 
+        $queryBuilder
+            ->select('DISTINCT privilege.id, privilege.name, privilege.privileges')
+            ->from(SupportPrivilege::class, 'privilege')
+            ->leftJoin('privilege.users','userInstance')
+            ->where('userInstance.id = :userInstanceId')->setParameter('userInstanceId', $userInstance->getId())
+        ; 
+        return $queryBuilder->getQuery()->getResult();
+    }
 }
