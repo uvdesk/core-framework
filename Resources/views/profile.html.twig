@@ -171,7 +171,7 @@
                     <div class="uv-element-block">
                         <label class="uv-field-label">{{ 'Signature'|trans }}</label>
                         <div class="uv-field-block">
-                            <textarea name="user_form[signature]" class="uv-field">{{ agentDetails.signature ?: agentDetails.signature }}</textarea>
+                            <textarea name="user_form[signature]" class="uv-field">{{ agentDetails.signature|raw ?: agentDetails.signature }}</textarea>
                         </div>
                         <span class="uv-field-info">{{ 'User signature will be append at the bottom of ticket reply box'|trans }}</span>
                     </div>

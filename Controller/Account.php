@@ -156,7 +156,7 @@ class Account extends AbstractController
                     }
 
                     $userInstance  = $userInstance->setContactNumber($data['contactNumber']);
-                    $userInstance  = $userInstance->setSignature($data['signature']);
+                    $userInstance  = $userInstance->setSignature(htmlspecialchars($data['signature']));
                     $em->persist($userInstance);
                     $em->flush();
 
