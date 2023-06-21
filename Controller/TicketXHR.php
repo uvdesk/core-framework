@@ -176,7 +176,7 @@ class TicketXHR extends AbstractController
             $ticket->setSubject($request->request->get('subject'));
             $createThread = $this->ticketService->getCreateReply($ticket->getId(), false);
             $createThread = $entityManager->getRepository(Thread::class)->find($createThread['id']);
-            $createThread->setMessage($request->request->get('reply'));
+            $createThread->setMessage(str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', htmlspecialchars($request->request->get('reply'))));
 
             $entityManager->persist($createThread);
             $entityManager->persist($ticket);
