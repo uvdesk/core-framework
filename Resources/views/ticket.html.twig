@@ -1235,7 +1235,7 @@
                             {% if initialThread.message|striptags == initialThread.message %}
                                 <textarea name="reply" id="uv-edit-create-thread" class="uv-field">{{ initialThread.message|nl2br }}</textarea>
                             %} {% else %}
-                                <textarea name="reply" id="uv-edit-create-thread" class="uv-field">{{ initialThread.message|raw }}</textarea>
+                                <textarea name="reply" id="uv-edit-create-thread" class="uv-field">{{ initialThread.message }}</textarea>
                             {% endif %}
                         </div>
                     </div>
