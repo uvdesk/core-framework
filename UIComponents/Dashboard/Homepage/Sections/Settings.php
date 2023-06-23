@@ -18,8 +18,6 @@ class Settings extends HomepageSection
 
     public static function getRoles() : array
     {
-        return [
-            'ROLE_AGENT_MANAGE_EMAIL_TEMPLATE',
-        ];
+        return [];
     }
 }
