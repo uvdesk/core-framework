@@ -18,8 +18,6 @@ class Reports extends HomepageSection
 
     public static function getRoles() : array
     {
-        return [
-            'ROLE_AGENT_MANAGE_AGENT_ACTIVITY'
-        ];
+        return ['ROLE_AGENT_MANAGE_REPORTS'];
     }
 }

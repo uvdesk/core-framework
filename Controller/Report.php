@@ -41,7 +41,7 @@ class Report extends AbstractController
 
     public function listAgentActivity(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_ACTIVITY')){
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_REPORTS')){
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -63,7 +63,7 @@ class Report extends AbstractController
 
     public function agentActivityData(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_ACTIVITY')){
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_REPORTS')){
             throw new \Exception('Access Denied', 403);
         }
         
@@ -145,6 +145,10 @@ class Report extends AbstractController
 
     public function achievementInsightsAction()
     {
+        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_REPORTS')){
+            return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
+        }
+        
         $this->userService->forceFormat = true;
         $startDate = $this->userService->convertToTimezone(new \DateTime("-7 days"), 'Y-m-d');
         $endDate = $this->userService->convertToTimezone(new \DateTime("now"), 'Y-m-d');
