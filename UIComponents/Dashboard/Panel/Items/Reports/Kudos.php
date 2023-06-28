@@ -24,7 +24,7 @@ class Kudos implements PanelSidebarItemInterface
 
     public static function getRoles() : array
     {
-        return ['ROLE_AGENT_MANAGE_KUDOS'];
+        return ['ROLE_AGENT_MANAGE_REPORTS'];
     }
 
     public static function getSidebarReferenceId() : string
