@@ -85,16 +85,10 @@ class Ticket extends AbstractController
 
         $agent = $ticket->getAgent();
         $customer = $ticket->getCustomer();
-	 
-	if($agent != null && !empty($agent)){	
-        $ticketAssignAgent = $agent->getId();
-        $currentUser = $user->getId();
-	}
         
         // Mark as viewed by agents
         if (false == $ticket->getIsAgentViewed()) {
             $ticket->setIsAgentViewed(true);
-
             $entityManager->persist($ticket);
             $entityManager->flush();
         }
@@ -118,6 +112,7 @@ class Ticket extends AbstractController
                             $ticketSupportTeamGroups = array_map(function($supportGroup) { return $supportGroup->getId(); }, $ticket->getSupportTeam()->getSupportGroups()->getValues());
                             $ticketAccessableGroups = array_merge($ticketAccessableGroups, $ticketSupportTeamGroups);
                         }
+
                         $isAccessableGroupFound = false;
                         foreach($ticketAccessableGroups as $groupId) {
                             if (in_array($groupId, $supportGroups)) {
@@ -125,23 +120,29 @@ class Ticket extends AbstractController
                                 break;
                             }
                         }
-                        if (!$isAccessableGroupFound && !($ticketAssignAgent == $currentUser)) {
-                            throw new NotFoundHttpException('Page not found!');
+                        
+                        if (!$isAccessableGroupFound && !($agent ? $agent->getId() : null == $user->getId())) {
+                            throw new \Exception('Access Denied', 403);
                         }
+
                         break;
                     case TicketRepository::TICKET_TEAM_ACCESS:
                         $supportTeams = array_map(function($supportTeam) { return $supportTeam->getId(); }, $user->getCurrentInstance()->getSupportTeams()->getValues());                         
                         $supportTeam = $ticket->getSupportTeam();
-                        if (!($supportTeam && in_array($supportTeam->getId(), $supportTeams)) && !($ticketAssignAgent == $currentUser)) {
-                            throw new NotFoundHttpException('Page not found!');
+                        
+                        if (!($supportTeam && in_array($supportTeam->getId(), $supportTeams)) && !($agent ? $agent->getId() : null == $user->getId())) {
+                            throw new \Exception('Access Denied', 403);
                         }
+
                         break;
                     default:
                         $collaborators = array_map( function ($collaborator) { return $collaborator->getId(); }, $ticket->getCollaborators()->getValues());
                         $accessableAgents = array_merge($collaborators, $ticket->getAgent() ? [$ticket->getAgent()->getId()] : []);
+                        
                         if (!in_array($user->getId(), $accessableAgents)) {
                             throw new NotFoundHttpException('Page not found!');
                         }
+
                         break;
                 }
                 break;
