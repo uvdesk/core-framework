@@ -31,6 +31,8 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportRole;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketPriority;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntites;
+
 
 class Ticket extends AbstractController
 {
@@ -83,16 +85,10 @@ class Ticket extends AbstractController
 
         $agent = $ticket->getAgent();
         $customer = $ticket->getCustomer();
-	 
-	if($agent != null && !empty($agent)){	
-        $ticketAssignAgent = $agent->getId();
-        $currentUser = $user->getId();
-	}
         
         // Mark as viewed by agents
         if (false == $ticket->getIsAgentViewed()) {
             $ticket->setIsAgentViewed(true);
-
             $entityManager->persist($ticket);
             $entityManager->flush();
         }
@@ -116,6 +112,7 @@ class Ticket extends AbstractController
                             $ticketSupportTeamGroups = array_map(function($supportGroup) { return $supportGroup->getId(); }, $ticket->getSupportTeam()->getSupportGroups()->getValues());
                             $ticketAccessableGroups = array_merge($ticketAccessableGroups, $ticketSupportTeamGroups);
                         }
+
                         $isAccessableGroupFound = false;
                         foreach($ticketAccessableGroups as $groupId) {
                             if (in_array($groupId, $supportGroups)) {
@@ -123,23 +120,29 @@ class Ticket extends AbstractController
                                 break;
                             }
                         }
-                        if (!$isAccessableGroupFound && !($ticketAssignAgent == $currentUser)) {
-                            throw new NotFoundHttpException('Page not found!');
+                        
+                        if (!$isAccessableGroupFound && !($agent ? $agent->getId() : null == $user->getId())) {
+                            throw new \Exception('Access Denied', 403);
                         }
+
                         break;
                     case TicketRepository::TICKET_TEAM_ACCESS:
                         $supportTeams = array_map(function($supportTeam) { return $supportTeam->getId(); }, $user->getCurrentInstance()->getSupportTeams()->getValues());                         
                         $supportTeam = $ticket->getSupportTeam();
-                        if (!($supportTeam && in_array($supportTeam->getId(), $supportTeams)) && !($ticketAssignAgent == $currentUser)) {
-                            throw new NotFoundHttpException('Page not found!');
+                        
+                        if (!($supportTeam && in_array($supportTeam->getId(), $supportTeams)) && !($agent ? $agent->getId() : null == $user->getId())) {
+                            throw new \Exception('Access Denied', 403);
                         }
+
                         break;
                     default:
                         $collaborators = array_map( function ($collaborator) { return $collaborator->getId(); }, $ticket->getCollaborators()->getValues());
                         $accessableAgents = array_merge($collaborators, $ticket->getAgent() ? [$ticket->getAgent()->getId()] : []);
+                        
                         if (!in_array($user->getId(), $accessableAgents)) {
                             throw new NotFoundHttpException('Page not found!');
                         }
+
                         break;
                 }
                 break;
@@ -172,11 +175,11 @@ class Ticket extends AbstractController
         $requestParams = $request->request->all();
         $entityManager = $this->getDoctrine()->getManager();
         $response = $this->redirect($this->generateUrl('helpdesk_member_ticket_collection'));
-
+        
         if ($request->getMethod() != 'POST' || false == $this->userService->isAccessAuthorized('ROLE_AGENT_CREATE_TICKET')) {
             return $response;
         }
-
+        
         // Get referral ticket if any
         $ticketValidationGroup = 'CreateTicket';
         $referralURL = $request->headers->get('referer');
@@ -185,14 +188,21 @@ class Ticket extends AbstractController
             $iterations = explode('/', $referralURL);
             $referralId = array_pop($iterations);
             $expectedReferralURL = $this->generateUrl('helpdesk_member_ticket', ['ticketId' => $referralId], UrlGeneratorInterface::ABSOLUTE_URL);
-
+            
             if ($referralURL === $expectedReferralURL) {
                 $referralTicket = $entityManager->getRepository(CoreBundleTicket::class)->findOneById($referralId);
-
+                
                 if (!empty($referralTicket)) {
                     $ticketValidationGroup = 'CustomerCreateTicket';
                 }
             }
+        }
+
+        $email = $request->request->get('from');
+        $website = $entityManager->getRepository(CoreEntites\Website::class)->findOneByCode('knowledgebase');
+        if(!empty($email) && $this->ticketService->isEmailBlocked($email, $website)) {
+            $request->getSession()->getFlashBag()->set('warning', $this->translator->trans('Warning ! Cannot create ticket, given email is blocked.'));
+            return $this->redirect($this->generateUrl('helpdesk_member_ticket_collection'));
         }
 
         $ticketType = $entityManager->getRepository(TicketType::class)->findOneById($requestParams['type']);

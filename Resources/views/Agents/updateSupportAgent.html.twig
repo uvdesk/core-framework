@@ -326,9 +326,6 @@
 
                             <div class="uv-element-block">
                                 <label class="uv-field-label">{{ 'Ticket View'|trans }}</label>
-                                <span class="uv-field-info">{{ 'User can view tickets based on selected scope.'|trans }}
-                                    <span class="uv-xtra-info" data-toggle="tooltip" data-placement="top" title="{{ 'If individual access then user can View assigned Ticket(s) only, If Team access then user can view all Ticket(s) in team(s) he belongs to and so on'|trans }}">[?]</span>
-                                </span>
                                 <div class="uv-element-block" style="margin-top: 10px;">
                                     <label>
                                         <div class="uv-radio">
@@ -336,6 +333,7 @@
                                             <span class="uv-radio-view"></span>
                                         </div>
                                         <span class="uv-radio-label">{{ 'Global Access'|trans }}</span>
+                                        <span class="uv-field-info">{{ 'Agent have access to all tickets.'|trans }}</span>
                                     </label>
                                 </div>
                                 <div class="uv-element-block">
@@ -345,6 +343,7 @@
                                             <span class="uv-radio-view"></span>
                                         </div>
                                         <span class="uv-radio-label">{{ 'Group Access'|trans }}</span>
+                                        <span class="uv-field-info">{{ 'Agent have access to all tickets assigned to their groups or related teams.'|trans }}</span>
                                     </label>
                                 </div>
                                 <div class="uv-element-block">
@@ -354,6 +353,7 @@
                                             <span class="uv-radio-view"></span>
                                         </div>
                                         <span class="uv-radio-label">{{ 'Team Access'|trans }}</span>
+                                        <span class="uv-field-info">{{ 'Agent have access to all tickets assigned to their teams.'|trans }}</span>
                                     </label>
                                 </div>
                                 <div class="uv-element-block">
@@ -363,6 +363,7 @@
                                             <span class="uv-radio-view"></span>
                                         </div>
                                         <span class="uv-radio-label">{{ 'Individual Access'|trans }}</span>
+                                        <span class="uv-field-info">{{ 'Agent have access to all tickets assigned to them.'|trans }}</span>
                                     </label>
                                 </div>
                             </div>
