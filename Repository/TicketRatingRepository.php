@@ -213,7 +213,7 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
                 ->leftJoin('r.ticket', 't')
                 ->andwhere('r.createdAt BETWEEN :startDate AND :endDate')
                 ->andwhere('t.isTrashed != 1')
-                ->andwhere('t.status != 5')
+                // ->andwhere('t.status != 5')
                 ->andwhere('r.stars = :count')
                 ->setParameter('startDate', $startDate." 00:00:01")
                 ->setParameter('endDate', $endDate." 23:59:59")
