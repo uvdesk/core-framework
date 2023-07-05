@@ -212,7 +212,7 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
         $qb->select('COUNT(r.id)')->from(TicketRating::class, 'r')
                 ->leftJoin('r.ticket', 't')
                 ->andwhere('r.createdAt BETWEEN :startDate AND :endDate')
-                ->andwhere('t.isTrashed != 1')
+                // ->andwhere('t.isTrashed != 1')
                 // ->andwhere('t.status != 5')
                 ->andwhere('r.stars = :count')
                 ->setParameter('startDate', $startDate." 00:00:01")
