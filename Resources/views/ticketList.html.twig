@@ -2586,6 +2586,9 @@
                     if(labelName == "") {
                         inputElement.addClass('uv-field-error');
                         inputElement.parent().after("<span class='uv-field-message'>{{ 'This field is mandatory'|trans }}</span>");
+                    }else if(labelName.length > 20){
+                        inputElement.addClass('uv-field-error');
+                        inputElement.parent().after("<span class='uv-field-message'>{{ 'Must be less than 20 characters'|trans }}</span>");
                     } else {
                         var labelId = parseInt($('.uv-aside-option').attr('data-id'))
 
