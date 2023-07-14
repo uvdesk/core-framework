@@ -73,7 +73,7 @@ class AccountXHR extends AbstractController
         ;
 
         if ($user) {
-            if ($user->getAgentInstance()->getSupportRole() != "ROLE_SUPER_ADMIN") {
+            if ($user->getAgentInstance()->getSupportRole()->getCode() != "ROLE_SUPER_ADMIN") {
                 // Trigger agent delete event
                 $event = new CoreWorkflowEvents\Agent\Delete();
                 $event
@@ -95,7 +95,8 @@ class AccountXHR extends AbstractController
                 $json['alertMessage'] = $this->translator->trans('Success ! Agent removed successfully.');
             } else {
                 $json['alertClass'] = 'warning';
-                $json['alertMessage'] = $this->translator->trans("Warning ! You are allowed to remove account owner's account.");
+                $json['alertMessage'] = $this->translator->trans("Warning ! You are not allowed to remove owner's account.");
+                return new Response(json_encode($json), 403, ['Content-Type' => 'application/json']);
             }
         } else {
             $json['alertClass'] = 'danger';
