@@ -46,7 +46,7 @@ $(function() {
             var text = $(this).text().trim().toLowerCase();
             var value = $(this).attr('data-id');
             if(value) {
-                var isTextContained = text.search(currentElement.val().toLowerCase());
+                var isTextContained = text.search(currentElement.val().trim().toLowerCase());
                 var isValueContained = value.search(currentElement.val());
                 if(isTextContained < 0 && isValueContained < 0) {
                     $(this).hide();
@@ -55,7 +55,7 @@ $(function() {
                     flag = 1;
                 }
             } else {
-                var isTextContained = text.search(currentElement.val().toLowerCase());
+                var isTextContained = text.search(currentElement.val().trim().toLowerCase());
                 if(isTextContained < 0) {
                     $(this).hide();
                 } else {
@@ -74,7 +74,7 @@ $(function() {
                 var text = $(this).text().trim().toLowerCase();
                 var value = $(this).attr('data-id');
                 if(value) {
-                    var isTextContained = text.search(currentElement.val().toLowerCase());
+                    var isTextContained = text.search(currentElement.val().trim().toLowerCase());
                     var isValueContained = value.search(currentElement.val());
                     if(isTextContained < 0 && isValueContained < 0) {
                         $(this).hide();
@@ -83,7 +83,7 @@ $(function() {
                         flag = 1;
                     }
                 }  else {
-                    var isTextContained = text.search(currentElement.val().toLowerCase());
+                    var isTextContained = text.search(currentElement.val().trim().toLowerCase());
                     if(isTextContained < 0) {
                         $(this).hide();
                     } else {
