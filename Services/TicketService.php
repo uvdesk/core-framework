@@ -512,7 +512,7 @@ class TicketService
 
         if($request) {
             $qb->andwhere("tg.name LIKE :tagName");
-            $qb->setParameter('tagName', '%'.urldecode($request->query->get('query')).'%');
+            $qb->setParameter('tagName', '%'.urldecode(trim($request->query->get('query'))).'%');
             $qb->andwhere("tg.id NOT IN (:ids)");
             $qb->setParameter('ids', explode(',',urldecode($request->query->get('not'))));
         }
@@ -1332,7 +1332,7 @@ class TicketService
 
         if($request) {
             $qb->andwhere("sl.name LIKE :labelName");
-            $qb->setParameter('labelName', '%'.urldecode($request->query->get('query')).'%');
+            $qb->setParameter('labelName', '%'.urldecode(trim($request->query->get('query'))).'%');
         }
 
         return $labels = $qb->getQuery()->getArrayResult();

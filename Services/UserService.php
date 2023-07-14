@@ -165,7 +165,7 @@ class UserService
                 ->andwhere('supportGroup.isActive = 1');
         if($request) {
             $qb->andwhere("supportGroup.name LIKE :groupName");
-            $qb->setParameter('groupName', '%'.urldecode($request->query->get('query')).'%');
+            $qb->setParameter('groupName', '%'.urldecode(trim($request->query->get('query'))).'%');
             $qb->andwhere("supportGroup.id NOT IN (:ids)");
             $qb->setParameter('ids', explode(',',urldecode($request->query->get('not'))));
         }
@@ -189,7 +189,7 @@ class UserService
         if ($request && null != $request->query->get('query')) {
             $queryBuilder
                 ->andWhere("CONCAT(dt.firstName,' ', dt.lastName) LIKE :customerName")
-                ->setParameter('customerName', '%'.urldecode($request->query->get('query')).'%');
+                ->setParameter('customerName', '%'.urldecode(trim($request->query->get('query'))).'%');
         }
 
         $qb = $this->entityManager->createQueryBuilder();
@@ -199,7 +199,7 @@ class UserService
         
         if($request) {
             $qb->andwhere("supportTeam.name LIKE :subGroupName");
-            $qb->setParameter('subGroupName', '%'.urldecode($request->query->get('query')).'%');
+            $qb->setParameter('subGroupName', '%'.urldecode(trim($request->query->get('query'))).'%');
             $qb->andwhere("supportTeam.id NOT IN (:ids)");
             $qb->setParameter('ids', explode(',',urldecode($request->query->get('not'))));
         }
@@ -321,7 +321,7 @@ class UserService
 
         if ($request) {
             $qb->andwhere("CONCAT(u.firstName,' ', u.lastName) LIKE :customerName");
-            $qb->setParameter('customerName', '%'.urldecode($request->query->get('query')).'%');
+            $qb->setParameter('customerName', '%'.urldecode(trim($request->query->get('query'))).'%');
             $qb->andwhere("u.id NOT IN (:ids)");
             $qb->setParameter('ids', explode(',',urldecode($request->query->get('not'))));
         }
@@ -435,7 +435,7 @@ class UserService
                 $qb->andwhere("CONCAT(u.firstName,' ', u.lastName) LIKE :customerName");
             }
             
-            $qb->setParameter('customerName', '%'.urldecode($request->query->get('query')).'%')
+            $qb->setParameter('customerName', '%'.urldecode(trim($request->query->get('query'))).'%')
                 ->andwhere("u.id NOT IN (:ids)")
                 ->setParameter('ids', explode(',',urldecode($request->query->get('not'))));
         }

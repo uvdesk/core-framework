@@ -41,7 +41,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
                 $queryBuilder->andWhere("user.$field = :$field")->setParameter($field, $fieldValue);
             } else {
                 if ('search' == $field) {
-                    $queryBuilder->andwhere("user.firstName LIKE :fullName OR user.email LIKE :email")
+                    $queryBuilder->andwhere("CONCAT(user.firstName,' ', user.lastName) LIKE :fullName OR user.email LIKE :email")
                         ->setParameter('fullName', '%' . urldecode(trim($fieldValue)) . '%')
                         ->setParameter('email', '%' . urldecode(trim($fieldValue)) . '%');
                 } else if ('isActive' == $field) {
@@ -115,8 +115,8 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
                 } else {
                     if($key == 'search') {
                         $qb->Andwhere("CONCAT(a.firstName,' ', a.lastName) LIKE :fullName OR a.email LIKE :email");
-                        $qb->setParameter('fullName', '%'.urldecode($value).'%'); 
-                        $qb->setParameter('email', '%'.urldecode($value).'%');    
+                        $qb->setParameter('fullName', '%'.urldecode(trim($value)).'%'); 
+                        $qb->setParameter('email', '%'.urldecode(trim($value)).'%');    
                     } elseif($key == 'starred') {
                         $qb->andwhere('userInstance.isStarred = 1');
                     } else if($key == 'isActive') {

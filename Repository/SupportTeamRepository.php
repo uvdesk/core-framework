@@ -34,7 +34,7 @@ class SupportTeamRepository extends \Doctrine\ORM\EntityRepository
                 } else {
                     if($key == 'search') {
                         $qb->orwhere('a.name'.' LIKE :name');
-                        $qb->setParameter('name', '%'.urldecode($value).'%');
+                        $qb->setParameter('name', '%'.urldecode(trim($value)).'%');
                         $qb->orwhere('a.description'.' LIKE :description');
                         $qb->setParameter('description', '%'.urldecode(trim($value)).'%');
                     }
