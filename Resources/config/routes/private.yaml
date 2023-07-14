@@ -182,6 +182,8 @@ helpdesk_member_ticket:
     path:     /ticket/view/{ticketId}
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Ticket::loadTicket
     defaults: { ticketId: 0 }
+    requirements: 
+        ticketId: \d+
 
 helpdesk_member_ticket_xhr:
     path:     /ticket/xhr/{ticketId}
