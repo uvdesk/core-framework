@@ -288,6 +288,12 @@
                 },
                 initializeback: function(e) {
                      if (e.keyCode == 8 && $('#agent-filter-input').val() == '' || e.type == "dp") { 
+                        
+                        if (new Date($(".date-from").val()) > new Date($(".date-to").val())) {
+                            $('.date').addClass('uv-field-error');
+                            return;
+                        }
+
                         agentActivityCollection.filterParameters.after = $('#from').val();
                         agentActivityCollection.filterParameters.before = $('#to').val();
 
