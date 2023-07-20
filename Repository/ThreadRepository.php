@@ -175,7 +175,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select('t')
             ->from(Ticket::class, 't')
-            ->where('t.referenceIds = :referenceIds')->setParameter('referenceIds', "%$referenceIds%")
+            ->where('t.referenceIds LIKE :referenceIds')->setParameter('referenceIds', "%$referenceIds%")
             ->orderBy('t.id', 'DESC')
             ->setMaxResults(1)
         ;
