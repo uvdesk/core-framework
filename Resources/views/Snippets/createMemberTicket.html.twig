@@ -440,6 +440,13 @@
                 },
                 'reply' : {
                     fn: function(value) {
+                            var content = tinyMCE.activeEditor.getContent();
+							if (content) {
+								return false;
+							}else {
+                                return true;
+                            }
+
                             if(!tinyMCE.get("uv-edit-create-thread"))
                                 return false;
                             var html = tinyMCE.get("uv-edit-create-thread").getContent();
