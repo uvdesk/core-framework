@@ -158,11 +158,27 @@ class MailCustomer extends WorkflowAction
         if ($cc != null && !empty($cc)) {
             $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
             $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $ticket->getMailboxEmail(), $attachments ?? [], $cc ?? [], $thread->getBcc() ?? []);    
+
+            if (!empty($messageId)) {
+                $updatedReferenceIds = $ticket->getReferenceIds() . ' ' . $messageId;            
+                $ticket->setReferenceIds($updatedReferenceIds);
+
+                $entityManager->persist($ticket);
+                $entityManager->flush();
+            }
         }
            
         if ($thread->getBcc() != null && $thread->getCc() == null) {
             $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
             $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $ticket->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?? [], $thread->getBcc() ?? []);  
+
+            if (!empty($messageId)) {
+                $updatedReferenceIds = $ticket->getReferenceIds() . ' ' . $messageId;            
+                $ticket->setReferenceIds($updatedReferenceIds);
+
+                $entityManager->persist($ticket);
+                $entityManager->flush();
+            }
         }
     }
 }
