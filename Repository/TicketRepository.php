@@ -9,6 +9,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketType;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Tag;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Website;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -46,6 +47,12 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
     public function getAllTickets(ParameterBag $obj = null, $container, $actAsUser = null)
     {
         $currentUser = $actAsUser ? : $container->get('user.service')->getCurrentUser();
+        $activeUserTimeZone = $this->getEntityManager()->getRepository(Website::class)->findOneBy(['code' => 'Knowledgebase']);
+        $agentTimeZone = !empty($currentUser->getTimezone()) ? $currentUser->getTimezone() : $activeUserTimeZone->getTimezone();
+        $agentTimeFormat = !empty($currentUser->getTimeformat()) ? $currentUser->getTimeformat() : $activeUserTimeZone->getTimeformat();
+        $website = $this->getEntityManager()->getRepository(Website::class)->findOneBy(['code' => 'helpdesk']);
+        $timeZone = $website->getTimezone();
+        $timeFormat = $website->getTimeformat();
 
         $json = array();
         $qb = $this->getEntityManager()->createQueryBuilder();
@@ -108,7 +115,9 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
         foreach ($results as $key => $ticket) {
             $ticket[0]['status']['description'] = $translatorService->trans($ticket[0]['status']['description']);
-
+            $dbTime = $ticket[0]['createdAt'];
+            $formattedTime = $ticketService->fomatTimeByPreference($dbTime,$timeZone,$timeFormat,$agentTimeZone,$agentTimeFormat);
+            
             $data[] = [
                 'id' => $ticket[0]['id'],
                 'subject' => $ticket[0]['subject'],
@@ -119,7 +128,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 'group' => $ticket[0]['supportGroup'],
                 'type' => $ticket[0]['type'],
                 'priority' => $ticket[0]['priority'],
-                'formatedCreatedAt' => $userService->convertToTimezone($ticket[0]['createdAt']),
+                'formatedCreatedAt' => $formattedTime['dateTimeZone']->format($formattedTime['timeFormatString']),
                 'totalThreads' => $ticketService->getTicketTotalThreads($ticket[0]['id']),
                 'agent' => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
                 'customer' => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
