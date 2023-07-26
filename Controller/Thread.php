@@ -52,6 +52,11 @@ class Thread extends AbstractController
         if (false == $this->ticketService->isTicketAccessGranted($ticket)) {
             throw new \Exception('Access Denied', 403);
         }
+        
+        if (false == $this->userService->isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS') && !empty($params['status'])) {
+            $this->addFlash('warning', $this->translator->trans("You don't have any permission for this performed actions."));
+            return $this->redirect($this->generateUrl('helpdesk_member_ticket_collection'));
+        }
 
         if (empty($ticket)) {
             throw new \Exception('Ticket not found', 404);
