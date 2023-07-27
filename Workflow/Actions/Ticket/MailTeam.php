@@ -103,6 +103,14 @@ class MailTeam extends WorkflowAction
 
             foreach ($mailData['email'] as $email) {
                 $messageId = $container->get('email.service')->sendMail($subject, $message, $email, [], null, $attachments ?? []);
+
+                if (!empty($messageId)) {
+                    $updatedReferenceIds = $ticket->getReferenceIds() . ' ' . $messageId;            
+                    $ticket->setReferenceIds($updatedReferenceIds);
+    
+                    $entityManager->persist($ticket);
+                    $entityManager->flush();
+                }
             }
         }
     }
