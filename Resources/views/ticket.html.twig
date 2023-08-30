@@ -2640,6 +2640,7 @@
                             var inputElement = currentElement;
                             var text = inputElement.val().trim();
                         }
+                        
                         inputElement.removeClass('uv-field-error');
                         inputElement.parents('.uv-element-block').find('.uv-field-message').remove()
 
@@ -2701,7 +2702,7 @@
             var LabelItem = Backbone.View.extend({
                 tagName : "a",
                 className : "uv-btn-label",
-                template : _.template("<span class='uv-tag'><span class='uv-icon-remove-before'></span><%- name %></span>"),
+                template : _.template("<span class='uv-tag'><span class='uv-icon-remove-before'></span><%= name %></span>"),
                 events : {
                     'click .uv-tag' : "confirmRemove"
                 },
