@@ -983,7 +983,7 @@
     {# Custom Ticket Label View Template #}
     <script id="custom_label_tmp" type="text/template">
         <a href="#label/<%= id %>"  data-id="<%= id %>">
-            <%- name %>
+            <%= name %>
             <span class="uv-flag-gray" style="<% if(colorCode) { %>background-color:<%= colorCode %><% } %>">
                 <%= count %>
             </span>
@@ -1010,7 +1010,7 @@
             <div class="uv-element-block">
                 <label class="uv-field-label">{{ 'Name'|trans }}</label>
                 <div class="uv-field-block">
-                    <input class="uv-field" type="text" value="<%- name %>" />
+                    <input class="uv-field" type="text" value="<%= name %>" />
                 </div>
             </div>
 
@@ -2522,7 +2522,7 @@
                     if(labelCollection.length) {
                         _.each(labelCollection.models, function (item) {
                             this.renderLabelItem(item);
-                            labelOptionHtml = labelOptionHtml + "<li data-index='" + item.id + "'><a href='#'>" + item.attributes.name + "</a></li>";
+                            labelOptionHtml = labelOptionHtml + "<li data-index='" + item.id + "'><a href='#'><%- item.attributes.name%></a></li>";
                         }, this);
                     }
                     labelOptionHtml = labelOptionHtml ? labelOptionHtml : "<li data-index='0'>{{ 'No Label Created'|trans }}</li>";
@@ -2581,8 +2581,9 @@
                     var inputElement = $('.uv-add-edit-label input');
                     inputElement.removeClass('uv-field-error');
                     $('.uv-field-message').remove()
+                    
+                    var labelName = inputElement.val();
 
-                    var labelName = app.appView.stripHTML(inputElement.val());
                     if(labelName == "") {
                         inputElement.addClass('uv-field-error');
                         inputElement.parent().after("<span class='uv-field-message'>{{ 'This field is mandatory'|trans }}</span>");
