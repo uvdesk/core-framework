@@ -31,6 +31,8 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportRole;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketPriority;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntites;
+
 
 class Ticket extends AbstractController
 {
@@ -172,11 +174,11 @@ class Ticket extends AbstractController
         $requestParams = $request->request->all();
         $entityManager = $this->getDoctrine()->getManager();
         $response = $this->redirect($this->generateUrl('helpdesk_member_ticket_collection'));
-
+        
         if ($request->getMethod() != 'POST' || false == $this->userService->isAccessAuthorized('ROLE_AGENT_CREATE_TICKET')) {
             return $response;
         }
-
+        
         // Get referral ticket if any
         $ticketValidationGroup = 'CreateTicket';
         $referralURL = $request->headers->get('referer');
@@ -185,14 +187,21 @@ class Ticket extends AbstractController
             $iterations = explode('/', $referralURL);
             $referralId = array_pop($iterations);
             $expectedReferralURL = $this->generateUrl('helpdesk_member_ticket', ['ticketId' => $referralId], UrlGeneratorInterface::ABSOLUTE_URL);
-
+            
             if ($referralURL === $expectedReferralURL) {
                 $referralTicket = $entityManager->getRepository(CoreBundleTicket::class)->findOneById($referralId);
-
+                
                 if (!empty($referralTicket)) {
                     $ticketValidationGroup = 'CustomerCreateTicket';
                 }
             }
+        }
+
+        $email = $request->request->get('from');
+        $website = $entityManager->getRepository(CoreEntites\Website::class)->findOneByCode('knowledgebase');
+        if(!empty($email) && $this->ticketService->isEmailBlocked($email, $website)) {
+            $request->getSession()->getFlashBag()->set('warning', $this->translator->trans('Warning ! Cannot create ticket, given email is blocked.'));
+            return $this->redirect($this->generateUrl('helpdesk_member_ticket_collection'));
         }
 
         $ticketType = $entityManager->getRepository(TicketType::class)->findOneById($requestParams['type']);
@@ -335,19 +344,23 @@ class Ticket extends AbstractController
             if (!empty($ticketType) && $id != $ticketType->getId()) {
                 $this->addFlash('warning', sprintf('Error! Ticket type with same name already exist'));
             } else {
-                $type->setCode($data['code']);
-                $type->setDescription($data['description']);
-                $type->setIsActive(isset($data['isActive']) ? 1 : 0);
+                if (preg_match('/^((?![!@#$%^&*()<_+]).)*$/',$data['code'])) {
+                    $type->setCode($data['code']);
+                    $type->setDescription($data['description']);
+                    $type->setIsActive(isset($data['isActive']) ? 1 : 0);
 
-                $em->persist($type);
-                $em->flush();
+                    $em->persist($type);
+                    $em->flush();
 
-                if (!$request->attributes->get('ticketTypeId')) {
-                    $this->addFlash('success', $this->translator->trans('Success! Ticket type saved successfully.'));
+                    if (!$request->attributes->get('ticketTypeId')) {
+                        $this->addFlash('success', $this->translator->trans('Success! Ticket type saved successfully.'));
+                    } else {
+                        $this->addFlash('success', $this->translator->trans('Success! Ticket type updated successfully.'));
+                    }
                 } else {
-                    $this->addFlash('success', $this->translator->trans('Success! Ticket type updated successfully.'));
+                    $this->addFlash('warning', $this->translator->trans('This field must have characters only'));
                 }
-
+                
                 return $this->redirect($this->generateUrl('helpdesk_member_ticket_type_collection'));
             }
         }
