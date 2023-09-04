@@ -556,7 +556,7 @@
                                     {% if filters|length %}
                                         <option value="">-- Saved Filter --</option>
                                         {% for userFilter in filters %}
-                                            <option value="{{userFilter.id}}">{{userFilter.name}}</option>
+                                            <option value="{{userFilter.id}}">{{userFilter.name|raw}}</option>
                                         {% endfor %}
                                     {% else %}
                                         <option value="">{{ 'No saved filter created'|trans }}</option>
@@ -1059,7 +1059,7 @@
             <div class="uv-element-block">
                 <label class="uv-field-label">{{ 'Name'|trans }}</label>
                 <div class="uv-field-block">
-                    <input class="uv-field name" name="name" type="text" value="<%- name %>" />
+                    <input class="uv-field name" name="name" type="text" value="<%= name %>" />
                 </div>
             </div>
 
