@@ -116,7 +116,7 @@ class AccountXHR extends AbstractController
         if($request->getMethod() == 'POST') {
             $content = $request->request->all();
             $filter = new SavedFilters();
-            $filter->setName($content['name']);
+            $filter->setName(htmlspecialchars($content['name']));
             $filter->setRoute($content['route']);
             $filter->setUser($userData);
             $em->persist($filter);
@@ -134,7 +134,7 @@ class AccountXHR extends AbstractController
         } elseif($request->getMethod() == 'PUT' || $request->getMethod() == 'PATCH') {
             $content = $request->request->all();
             $filter = $em->getRepository(SavedFilters::class)->find($content['id']);
-            $filter->setName($content['name']);
+            $filter->setName(htmlspecialchars($content['name']));
             $filter->setRoute($content['route']);
             $em->flush();
 
