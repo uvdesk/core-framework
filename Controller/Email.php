@@ -76,26 +76,30 @@ class Email extends AbstractController
         if ($request->getMethod() == 'POST') {
             $entityManager= $this->getDoctrine()->getManager();
             $data = $request->request->all();
+            if (preg_match('/^((?![!@#$%^&*()<_+]).)*$/',$data['name'])) {
 
-            $user_instance = $this->container->get('security.token_storage')->getToken()->getUser();
-            $user_instance= $entityManager->getRepository(UserInstance::class)->findBy(['id'=>$user_instance->getId()]);
+                $user_instance = $this->container->get('security.token_storage')->getToken()->getUser();
+                $user_instance= $entityManager->getRepository(UserInstance::class)->findBy(['id'=>$user_instance->getId()]);
 
-            $template->setUser($user_instance[0]);
-            $template->setName($data['name']);
-            $template->setSubject($data['subject']);
-            $template->setMessage($data['message']);
-            $template->setTemplateType($data['templateFor']);
-            $entityManager->persist($template);
-            $entityManager->flush();
+                $template->setUser($user_instance[0]);
+                $template->setName($data['name']);
+                $template->setSubject($data['subject']);
+                $template->setMessage($data['message']);
+                $template->setTemplateType($data['templateFor']);
+                $entityManager->persist($template);
+                $entityManager->flush();
 
-            if ($request->attributes->get('template')) {
-                $message = $this->translator->trans('Success! Template has been updated successfully.');
+                if ($request->attributes->get('template')) {
+                    $message = $this->translator->trans('Success! Template has been updated successfully.');
+                } else {
+                    $message = $this->translator->trans('Success! Template has been added successfully.');
+
+                }
+                $this->addFlash('success', $message);
             } else {
-                $message = $this->translator->trans('Success! Template has been added successfully.');
-
+                $message = $this->translator->trans('This field may contain characters only');
+                $this->addFlash('warning', $message);
             }
-
-            $this->addFlash('success', $message);
 
             return $this->redirectToRoute('email_templates_action');
         }
