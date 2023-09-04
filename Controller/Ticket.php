@@ -344,19 +344,23 @@ class Ticket extends AbstractController
             if (!empty($ticketType) && $id != $ticketType->getId()) {
                 $this->addFlash('warning', sprintf('Error! Ticket type with same name already exist'));
             } else {
-                $type->setCode($data['code']);
-                $type->setDescription($data['description']);
-                $type->setIsActive(isset($data['isActive']) ? 1 : 0);
+                if (preg_match('/^((?![!@#$%^&*()<_+]).)*$/',$data['code'])) {
+                    $type->setCode($data['code']);
+                    $type->setDescription($data['description']);
+                    $type->setIsActive(isset($data['isActive']) ? 1 : 0);
 
-                $em->persist($type);
-                $em->flush();
+                    $em->persist($type);
+                    $em->flush();
 
-                if (!$request->attributes->get('ticketTypeId')) {
-                    $this->addFlash('success', $this->translator->trans('Success! Ticket type saved successfully.'));
+                    if (!$request->attributes->get('ticketTypeId')) {
+                        $this->addFlash('success', $this->translator->trans('Success! Ticket type saved successfully.'));
+                    } else {
+                        $this->addFlash('success', $this->translator->trans('Success! Ticket type updated successfully.'));
+                    }
                 } else {
-                    $this->addFlash('success', $this->translator->trans('Success! Ticket type updated successfully.'));
+                    $this->addFlash('warning', $this->translator->trans('This field must have characters only'));
                 }
-
+                
                 return $this->redirect($this->generateUrl('helpdesk_member_ticket_type_collection'));
             }
         }
