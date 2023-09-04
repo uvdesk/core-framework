@@ -821,21 +821,27 @@ class TicketXHR extends AbstractController
         if($request->getMethod() == "POST") {
             $tag = new CoreFrameworkBundleEntities\Tag();
             if ($content['name'] != "") {
-                $checkTag = $em->getRepository(Tag::class)->findOneBy(array('name' => $content['name']));
-                if(!$checkTag) {
-                    $tag->setName($content['name']);
-                    $em->persist($tag);
+                if (strlen($content['name']) <= 20) {
+                    
+                    $checkTag = $em->getRepository(Tag::class)->findOneBy(array('name' => $content['name']));
+                    if(!$checkTag) {
+                        $tag->setName($content['name']);
+                        $em->persist($tag);
+                        $em->flush();
+                        //$json['tag'] = json_decode($this->objectSerializer($tag));
+                        $ticket->addSupportTag($tag);
+                    } else {
+                        //$json['tag'] = json_decode($this->objectSerializer($checkTag));
+                        $ticket->addSupportTag($checkTag);
+                    }
+                    $em->persist($ticket);
                     $em->flush();
-                    //$json['tag'] = json_decode($this->objectSerializer($tag));
-                    $ticket->addSupportTag($tag);
+                    $json['alertClass'] = 'success';
+                    $json['alertMessage'] = $this->translator->trans('Success ! Tag added successfully.');
                 } else {
-                    //$json['tag'] = json_decode($this->objectSerializer($checkTag));
-                    $ticket->addSupportTag($checkTag);
+                    $json['alertClass'] = 'danger';
+                    $json['alertMessage'] = $this->translator->trans('Must be less than 20 characters');
                 }
-                $em->persist($ticket);
-                $em->flush();
-                $json['alertClass'] = 'success';
-                $json['alertMessage'] = $this->translator->trans('Success ! Tag added successfully.');
             } else {
                 $json['alertClass'] = 'danger';
                 $json['alertMessage'] = $this->translator->trans('Please enter tag name.');
