@@ -618,7 +618,7 @@ class TicketXHR extends AbstractController
             $responseContent['label'] = [
                 'id' => $supportLabel->getId(),
                 'name' => $supportLabel->getName(),
-                'color' => $supportLabel->getColorCode(),
+                'colorCode' => $supportLabel->getColorCode(),
             ];
 
             return new Response(json_encode($responseContent), 200, ['Content-Type' => 'application/json']);
@@ -834,6 +834,10 @@ class TicketXHR extends AbstractController
                 }
                 $em->persist($ticket);
                 $em->flush();
+                
+                $tagID = $tag->getId() ? $tag->getId() : $checkTag->getId();
+                
+                $json['id'] = $tagID;
                 $json['alertClass'] = 'success';
                 $json['alertMessage'] = $this->translator->trans('Success ! Tag added successfully.');
             } else {
