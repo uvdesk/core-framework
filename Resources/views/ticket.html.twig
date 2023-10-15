@@ -2957,7 +2957,7 @@
                         },
                         {
                             name : "{{ 'Type'|trans }}",
-                            value : "{{ ticket.type ? ticket.type.description : 'Not Assigned'|trans }}",
+                            value : "{{ ticket.type ? ticket.type.description|replace({"\n":' ', "\r":' '}) : 'Not Assigned'|trans }}",
                         },
                         {
                             name : "{{ 'Group'|trans }}",
