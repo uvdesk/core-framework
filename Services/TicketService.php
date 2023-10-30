@@ -1356,12 +1356,18 @@ class TicketService
     public function getTicketTagsById($ticketId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('tg')->from(Tag::class, 'tg')
-                ->leftJoin('tg.tickets' ,'t')
-                ->andwhere('t.id = :ticketId')
-                ->setParameter('ticketId', $ticketId);
+        $qb
+            ->select('tg')->from(Tag::class, 'tg')
+            ->leftJoin('tg.tickets' ,'t')
+            ->andwhere('t.id = :ticketId')
+            ->setParameter('ticketId', $ticketId)
+        ;
 
-        return $qb->getQuery()->getArrayResult();
+        $collection = $qb->getQuery()->getArrayResult();
+        return array_map(function ($tag) {
+            $tag['name'] = addslashes(htmlspecialchars($tag['name']));
+            return $tag;
+        }, $collection);
     }
 
     public function getTicketLabels($ticketId)
