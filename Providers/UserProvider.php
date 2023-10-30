@@ -13,6 +13,7 @@ use Symfony\Bundle\SecurityBundle\Security\FirewallMap;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\DisabledException;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\ReCaptchaService;
 
 class UserProvider implements UserProviderInterface
@@ -54,7 +55,7 @@ class UserProvider implements UserProviderInterface
                 ->leftJoin(UserInstance::class, 'userInstance', 'WITH', 'user.id = userInstance.user')
                 ->leftJoin('userInstance.supportRole', 'supportRole')
                 ->where('user.email = :email')->setParameter('email', trim($username))
-                ->andWhere('userInstance.isActive = :isActive')->setParameter('isActive', true)
+                // ->andWhere('userInstance.isActive = :isActive')->setParameter('isActive', true)
                 ->setMaxResults(1)
             ;
 
@@ -89,14 +90,20 @@ class UserProvider implements UserProviderInterface
                 if (!empty($response) && is_array($response)) {
                     list($user, $userInstance) = $response;
 
-                    // Set currently active instance
-                    $user->setCurrentInstance($userInstance);
-                    $user->setRoles((array) $userInstance->getSupportRole()->getCode());
-
-                    return $user;
+                    if ($userInstance->getIsActive() == true) {
+                        // Set currently active instance
+                        $user->setCurrentInstance($userInstance);
+                        $user->setRoles((array) $userInstance->getSupportRole()->getCode());
+    
+                        return $user;
+                    }
                 }
             } catch (\Exception $e) {
                 // Do nothing...
+            }
+
+            if (!empty($userInstance)) {
+                throw new DisabledException("Account disabled.");
             }
 
             throw new UsernameNotFoundException(sprintf('Username "%s" does not exist.', $username));
