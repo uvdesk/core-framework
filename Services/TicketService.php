@@ -714,32 +714,62 @@ class TicketService
         }
 
         // for all tickets count
+        $queryBuilder->andwhere('ticket.status != 4')
+                    ->andwhere('ticket.status != 5')
+                    ->andwhere('ticket.status != 6')
+                ;
+        
         $data['all'] = $queryBuilder->getQuery()->getSingleScalarResult();
 
         // for new tickets count
         $newQb = clone $queryBuilder;
-        $newQb->andwhere('ticket.isNew = 1');
+        $newQb
+            ->andwhere('ticket.isNew = 1')
+            ->andwhere('ticket.status != 4')
+            ->andwhere('ticket.status != 5')
+            ->andwhere('ticket.status != 6')
+        ;
         $data['new'] = $newQb->getQuery()->getSingleScalarResult();
 
         // for unassigned tickets count
         $unassignedQb = clone $queryBuilder;
-        $unassignedQb->andwhere("ticket.agent is NULL");
+        $unassignedQb
+                ->andwhere("ticket.agent is NULL")
+                ->andwhere('ticket.status != 4')
+                ->andwhere('ticket.status != 5')
+                ->andwhere('ticket.status != 6')
+            ;
         $data['unassigned'] = $unassignedQb->getQuery()->getSingleScalarResult();
 
         // for unanswered ticket count
         $unansweredQb = clone $queryBuilder;
-        $unansweredQb->andwhere('ticket.isReplied = 0');
+        $unansweredQb
+                ->andwhere('ticket.isReplied = 0')
+                ->andwhere('ticket.status != 4')
+                ->andwhere('ticket.status != 5')
+                ->andwhere('ticket.status != 6')
+            ;
         $data['notreplied'] = $unansweredQb->getQuery()->getSingleScalarResult();
 
         // for my tickets count
         $mineQb = clone $queryBuilder;
-        $mineQb->andWhere("ticket.agent = :agentId")
-                ->setParameter('agentId', $currentUser->getId());
+        $mineQb
+                ->andWhere("ticket.agent = :agentId")
+                ->setParameter('agentId', $currentUser->getId())
+                ->andwhere('ticket.status != 4')
+                ->andwhere('ticket.status != 5')
+                ->andwhere('ticket.status != 6')
+            ;
         $data['mine'] = $mineQb->getQuery()->getSingleScalarResult();
 
         // for starred tickets count
         $starredQb = clone $queryBuilder;
-        $starredQb->andwhere('ticket.isStarred = 1');
+        $starredQb
+                ->andwhere('ticket.isStarred = 1')
+                ->andwhere('ticket.status != 4')
+                ->andwhere('ticket.status != 5')
+                ->andwhere('ticket.status != 6')
+            ;
         $data['starred'] = $starredQb->getQuery()->getSingleScalarResult();
 
         // for trashed tickets count
@@ -748,6 +778,13 @@ class TicketService
         if ($currentUser->getRoles()[0] != 'ROLE_SUPER_ADMIN' && $userInstance->getTicketAccesslevel() != 1) {
             $trashedQb->andwhere('ticket.agent = ' . $currentUser->getId());
         }
+        
+        $trashedQb
+                ->andwhere('ticket.status != 4')
+                ->andwhere('ticket.status != 5')
+                ->andwhere('ticket.status != 6')
+            ;
+
         $data['trashed'] = $trashedQb->getQuery()->getSingleScalarResult();
 
         return $data;
@@ -1036,10 +1073,35 @@ class TicketService
 
         $this->entityManager->flush();
 
+        if ($params['actionType'] == 'trashed') {
+            $message = 'Success ! Tickets moved to trashed successfully.';
+        } else if ($params['actionType'] == 'restored') {
+            $message = 'Success ! Tickets restored successfully.';
+        } else if ($params['actionType'] == 'delete') {
+            $message = 'Success ! Tickets removed successfully.';
+        } else if($params['actionType'] == 'agent'){
+            $message = 'Success ! Agent assigned successfully.';
+        } else if($params['actionType'] == 'status'){
+            $message = 'Success ! Tickets status updated successfully.';
+        } else if($params['actionType'] == 'type'){
+            $message = 'Success ! Tickets type updated successfully.';
+        } else if($params['actionType'] == 'group'){
+            $message = 'Success ! Tickets group updated successfully.';
+        } else if($params['actionType'] == 'team') {
+            $message = 'Success ! Tickets team updated successfully.';
+        } else if($params['actionType'] == 'priority') {
+            $message = 'Success ! Tickets priority updated successfully.';
+        } else if($params['actionType'] == 'label') {
+            $message = 'Success ! Tickets added to label successfully.';  
+        } else {
+            $message = 'Success ! Tickets have been updated successfully';
+        }
+
         return [
             'alertClass' => 'success',
-            'alertMessage' => $this->trans('Tickets have been updated successfully'),
+            'alertMessage' => $this->trans($message),
         ];
+        
     }
     
     public function getNotePlaceholderValues($ticket, $type = "customer")
@@ -1296,7 +1358,11 @@ class TicketService
                 ->leftJoin('t.supportLabels','sl')
                 ->andwhere('sl.user = :userId')
                 ->setParameter('userId', $currentUser->getId())
-                ->groupBy('sl.id');
+                ->andwhere('t.status != 4')
+                ->andwhere('t.status != 5')
+                ->andwhere('t.status != 6')
+                ->groupBy('sl.id')
+            ;
 
         $ticketCountResult = $qb->getQuery()->getResult();
 
