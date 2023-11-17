@@ -1361,7 +1361,7 @@
         </td>
         <td data-value="{{ 'Subject'|trans }}">
             <a href="<%= path %>">
-                <%- subject && subject.length <= 300 ? subject : subject.substr(0, 300) + '...'  %>
+                <%- subject && subject.length <= 300 ? subject : (subject == null ? 'No Subject' : subject.substr(0, 300) + '...')  %>
             </a>
         </td>
         <td data-value="{{ 'Customer Name'|trans }}" data-index="customer-name">
