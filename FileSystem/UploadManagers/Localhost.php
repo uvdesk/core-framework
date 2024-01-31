@@ -75,7 +75,7 @@ class Localhost implements FileUploadServiceInterface
         return array($relativePathToAsset, $absolutePathToAsset);
     }
 
-    public function uploadFile(UploadedFile $temporaryFile, $prefix = null, bool $renameFile = false)
+    public function uploadFile(UploadedFile $temporaryFile, $prefix = null, bool $renameFile = true)
     {
         $fileName = $temporaryFile->getClientOriginalName();
 
