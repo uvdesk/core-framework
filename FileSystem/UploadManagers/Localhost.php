@@ -98,7 +98,7 @@ class Localhost implements FileUploadServiceInterface
         ];
     }
 
-    public function uploadEmailAttachment(Attachment $attachmentStream, $prefix = null, bool $renameFile = false)
+    public function uploadEmailAttachment(Attachment $attachmentStream, $prefix = null, bool $renameFile = true)
     {
         $fileName = $attachmentStream->getFilename();
 
