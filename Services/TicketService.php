@@ -774,7 +774,8 @@ class TicketService
         foreach ($pagination->getItems() as $threadDetails) {
             $dbTime = $threadDetails['createdAt'];
             $formattedTime = $this->fomatTimeByPreference($dbTime,$timeZone,$timeFormat,$agentTimeZone,$agentTimeFormat);
-
+            $threadDetails['message'] = preg_replace('/<base[^>]*>/', '', $threadDetails['message']);
+		
             $threadResponse = [
                 'id' => $threadDetails['id'],
                 'user' => null,
