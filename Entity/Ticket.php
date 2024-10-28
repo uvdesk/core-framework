@@ -102,6 +102,12 @@ class Ticket
      * @ORM\Column(type="datetime")
      */
     private $updatedAt;
+    
+    /**
+     * @var \DateTime
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $customerRepliedAt;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
@@ -193,6 +199,18 @@ class Ticket
      * )
      */
     private $supportLabels;
+
+    /**
+     * @var integer
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $responseSlaLevel;
+    
+    /**
+     * @var integer
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $resolveSlaLevel;
 
     /**
      * Constructor
@@ -525,6 +543,77 @@ class Ticket
     public function getUpdatedAt()
     {
         return $this->updatedAt;
+    }
+
+    /**
+     * Set customerRepliedAt
+     *
+     * @param \DateTime $customerRepliedAt
+     *
+     * @return Ticket
+     */
+    public function setCustomerRepliedAt($customerRepliedAt)
+    {
+        $this->customerRepliedAt = $customerRepliedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get customerRepliedAt
+     *
+     * @return \DateTime
+     */
+    public function getCustomerRepliedAt()
+    {
+        return $this->customerRepliedAt;
+    }
+
+    /**
+     * Set resolveSlaLevel
+     *
+     * @param \integer $resolveSlaLevel
+     *
+     * @return Ticket
+     */
+    public function setResolveSlaLevel($resolveSlaLevel)
+    {
+        $this->resolveSlaLevel = $resolveSlaLevel;
+
+        return $this;
+    }
+
+    /**
+     * Get resolveSlaLevel
+     *
+     * @return \integer
+     */
+    public function getResolveSlaLevel()
+    {
+        return $this->resolveSlaLevel;
+    }
+    /**
+     * Set responseSlaLevel
+     *
+     * @param \integer $responseSlaLevel
+     *
+     * @return Ticket
+     */
+    public function setResponseSlaLevel($responseSlaLevel)
+    {
+        $this->responseSlaLevel = $responseSlaLevel;
+
+        return $this;
+    }
+
+    /**
+     * Get responseSlaLevel
+     *
+     * @return \integer
+     */
+    public function getResponseSlaLevel()
+    {
+        return $this->responseSlaLevel;
     }
 
     /**

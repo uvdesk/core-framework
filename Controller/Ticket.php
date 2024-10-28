@@ -31,6 +31,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportRole;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketPriority;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
+use UVDesk\CommunityPackages\UVDesk\SLA\Services\SlaService;
 
 class Ticket extends AbstractController
 {
@@ -39,9 +40,10 @@ class Ticket extends AbstractController
     private $eventDispatcher;
     private $ticketService;
     private $emailService;
+    private $slaService;
     private $kernel;
 
-    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcherInterface $eventDispatcher, KernelInterface $kernel)
+    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcherInterface $eventDispatcher, KernelInterface $kernel, SlaService $slaService)
     {
         $this->userService = $userService;
         $this->emailService = $emailService;
@@ -49,6 +51,7 @@ class Ticket extends AbstractController
         $this->ticketService = $ticketService;
         $this->eventDispatcher = $eventDispatcher;
         $this->kernel = $kernel;
+        $this->slaService = $slaService;
     }
 
     public function listTicketCollection(Request $request)
@@ -272,11 +275,17 @@ class Ticket extends AbstractController
 
         $thread = $this->ticketService->createTicketBase($ticketData);
 
+
+        $ticket = $thread->getTicket();
+
+        if ($this->userService->isfileExists('apps/uvdesk/sla')) {
+           $this->slaService->refreshTicketPolicies($ticket);
+        }
         // Trigger ticket created event
         try {
             $event = new CoreWorkflowEvents\Ticket\Create();
             $event
-                ->setTicket($thread->getTicket())
+                ->setTicket($ticket)
             ;
 
             $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');

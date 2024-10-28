@@ -360,8 +360,8 @@
         
     </style>
 {% endblock %}
-
 {% block pageContent %}
+
     <div class="uv-inner-section">
         {# Ticket Sidebar #}
         <div class="uv-aside" {% if app.request.cookies and app.request.cookies.get('uv-asideView') %}style="display: none;"{% endif %} >
@@ -423,6 +423,10 @@
                             <span class="uv-icon-channel uv-channel-web"></span> <span>{{ 'Website'|trans }}</span>
                             {% endif %}
                         </div>
+
+                        {% if user_service.isfileExists('apps/uvdesk/sla') %}
+                            {{ include('@UVDeskCoreFramework\\slaSnippet.html.twig') }}
+                        {% endif %}
                     </div>
                 </div>
             </div>
