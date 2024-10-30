@@ -582,7 +582,7 @@ class EmailService
         try {
             $messageId = $message->getId();
             $mailer->send($message);
-            
+
             return "<$messageId>";
         } catch (\Exception $e) {
             // @TODO: Log exception

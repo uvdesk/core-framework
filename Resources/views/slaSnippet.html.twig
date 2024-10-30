@@ -30,7 +30,7 @@
         el: '.uv-aside .uv-aside-ticket-block',
         template: _.template($('#sla-aside-temp').html()),
         syncData: function() {
-            var url = '{{ path("helpdesk_sla_data_xhr") }}'
+            var url = '{{ path("helpdesk_sla_esclation_data_xhr") }}'
             var self = this;
 
             $.ajax({
