@@ -1979,4 +1979,554 @@ class TicketService
 
         return $firstThread;
     }
+
+    public function getTicketConditions()
+    {
+        $conditions = array(
+            'ticket' => [
+                ('mail') => array(
+                    [
+                        'lable' => ('from_mail'),
+                        'value' => 'from_mail',
+                        'match' => 'email'
+                    ],
+                    [
+                        'lable' => ('to_mail'),
+                        'value' => 'to_mail',
+                        'match' => 'email'
+                    ],
+                ),
+                ('API') => array(
+                    [
+                        'lable' => ('Domain'),
+                        'value' => 'domain',
+                        'match' => 'api'
+                    ],
+                    [
+                        'lable' => ('Locale'),
+                        'value' => 'locale',
+                        'match' => 'api'
+                    ],
+                ),
+                ('ticket') => array(
+                    [
+                        'lable' => ('subject'),
+                        'value' => 'subject',
+                        'match' => 'string'
+                    ],
+                    [
+                        'lable' => ('description'),
+                        'value' => 'description',
+                        'match' => 'string'
+                    ],
+                    [
+                        'lable' => ('subject_or_description'),
+                        'value' => 'subject_or_description',
+                        'match' => 'string'
+                    ],
+                    [
+                        'lable' => ('priority'),
+                        'value' => 'priority',
+                        'match' => 'select'
+                    ],
+                    [
+                        'lable' => ('type'),
+                        'value' => 'type',
+                        'match' => 'select'
+                    ],
+                    [
+                        'lable' => ('status'),
+                        'value' => 'status',
+                        'match' => 'select'
+                    ],
+                    [
+                        'lable' => ('source'),
+                        'value' => 'source',
+                        'match' => 'select'
+                    ],
+                    [
+                        'lable' => ('created'),
+                        'value' => 'created',
+                        'match' => 'date'
+                    ],
+                    [
+                        'lable' => ('agent'),
+                        'value' => 'agent',
+                        'match' => 'select'
+                    ],
+                    [
+                        'lable' => ('group'),
+                        'value' => 'group',
+                        'match' => 'select'
+                    ],
+                    [
+                        'lable' => ('team'),
+                        'value' => 'team',
+                        'match' => 'select'
+                    ],
+                ),
+                ('customer') => array(
+                    [
+                        'lable' => ('customer_name'),
+                        'value' => 'customer_name',
+                        'match' => 'string'
+                    ],
+                    [
+                        'lable' => ('customer_email'),
+                        'value' => 'customer_email',
+                        'match' => 'email'
+                    ],
+                ),
+            ],
+            'task' => [
+                ('task') => array(
+                    [
+                        'lable' => ('subject'),
+                        'value' => 'subject',
+                        'match' => 'string'
+                    ],
+                    [
+                        'lable' => ('description'),
+                        'value' => 'description',
+                        'match' => 'string'
+                    ],
+                    [
+                        'lable' => ('subject_or_description'),
+                        'value' => 'subject_or_description',
+                        'match' => 'string'
+                    ],
+                    [
+                        'lable' => ('priority'),
+                        'value' => 'priority',
+                        'match' => 'select'
+                    ],
+                    [
+                        'lable' => ('stage'),
+                        'value' => 'stage',
+                        'match' => 'select'
+                    ],
+                    [
+                        'lable' => ('created'),
+                        'value' => 'created',
+                        'match' => 'date'
+                    ],
+                    [
+                        'lable' => ('agent_name'),
+                        'value' => 'agent_name',
+                        'match' => 'select'
+                    ],
+                    [
+                        'lable' => ('agent_email'),
+                        'value' => 'agent_email',
+                        'match' => 'select'
+                    ],
+                ),
+            ]
+        );
+
+
+        return $conditions;
+    }
+
+    public function getAgentMatchConditions()
+    {
+        return [
+            'email' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+                [
+                    'lable' => ('isNot'),
+                    'value' => 'isNot'
+                ],
+                [
+                    'lable' => ('contains'),
+                    'value' => 'contains'
+                ],
+                [
+                    'lable' => ('notContains'),
+                    'value' => 'notContains'
+                ],
+            ),
+            'api' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+                [
+                    'lable' => ('contains'),
+                    'value' => 'contains'
+                ],
+            ),
+            'string' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+                [
+                    'lable' => ('isNot'),
+                    'value' => 'isNot'
+                ],
+                [
+                    'lable' => ('contains'),
+                    'value' => 'contains'
+                ],
+                [
+                    'lable' => ('notContains'),
+                    'value' => 'notContains'
+                ],
+                [
+                    'lable' => ('startWith'),
+                    'value' => 'startWith'
+                ],
+                [
+                    'lable' => ('endWith'),
+                    'value' => 'endWith'
+                ],
+            ),
+            'select' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+            ),
+            'date' => array(
+                [
+                    'lable' => ('before'),
+                    'value' => 'before'
+                ],
+                [
+                    'lable' => ('beforeOn'),
+                    'value' => 'beforeOn'
+                ],
+                [
+                    'lable' => ('after'),
+                    'value' => 'after'
+                ],
+                [
+                    'lable' => ('afterOn'),
+                    'value' => 'afterOn'
+                ],
+            ),
+            'datetime' => array(
+                [
+                    'lable' => ('before'),
+                    'value' => 'beforeDateTime'
+                ],
+                [
+                    'lable' => ('beforeOn'),
+                    'value' => 'beforeDateTimeOn'
+                ],
+                [
+                    'lable' => ('after'),
+                    'value' => 'afterDateTime'
+                ],
+                [
+                    'lable' => ('afterOn'),
+                    'value' => 'afterDateTimeOn'
+                ],
+            ),
+            'time' => array(
+                [
+                    'lable' => ('before'),
+                    'value' => 'beforeTime'
+                ],
+                [
+                    'lable' => ('beforeOn'),
+                    'value' => 'beforeTimeOn'
+                ],
+                [
+                    'lable' => ('after'),
+                    'value' => 'afterTime'
+                ],
+                [
+                    'lable' => ('afterOn'),
+                    'value' => 'afterTimeOn'
+                ],
+            ),
+            'number' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+                [
+                    'lable' => ('isNot'),
+                    'value' => 'isNot'
+                ],
+                [
+                    'lable' => ('contains'),
+                    'value' => 'contains'
+                ],
+                [
+                    'lable' => ('greaterThan'),
+                    'value' => 'greaterThan'
+                ],
+                [
+                    'lable' => ('lessThan'),
+                    'value' => 'lessThan'
+                ],
+            ),
+        ];
+    }
+
+    public function getTicketMatchConditions()
+    {
+        return [
+            'email' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+                [
+                    'lable' => ('isNot'),
+                    'value' => 'isNot'
+                ],
+                [
+                    'lable' => ('contains'),
+                    'value' => 'contains'
+                ],
+                [
+                    'lable' => ('notContains'),
+                    'value' => 'notContains'
+                ],
+            ),
+            'api' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+                [
+                    'lable' => ('contains'),
+                    'value' => 'contains'
+                ],
+            ),
+            'string' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+                [
+                    'lable' => ('isNot'),
+                    'value' => 'isNot'
+                ],
+                [
+                    'lable' => ('contains'),
+                    'value' => 'contains'
+                ],
+                [
+                    'lable' => ('notContains'),
+                    'value' => 'notContains'
+                ],
+                [
+                    'lable' => ('startWith'),
+                    'value' => 'startWith'
+                ],
+                [
+                    'lable' => ('endWith'),
+                    'value' => 'endWith'
+                ],
+            ),
+            'select' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+                [
+                    'lable' => ('isNot'),
+                    'value' => 'isNot'
+                ],
+            ),
+            'date' => array(
+                [
+                    'lable' => ('before'),
+                    'value' => 'before'
+                ],
+                [
+                    'lable' => ('beforeOn'),
+                    'value' => 'beforeOn'
+                ],
+                [
+                    'lable' => ('after'),
+                    'value' => 'after'
+                ],
+                [
+                    'lable' => ('afterOn'),
+                    'value' => 'afterOn'
+                ],
+            ),
+            'datetime' => array(
+                [
+                    'lable' => ('before'),
+                    'value' => 'beforeDateTime'
+                ],
+                [
+                    'lable' => ('beforeOn'),
+                    'value' => 'beforeDateTimeOn'
+                ],
+                [
+                    'lable' => ('after'),
+                    'value' => 'afterDateTime'
+                ],
+                [
+                    'lable' => ('afterOn'),
+                    'value' => 'afterDateTimeOn'
+                ],
+            ),
+            'time' => array(
+                [
+                    'lable' => ('before'),
+                    'value' => 'beforeTime'
+                ],
+                [
+                    'lable' => ('beforeOn'),
+                    'value' => 'beforeTimeOn'
+                ],
+                [
+                    'lable' => ('after'),
+                    'value' => 'afterTime'
+                ],
+                [
+                    'lable' => ('afterOn'),
+                    'value' => 'afterTimeOn'
+                ],
+            ),
+            'number' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+                [
+                    'lable' => ('isNot'),
+                    'value' => 'isNot'
+                ],
+                [
+                    'lable' => ('contains'),
+                    'value' => 'contains'
+                ],
+                [
+                    'lable' => ('greaterThan'),
+                    'value' => 'greaterThan'
+                ],
+                [
+                    'lable' => ('lessThan'),
+                    'value' => 'lessThan'
+                ],
+            ),
+        ];
+    }
+
+    public function getTargetAction() {
+       return [
+            '4' => ['response' => ['time' => '2', 'unit' => 'hours'], 'resolve' => ['time' => '8', 'unit' => 'hours'], 'operational' => 'calendarHours', 'isActive' => 'on'],
+            '3' => ['response' => ['time' => '4', 'unit' => 'hours'], 'resolve' => ['time' => '1', 'unit' => 'days'], 'operational' => 'calendarHours', 'isActive' => 'on'],
+            '2' => ['response' => ['time' => '8', 'unit' => 'hours'], 'resolve' => ['time' => '3', 'unit' => 'days'], 'operational' => 'calendarHours', 'isActive' => 'on'],
+            '1' => ['response' => ['time' => '16', 'unit' => 'hours'], 'resolve' => ['time' => '5', 'unit' => 'days'], 'operational' => 'calendarHours', 'isActive' => 'on'],
+       ];
+    }
+
+    public function getTicketActions($force = false)
+    {
+        $actionArray =  array(
+            'ticket' => [
+                'priority' => ('action.priority'),
+                'type' => ('action.type'),
+                'status' => ('action.status'),
+
+                'tag' => ('action.tag'),
+                'note' => ('action.note'),
+                'label' => ('action.label'),
+
+                'assign_agent' => ('action.assign_agent'),
+                'assign_group' => ('action.assign_group'),
+                'assign_team' => ('action.assign_team'),
+
+                'mail_agent' => ('action.mail_agent'),
+                'mail_group' => ('action.mail_group'),
+                'mail_team' => ('action.mail_team'),
+                'mail_customer' => ('action.mail_customer'),
+
+                'mail_last_collaborator' => ('action.mail_last_collaborator'),
+
+                'mail_all_collaborators' => ('action.mail_all_collaborators'),
+
+                'delete_ticket' => ('action.delete_ticket'),
+                'mark_spam' => ('action.mark_spam'),
+            ],
+            'task'  => [
+                // 'assign_agent' => ('action.assign_agent'),
+                'reply' => ('action.reply'),
+                'mail_agent' => ('action.mail_agent'),
+                'mail_members' => ('action.mail_members'),
+                'mail_last_member' => ('action.mail_last_member'),
+            ],
+            'customer'  => [
+                'mail_customer' => ('action.mail_customer'),
+            ],
+            'agent'  => [
+                'mail_agent' => ('action.mail_agent'),
+                // 'ticket_transfer' => ('action.ticket_transfer'),
+                'task_transfer' => ('action.task_transfer'),
+                'assign_agent' => ('action.assign_agent'),
+                'assign_group' => ('action.assign_group'),
+                'assign_team' => ('action.assign_team'),
+            ],
+        );
+
+        $actionRoleArray = [
+            'ticket->priority' => 'ROLE_AGENT_UPDATE_TICKET_PRIORITY',
+            'ticket->type' => 'ROLE_AGENT_UPDATE_TICKET_TYPE',
+            'ticket->status' => 'ROLE_AGENT_UPDATE_TICKET_STATUS',
+            'ticket->tag' => 'ROLE_AGENT_ADD_TAG',
+            'ticket->note' => 'ROLE_AGENT_ADD_NOTE',
+            'ticket->assign_agent' => 'ROLE_AGENT_ASSIGN_TICKET',
+            'ticket->assign_group' => 'ROLE_AGENT_ASSIGN_TICKET_GROUP',
+            'ticket->assign_team' => 'ROLE_AGENT_ASSIGN_TICKET_GROUP',
+            'ticket->mail_agent' => 'ROLE_AGENT',
+            'ticket->mail_group' => 'ROLE_AGENT_MANAGE_GROUP',
+            'ticket->mail_team' => 'ROLE_AGENT_MANAGE_SUB_GROUP',
+            'ticket->mail_customer' => 'ROLE_AGENT',
+            'ticket->mail_last_collaborator' => 'ROLE_AGENT',
+            'ticket->mail_all_collaborators' => 'ROLE_AGENT',
+            'ticket->delete_ticket' => 'ROLE_AGENT_DELETE_TICKET',
+            'ticket->mark_spam' => 'ROLE_AGENT_UPDATE_TICKET_STATUS',
+            'ticket->label' => 'ROLE_ADMIN',
+
+            'task->reply' => 'ROLE_AGENT',
+            'task->mail_agent' => 'ROLE_AGENT',
+            'task->mail_members' => 'ROLE_AGENT',
+            'task->mail_last_member' => 'ROLE_AGENT',
+
+            'customer->mail_customer' => 'ROLE_AGENT',
+
+            'agent->mail_agent' => 'ROLE_AGENT',
+            // 'agent->ticket_transfer' => 'ROLE_AGENT_ASSIGN_TICKET',
+            'agent->task_transfer' => 'ROLE_AGENT_EDIT_TASK',
+            'agent->assign_agent' => 'ROLE_AGENT_ASSIGN_TICKET',
+            'agent->assign_group' => 'ROLE_AGENT_ASSIGN_TICKET_GROUP',
+            'agent->assign_team' => 'ROLE_AGENT_ASSIGN_TICKET_GROUP',
+        ];
+
+        $resultArray = [];
+
+        foreach ($actionRoleArray as $action => $role) {
+            if ($role == 'ROLE_AGENT' || $this->container->get('user.service')->checkPermission($role) || $force) {
+                $actionPath = explode('->', $action);
+                $resultArray[$actionPath[0]][$actionPath[1]] = $actionArray[$actionPath[0]][$actionPath[1]];
+            }
+        }
+
+        $repo = $this->container->get('doctrine.orm.entity_manager')->getRepository('WebkulAppBundle:ECommerceChannel');
+
+        $ecomArray= [];
+        $ecomChannels = $repo->getActiveChannelsByCompany($this->container->get('user.service')->getCurrentCompany());
+
+        foreach($ecomChannels as $channel) {
+            $ecomArray['add_order_to_' . $channel['id']] = ('Add order to: ') . $channel['title'];
+        }
+
+        $resultArray['ticket'] = array_merge($resultArray['ticket'], $ecomArray);
+
+        return $resultArray;
+    }
 }

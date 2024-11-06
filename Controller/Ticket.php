@@ -20,6 +20,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\EmailService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
@@ -31,7 +32,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportRole;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketPriority;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
-use UVDesk\CommunityPackages\UVDesk\SLA\Services\SlaService;
+use UVDesk\CommunityPackages\UVDesk as UVDeskCommunityPackages;
 
 class Ticket extends AbstractController
 {
@@ -40,18 +41,20 @@ class Ticket extends AbstractController
     private $eventDispatcher;
     private $ticketService;
     private $emailService;
-    private $slaService;
+    private $entityManagerInterface;
+    private $containerInterface;
     private $kernel;
 
-    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcherInterface $eventDispatcher, KernelInterface $kernel, SlaService $slaService)
+    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcherInterface $eventDispatcher, KernelInterface $kernel, EntityManagerInterface $entityManagerInterface, ContainerInterface $containerInterface)
     {
         $this->userService = $userService;
         $this->emailService = $emailService;
         $this->translator = $translator;
         $this->ticketService = $ticketService;
         $this->eventDispatcher = $eventDispatcher;
+        $this->entityManagerInterface = $entityManagerInterface;
+        $this->containerInterface = $containerInterface;
         $this->kernel = $kernel;
-        $this->slaService = $slaService;
     }
 
     public function listTicketCollection(Request $request)
@@ -279,7 +282,9 @@ class Ticket extends AbstractController
         $ticket = $thread->getTicket();
 
         if ($this->userService->isfileExists('apps/uvdesk/sla')) {
-           $this->slaService->refreshTicketPolicies($ticket);
+            $slaServiceClass = UVDeskCommunityPackages\SLA\Services\SlaService::class;
+            $slaService = new $slaServiceClass($this->containerInterface, $this->entityManagerInterface );
+            $slaService->refreshTicketPolicies($ticket);
         }
         // Trigger ticket created event
         try {
