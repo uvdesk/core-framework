@@ -97,7 +97,14 @@ class Thread extends AbstractController
         if(!empty($params['status'])){
             $ticketStatus = $entityManager->getRepository(TicketStatus::class)->findOneByCode($params['status']);
             $ticket->setStatus($ticketStatus);
+
+            $event = new CoreWorkflowEvents\Ticket\Status();
+            $event
+                ->setTicket($ticket);
+
+            $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
         }
+
         if (isset($params['to'])) {
             $threadDetails['to'] = $params['to'];
         }
@@ -185,22 +192,6 @@ class Thread extends AbstractController
                 break;
             default:
                 break;
-        }
-
-        // Check if ticket status needs to be updated
-        $updateTicketToStatus = !empty($params['status']) ? (trim($params['status']) ?: null) : null;
-
-        if (!empty($updateTicketToStatus) && $this->userService->isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS')) {
-            $ticketStatus = $entityManager->getRepository(TicketStatus::class)->findOneById($updateTicketToStatus);
-
-            if (!empty($ticketStatus) && $ticketStatus->getId() === $ticket->getStatus()->getId()) {
-                $ticket->setStatus($ticketStatus);
-
-                $entityManager->persist($ticket);
-                $entityManager->flush();
-
-                // @TODO: Trigger Ticket Status Updated Event
-            }
         }
 
         // Redirect to either Ticket View | Ticket Listings
