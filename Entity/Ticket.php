@@ -213,6 +213,11 @@ class Ticket
     private $resolveSlaLevel;
 
     /**
+     * @var string
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $country;
+    /**
      * Constructor
      */
     public function __construct()
@@ -231,6 +236,26 @@ class Ticket
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set country
+     * 
+     * @param string $country
+     * 
+     * @return Ticket
+     */
+    public function setCountry($country) {
+        $this->country = $country;
+
+        return $this;
+    }
+
+    /**
+     * Get country
+     */
+    public function getCountry() {
+        return $this->country;
     }
 
     /**

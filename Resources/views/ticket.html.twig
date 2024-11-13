@@ -642,6 +642,57 @@
                             {% endif %}
                         </div>
                     </div>
+
+                    {# Assigned Country #}
+                    <div class="uv-aside-select search">
+                        <label class="uv-aside-select-label">{{ 'Country'|trans }}</label>
+
+                        <div class="auto_focus">
+                            {% if user_service.isAccessAuthorized('ROLE_AGENT_ASSIGN_TICKET_COUNTRY') %}
+                                <span class="uv-aside-select-value uv-dropdown-other uv-aside-drop-icon" data-id="{{ ticket.country ? ticket.country : '-- --' }}">
+                                    {% for key, selectedCountry in user_service.getCountries() %}
+                                        {% if (ticket.country) and (ticket.country == key) %}
+                                           {{ selectedCountry }}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if (ticket.country == '') or (ticket.country == null) %}
+                                        {{ 'Not Assigned'|trans }}
+                                    {% endif %}
+                                </span>
+
+                                <div class="uv-dropdown-list uv-bottom-left">
+                                    <div class="uv-dropdown-container">
+                                        <label>{{ 'Country'|trans }}</label>
+
+                                        <div class="uv-search-sm">
+                                            <input type="text" class="uv-search-field uv-search-inline">
+                                        </div>
+                                    </div>
+
+                                    <ul class="uv-search-list country" data-action="country">
+                                        <li data-index=""><a href="#">{{ 'Not Assigned'|trans }}</a></li>
+
+                                        {% for key, country in user_service.getCountries() %}
+                                            <li data-index="{{ key }}"><a href="#">{{ country }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <span class="uv-aside-select-value">
+                                    {% for key, selectedCountry in user_service.getCountries() %}
+                                        {% if (ticket.country) and (ticket.country == key) %}
+                                           {{ selectedCountry }}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if (ticket.country == '') or (ticket.country == null) %}
+                                        {{ 'Not Assigned'|trans }}
+                                    {% endif %}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
 

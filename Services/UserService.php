@@ -93,7 +93,12 @@ class UserService
             return false;
         }
     }
-    
+
+    public function getCountries()
+    {    
+        return $this->helpdeskCountries = \Symfony\Component\Intl\Countries::getNames();
+    }
+
     public function isAccessAuthorized($scope, User $user = null)
     {
         // Return false if no user is provided

@@ -512,6 +512,32 @@ class TicketXHR extends AbstractController
                     ]), 200, ['Content-Type' => 'application/json']);
                 }
                 break;
+            case 'country':
+                if (!$ticket->getCountry() || $ticket->getCountry() != $requestContent['value']) {
+                    $customer = $ticket->getCustomer();
+                    $customerTickets = $entityManager->getRepository(Ticket::class)->findBy([
+                        'customer' => $customer->getId(),
+                    ]);
+
+                    foreach ($customerTickets as $customerTicket) {
+                        $customerTicket
+                            ->setCountry($requestContent['value']);
+
+                        $entityManager->persist($customerTicket);
+                    }
+
+                    $entityManager->flush();
+
+                    return new Response(json_encode([
+                        'alertClass' => 'success',
+                        'alertMessage' => $this->translator->trans('Success ! Ticket country updated successfully.'),
+                    ]), 200, ['Content-Type' => 'application/json']);
+                } else {
+                    return new Response(json_encode([
+                        'alertClass' => 'success',
+                        'alertMessage' => $this->translator->trans('No changes detected in the provided ticket country details.'),
+                    ]), 200, ['Content-Type' => 'application/json']);
+                }
             default:
                 break;
         }
