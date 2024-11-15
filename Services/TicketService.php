@@ -2,16 +2,21 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 
-use Doctrine\ORM\Query;
-use Symfony\Component\Yaml\Yaml;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Yaml\Yaml;
+use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity;
+use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity as CommunityPackageEntities;
+use Webkul\UVDesk\AutomationBundle\Entity\PreparedResponses;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\AgentActivity;
-use Webkul\UVDesk\MailboxBundle\Utils\Mailbox\Mailbox;
-use Symfony\Component\EventDispatcher\GenericEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Tag;
@@ -25,19 +30,17 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportLabel;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedReplies;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
-use Webkul\UVDesk\MailboxBundle\Utils\MailboxConfiguration;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
-use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity;
-use Webkul\UVDesk\MailboxBundle\Utils\Imap\Configuration as ImapConfiguration;
-use Symfony\Component\Filesystem\Filesystem;
+use Webkul\UVDesk\MailboxBundle\Utils\Mailbox\Mailbox;
+use Webkul\UVDesk\MailboxBundle\Utils\MailboxConfiguration;
+use Webkul\UVDesk\MailboxBundle\Utils\IMAP\Configuration as ImapConfiguration;
 use Webkul\UVDesk\SupportCenterBundle\Entity\Article;
 use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
-use Webkul\UVDesk\AutomationBundle\Entity\PreparedResponses;
+use Webkul\UVDesk\MailboxBundle\Services\MailboxService;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use UVDesk\CommunityPackages\UVDesk as UVDeskCommunityPackages;
 
 class TicketService
@@ -51,17 +54,21 @@ class TicketService
     protected $userService;
     
     public function __construct(
-        ContainerInterface $container, 
-        RequestStack $requestStack, 
-        EntityManagerInterface $entityManager, 
+        ContainerInterface $container,
+        RequestStack $requestStack,
+        EntityManagerInterface $entityManager,
         FileUploadService $fileUploadService,
-        UserService $userService)
-    {
+        UserService $userService,
+        MailboxService $mailboxService,
+        TranslatorInterface $translator
+    ) {
         $this->container = $container;
 		$this->requestStack = $requestStack;
         $this->entityManager = $entityManager;
         $this->fileUploadService = $fileUploadService;
         $this->userService = $userService;
+        $this->mailboxService = $mailboxService;
+        $this->translator = $translator;
     }
 
     public function getAllMailboxes()
@@ -133,6 +140,26 @@ class TicketService
         $emailDomain = substr($email, strpos($email, '@'));
 
         return sprintf("<%s%s>", TokenGenerator::generateToken(20, '0123456789abcdefghijklmnopqrstuvwxyz'), $emailDomain);
+    }
+
+    public function generateRandomEmailReferenceId()
+    {
+        $emailDomain = null;
+        $mailbox = $this->mailboxService->parseMailboxConfigurations()->getDefaultMailbox();
+
+        if (!empty($mailbox)) {
+            $smtpConfiguration = $mailbox->getSmtpConfiguration();
+
+            if (!empty($smtpConfiguration)) {
+                $emailDomain = substr($smtpConfiguration->getUsername(), strpos($smtpConfiguration->getUsername(), '@'));
+            }
+        }
+
+        if (!empty($emailDomain)) {
+            return sprintf("<%s%s>", TokenGenerator::generateToken(20, '0123456789abcdefghijklmnopqrstuvwxyz'), $emailDomain);
+        }
+
+        return null;
     }
 
     // @TODO: Refactor this out of this service. Use UserService::getSessionUser() instead.
@@ -235,6 +262,7 @@ class TicketService
             }
 
             $params['role'] = 4;
+            $params['mailboxEmail'] = current($params['replyTo']); 
             $params['customer'] = $params['user'] = $user;
 
             return $this->createTicketBase($params);
@@ -248,7 +276,7 @@ class TicketService
         if ('email' == $ticketData['source']) {
             try {
                 if (array_key_exists('UVDeskMailboxBundle', $this->container->getParameter('kernel.bundles'))) {
-                    $mailbox = $this->container->get('uvdesk.mailbox')->getMailboxByEmail($ticketData['mailboxEmail']);
+                    $mailbox = $this->mailboxService->getMailboxByEmail($ticketData['mailboxEmail']);
                     $ticketData['mailboxEmail'] = $mailbox['email'];
                 }
             } catch (\Exception $e) {
@@ -261,7 +289,12 @@ class TicketService
         $ticketType = !empty($ticketData['type']) ? $ticketData['type'] : $this->getDefaultType();
         $ticketStatus = !empty($ticketData['status']) ? $ticketData['status'] : $this->getDefaultStatus();
         $ticketPriority = !empty($ticketData['priority']) ? $ticketData['priority'] : $this->getDefaultPriority();
-        $ticketMessageId = 'email' == $ticketData['source'] ? (!empty($ticketData['messageId']) ? $ticketData['messageId'] : null) : $this->getRandomRefrenceId();
+
+        if ('email' == $ticketData['source']) {
+            $ticketMessageId = !empty($ticketData['messageId']) ? $ticketData['messageId'] : null;
+        } else {
+            $ticketMessageId = $this->generateRandomEmailReferenceId();
+        }
 
         $ticketData['type'] = $ticketType;
         $ticketData['status'] = $ticketStatus;
@@ -372,10 +405,14 @@ class TicketService
         
         $ticket->createdThread = $thread;
 
-        // Uploading Attachments
-        if (!empty($threadData['attachments'])) {
+        // Uploading Attachments.
+        if (
+            ! empty($threadData['attachments']) 
+            || ! empty($threadData['attachmentContent'])
+        ) {
             if ('email' == $threadData['source']) {
-                $this->saveThreadEmailAttachments($thread, $threadData['attachments']);
+                // Saving Email attachments in case of outlook with $threadData['attachmentContent']
+                $this->saveThreadEmailAttachments($thread, $threadData['attachments'], $threadData['attachmentContent']);
             } else if (!empty($threadData['attachments'])) {
                 $this->saveThreadAttachment($thread, $threadData['attachments']);
             }
@@ -434,7 +471,7 @@ class TicketService
         $this->entityManager->flush();
     }
 
-    public function saveThreadEmailAttachments($thread, array $attachments)
+    public function saveThreadEmailAttachments($thread, array $attachments, array $attachmentContents)
     {
         $prefix = 'threads/' . $thread->getId();
         $uploadManager = $this->container->get('uvdesk.core.file_system.service')->getUploadManager();
@@ -455,7 +492,35 @@ class TicketService
             }
         }
 
-        $this->entityManager->flush();
+        // Microsoft 365 Attachments.
+        $prefixOutlook = 'assets/threads/'. $thread->getId(). '/';
+        foreach ($attachmentContents as $attachmentContent) {
+            $decodedData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $attachmentContent['content']));
+            
+            $filePath = $prefixOutlook . $attachmentContent['name'];
+
+            if (! is_dir($prefixOutlook)) {
+                mkdir($prefixOutlook, 0755, true);
+            }
+    
+            // Save attachment content to file
+            if (file_put_contents($filePath, $decodedData) === false) {
+                error_log("Error: Failed to save attachment to $filePath");
+            }
+
+            if (! empty($filePath)) {
+                ($threadAttachment = new Attachment())
+                    ->setThread($thread)
+                    ->setName($attachmentContent['name'])
+                    ->setPath($filePath)
+                    ->setSize(23343)
+                    ->setContentType($attachmentContent['mimeType']);
+                
+                $this->entityManager->persist($threadAttachment);
+            }
+
+            $this->entityManager->flush();
+        }
     }
 
     public function getTypes()
@@ -869,7 +934,6 @@ class TicketService
             if (empty($ticket)) {
                 continue;
             }
-
 
             switch ($params['actionType']) {
                 case 'trashed':
