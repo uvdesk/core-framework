@@ -495,52 +495,126 @@ class EmailService
 
     public function sendMail($subject, $content, $recipient, array $headers = [], $mailboxEmail = null, array $attachments = [], $cc = [], $bcc = [])
     {
-        if('microsoft') {
-            // Send emails only if any mailer configuration is available
-            $mailer = null;
-            $mailboxConfigurations = $this->mailboxService->parseMailboxConfigurations();
+        $mailer_type = $this->container->getParameter('uvdesk.support_email.mailer_type');
 
-            if (empty($mailboxEmail)) {
-                $mailbox = $mailboxConfigurations->getDefaultMailbox();
-
-                if (empty($mailbox)) {
-                    return;
-                } else if (false == $mailbox->getIsEnabled()) {
-                    return;
-                }
-
-                $mailboxSmtpConfiguration = $mailbox->getSmtpConfiguration();
-
-                // Send email on behalf of support helpdesk
-                $supportEmailName = $mailbox->getName();
-                $supportEmail = $mailboxSmtpConfiguration->getUsername();
+        if (empty($mailboxEmail)) {
+            // Send email on behalf of support helpdesk
+            $supportEmail = $this->container->getParameter('uvdesk.support_email.id');
+            $supportEmailName = $this->container->getParameter('uvdesk.support_email.name');
+            $mailerID = $this->container->getParameter('uvdesk.support_email.mailer_id');
+        } else {
+            // Register automations conditionally if AutomationBundle has been added as an dependency.
+            if (!array_key_exists('UVDeskMailboxBundle', $this->container->getParameter('kernel.bundles'))) {
+                return;
             } else {
-                // Register automations conditionally if AutomationBundle has been added as an dependency.
-                if (!array_key_exists('UVDeskMailboxBundle', $this->container->getParameter('kernel.bundles'))) {
-                    return;
-                }
-
-                $mailbox = $mailboxConfigurations->getOutgoingMailboxByEmailAddress($mailboxEmail);
-
                 // Send email on behalf of configured mailbox
-                if (empty($mailbox)) {
+                try {
+                    $mailbox = $this->container->get('uvdesk.mailbox')->getMailboxByEmail($mailboxEmail);
+
+                    if (true === $mailbox['enabled']) {
+                        $supportEmail = $mailbox['email'];
+                        $supportEmailName = $mailbox['name'];
+                        $mailerID = $mailbox['smtp_swift_mailer_server']['mailer_id'];
+                    } else {
+                        // @TODO: Log mailbox disabled notice
+                        return;
+                    }
+                } catch (\Exception $e) {
                     // @TODO: Log exception - Mailbox not found
-                    $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans("No mailbox was found for email address '$mailboxEmail'. Please review your settings and try again later."));
-                    
-                    return;
-                } else if (false == $mailbox->getIsEnabled()) {
-                    // @TODO: Log mailbox disabled notice
-                    $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans("The selected mailbox for email address '$mailboxEmail' is currently disabled. Please review your settings and try again later."));
-        
                     return;
                 }
-                
-                $mailboxSmtpConfiguration = $mailbox->getSmtpConfiguration();
+            }
+        }
 
-                $supportEmailName = $mailbox->getName();
-                $supportEmail = $mailboxSmtpConfiguration->getUsername();
+        // Send emails only if any mailer configuration is available
+        $mailer = null;
+        $mailboxConfigurations = $this->mailboxService->parseMailboxConfigurations();
+        
+        if ($mailer_type != 'swiftmailer_id') {
+            $mailbox = $mailboxConfigurations->getMailboxById($mailerID);
+            $mailboxSmtpConfiguration = $mailbox?->getSmtpConfiguration();
+        }
+
+        if ($mailer_type == 'swiftmailer_id') {
+            // Retrieve mailer to be used for sending emails
+            try {
+                $mailer = $this->container->get('swiftmailer.mailer' . (('default' == $mailerID) ? '' : ".$mailerID"));
+                $mailer->getTransport()->setPassword(base64_decode($mailer->getTransport()->getPassword()));
+            } catch (\Exception $e) {
+                // @TODO: Log exception - Mailer not found
+                return;
             }
 
+            // Format email address collections
+            $ccAddresses = [];
+
+            foreach ($cc as $_emailAddress) {
+                if (strpos($_emailAddress, "<") !== false && strpos($_emailAddress, ">") !== false) {
+                    $_recipientName = trim(substr($_emailAddress, 0, strpos($_emailAddress, "<")));
+                    $_recipientAddress = substr($_emailAddress, strpos($_emailAddress, "<") + 1);
+                    $_recipientAddress = substr($_recipientAddress, 0, strpos($_recipientAddress, ">"));
+
+                    $ccAddresses[$_recipientAddress] = $_recipientName;
+                } else {
+                    $ccAddresses[] = $_emailAddress;
+                }
+            }
+
+            $bccAddresses = [];
+
+            foreach ($bcc as $_emailAddress) {
+                if (strpos($_emailAddress, "<") !== false && strpos($_emailAddress, ">") !== false) {
+                    $_recipientName = trim(substr($_emailAddress, 0, strpos($_emailAddress, "<")));
+                    $_recipientAddress = substr($_emailAddress, strpos($_emailAddress, "<") + 1);
+                    $_recipientAddress = substr($_recipientAddress, 0, strpos($_recipientAddress, ">"));
+
+                    $bccAddresses[$_recipientAddress] = $_recipientName;
+                } else {
+                    $bccAddresses[] = $_emailAddress;
+                }
+            }
+
+            // Create a message
+            $message = (new \Swift_Message($subject))
+                ->setFrom([$supportEmail => $supportEmailName])
+                ->setTo($recipient)
+                ->setBcc($bccAddresses)
+                ->setCc($ccAddresses)
+                ->setBody($content, 'text/html')
+                ->addPart(strip_tags($content), 'text/plain')
+            ;
+
+            foreach ($attachments as $attachment) {
+                if (!empty($attachment['path']) && !empty($attachment['name'])) {
+                    $message->attach(\Swift_Attachment::fromPath($attachment['path'])->setFilename($attachment['name']));
+
+                    continue;
+                }
+
+                $message->attach(\Swift_Attachment::fromPath($attachment));
+            }
+
+            $messageHeaders = $message->getHeaders();
+
+            foreach ($headers as $headerName => $headerValue) {
+                if(is_array($headerValue)) {
+                    $headerValue = $headerValue['messageId'];
+                }
+                $messageHeaders->addTextHeader($headerName, $headerValue);
+            }
+
+            try {
+                $messageId = $message->getId();
+                $mailer->send($message);
+
+                return "<$messageId>";
+            } catch (\Exception $e) {
+                // @TODO: Log exception
+                $this->session->getFlashBag()->add('warning', $this->trans('Warning! Swiftmailer not working. An error has occurred while sending emails!'));
+            }
+
+            return null;
+        } else {
             // Prepare email
             $email = new Email();
             $email
@@ -578,11 +652,13 @@ class EmailService
             $emailHeaders = $email->getHeaders();
 
             foreach ($headers as $name => $value) {
-                if (is_array($value) && !empty($value['messageId'])) {
-                    $value = $value['messageId'];
+                if (is_array($value)) {
+                    $value = !empty($value['messageId']) ? $value['messageId'] : null;
                 }
-
-                $emailHeaders->addTextHeader($name, $value);
+            
+                if (!empty($name) && !empty($value)) {
+                    $emailHeaders->addTextHeader($name, $value);
+                }
             }
 
             // Send email
@@ -593,9 +669,9 @@ class EmailService
                     $microsoftApp = $this->entityManager->getRepository(MicrosoftApp::class)->findOneByClientId($mailboxSmtpConfiguration->getClient());
 
                     if (empty($microsoftApp)) {
-                        $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans('An unexpected error occurred while trying to send email. Please try again later.'));
-                        $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans('No associated microsoft apps were found for configured mailbox.'));
-
+                        $this->session->getFlashBag()->add('warning', $this->trans('An unexpected error occurred while trying to send email. Please try again later.'));
+                        $this->session->getFlashBag()->add('warning', $this->trans('No associated microsoft apps were found for configured mailbox.'));
+    
                         return null;
                     }
 
@@ -603,11 +679,11 @@ class EmailService
                         'email' => $mailboxSmtpConfiguration->getUsername(), 
                         'microsoftApp' => $microsoftApp, 
                     ]);
-
+    
                     if (empty($microsoftAccount)) {
-                        $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans('An unexpected error occurred while trying to send email. Please try again later.'));
-                        $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans('No associated microsoft account was found for configured mailbox.'));
-
+                        $this->session->getFlashBag()->add('warning', $this->trans('An unexpected error occurred while trying to send email. Please try again later.'));
+                        $this->session->getFlashBag()->add('warning', $this->trans('No associated microsoft account was found for configured mailbox.'));
+    
                         return null;
                     }
 
@@ -685,119 +761,13 @@ class EmailService
                 }
             } catch (\Exception $e) {
                 // @TODO: Log exception
-                $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans('An unexpected error occurred while trying to send email. Please try again later.'));
-                $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans($e->getMessage()));
-            }
+                $this->session->getFlashBag()->add('warning', $this->trans('An unexpected error occurred while trying to send email. Please try again later.'));
+                $this->session->getFlashBag()->add('warning', $this->trans($e->getMessage()));
 
+                return null;
+            }
+    
             return !empty($messageId) ? "<$messageId>" : null;
-        }else {
-            if (empty($mailboxEmail)) {
-                // Send email on behalf of support helpdesk
-                $supportEmail = $this->container->getParameter('uvdesk.support_email.id');
-                $supportEmailName = $this->container->getParameter('uvdesk.support_email.name');
-                $mailerID = $this->container->getParameter('uvdesk.support_email.mailer_id');
-            } else {
-                // Register automations conditionally if AutomationBundle has been added as an dependency.
-                if (!array_key_exists('UVDeskMailboxBundle', $this->container->getParameter('kernel.bundles'))) {
-                    return;
-                } else {
-                    // Send email on behalf of configured mailbox
-                    try {
-                        $mailbox = $this->container->get('uvdesk.mailbox')->getMailboxByEmail($mailboxEmail);
-        
-                        if (true === $mailbox['enabled']) {
-                            $supportEmail = $mailbox['email'];
-                            $supportEmailName = $mailbox['name'];
-                            $mailerID = $mailbox['smtp_server']['mailer_id'];
-                        } else {
-                            // @TODO: Log mailbox disabled notice
-                            return;
-                        }
-                    } catch (\Exception $e) {
-                        // @TODO: Log exception - Mailbox not found
-                        return;
-                    }
-                }
-            }
-    
-            // Retrieve mailer to be used for sending emails
-            try {
-                $mailer = $this->container->get('swiftmailer.mailer' . (('default' == $mailerID) ? '' : ".$mailerID"));
-                $mailer->getTransport()->setPassword(base64_decode($mailer->getTransport()->getPassword()));
-            } catch (\Exception $e) {
-                // @TODO: Log exception - Mailer not found
-                return;
-            }
-    
-            // Format email address collections
-            $ccAddresses = [];
-            
-            foreach ($cc as $_emailAddress) {
-                if (strpos($_emailAddress, "<") !== false && strpos($_emailAddress, ">") !== false) {
-                    $_recipientName = trim(substr($_emailAddress, 0, strpos($_emailAddress, "<")));
-                    $_recipientAddress = substr($_emailAddress, strpos($_emailAddress, "<") + 1);
-                    $_recipientAddress = substr($_recipientAddress, 0, strpos($_recipientAddress, ">"));
-                    
-                    $ccAddresses[$_recipientAddress] = $_recipientName;
-                } else {
-                    $ccAddresses[] = $_emailAddress;
-                }
-            }
-            
-            $bccAddresses = [];
-    
-            foreach ($bcc as $_emailAddress) {
-                if (strpos($_emailAddress, "<") !== false && strpos($_emailAddress, ">") !== false) {
-                    $_recipientName = trim(substr($_emailAddress, 0, strpos($_emailAddress, "<")));
-                    $_recipientAddress = substr($_emailAddress, strpos($_emailAddress, "<") + 1);
-                    $_recipientAddress = substr($_recipientAddress, 0, strpos($_recipientAddress, ">"));
-    
-                    $bccAddresses[$_recipientAddress] = $_recipientName;
-                } else {
-                    $bccAddresses[] = $_emailAddress;
-                }
-            }
-    
-            // Create a message
-            $message = (new \Swift_Message($subject))
-                ->setFrom([$supportEmail => $supportEmailName])
-                ->setTo($recipient)
-                ->setBcc($bccAddresses)
-                ->setCc($ccAddresses)
-                ->setBody($content, 'text/html')
-                ->addPart(strip_tags($content), 'text/plain')
-            ;
-    
-            foreach ($attachments as $attachment) {
-                if (!empty($attachment['path']) && !empty($attachment['name'])) {
-                    $message->attach(\Swift_Attachment::fromPath($attachment['path'])->setFilename($attachment['name']));
-                    
-                    continue;
-                } 
-    
-                $message->attach(\Swift_Attachment::fromPath($attachment));
-            }
-    
-            $messageHeaders = $message->getHeaders();
-            
-            foreach ($headers as $headerName => $headerValue) {
-                if(is_array($headerValue)) {
-                    $headerValue = $headerValue['messageId'];
-                }
-                $messageHeaders->addTextHeader($headerName, $headerValue);
-            }
-    
-            try {
-                $messageId = $message->getId();
-                $mailer->send($message);
-    
-                return "<$messageId>";
-            } catch (\Exception $e) {
-                // @TODO: Log exception
-                $this->session->getFlashBag()->add('warning', $this->container->get('translator')->trans('Warning! Swiftmailer not working. An error has occurred while sending emails!'));   
-            }
-    
-            return null;
         }
     }
 

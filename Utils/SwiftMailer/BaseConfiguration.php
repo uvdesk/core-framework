@@ -7,6 +7,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 abstract class BaseConfiguration
 {
     CONST TOKEN_RANGE = '0123456789';
+    const code = 'swiftmailer_id';
 
     protected $id;
     protected $username;
@@ -35,6 +36,11 @@ abstract class BaseConfiguration
     public function getId()
     {
         return $this->id;
+    }
+
+    public function getCode()
+    {
+        return self::code;
     }
 
     public function setUsername($username)

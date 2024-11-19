@@ -73,73 +73,20 @@ class TicketService
 
     public function getAllMailboxes()
     {
-        $collection = array_map(function ($mailbox) {
+        $mailboxConfiguration = $this->mailboxService->parseMailboxConfigurations();
+
+        $defaultMailbox = $mailboxConfiguration->getDefaultMailbox();
+
+        $collection = array_map(function ($mailbox) use ($defaultMailbox) {
             return [
-                'id' => $mailbox->getId(),
-                'name' => $mailbox->getName(),
+                'id'        => $mailbox->getId(),
+                'name'      => $mailbox->getName(),
                 'isEnabled' => $mailbox->getIsEnabled(),
                 'email'     => $mailbox->getImapConfiguration()->getUsername(),
             ];
-        }, $this->parseMailboxConfigurations()->getMailboxes());
+        }, array_values($mailboxConfiguration->getMailboxes()));
 
-        return $collection;
-    }
-
-    public function parseMailboxConfigurations(bool $ignoreInvalidAttributes = false) 
-    {
-        $path = $this->getPathToConfigurationFile();
-
-        if (!file_exists($path)) {
-            throw new \Exception("File '$path' not found.");
-        }
-        // Read configurations from package config.
-        $mailboxConfiguration = new MailboxConfiguration();
-        $swiftmailerService = $this->container->get('swiftmailer.service');
-        $swiftmailerConfigurations = $swiftmailerService->parseSwiftMailerConfigurations();
-
-        foreach (Yaml::parse(file_get_contents($path))['uvdesk_mailbox']['mailboxes'] ?? [] as $id => $params) {
-            // Swiftmailer Configuration
-            $swiftmailerConfiguration = null;
-            foreach ($swiftmailerConfigurations as $configuration) {
-                if ($configuration->getId() == $params['smtp_server']['mailer_id']) {
-                    $swiftmailerConfiguration = $configuration;
-                    break;
-                }
-            }
-            // IMAP Configuration
-            ($imapConfiguration = ImapConfiguration::guessTransportDefinition($params['imap_server']['host']))
-                ->setUsername($params['imap_server']['username'])
-                ->setPassword($params['imap_server']['password']);
-
-            // Mailbox Configuration
-            ($mailbox = new Mailbox($id))
-                ->setName($params['name'])
-                ->setIsEnabled($params['enabled'])
-                ->setImapConfiguration($imapConfiguration);
-            
-            if (!empty($swiftmailerConfiguration)) {
-                $mailbox->setSwiftMailerConfiguration($swiftmailerConfiguration);
-            } else if (!empty($params['smtp_server']['mailer_id']) && true === $ignoreInvalidAttributes) {
-                $mailbox->setSwiftMailerConfiguration($swiftmailerService->createConfiguration('smtp', $params['smtp_server']['mailer_id']));
-            }
-
-            $mailboxConfiguration->addMailbox($mailbox);
-        }
-
-        return $mailboxConfiguration;
-    }
-
-    public function getPathToConfigurationFile()
-    {
-        return $this->container->get('kernel')->getProjectDir() . self::PATH_TO_CONFIG;
-    }
-
-    public function getRandomRefrenceId($email = null)
-    {
-        $email = !empty($email) ? $email : $this->container->getParameter('uvdesk.support_email.id');
-        $emailDomain = substr($email, strpos($email, '@'));
-
-        return sprintf("<%s%s>", TokenGenerator::generateToken(20, '0123456789abcdefghijklmnopqrstuvwxyz'), $emailDomain);
+        return ($collection ?? []);
     }
 
     public function generateRandomEmailReferenceId()
@@ -407,8 +354,7 @@ class TicketService
 
         // Uploading Attachments.
         if (
-            ! empty($threadData['attachments']) 
-            || ! empty($threadData['attachmentContent'])
+            (isset($threadData['attachments']) && ! empty($threadData['attachments'])) || (isset($threadData['attachmentContent']) && ! empty($threadData['attachmentContent']))
         ) {
             if ('email' == $threadData['source']) {
                 // Saving Email attachments in case of outlook with $threadData['attachmentContent']
