@@ -532,6 +532,11 @@ class EmailService
         
         if ($mailer_type != 'swiftmailer_id') {
             $mailbox = $mailboxConfigurations->getMailboxById($mailerID);
+
+            if (!$mailbox) {
+                return;
+            }
+
             $mailboxSmtpConfiguration = $mailbox?->getSmtpConfiguration();
         }
 
