@@ -521,7 +521,7 @@ class TicketXHR extends AbstractController
 
                     foreach ($customerTickets as $customerTicket) {
                         $customerTicket
-                            ->setCountry($requestContent['value']);
+                            ->setCountry($requestContent['value'] ?? NULL);
 
                         $entityManager->persist($customerTicket);
                     }

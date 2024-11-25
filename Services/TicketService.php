@@ -358,7 +358,7 @@ class TicketService
         ) {
             if ('email' == $threadData['source']) {
                 // Saving Email attachments in case of outlook with $threadData['attachmentContent']
-                $this->saveThreadEmailAttachments($thread, $threadData['attachments'], $threadData['attachmentContent']);
+                $this->saveThreadEmailAttachments($thread, $threadData['attachments'], $threadData['attachmentContent'] ?? []);
             } else if (!empty($threadData['attachments'])) {
                 $this->saveThreadAttachment($thread, $threadData['attachments']);
             }
