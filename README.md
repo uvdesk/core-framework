@@ -38,7 +38,7 @@ $ composer require uvdesk/core-framework
 License
 --------------
 
-The **CoreFrameworkBundle** and libraries included within the bundle are released under the MIT or BSD license.
+The **CoreFrameworkBundle** and libraries included within the bundle are released under the [OSL-3.0 license][8]
 
 [1]: https://www.uvdesk.com/
 [2]: https://symfony.com/
@@ -47,3 +47,4 @@ The **CoreFrameworkBundle** and libraries included within the bundle are release
 [5]: https://getcomposer.org/
 [6]: http://php.net/manual/en/book.imap.php
 [7]: http://php.net/manual/en/book.mailparse.php
+[8]: https://github.com/uvdesk/community-skeleton/blob/master/LICENSE.txt
