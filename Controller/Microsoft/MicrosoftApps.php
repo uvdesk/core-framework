@@ -146,7 +146,7 @@ class MicrosoftApps extends AbstractController
         $state = !empty($params['state']) ? json_decode($params['state'], true) : [];
 
         $microsoftApp = $entityManager->getRepository(MicrosoftApp::class)->findOneById($state['app']);
-        $redirectEndpoint = str_replace('http', 'https', $this->generateUrl('uvdesk_member_core_framework_integrations_microsoft_apps_oauth_login', [], UrlGeneratorInterface::ABSOLUTE_URL));
+        $redirectEndpoint = str_replace('http://', 'https://', $this->generateUrl('uvdesk_member_core_framework_integrations_microsoft_apps_oauth_login', [], UrlGeneratorInterface::ABSOLUTE_URL));
 
         $accessTokenResponse = $microsoftIntegration->getAccessToken($microsoftApp, $params['code'], $redirectEndpoint);
 
