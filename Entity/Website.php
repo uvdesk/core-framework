@@ -78,6 +78,44 @@ class Website
      */
     private $timeformat;
 
+    /**
+     * @ORM\Column(type="array", nullable=true)
+     */
+    private $businessHour;
+
+    /**
+     * @var bool
+     * @ORM\Column(type="boolean", nullable=true, options={"default": true})
+     */
+    private $businessHourStatus;
+
+    /**
+     * Get bussiness hour
+     */
+    public function getBusinessHour() {
+        return $this->businessHour;
+    }
+
+    /**
+     * Set bussiness hour
+     */
+    public function setBusinessHour($businessHour) {
+        $this->businessHour = $businessHour;
+    }
+
+    /**
+     * Get bussinessHourStatus
+     */
+    public function getBusinessHourStatus() {
+        return $this->businessHourStatus;
+    }
+
+    /**
+     * Set bussinessHourStatus 
+     */
+    public function setBusinessHourStatus($businessHourStatus) {
+        $this->businessHourStatus = $businessHourStatus;
+    }
 
     /**
      * Get id
