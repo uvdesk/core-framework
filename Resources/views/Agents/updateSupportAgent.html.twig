@@ -395,18 +395,18 @@
 					'user_form[firstName]': [{
                         required: true,
                         msg: '{{ "This field is mandatory" | trans}}'
-                    },{
-                        pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
-                        msg: '{{ "This field must have characters only" | trans}}'
-                    },{
+                    }, {
+                        pattern: /^[\p{L}]+$/u,
+                        msg: '{{ "This field must have no space and characters only" | trans}}'
+                    }, {
                         maxLength:40,
                         msg: '{{ "Maximum character length is 40" | trans}}'
                     }],
                     'user_form[lastName]': function(value) {
                         if(value != undefined && value !== '') {
                             [{
-                                pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
-                                msg: '{{ "This field must have characters only" | trans}}'
+                                pattern: /^[\p{L}]+$/u,
+                                msg: '{{ "This field must have no space and characters only" | trans}}'
                             },{
                                 maxLength:40,
                                 msg: '{{ "Maximum character length is 40" | trans}}'
@@ -416,7 +416,7 @@
                     'user_form[email]': [{
                         required: true,
                         msg: '{{ "This field is mandatory"|trans }}'
-                    },{
+                    }, {
                         pattern:  /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
                         msg: '{{ "This is not a valid email address"|trans }}'
                     }],
@@ -453,8 +453,8 @@
                     },
                     'user_form[ticketView]': {
                         fn: function(value) {
-                            if($("#user_form_role").val() == 'ROLE_AGENT') {
-                                if(!value)
+                            if ($("#user_form_role").val() == 'ROLE_AGENT') {
+                                if (!value)
                                     return true;
                             }
 
@@ -468,8 +468,8 @@
 			var UserForm = Backbone.View.extend({
 				events : {
 					'click .uv-btn' : "saveUser",
-					'blur input, textarea': 'formChanegd',
-                    'change input[name="user_form[isActive]"]': 'formChanegd',
+					'blur input, textarea': 'formChanged',
+                    'change input[name="user_form[isActive]"]': 'formChanged',
                     'change #user_form_role': 'roleChanged',
                     'click a.select': 'selectAll',
 		            'click a.deselect': 'deselectAll',
@@ -495,7 +495,7 @@
                         }
                     {% endif %}
 				},
-				formChanegd: function(e) {
+				formChanged: function(e) {
 			    	var fieldName = Backbone.$(e.currentTarget).attr('name');
                     $(".uv-tabs li.uv-tab-active").removeClass('uv-tab-error')
                     if(fieldName == 'user_form[password][second]') {
