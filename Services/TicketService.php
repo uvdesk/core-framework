@@ -164,7 +164,7 @@ class TicketService
                 $headerCustomFields = $this->container->get('uvdesk_package_form_component.service')->getCustomFieldsArray('user');
             }
         } catch (\Exception $e) {
-            // @TODO: Log execption message
+            // @TODO: Log exception message
         }
 
         return $twigTemplatingEngine->render('@UVDeskCoreFramework/Snippets/createMemberTicket.html.twig', [
@@ -182,7 +182,7 @@ class TicketService
                 $customFields = $this->container->get('uvdesk_package_form_component.service')->getCustomFieldsArray('customer');
             }
         } catch (\Exception $e) {
-            // @TODO: Log execption message
+            // @TODO: Log exception message
         }
 
         return $customFields ?? null;
@@ -272,12 +272,29 @@ class TicketService
             $threadData['replyTo'] = $threadData['to'];
         }
 
-        $collaboratorEmails = array_merge(!empty($threadData['cccol']) ? $threadData['cccol'] : [], !empty($threadData['cc']) ? $threadData['cc'] : []);
+        $collaboratorEmails = [];
+        // check if $threadData['cc'] is not empty then merge it with $collaboratorEmails
+        if (! empty($threadData['cc'])) {
+            if (! is_array($threadData['cc'])) {
+                $threadData['cc'] = [$threadData['cc']];
+            }
 
-        if (!empty($collaboratorEmails)) {
+            $collaboratorEmails = array_merge($collaboratorEmails, $threadData['cc']);
+        }
+
+        // check if $threadData['cccol'] is not empty
+        if (! empty($threadData['cccol'])) {
+            if (! is_array($threadData['cccol'])) {
+                $threadData['cccol'] = [$threadData['cccol']];
+            }
+
+            $collaboratorEmails = array_merge($collaboratorEmails, $threadData['cccol']);
+        }
+
+        if (! empty($collaboratorEmails)) {
             $threadData['cc'] = $collaboratorEmails;
         }
-   
+
         $thread = new Thread();
         $thread->setTicket($ticket);
         $thread->setCreatedAt(new \DateTime());
