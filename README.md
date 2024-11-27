@@ -47,4 +47,4 @@ The **CoreFrameworkBundle** and libraries included within the bundle are release
 [5]: https://getcomposer.org/
 [6]: http://php.net/manual/en/book.imap.php
 [7]: http://php.net/manual/en/book.mailparse.php
-[8]: https://github.com/uvdesk/community-skeleton/blob/master/LICENSE.txt
+[8]: https://github.com/uvdesk/core-framework/blob/master/LICENSE.txt
