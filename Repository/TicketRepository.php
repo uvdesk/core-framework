@@ -60,26 +60,27 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $qb->addSelect("CONCAT(a.firstName,' ', a.lastName) AS name");
         $qb->andwhere("t.agent IS NULL OR ad.supportRole != 4");
         $data = $obj ? $obj->all() : [];
+
         $data = array_reverse($data);
         foreach ($data as $key => $value) {
-            if(!in_array($key,$this->safeFields)) {
-                if(isset($data['search']) && $key == 'search') {
+            if (!in_array($key,$this->safeFields)) {
+                if (isset($data['search']) && $key == 'search') {
                     $qb->andwhere("t.subject LIKE :subject OR a.email LIKE :agentName OR t.id LIKE :ticketId");
-                    $qb->setParameter('subject', '%'.urldecode($value).'%');
-                    $qb->setParameter('agentName', '%'.urldecode($value).'%');
-                    $qb->setParameter('ticketId', '%'.urldecode($value).'%');
-                } elseif($key == 'status') {
+                    $qb->setParameter('subject', '%'.urldecode(trim($value)).'%');
+                    $qb->setParameter('agentName', '%'.urldecode(trim($value)).'%');
+                    $qb->setParameter('ticketId', '%'.urldecode(trim($value)).'%');
+                } elseif ($key == 'status') {
                     $qb->andwhere('t.status = '.intval($value));
                 }
             }
         }
         $qb->andwhere('t.isTrashed != 1');
 
-        if(!isset($data['sort'])) {
+        if (!isset($data['sort'])) {
             $qb->orderBy('t.id',Criteria::DESC);
         }
 
-        if(isset($data['sort']) && $data['sort'] == "t.updatedAt") {
+        if (isset($data['sort']) && $data['sort'] == "t.updatedAt") {
             $qb->orderBy('t.updatedAt',Criteria::DESC);
         }
 
@@ -110,19 +111,19 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             $ticket[0]['status']['description'] = $translatorService->trans($ticket[0]['status']['description']);
 
             $data[] = [
-                'id' => $ticket[0]['id'],
-                'subject' => $ticket[0]['subject'],
-                'isCustomerView' => $ticket[0]['isCustomerViewed'],
-                'status' => $ticket[0]['status'],
-                'source' => $ticket[0]['source'],
-                'isStarred' => $ticket[0]['isStarred'],
-                'group' => $ticket[0]['supportGroup'],
-                'type' => $ticket[0]['type'],
-                'priority' => $ticket[0]['priority'],
+                'id'                => $ticket[0]['id'],
+                'subject'           => $ticket[0]['subject'],
+                'isCustomerView'    => $ticket[0]['isCustomerViewed'],
+                'status'            => $ticket[0]['status'],
+                'source'            => $ticket[0]['source'],
+                'isStarred'         => $ticket[0]['isStarred'],
+                'group'             => $ticket[0]['supportGroup'],
+                'type'              => $ticket[0]['type'],
+                'priority'          => $ticket[0]['priority'],
                 'formatedCreatedAt' => $userService->convertToTimezone($ticket[0]['createdAt']),
-                'totalThreads' => $ticketService->getTicketTotalThreads($ticket[0]['id']),
-                'agent' => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
-                'customer' => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
+                'totalThreads'      => $ticketService->getTicketTotalThreads($ticket[0]['id']),
+                'agent'             => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
+                'customer'          => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
                 // 'hasAttachments' => $ticketService->hasAttachments($ticket[0]['id'])
             ];
         }
@@ -153,13 +154,13 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $data = $obj->all();
         $data = array_reverse($data);
         foreach ($data as $key => $value) {
-            if(!in_array($key,$this->safeFields)) {
-                if(isset($data['search']) && $key == 'search') {
+            if (! in_array($key,$this->safeFields)) {
+                if (isset($data['search']) && $key == 'search') {
                     $qb->andwhere("t.subject LIKE :subject OR a.email LIKE :agentName OR t.id LIKE :ticketId");
-                    $qb->setParameter('subject', '%'.urldecode($value).'%');
-                    $qb->setParameter('agentName', '%'.urldecode($value).'%');
-                    $qb->setParameter('ticketId', '%'.urldecode($value).'%');
-                } elseif($key == 'status') {
+                    $qb->setParameter('subject', '%'.urldecode(trim($value)).'%');
+                    $qb->setParameter('agentName', '%'.urldecode(trim($value)).'%');
+                    $qb->setParameter('ticketId', '%'.urldecode(trim($value)).'%');
+                } elseif ($key == 'status') {
                     $qb->andwhere('t.status = '.intval($value));
                 }
             }
@@ -201,16 +202,16 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             $ticket[0]['status']['code'] = $translatorService->trans($ticket[0]['status']['code']);
 
             $data[] = [
-                'id' => $ticket[0]['id'],
-                'subject' => $ticket[0]['subject'],
-                'isCustomerView' => $ticket[0]['isCustomerViewed'],
-                'status' => $ticket[0]['status'],
-                'group' => $ticket[0]['supportGroup'],
-                'type' => $ticket[0]['type'],
-                'priority' => $ticket[0]['priority'],
-                'totalThreads' => $ticketService->getTicketTotalThreads($ticket[0]['id']),
-                'agent' => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
-                'customer' => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
+                'id'                => $ticket[0]['id'],
+                'subject'           => $ticket[0]['subject'],
+                'isCustomerView'    => $ticket[0]['isCustomerViewed'],
+                'status'            => $ticket[0]['status'],
+                'group'             => $ticket[0]['supportGroup'],
+                'type'              => $ticket[0]['type'],
+                'priority'          => $ticket[0]['priority'],
+                'totalThreads'      => $ticketService->getTicketTotalThreads($ticket[0]['id']),
+                'agent'             => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
+                'customer'          => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
                 'formatedCreatedAt' => $userService->getLocalizedFormattedTime($ticket[0]['createdAt'],$userService->getSessionUser()),
             ];
         }
@@ -406,7 +407,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $queryBuilder = $this->prepareTicketListQueryWithParams($queryBuilder, $params, $user);
         $results = $queryBuilder->getQuery()->getResult();
 
-        foreach($results as $status) {
+        foreach ($results as $status) {
             $data[$status['statusId']] += $status['countTicket'];
         }
 
@@ -436,7 +437,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
         $nextPrevPage = array('next' => 0,'prev' => 0);
         for ($i = 0; $i < count($results); $i++) {
-            if($results[$i]['id'] == $ticket->getId()) {
+            if ($results[$i]['id'] == $ticket->getId()) {
                 $nextPrevPage['next'] = isset($results[$i + 1]) ? $results[$i + 1]['id'] : 0;
                 $nextPrevPage['prev'] = isset($results[$i - 1]) ? $results[$i - 1]['id'] : 0;
             }
@@ -526,24 +527,24 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $ticket = array_shift($results);
         
         return [
-            'id' => $ticket[0]['id'],
-            'subject' => $ticket[0]['subject'],
-            'isStarred' => $ticket[0]['isStarred'],
-            'isAgentView' => $ticket[0]['isAgentViewed'],
-            'isTrashed' => $ticket[0]['isTrashed'],
-            'status' => $ticket[0]['status'],
-            'groupName' => $ticket['groupName'],
-            'subGroupName' => $ticket['supportTeamName'],
-            'typeName' => $ticket['typeName'],
-            'priority' => $ticket[0]['priority'],
-            'formatedCreatedAt' => $ticketService->timeZoneConverter($ticket[0]['createdAt']),      
-            'ticketLabels' => $ticketService->getTicketLabels($ticket[0]['id']),
-            'totalThreads' => $ticketService->getTicketTotalThreads($ticket[0]['id']),
-            'agent' => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
-            'customer' => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
+            'id'                 => $ticket[0]['id'],
+            'subject'            => $ticket[0]['subject'],
+            'isStarred'          => $ticket[0]['isStarred'],
+            'isAgentView'        => $ticket[0]['isAgentViewed'],
+            'isTrashed'          => $ticket[0]['isTrashed'],
+            'status'             => $ticket[0]['status'],
+            'groupName'          => $ticket['groupName'],
+            'subGroupName'       => $ticket['supportTeamName'],
+            'typeName'           => $ticket['typeName'],
+            'priority'           => $ticket[0]['priority'],
+            'formatedCreatedAt'  => $ticketService->timeZoneConverter($ticket[0]['createdAt']),      
+            'ticketLabels'       => $ticketService->getTicketLabels($ticket[0]['id']),
+            'totalThreads'       => $ticketService->getTicketTotalThreads($ticket[0]['id']),
+            'agent'              => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
+            'customer'           => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
             'lastReplyAgentName' => $ticketService->getlastReplyAgentName($ticket[0]['id']),
-            'createThread' => $ticketService->getCreateReply($ticket[0]['id']),
-            'lastReply' => $ticketService->getLastReply($ticket[0]['id']),
+            'createThread'       => $ticketService->getCreateReply($ticket[0]['id']),
+            'lastReply'          => $ticketService->getLastReply($ticket[0]['id']),
         ];
     }
 
@@ -603,7 +604,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 continue;
             }
 
-            if($actAsUser != null ) {
+            if ($actAsUser != null ) {
                 $userInstance = $actAsUser->getAgentInstance();
                 if (!empty($userInstance) && ('ROLE_AGENT' == $userInstance->getSupportRole()->getCode() && $field == 'mine') || ('ROLE_ADMIN' == $userInstance->getSupportRole()->getCode()) && $field == 'mine') {
                     $fieldValue = $actAsUser->getId();
