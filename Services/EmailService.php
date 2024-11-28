@@ -603,9 +603,14 @@ class EmailService
             $messageHeaders = $message->getHeaders();
 
             foreach ($headers as $headerName => $headerValue) {
-                if (is_array($headerValue)) {
+                if (is_array($headerValue) && !empty($headerValue['messageId'])) {
                     $headerValue = $headerValue['messageId'];
                 }
+
+                if (is_array($headerValue)) {
+                    continue; // Skip arrays that don't have a 'messageId'.
+                }
+            
                 $messageHeaders->addTextHeader($headerName, $headerValue);
             }
 
