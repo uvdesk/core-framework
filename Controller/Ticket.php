@@ -479,7 +479,7 @@ class Ticket extends AbstractController
 
         $attachment = $attachmentRepository->findByThread($threadId);
 
-        if (!$attachment) {
+        if (! $attachment) {
             $this->noResultFound();
         }
 
@@ -491,10 +491,10 @@ class Ticket extends AbstractController
             throw new \Exception('Access Denied', 403);
         }
 
-        $zipname = 'attachments/' .$threadId.'.zip';
+        $zipName = 'attachments/' .$threadId.'.zip';
         $zip = new \ZipArchive;
 
-        $zip->open($zipname, \ZipArchive::CREATE);
+        $zip->open($zipName, \ZipArchive::CREATE);
         if (count($attachment)) {
             foreach ($attachment as $attach) {
                 $zip->addFile(substr($attach->getPath(), 1));
@@ -507,8 +507,9 @@ class Ticket extends AbstractController
         $response->setStatusCode(200);
         $response->headers->set('Content-type', 'application/zip');
         $response->headers->set('Content-Disposition', 'attachment; filename=' . $threadId . '.zip');
+        $response->headers->set('Content-length', filesize($zipName));
         $response->sendHeaders();
-        $response->setContent(readfile($zipname));
+        $response->setContent(readfile($zipName));
 
         return $response;
     }
