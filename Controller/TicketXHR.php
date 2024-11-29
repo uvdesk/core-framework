@@ -86,12 +86,12 @@ class TicketXHR extends AbstractController
         $content = $request->getContent();
         $em = $this->getDoctrine()->getManager();
 
-        if($method == "POST") {
+        if ($method == "POST") {
             $data = json_decode($content, true);
-            if($data['name'] != "") {
+            if ($data['name'] != "") {
                 $label = new SupportLabel();
                 $label->setName($data['name']);
-                if(isset($data['colorCode']))
+                if (isset($data['colorCode']))
                     $label->setColorCode($data['colorCode']);
                 $label->setUser($this->userService->getCurrentUser());
                 $em->persist($label);
@@ -109,12 +109,12 @@ class TicketXHR extends AbstractController
                 $json['alertClass'] = 'danger';
                 $json['alertMessage'] = $this->translator->trans('Error ! Label name can not be blank.');
             }
-        } elseif($method == "PUT") {
+        } elseif ($method == "PUT") {
             $data = json_decode($content, true);
             $label = $em->getRepository(SupportLabel::class)->findOneBy(array('id' => $request->attributes->get('ticketLabelId')));
-            if($label) {
+            if ($label) {
                 $label->setName($data['name']);
-                if(!empty($data['colorCode'])) {
+                if (!empty($data['colorCode'])) {
                     $label->setColorCode($data['colorCode']);
                 }
                 $em->persist($label);
@@ -132,7 +132,7 @@ class TicketXHR extends AbstractController
                 $json['alertClass'] = 'danger';
                 $json['alertMessage'] = $this->translator->trans('Error ! Invalid label id.');
             }
-        } elseif($method == "DELETE") {
+        } elseif ($method == "DELETE") {
             $label = $em->getRepository(SupportLabel::class)->findOneBy(array('id' => $request->attributes->get('ticketLabelId')));
             if($label) {
                 $em->remove($label);
@@ -477,7 +477,7 @@ class TicketXHR extends AbstractController
                 if (null != $ticket->getType() && $ticketType->getId() === $ticket->getType()->getId()) {
                     return new Response(json_encode([
                         'alertClass' => 'success',
-                        'alertMessage' => 'Ticket type already set to ' . $ticketType->getDescription(),
+                        'alertMessage' => 'Ticket type already set to ' . $ticketType->getCode(),
                     ]), 200, ['Content-Type' => 'application/json']);
                 } else {
                     $ticket->setType($ticketType);
@@ -760,7 +760,7 @@ class TicketXHR extends AbstractController
         }
 
         $json = [];
-        if($request->getMethod() == "DELETE") {
+        if ($request->getMethod() == "DELETE") {
             $em = $this->getDoctrine()->getManager();
             $id = $request->attributes->get('typeId');
             $type = $em->getRepository(TicketType::class)->find($id);
@@ -779,6 +779,7 @@ class TicketXHR extends AbstractController
 
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');
+
         return $response;
     }
 
@@ -828,6 +829,7 @@ class TicketXHR extends AbstractController
         }
 
         $response = new Response(json_encode($json));
+
         return $response;
     }
 
@@ -844,11 +846,11 @@ class TicketXHR extends AbstractController
             throw new \Exception('Access Denied', 403);
         }
 
-        if($request->getMethod() == "POST") {
+        if ($request->getMethod() == "POST") {
             $tag = new CoreFrameworkBundleEntities\Tag();
             if ($content['name'] != "") {
                 $checkTag = $em->getRepository(Tag::class)->findOneBy(array('name' => $content['name']));
-                if(!$checkTag) {
+                if (!$checkTag) {
                     $tag->setName($content['name']);
                     $em->persist($tag);
                     $em->flush();
@@ -868,7 +870,7 @@ class TicketXHR extends AbstractController
             }
         } elseif($request->getMethod() == "DELETE") {
             $tag = $em->getRepository(Tag::class)->findOneBy(array('id' => $request->attributes->get('id')));
-            if($tag) {
+            if ($tag) {
                 $articles = $em->getRepository(ArticleTags::class)->findOneBy(array('tagId' => $tag->getId()));
                 if($articles)
                     foreach ($articles as $entry) {
@@ -889,6 +891,7 @@ class TicketXHR extends AbstractController
 
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');
+
         return $response;
     }
 
@@ -896,17 +899,17 @@ class TicketXHR extends AbstractController
     {
         $json = [];
         if ($request->isXmlHttpRequest()) {
-            if($request->query->get('type') == 'agent') {
+            if ($request->query->get('type') == 'agent') {
                 $json = $this->userService->getAgentsPartialDetails($request);
-            } elseif($request->query->get('type') == 'customer') {
+            } elseif ($request->query->get('type') == 'customer') {
                 $json = $this->userService->getCustomersPartial($request);
-            } elseif($request->query->get('type') == 'group') {
+            } elseif ($request->query->get('type') == 'group') {
                 $json = $this->userService->getSupportGroups($request);
-            } elseif($request->query->get('type') == 'team') {
+            } elseif ($request->query->get('type') == 'team') {
                 $json = $this->userService->getSupportTeams($request);
-            } elseif($request->query->get('type') == 'tag') {
+            } elseif ($request->query->get('type') == 'tag') {
                 $json = $this->ticketService->getTicketTags($request);
-            } elseif($request->query->get('type') == 'label') {
+            } elseif ($request->query->get('type') == 'label') {
                 $json = $this->ticketService->getLabels($request);
             }
         }
@@ -928,8 +931,8 @@ class TicketXHR extends AbstractController
             throw new \Exception('Access Denied', 403);
         }
 
-        if($request->getMethod() == "POST") {
-            if($content['email'] == $ticket->getCustomer()->getEmail()) {
+        if ($request->getMethod() == "POST") {
+            if ($content['email'] == $ticket->getCustomer()->getEmail()) {
                 $json['alertClass'] = 'danger';
                 $json['alertMessage'] = $this->translator->trans('Error ! Customer can not be added as collaborator.');
             } else {
@@ -973,7 +976,7 @@ class TicketXHR extends AbstractController
                     $json['alertMessage'] = $this->translator->trans('Error ! ' . $message);
                 }
             }
-        } elseif($request->getMethod() == "DELETE") {
+        } elseif ($request->getMethod() == "DELETE") {
             $collaborator = $em->getRepository(User::class)->findOneBy(array('id' => $request->attributes->get('id')));
             if($collaborator) {
                 $ticket->removeCollaborator($collaborator);
@@ -1005,6 +1008,7 @@ class TicketXHR extends AbstractController
 
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');
+
         return $response;
     }
 
@@ -1015,7 +1019,7 @@ class TicketXHR extends AbstractController
 
         if (isset($content['name']) && $content['name'] != "") {
             $checkTag = $entityManager->getRepository(Tag::class)->findOneBy(array('id' => $tagId));
-            if($checkTag) {
+            if ($checkTag) {
                 $checkTag->setName($content['name']);
                 $entityManager->persist($checkTag);
                 $entityManager->flush();
@@ -1027,6 +1031,7 @@ class TicketXHR extends AbstractController
 
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');
+
         return $response;
     }
 
@@ -1035,7 +1040,7 @@ class TicketXHR extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
         $checkTag = $entityManager->getRepository(Tag::class)->findOneBy(array('id' => $tagId));
 
-        if($checkTag) {
+        if ($checkTag) {
             $entityManager->remove($checkTag);
             $entityManager->flush();
 
@@ -1045,6 +1050,7 @@ class TicketXHR extends AbstractController
 
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');
+        
         return $response;
     }
 }
