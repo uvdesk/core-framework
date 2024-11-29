@@ -8,7 +8,6 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup;
-
 class GroupXHR extends AbstractController
 {
     private $userService;
@@ -51,7 +50,7 @@ class GroupXHR extends AbstractController
                 $entityManager->flush();
                 
                 return new Response(json_encode([
-                    'alertClass' => 'success',
+                    'alertClass'   => 'success',
                     'alertMessage' => 'Support Group removed successfully.',
                 ]), 200, ['Content-Type' => 'application/json']);
             }

@@ -14,7 +14,6 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-
 class SavedReplies extends AbstractController
 {
     const LIMIT = 10;
@@ -61,7 +60,7 @@ class SavedReplies extends AbstractController
                 
                 return $this->render('@UVDeskCoreFramework//savedReplyForm.html.twig', [
                     'template' => $template,
-                    'errors' => json_encode($errors)
+                    'errors'   => json_encode($errors)
                 ]);
             }
 
@@ -82,7 +81,7 @@ class SavedReplies extends AbstractController
                 }
             }
 
-            foreach($groups as $key => $groupId) {
+            foreach ($groups as $key => $groupId) {
                 if ($groupId) {
                     $group = $em->getRepository(SupportGroup::class)->findOneBy([ 'id' => $groupId ]);
 
@@ -135,7 +134,7 @@ class SavedReplies extends AbstractController
 
         return $this->render('@UVDeskCoreFramework//savedReplyForm.html.twig', array(
             'template' => $template,
-            'errors' => json_encode($errors)
+            'errors'   => json_encode($errors)
         ));
     }
 
@@ -167,7 +166,7 @@ class SavedReplies extends AbstractController
             $entityManager->flush();
 
             $responseContent = [
-                'alertClass' => 'success',
+                'alertClass'   => 'success',
                 'alertMessage' => $this->translator->trans('Success! Saved Reply has been deleted successfully.')
             ];
         }

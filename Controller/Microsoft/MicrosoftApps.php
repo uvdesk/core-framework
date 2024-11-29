@@ -68,7 +68,7 @@ class MicrosoftApps extends AbstractController
         }
 
         return $this->render('@UVDeskCoreFramework//MicrosoftApps//manageConfigurations.html.twig', [
-            'microsoftApp' => null, 
+            'microsoftApp'     => null, 
             'redirectEndpoint' => $redirectEndpoint,
         ]);
     }
@@ -110,7 +110,7 @@ class MicrosoftApps extends AbstractController
         }
 
         return $this->render('@UVDeskCoreFramework//MicrosoftApps//manageConfigurations.html.twig', [
-            'microsoftApp' => $microsoftApp, 
+            'microsoftApp'     => $microsoftApp, 
             'redirectEndpoint' => $redirectEndpoint,
         ]);
     }

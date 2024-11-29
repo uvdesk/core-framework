@@ -11,7 +11,6 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-
 class PrivilegeXHR extends AbstractController
 {
     private $userService;
@@ -55,8 +54,8 @@ class PrivilegeXHR extends AbstractController
                 $entityManager->flush();
 
                 return new Response(json_encode([
-                    'alertClass' => 'success',
-                    'alertMessage' => $this->translator->trans('Support Privilege removed successfully'),
+                    'alertClass'         => 'success',
+                    'alertMessage'       => $this->translator->trans('Support Privilege removed successfully'),
                 ]), 200, ['Content-Type' => 'application/json']);
             }
         }

@@ -19,7 +19,6 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\EmailService;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
-
 class Thread extends AbstractController
 {
     private $userService;
@@ -86,15 +85,15 @@ class Thread extends AbstractController
 	    // $adminReply =  str_replace(['<p>','</p>'],"",$params['reply']);
 
         $threadDetails = [
-            'user' => $this->getUser(),
-            'createdBy' => 'agent',
-            'source' => 'website',
-            'threadType' => strtolower($params['threadType']),
-            'message' => str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', htmlspecialchars($params['reply'])),
+            'user'        => $this->getUser(),
+            'createdBy'   => 'agent',
+            'source'      => 'website',
+            'threadType'  => strtolower($params['threadType']),
+            'message'     => str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', htmlspecialchars($params['reply'])),
             'attachments' => $request->files->get('attachments')
         ];
 
-        if(!empty($params['status'])){
+        if (!empty($params['status'])) {
             $ticketStatus = $entityManager->getRepository(TicketStatus::class)->findOneByCode($params['status']);
             $ticket->setStatus($ticketStatus);
 
@@ -140,7 +139,7 @@ class Thread extends AbstractController
 
                 $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
-                // @TODO: Render response on the basis of event response (if propogation was stopped or not)
+                // @TODO: Render response on the basis of event response (if propagation was stopped or not)
                 $this->addFlash('success', $this->translator->trans('Note added to ticket successfully.'));
                 break;
             case 'reply':
@@ -152,7 +151,7 @@ class Thread extends AbstractController
 
                 $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
-                // @TODO: Render response on the basis of event response (if propogation was stopped or not)
+                // @TODO: Render response on the basis of event response (if propagation was stopped or not)
                 $this->addFlash('success', $this->translator->trans('Success ! Reply added successfully.'));
                 break;
             case 'forward':
@@ -187,7 +186,7 @@ class Thread extends AbstractController
                     // @TODO: Log exception
                 }
 
-                // @TODO: Render response on the basis of event response (if propogation was stopped or not)
+                // @TODO: Render response on the basis of event response (if propagation was stopped or not)
                 $this->addFlash('success', $this->translator->trans('Reply added to the ticket and forwarded successfully.'));
                 break;
             default:
@@ -212,8 +211,10 @@ class Thread extends AbstractController
         $user = $this->userService->getSessionUser();
 
         // Proceed only if user has access to the resource
-        if ( (!$this->userService->getSessionUser()) || (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) ) 
-        {
+        if (
+            (!$this->userService->getSessionUser())
+            || (false == $this->ticketService->isTicketAccessGranted($ticket, $user))
+        ) {
             throw new \Exception('Access Denied', 403);
         }
 

@@ -11,7 +11,6 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
-
 class TeamXHR extends AbstractController
 {
     private $userService;
@@ -55,8 +54,8 @@ class TeamXHR extends AbstractController
                 $entityManager->flush();
                 
                 return new Response(json_encode([
-                    'alertClass' => 'success',
-                    'alertMessage' => $this->translator->trans('Support Team removed successfully.'),
+                    'alertClass'         => 'success',
+                    'alertMessage'       => $this->translator->trans('Support Team removed successfully.'),
                 ]), 200, ['Content-Type' => 'application/json']);
             }
         }

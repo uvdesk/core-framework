@@ -21,7 +21,6 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketRating;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
-
 class Report extends AbstractController
 {
     private $userService;
@@ -111,15 +110,15 @@ class Report extends AbstractController
             $ticketViewURL = $this->get('router')->generate('helpdesk_member_ticket', ['ticketId' => $activity['ticketId']], UrlGeneratorInterface::ABSOLUTE_URL);
 
             $data[] =   [
-                'id' => $activity['id'],
-                'ticketURL' => $ticketViewURL,
-                'ticketId' => $activity['ticketId'],
-                'subject' => $activity['subject'],
-                'color'   => $activity['colorCode'],
-                'customerName'=> $activity['customerName'],
-                'threadType' => $activity['threadType'],
-                'lastReply'  => $lastReply,
-                'agentName'  => $activity['agentName']
+                'id'           => $activity['id'],
+                'ticketURL'    => $ticketViewURL,
+                'ticketId'     => $activity['ticketId'],
+                'subject'      => $activity['subject'],
+                'color'        => $activity['colorCode'],
+                'customerName' => $activity['customerName'],
+                'threadType'   => $activity['threadType'],
+                'lastReply'    => $lastReply,
+                'agentName'    => $activity['agentName']
             ];
 
             array_push($ticketIds, $activity['ticketId']);
@@ -150,9 +149,9 @@ class Report extends AbstractController
         $endDate = $this->userService->convertToTimezone(new \DateTime("now"), 'Y-m-d');
         $this->userService->forceFormat = false;
 
-        return $this->render('@UVDeskCoreFramework/Reports/kudos-insights.html.twig',array(
+        return $this->render('@UVDeskCoreFramework/Reports/kudos-insights.html.twig', array(
                 'startDate' => $startDate,
-                'endDate' => $endDate
+                'endDate'   => $endDate
             )
         );
     }
@@ -161,7 +160,7 @@ class Report extends AbstractController
     {
         $json = array();
 
-        if( $request->isXmlHttpRequest()) {
+        if ($request->isXmlHttpRequest()) {
             $repository = $this->getDoctrine()->getRepository(TicketRating::class);
             $json =  $repository->getRatedTicketList($request->query, $container);
 
@@ -169,6 +168,7 @@ class Report extends AbstractController
         }
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');
+        
         return $response;
     }
 

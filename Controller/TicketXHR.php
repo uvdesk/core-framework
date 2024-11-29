@@ -134,7 +134,7 @@ class TicketXHR extends AbstractController
             }
         } elseif ($method == "DELETE") {
             $label = $em->getRepository(SupportLabel::class)->findOneBy(array('id' => $request->attributes->get('ticketLabelId')));
-            if($label) {
+            if ($label) {
                 $em->remove($label);
                 $em->flush();
                 $json['alertClass'] = 'success';
@@ -208,7 +208,7 @@ class TicketXHR extends AbstractController
         // Validate request integrity
         if (empty($ticket)) {
             $responseContent = [
-                'alertClass' => 'danger',
+                'alertClass'   => 'danger',
                 'alertMessage' => $this->translator->trans('Unable to retrieve details for ticket #%ticketId%.', [
                     '%ticketId%' => $ticketId,
                 ]),
@@ -217,7 +217,7 @@ class TicketXHR extends AbstractController
             return new Response(json_encode($responseContent), 200, ['Content-Type' => 'application/json']);
         } else if (!isset($requestContent['attribute'])) {
             $responseContent = [
-                'alertClass' => 'danger',
+                'alertClass'   => 'danger',
                 'alertMessage' => $this->translator->trans('Insufficient details provided.'),
             ];
             return new Response(json_encode($responseContent), 400, ['Content-Type' => 'application/json']);
@@ -231,7 +231,7 @@ class TicketXHR extends AbstractController
                 if (empty($agent)) {
                     // User does not exist
                     return new Response(json_encode([
-                        'alertClass' => 'danger',
+                        'alertClass'   => 'danger',
                         'alertMessage' => $this->translator->trans('Unable to retrieve agent details'),
                     ]), 404, ['Content-Type' => 'application/json']);
                 } else {
@@ -241,7 +241,7 @@ class TicketXHR extends AbstractController
                     if (empty($agentInstance)) {
                         // Agent does not exist
                         return new Response(json_encode([
-                            'alertClass' => 'danger',
+                            'alertClass'   => 'danger',
                             'alertMessage' => $this->translator->trans('Unable to retrieve agent details'),
                         ]), 404, ['Content-Type' => 'application/json']);
                     }
@@ -252,7 +252,7 @@ class TicketXHR extends AbstractController
                 // Check if ticket is already assigned to the agent
                 if ($ticket->getAgent() && $agent->getId() === $ticket->getAgent()->getId()) {
                     return new Response(json_encode([
-                        'alertClass' => 'success',
+                        'alertClass'   => 'success',
                         'alertMessage' => $this->translator->trans('Ticket already assigned to %agent%', [
                             '%agent%' => $agentDetails['name'],
                         ]),
@@ -272,7 +272,7 @@ class TicketXHR extends AbstractController
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                     return new Response(json_encode([
-                        'alertClass' => 'success',
+                        'alertClass'   => 'success',
                         'alertMessage' => $this->translator->trans('Ticket successfully assigned to %agent%', [
                             '%agent%' => $agentDetails['name'],
                         ]),
@@ -285,14 +285,14 @@ class TicketXHR extends AbstractController
                 if (empty($ticketStatus)) {
                     // Selected ticket status does not exist
                     return new Response(json_encode([
-                        'alertClass' => 'danger',
+                        'alertClass'   => 'danger',
                         'alertMessage' => $this->translator->trans('Unable to retrieve status details'),
                     ]), 404, ['Content-Type' => 'application/json']);
                 }
 
                 if ($ticketStatus->getId() === $ticket->getStatus()->getId()) {
                     return new Response(json_encode([
-                        'alertClass' => 'success',
+                        'alertClass'   => 'success',
                         'alertMessage' => $this->translator->trans('Ticket status already set to %status%', [
                             '%status%' => $ticketStatus->getDescription()
                         ]),
@@ -312,7 +312,7 @@ class TicketXHR extends AbstractController
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                     return new Response(json_encode([
-                        'alertClass' => 'success',
+                        'alertClass'   => 'success',
                         'alertMessage' => $this->translator->trans('Ticket status update to %status%', [
                             '%status%' => $ticketStatus->getDescription()
                         ]),
@@ -326,14 +326,14 @@ class TicketXHR extends AbstractController
                 if (empty($ticketPriority)) {
                     // Selected ticket priority does not exist
                     return new Response(json_encode([
-                        'alertClass' => 'danger',
+                        'alertClass'   => 'danger',
                         'alertMessage' => $this->translator->trans('Unable to retrieve priority details'),
                     ]), 404, ['Content-Type' => 'application/json']);
                 }
 
                 if ($ticketPriority->getId() === $ticket->getPriority()->getId()) {
                     return new Response(json_encode([
-                        'alertClass' => 'success',
+                        'alertClass'   => 'success',
                         'alertMessage' => $this->translator->trans('Ticket priority already set to %priority%', [
                             '%priority%' => $ticketPriority->getDescription()
                         ]),
@@ -353,7 +353,7 @@ class TicketXHR extends AbstractController
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                     return new Response(json_encode([
-                        'alertClass' => 'success',
+                        'alertClass'   => 'success',
                         'alertMessage' => $this->translator->trans('Ticket priority updated to %priority%', [
                             '%priority%' => $ticketPriority->getDescription()
                         ]),
@@ -373,13 +373,13 @@ class TicketXHR extends AbstractController
 
                         $responseCode = 200;
                         $response = [
-                            'alertClass' => 'success',
+                            'alertClass'   => 'success',
                             'alertMessage' => $this->translator->trans('Ticket support group updated successfully'),
                         ];
                     } else {
                         $responseCode = 404;
                         $response = [
-                            'alertClass' => 'danger',
+                            'alertClass'   => 'danger',
                             'alertMessage' => $this->translator->trans('Unable to retrieve support group details'),
                         ];
                     }
@@ -389,7 +389,7 @@ class TicketXHR extends AbstractController
 
                 if ($ticket->getSupportGroup() != null && $supportGroup->getId() === $ticket->getSupportGroup()->getId()) {
                     return new Response(json_encode([
-                        'alertClass' => 'success',
+                        'alertClass'   => 'success',
                         'alertMessage' => 'Ticket already assigned to support group ' . $supportGroup->getName(),
                     ]), 200, ['Content-Type' => 'application/json']);
                 } else {
@@ -406,7 +406,7 @@ class TicketXHR extends AbstractController
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                     return new Response(json_encode([
-                        'alertClass' => 'success',
+                        'alertClass'   => 'success',
                         'alertMessage' => $this->translator->trans('Ticket assigned to support group '). $supportGroup->getName(),
                     ]), 200, ['Content-Type' => 'application/json']);
                 }
@@ -424,13 +424,13 @@ class TicketXHR extends AbstractController
 
                         $responseCode = 200;
                         $response = [
-                            'alertClass' => 'success',
+                            'alertClass'   => 'success',
                             'alertMessage' => $this->translator->trans('Ticket support team updated successfully'),
                         ];
                     } else {
                         $responseCode = 404;
                         $response = [
-                            'alertClass' => 'danger',
+                            'alertClass'   => 'danger',
                             'alertMessage' => $this->translator->trans('Unable to retrieve support team details'),
                         ];
                     }
@@ -440,7 +440,7 @@ class TicketXHR extends AbstractController
 
                 if ($ticket->getSupportTeam() != null && $supportTeam->getId() === $ticket->getSupportTeam()->getId()) {
                     return new Response(json_encode([
-                        'alertClass' => 'success',
+                        'alertClass'   => 'success',
                         'alertMessage' => 'Ticket already assigned to support team ' . $supportTeam->getName(),
                     ]), 200, ['Content-Type' => 'application/json']);
                 } else {
@@ -457,7 +457,7 @@ class TicketXHR extends AbstractController
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                     return new Response(json_encode([
-                        'alertClass' => 'success',
+                        'alertClass'   => 'success',
                         'alertMessage' => 'Ticket assigned to support team ' . $supportTeam->getName(),
                     ]), 200, ['Content-Type' => 'application/json']);
                 }
@@ -469,14 +469,14 @@ class TicketXHR extends AbstractController
                 if (empty($ticketType)) {
                     // Selected ticket priority does not exist
                     return new Response(json_encode([
-                        'alertClass' => 'danger',
+                        'alertClass'   => 'danger',
                         'alertMessage' => 'Unable to retrieve ticket type details',
                     ]), 404, ['Content-Type' => 'application/json']);
                 }
 
                 if (null != $ticket->getType() && $ticketType->getId() === $ticket->getType()->getId()) {
                     return new Response(json_encode([
-                        'alertClass' => 'success',
+                        'alertClass'   => 'success',
                         'alertMessage' => 'Ticket type already set to ' . $ticketType->getCode(),
                     ]), 200, ['Content-Type' => 'application/json']);
                 } else {
@@ -494,7 +494,7 @@ class TicketXHR extends AbstractController
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                     return new Response(json_encode([
-                        'alertClass' => 'success',
+                        'alertClass'   => 'success',
                         'alertMessage' => 'Ticket type updated to ' . $ticketType->getDescription(),
                     ]), 200, ['Content-Type' => 'application/json']);
                 }
@@ -507,7 +507,7 @@ class TicketXHR extends AbstractController
                     $entityManager->flush();
 
                     return new Response(json_encode([
-                        'alertClass' => 'success',
+                        'alertClass'   => 'success',
                         'alertMessage' => $this->translator->trans('Success ! Ticket to label removed successfully.'),
                     ]), 200, ['Content-Type' => 'application/json']);
                 }
@@ -529,12 +529,12 @@ class TicketXHR extends AbstractController
                     $entityManager->flush();
 
                     return new Response(json_encode([
-                        'alertClass' => 'success',
+                        'alertClass'   => 'success',
                         'alertMessage' => $this->translator->trans('Success ! Ticket country updated successfully.'),
                     ]), 200, ['Content-Type' => 'application/json']);
                 } else {
                     return new Response(json_encode([
-                        'alertClass' => 'success',
+                        'alertClass'   => 'success',
                         'alertMessage' => $this->translator->trans('No changes detected in the provided ticket country details.'),
                     ]), 200, ['Content-Type' => 'application/json']);
                 }
@@ -563,6 +563,7 @@ class TicketXHR extends AbstractController
 
             return new Response(json_encode($massResponse), 200, ['Content-Type' => 'application/json']);
         }
+
         return new Response(json_encode([]), 404);
     }
 
@@ -642,8 +643,8 @@ class TicketXHR extends AbstractController
             }
 
             $responseContent['label'] = [
-                'id' => $supportLabel->getId(),
-                'name' => $supportLabel->getName(),
+                'id'    => $supportLabel->getId(),
+                'name'  => $supportLabel->getName(),
                 'color' => $supportLabel->getColorCode(),
             ];
 
@@ -868,11 +869,11 @@ class TicketXHR extends AbstractController
                 $json['alertClass'] = 'danger';
                 $json['alertMessage'] = $this->translator->trans('Please enter tag name.');
             }
-        } elseif($request->getMethod() == "DELETE") {
+        } elseif ($request->getMethod() == "DELETE") {
             $tag = $em->getRepository(Tag::class)->findOneBy(array('id' => $request->attributes->get('id')));
             if ($tag) {
                 $articles = $em->getRepository(ArticleTags::class)->findOneBy(array('tagId' => $tag->getId()));
-                if($articles)
+                if ($articles)
                     foreach ($articles as $entry) {
                         $em->remove($entry);
                     }
@@ -978,7 +979,7 @@ class TicketXHR extends AbstractController
             }
         } elseif ($request->getMethod() == "DELETE") {
             $collaborator = $em->getRepository(User::class)->findOneBy(array('id' => $request->attributes->get('id')));
-            if($collaborator) {
+            if ($collaborator) {
                 $ticket->removeCollaborator($collaborator);
                 $em->persist($ticket);
                 $em->flush();

@@ -10,7 +10,6 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer;
 use Symfony\Component\HttpKernel\KernelInterface;
-
 class EmailSettingsXHR extends AbstractController
 {
     private $userService;
@@ -37,8 +36,7 @@ class EmailSettingsXHR extends AbstractController
 
         foreach ( file($filePath) as $val) {
             $exploded = explode(":", trim($val));
-            if($exploded[0] == 'app_locales' && ($app_locales != $exploded[1]))
-            {
+            if ($exploded[0] == 'app_locales' && ($app_locales != $exploded[1])) {
                 $app_locales = trim($exploded[1]);
             }
         }
@@ -63,9 +61,9 @@ class EmailSettingsXHR extends AbstractController
         $result = [
             'alertClass' => "success",
             'email_settings' => [
-                'id' => $supportEmailConfiguration['id'],
-                'name' => $supportEmailConfiguration['name'],
-                'mailer_id' => $supportEmailConfiguration['mailer_id'],
+                'id'          => $supportEmailConfiguration['id'],
+                'name'        => $supportEmailConfiguration['name'],
+                'mailer_id'   => $supportEmailConfiguration['mailer_id'],
                 'mailer_type' => $supportEmailConfiguration['smtp[transport]'],
             ],
             'alertMessage' => $this->translator->trans('Success ! Email settings are updated successfully.'),

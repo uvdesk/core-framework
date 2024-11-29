@@ -13,8 +13,6 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-
-
 class Email extends AbstractController
 {
     const LIMIT = 10;
@@ -33,7 +31,7 @@ class Email extends AbstractController
         $emailTemplateRepository = $this->getDoctrine()->getRepository(EmailTemplates::class);
 
         $data = $emailTemplateRepository->findOneby([
-            'id' => $request->attributes->get('template'),
+            'id'   => $request->attributes->get('template'),
             'user' => $this->userService->getCurrentUser()->getId()
         ]);
 
@@ -145,6 +143,7 @@ class Email extends AbstractController
 
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');
+        
         return $response;
     }
 }

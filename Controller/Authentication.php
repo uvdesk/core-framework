@@ -18,7 +18,6 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\ReCaptchaService;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
-
 class Authentication extends AbstractController
 {
     private $userService;
@@ -50,6 +49,7 @@ class Authentication extends AbstractController
                 'alertClass' => 'success',
                 'alertMessage' => $this->translator->trans('Success ! Project cache cleared successfully.')
             ];
+
             return new Response(json_encode($responseContent), 200, ['Content-Type' => 'application/json']);
         }
 
@@ -145,9 +145,9 @@ class Authentication extends AbstractController
 
                 $this->addFlash('success', $this->translator->trans('Your password has been successfully updated. Login using updated password'));
               
-                if($lastupdatedInstance[0]->getSupportRole()->getId() != 4){
+                if ($lastupdatedInstance[0]->getSupportRole()->getId() != 4) {
                     return $this->redirect($this->generateUrl('helpdesk_member_handle_login'));
-                }else{
+                } else {
                     return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
                 }
             } else {

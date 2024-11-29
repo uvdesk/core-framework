@@ -7,7 +7,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
-
 class ThreadXHR extends AbstractController
 {
     private $ticketService;
@@ -34,5 +33,4 @@ class ThreadXHR extends AbstractController
         
         return new Response(json_encode([]), 404, ['Content-Type' => 'application/json']);
     }
-    
 }

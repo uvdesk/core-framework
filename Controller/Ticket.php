@@ -62,8 +62,8 @@ class Ticket extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
 
         return $this->render('@UVDeskCoreFramework//ticketList.html.twig', [
-            'ticketStatusCollection' => $entityManager->getRepository(TicketStatus::class)->findAll(),
-            'ticketTypeCollection' => $entityManager->getRepository(TicketType::class)->findByIsActive(true),
+            'ticketStatusCollection'   => $entityManager->getRepository(TicketStatus::class)->findAll(),
+            'ticketTypeCollection'     => $entityManager->getRepository(TicketType::class)->findByIsActive(true),
             'ticketPriorityCollection' => $entityManager->getRepository(TicketPriority::class)->findAll(),
         ]);
     }
@@ -123,7 +123,7 @@ class Ticket extends AbstractController
                             $ticketAccessableGroups = array_merge($ticketAccessableGroups, $ticketSupportTeamGroups);
                         }
                         $isAccessableGroupFound = false;
-                        foreach($ticketAccessableGroups as $groupId) {
+                        foreach ($ticketAccessableGroups as $groupId) {
                             if (in_array($groupId, $supportGroups)) {
                                 $isAccessableGroupFound = true;
                                 break;
@@ -156,20 +156,20 @@ class Ticket extends AbstractController
         $quickActionButtonCollection->prepareAssets();
 
         return $this->render('@UVDeskCoreFramework//ticket.html.twig', [
-            'ticket' => $ticket,
-            'totalReplies' => $ticketRepository->countTicketTotalThreads($ticket->getId()),
-            'totalCustomerTickets' => ($ticketRepository->countCustomerTotalTickets($customer, $container) - 1),
-            'initialThread' => $this->ticketService->getTicketInitialThreadDetails($ticket),
-            'ticketAgent' => !empty($agent) ? $agent->getAgentInstance()->getPartialDetails() : null,
-            'customer' => $customer->getCustomerInstance()->getPartialDetails(),
-            'currentUserDetails' => $user->getAgentInstance()->getPartialDetails(),
-            'supportGroupCollection' => $userRepository->getSupportGroups(),
-            'supportTeamCollection' => $userRepository->getSupportTeams(),
-            'ticketStatusCollection' => $entityManager->getRepository(TicketStatus::class)->findAll(),
-            'ticketTypeCollection' => $entityManager->getRepository(TicketType::class)->findByIsActive(true),
-            'ticketPriorityCollection' => $entityManager->getRepository(TicketPriority::class)->findAll(),
+            'ticket'                    => $ticket,
+            'totalReplies'              => $ticketRepository->countTicketTotalThreads($ticket->getId()),
+            'totalCustomerTickets'      => ($ticketRepository->countCustomerTotalTickets($customer, $container) - 1),
+            'initialThread'             => $this->ticketService->getTicketInitialThreadDetails($ticket),
+            'ticketAgent'               => !empty($agent) ? $agent->getAgentInstance()->getPartialDetails() : null,
+            'customer'                  => $customer->getCustomerInstance()->getPartialDetails(),
+            'currentUserDetails'        => $user->getAgentInstance()->getPartialDetails(),
+            'supportGroupCollection'    => $userRepository->getSupportGroups(),
+            'supportTeamCollection'     => $userRepository->getSupportTeams(),
+            'ticketStatusCollection'    => $entityManager->getRepository(TicketStatus::class)->findAll(),
+            'ticketTypeCollection'      => $entityManager->getRepository(TicketType::class)->findByIsActive(true),
+            'ticketPriorityCollection'  => $entityManager->getRepository(TicketPriority::class)->findAll(),
             'ticketNavigationIteration' => $ticketRepository->getTicketNavigationIteration($ticket, $container),
-            'ticketLabelCollection' => $ticketRepository->getTicketLabelCollection($ticket, $user),
+            'ticketLabelCollection'     => $ticketRepository->getTicketLabelCollection($ticket, $user),
         ]);
     }
 
@@ -217,7 +217,7 @@ class Ticket extends AbstractController
             // @TODO: Log execption message
         }
 
-        if(!empty($errorFlashMessage)) {
+        if (!empty($errorFlashMessage)) {
             $this->addFlash('warning', $errorFlashMessage);
         }
         
@@ -257,22 +257,22 @@ class Ticket extends AbstractController
         }
 
         $ticketData = [
-            'from' => $customer->getEmail(),
-            'name' => $customer->getFirstName() . ' ' . $customer->getLastName(),
-            'type' => $ticketProxy->getType(),
-            'subject' => $ticketProxy->getSubject(),
+            'from'        => $customer->getEmail(),
+            'name'        => $customer->getFirstName() . ' ' . $customer->getLastName(),
+            'type'        => $ticketProxy->getType(),
+            'subject'     => $ticketProxy->getSubject(),
             // @TODO: We need to enable support for html messages. 
             // Our focus here instead should be to prevent XSS (filter js)
-            'message' => str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', htmlspecialchars($ticketProxy->getReply())),
-            'firstName' => $customer->getFirstName(),
-            'lastName' => $customer->getLastName(),
-            'type' => $ticketProxy->getType(),
-            'role' => 4,
-            'source' => 'website',
-            'threadType' => 'create',
-            'createdBy' => 'agent',
-            'customer' => $customer,
-            'user' => $this->getUser(),
+            'message'     => str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', htmlspecialchars($ticketProxy->getReply())),
+            'firstName'   => $customer->getFirstName(),
+            'lastName'    => $customer->getLastName(),
+            'type'        => $ticketProxy->getType(),
+            'role'        => 4,
+            'source'      => 'website',
+            'threadType'  => 'create',
+            'createdBy'   => 'agent',
+            'customer'    => $customer,
+            'user'        => $this->getUser(),
             'attachments' => $request->files->get('attachments'),
         ];
 
@@ -300,7 +300,7 @@ class Ticket extends AbstractController
 
         if (!empty($thread)) {
             $ticket = $thread->getTicket();
-            if($request->request->get('customFields') || $request->files->get('customFields')) {
+            if ($request->request->get('customFields') || $request->files->get('customFields')) {
                 $this->ticketService->addTicketCustomFields($thread, $request->request->get('customFields'), $request->files->get('customFields'));                        
             }
             $this->addFlash('success', $this->translator->trans('Success ! Ticket has been created successfully.'));
@@ -333,7 +333,7 @@ class Ticket extends AbstractController
         $errorContext = [];
         $em = $this->getDoctrine()->getManager();
 
-        if($id = $request->attributes->get('ticketTypeId')) {
+        if ($id = $request->attributes->get('ticketTypeId')) {
             $type = $em->getRepository(TicketType::class)->find($id);
             if (!$type) {
                 $this->noResultFound();
@@ -367,7 +367,7 @@ class Ticket extends AbstractController
         }
 
         return $this->render('@UVDeskCoreFramework/ticketTypeAdd.html.twig', array(
-            'type' => $type,
+            'type'   => $type,
             'errors' => json_encode($errorContext)
         ));
     }
@@ -395,7 +395,7 @@ class Ticket extends AbstractController
         if($request->getMethod() == "DELETE") {
             $em = $this->getDoctrine()->getManager();
             $tag = $em->getRepository(Tag::class)->find($tagId);
-            if($tag) {
+            if ($tag) {
                 $em->remove($tag);
                 $em->flush();
                 $json['alertClass'] = 'success';
@@ -405,6 +405,7 @@ class Ticket extends AbstractController
 
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');
+        
         return $response;
     }
 

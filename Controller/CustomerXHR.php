@@ -12,7 +12,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-
 class CustomerXHR extends AbstractController
 {
     private $userService;
@@ -34,7 +33,7 @@ class CustomerXHR extends AbstractController
         
         $json = array();
         
-        if($request->isXmlHttpRequest()) {
+        if ($request->isXmlHttpRequest()) {
             $repository = $this->getDoctrine()->getRepository(User::class);
             $json =  $repository->getAllCustomer($request->query, $container);
         }
@@ -52,13 +51,12 @@ class CustomerXHR extends AbstractController
         }
         
         $json = array();
-        if($request->getMethod() == "DELETE") {
+        if ($request->getMethod() == "DELETE") {
             $em = $this->getDoctrine()->getManager();
             $id = $request->attributes->get('customerId');
             $user = $em->getRepository(User::class)->findOneBy(['id' => $id]);
 
-            if($user) {
-
+            if ($user) {
                 $this->userService->removeCustomer($user);
                 // Trigger customer created event
                 $event = new CoreWorkflowEvents\Customer\Delete();
@@ -79,7 +77,7 @@ class CustomerXHR extends AbstractController
 
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');
-        return $response;
 
+        return $response;
     }
 }

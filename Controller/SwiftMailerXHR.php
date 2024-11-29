@@ -26,10 +26,10 @@ class SwiftMailerXHR extends AbstractController
         if (true === $request->isXmlHttpRequest()) {
             $collection = array_map(function ($configuartion) {
                 return [
-                    'id' => $configuartion->getId(),
-                    'email' => $configuartion->getUsername(),
+                    'id'        => $configuartion->getId(),
+                    'email'     => $configuartion->getUsername(),
                     'transport' => $configuartion->getTransportName(),
-                    'isActive' => $configuartion->getDeliveryStatus(),
+                    'isActive'  => $configuartion->getDeliveryStatus(),
                 ];
             }, $this->swiftMailer->parseSwiftMailerConfigurations());
 
@@ -71,7 +71,7 @@ class SwiftMailerXHR extends AbstractController
         }
 
         return new JsonResponse([
-            'alertClass' => 'error',
+            'alertClass'   => 'error',
             'alertMessage' => $this->translator->trans('No swiftmailer configurations found for mailer id:') . $params['id'],
         ], 404);
     }
