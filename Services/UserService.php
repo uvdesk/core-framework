@@ -16,7 +16,6 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedReplies;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Website;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Symfony\Component\Translation\Translator;
@@ -80,7 +79,7 @@ class UserService
     
     public function getSessionUser()
     {
-        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $user = $this->container->get('security.token_storage')->getToken()?->getUser();
 
         return $user instanceof User ? $user : null;
     }
@@ -88,7 +87,7 @@ class UserService
     public function getCurrentUser()
     {
         if ($this->container->get('security.token_storage')->getToken()) {
-            return $this->container->get('security.token_storage')->getToken()->getUser();
+            return $this->container->get('security.token_storage')->getToken()?->getUser();
         } else {
             return false;
         }
@@ -107,7 +106,7 @@ class UserService
         }
 
         try {
-            $userRole = $user->getCurrentInstance()->getSupportRole()->getCode();
+            $userRole = $user?->getCurrentInstance()?->getSupportRole()->getCode();
         } catch (\Exception $error) {
             $userRole = '';
         }
@@ -117,7 +116,7 @@ class UserService
             case 'ROLE_ADMIN':
                 return true;
             case 'ROLE_AGENT':
-                $agentPrivileges = $this->getUserPrivileges($this->getCurrentUser()->getId());
+                $agentPrivileges = $this->getUserPrivileges($this->getCurrentUser()?->getId());
                 $agentPrivileges = array_merge($agentPrivileges, ['saved_filters_action', 'saved_replies']);
                 
                 return in_array($scope, $agentPrivileges) ? true : false;

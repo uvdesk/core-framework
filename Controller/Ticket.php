@@ -4,7 +4,6 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\EventDispatcher\GenericEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Form as CoreFrameworkBundleForms;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
@@ -32,7 +31,6 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportRole;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketPriority;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
-use UVDesk\CommunityPackages\UVDesk as UVDeskCommunityPackages;
 
 class Ticket extends AbstractController
 {
@@ -281,11 +279,6 @@ class Ticket extends AbstractController
 
         $ticket = $thread->getTicket();
 
-        if ($this->userService->isfileExists('apps/uvdesk/sla')) {
-            $slaServiceClass = UVDeskCommunityPackages\SLA\Services\SlaService::class;
-            $slaService = new $slaServiceClass($this->containerInterface, $this->entityManagerInterface );
-            $slaService->refreshTicketPolicies($ticket);
-        }
         // Trigger ticket created event
         try {
             $event = new CoreWorkflowEvents\Ticket\Create();
