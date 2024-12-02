@@ -217,7 +217,7 @@ class Account extends AbstractController
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
-            // @TODO: Refactor
+        // @TODO: Refactor
         $em = $this->getDoctrine()->getManager();
         $request = $this->container->get('request_stack')->getCurrentRequest();
 
@@ -323,6 +323,14 @@ class Account extends AbstractController
                             $userInstance->removeSupportTeam($removeteam);
                             $em->persist($userInstance);
                         }
+                    } else {
+                        foreach ($oldSupportTeam as $supportTeam) {
+                            $userInstance->removeSupportTeam($supportTeam);
+
+                            $em->persist($userInstance);
+                        }
+
+                        $em->flush();
                     }
 
                     if (isset($data['groups'])) {
