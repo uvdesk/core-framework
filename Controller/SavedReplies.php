@@ -42,6 +42,16 @@ class SavedReplies extends AbstractController
         $templateId = $request->attributes->get('template');
         $repository = $this->getDoctrine()->getRepository(CoreFrameworkBundleEntities\SavedReplies::class);
 
+        $template = $repository->getSavedReply($templateId, $container);
+        if (! empty($template)) {
+            $groupSupports = count($template->getSupportGroups());
+            $teamSupports  = count($template->getSupportTeams());
+
+            if ($template->getUser()->getId() != $this->getUser()->getId() && empty($groupSupports) && empty($teamSupports)) {
+                throw new \Exception('Access Denied', 403);
+            }
+        }
+
         if (empty($templateId)) {
             $template = new CoreFrameworkBundleEntities\SavedReplies();
         } else {
