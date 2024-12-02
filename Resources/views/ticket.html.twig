@@ -1562,12 +1562,22 @@
                     },
                     'reply' : {
                         fn: function(value) {
-                            if(!tinyMCE.get("uv-edit-create-thread"))
+                            var content = tinyMCE.activeEditor.getContent();
+							content = content.replace(/&nbsp;/g, '').replace(/<[^>]*>/g, '');
+
+							if (content.trim() == '') {
+								return true;
+							} else {
+								return false;
+							}
+
+                            if (! tinyMCE.get("uv-edit-create-thread"))
                                 return false;
                             var html = tinyMCE.get("uv-edit-create-thread").getContent();
-                            if(app.appView.stripHTML(html) != '') {
+                            if (app.appView.stripHTML(html) != '') {
                                 return false;
                             }
+                            
                             return true;
                         },
                         msg : '{{ "This field is mandatory" | trans}}'

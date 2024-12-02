@@ -40,7 +40,7 @@ class Report extends AbstractController
 
     public function listAgentActivity(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_ACTIVITY')){
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_REPORTS')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -62,7 +62,7 @@ class Report extends AbstractController
 
     public function agentActivityData(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_ACTIVITY')){
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_REPORTS')) {
             throw new \Exception('Access Denied', 403);
         }
         
@@ -73,7 +73,7 @@ class Report extends AbstractController
         $endDate = $reportService->parameters['before'];
 
         $agentIds = [];
-        if(isset($reportService->parameters['agent']))
+        if (isset($reportService->parameters['agent']))
             $agentIds = explode(',', $reportService->parameters['agent']);
 
         $userService = $this->userService;
@@ -159,7 +159,6 @@ class Report extends AbstractController
     public function getAchievementsXhr(Request $request, ContainerInterface $container)
     {
         $json = array();
-
         if ($request->isXmlHttpRequest()) {
             $repository = $this->getDoctrine()->getRepository(TicketRating::class);
             $json =  $repository->getRatedTicketList($request->query, $container);
