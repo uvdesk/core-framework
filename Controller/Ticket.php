@@ -31,6 +31,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportRole;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketPriority;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntites;
 
 class Ticket extends AbstractController
 {
@@ -179,6 +180,13 @@ class Ticket extends AbstractController
 
         if ($request->getMethod() != 'POST' || false == $this->userService->isAccessAuthorized('ROLE_AGENT_CREATE_TICKET')) {
             return $response;
+        }
+
+        $website = $entityManager->getRepository(CoreEntites\Website::class)->findOneByCode('knowledgebase');
+        if (! empty($requestParams['from']) && $this->ticketService->isEmailBlocked($requestParams['from'], $website)) {
+            $request->getSession()->getFlashBag()->set('warning', $this->translator->trans('Warning ! Cannot create ticket, given email is blocked by admin.'));
+            
+            return $this->redirect($this->generateUrl('helpdesk_member_ticket_collection'));
         }
 
         // Get referral ticket if any
