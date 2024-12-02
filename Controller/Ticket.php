@@ -548,7 +548,8 @@ class Ticket extends AbstractController
 
         $response->setStatusCode(200);
         $response->sendHeaders();
-        $response->setContent(readfile($path));
+        
+        readfile($path);
 
         return $response;
     }
