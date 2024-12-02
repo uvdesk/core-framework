@@ -717,7 +717,7 @@ class EmailService
                     ];
 
                     foreach ($headers as $name => $value) {
-                        if ($name == 'X-Transport') {
+                        if ($name == 'X-Transport' || empty($value)) {
                             continue;
                         }
 
