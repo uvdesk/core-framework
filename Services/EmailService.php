@@ -607,7 +607,7 @@ class EmailService
                     $headerValue = $headerValue['messageId'];
                 }
 
-                if (is_array($headerValue)) {
+                if (is_array($headerValue) || empty($headerValue)) {
                     continue; // Skip arrays that don't have a 'messageId'.
                 }
             
@@ -667,7 +667,7 @@ class EmailService
                     $value = $value['messageId'];
                 }
             
-                if (is_array($value)) {
+                if (is_array($value) || empty($value)) {
                     continue; // Skip arrays that don't have a 'messageId'.
                 }
             
