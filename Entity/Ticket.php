@@ -146,6 +146,12 @@ class Ticket
     private $priority;
 
     /**
+     * @var string
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $outlookConversationId;
+
+    /**
      * @var \Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketType
      * @ORM\ManyToOne(targetEntity="TicketType")
      * @ORM\JoinColumn(name="type_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
@@ -226,6 +232,30 @@ class Ticket
         $this->ratings = new \Doctrine\Common\Collections\ArrayCollection();
         $this->supportTags = new \Doctrine\Common\Collections\ArrayCollection();
         $this->supportLabels = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Set outlookConversationId
+     *
+     * @param string $outlookConversationId
+     *
+     * @return Ticket
+     */
+    public function setOutlookConversationId($outlookConversationId)
+    {
+        $this->outlookConversationId = $outlookConversationId;
+
+        return $this;
+    }
+
+    /**
+     * Get outlookConversationId
+     *
+     * @return string
+     */
+    public function getOutlookConversationId()
+    {
+        return $this->outlookConversationId;
     }
 
     /**
