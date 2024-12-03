@@ -143,14 +143,15 @@ class Thread extends AbstractController
                 $this->addFlash('success', $this->translator->trans('Note added to ticket successfully.'));
                 break;
             case 'reply':
-                $event = new CoreWorkflowEvents\Ticket\AgentReply();
-                $event
-                    ->setTicket($ticket)
-                    ->setThread($thread)
-                ;
-
-                $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
-
+                if ($ticket->getIsTrashed() == false) {
+                    $event = new CoreWorkflowEvents\Ticket\AgentReply();
+                    $event
+                        ->setTicket($ticket)
+                        ->setThread($thread)
+                    ;
+    
+                    $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
+                }
                 // @TODO: Render response on the basis of event response (if propagation was stopped or not)
                 $this->addFlash('success', $this->translator->trans('Success ! Reply added successfully.'));
                 break;
