@@ -47,40 +47,41 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
                 ->where('r.createdAt BETWEEN :startDate AND :endDate')
                 ->setParameter('startDate', $startDate." 00:00:01")
                 ->setParameter('endDate', $endDate." 23:59:59")
+                ->andwhere('t.isTrashed != 1')
                 ->andwhere('cd.supportRole = 4');
 
         $container->get('report.service')->addPermissionFilter($qb, $container);
 
-        if(isset($data['priority'])) { 
+        if (isset($data['priority'])) { 
             $qb->andwhere('pr.id IN (:priorityIds)');
             $qb->setParameter('priorityIds', explode(',', $data['priority']));
         } 
-        if(isset($data['type'])) { 
+        if (isset($data['type'])) { 
             $qb->andwhere('tp.id IN (:typeIds)');
             $qb->setParameter('typeIds', explode(',', $data['type']));
         } 
-        if(isset($data['agent'])) { 
+        if (isset($data['agent'])) { 
             $qb->andwhere('a.id IN (:agentIds)');
             $qb->setParameter('agentIds', explode(',', $data['agent']));
         } 
-        if(isset($data['customer'])) { 
+        if (isset($data['customer'])) { 
             $qb->andwhere('tc.id IN (:customerIds)');
             $qb->setParameter('customerIds', explode(',', $data['customer']));
         } 
-        if(isset($data['group'])) { 
+        if (isset($data['group'])) { 
             $qb->andwhere('gr.id IN (:groupIds)');
             $qb->setParameter('groupIds', explode(',', $data['group']));
         }
-        if(isset($data['team'])) { 
+        if (isset($data['team'])) { 
             $qb->andwhere('te.id IN (:teamIds)');
             $qb->setParameter('teamIds', explode(',', $data['team']));
         }
-        if(isset($data['source'])) { 
+        if (isset($data['source'])) { 
             $qb->andwhere('t.source IN (:sources)');
             $qb->setParameter('sources', explode(',', $data['source']));
         }
 
-        if(!isset($data['sort'])){
+        if (!isset($data['sort'])){
             $qb->orderBy('r.createdAt',Criteria::DESC);
         }
 
@@ -99,18 +100,17 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
         $data = [];
         foreach ($results as $rating) {
         	$customer = array(
-								'id' => $rating['customerId'],
-								'name' => $rating['name'],
-								'email' => $rating['email'],
+								'id'             => $rating['customerId'],
+								'name'           => $rating['name'],
+								'email'          => $rating['email'],
 								'smallThumbnail' => $rating['smallThumbnail']
 							);
         	$data[] = array(
-        				'id' => $rating[0]['id'],
-        				'ticketId' => $rating['ticketId'],
-        				'customer' => $customer,
-        				'count' => $rating[0]['stars'],
+        				'id'              => $rating[0]['id'],
+        				'ticketId'        => $rating['ticketId'],
+        				'customer'        => $customer,
+        				'count'           => $rating[0]['stars'],
         				'formatedRatedAt' => $rating[0]['createdAt']->format('d-m-Y H:i A'),
-
         			);
         }
 
@@ -135,7 +135,6 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
                 ->leftJoin('r.ticket', 't')
                 ->andwhere('r.createdAt BETWEEN :startDate AND :endDate')
                 ->andwhere('t.isTrashed != 1')
-                ->andwhere('t.status != 5')
                 ->groupBy('r.ticket')
                 ->setParameter('startDate', $startDate." 00:00:01")
                 ->setParameter('endDate', $endDate." 23:59:59");
@@ -156,42 +155,43 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
         $data['rating'] = $ratePercent;
         $data['ratedCustomer'] = $ratedCustomerCount;
         $data['totalCustomer'] = $container->get('user.service')->getCustomersCountForKudos($container);
+        
         return $data;
     }
 
     public function filterQuerySlim($qb, $data_time, $filterAgent = true)
     {
-        if(isset($data_time['priority'])) {
+        if (isset($data_time['priority'])) {
             $qb->leftJoin('t.priority', 'pr')
                 ->andwhere('pr.id IN (:priorityIds)')
                 ->setParameter('priorityIds', explode(',', $data_time['priority']));
         }
 
-        if(isset($data_time['type'])) {
+        if (isset($data_time['type'])) {
             $qb->leftJoin('t.type', 'tp')
                 ->andwhere('tp.id IN (:typeIds)')
                 ->setParameter('typeIds', explode(',', $data_time['type']));
         }
 
-        if($filterAgent && isset($data_time['agent'])) {
+        if ($filterAgent && isset($data_time['agent'])) {
             $qb->leftJoin('t.agent', 'a')
                 ->andwhere('a.id IN (:agentIds)')
                 ->setParameter('agentIds', explode(',', $data_time['agent']));
         }
 
-        if(isset($data_time['customer'])) {
+        if (isset($data_time['customer'])) {
             $qb->leftJoin('t.customer', 'c')
                 ->andwhere('c.id IN (:customerIds)')
                 ->setParameter('customerIds', explode(',', $data_time['customer']));
         }
 
-        if(isset($data_time['group'])) {
+        if (isset($data_time['group'])) {
             $qb->leftJoin('t.supportGroup', 'gr')
                 ->andwhere('gr.id IN (:groupIds)')
                 ->setParameter('groupIds', explode(',', $data_time['group']));
         }
 
-        if(isset($data_time['team'])) {
+        if (isset($data_time['team'])) {
             $qb->leftJoin('t.supportTeam', 'tSub')
                 ->andwhere('tSub.id IN (:subGroupIds)')
                 ->setParameter('subGroupIds', explode(',', $data_time['team']));
@@ -213,17 +213,15 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
                 ->leftJoin('r.ticket', 't')
                 ->andwhere('r.createdAt BETWEEN :startDate AND :endDate')
                 ->andwhere('t.isTrashed != 1')
-                ->andwhere('t.status != 5')
                 ->andwhere('r.stars = :count')
                 ->setParameter('startDate', $startDate." 00:00:01")
                 ->setParameter('endDate', $endDate." 23:59:59")
                 ->setParameter('count', $rateId);
 
-                $container->get('report.service')->addPermissionFilter($qb, $this->container);
+        $container->get('report.service')->addPermissionFilter($qb, $this->container);
 
         $qb = $this->filterQuerySlim($qb, $data_time);
 
         return $qb->getQuery()->getSingleScalarResult();
     }
-
 }
