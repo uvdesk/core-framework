@@ -47,7 +47,7 @@
             overflow: hidden;
             height: 0px;
         }
-        .uv-ticket-viewer-bar.active{
+        .uv-ticket-viewer-bar.active {
             height: 50px;
             margin-bottom: 10px;
             border-bottom: 1px dotted #f97278;
@@ -106,7 +106,7 @@
         .uv-hide{
             display: none;
         }
-        .uv-info{
+        .uv-info {
             background: #7C70F4;
         }
         .uv-ticket-viewer-list .uv-icon-eye-light{
@@ -141,18 +141,18 @@
             bottom: 10px;
             width: 400px;
         }
-        .uv-ticket-action-bar-fixed{
+        .uv-ticket-action-bar-fixed {
             position: fixed;
             width: 100%;
             background: #fff;
             z-index: 999;
         }
-        .uv-ticket-action-bar-fixed .uv-ticket-action-bar-rt{
+        .uv-ticket-action-bar-fixed .uv-ticket-action-bar-rt {
             position: fixed;
             right: 0px;
             margin-top: 10px;
         }
-        .uv-ticket-action-bar-fixed + .uv-ticket-viewer-bar{
+        .uv-ticket-action-bar-fixed + .uv-ticket-viewer-bar {
             margin-top: 70px;
         }
         .uv-ticket-main {
@@ -162,10 +162,10 @@
             .uv-ticket-action-bar-fixed{
                 position: relative;
             }
-            .uv-ticket-action-bar-fixed + .uv-ticket-viewer-bar{
+            .uv-ticket-action-bar-fixed + .uv-ticket-viewer-bar {
                 margin-top: 0px;
             }
-            .uv-ticket-action-bar-fixed .uv-ticket-action-bar-rt{
+            .uv-ticket-action-bar-fixed .uv-ticket-action-bar-rt {
                 position: relative;
             }
         }
@@ -186,7 +186,7 @@
             display: inline-block;
             margin: 0px 10px 0px 5px;
         }
-        .uv-header-fix + .uv-tabs{
+        .uv-header-fix + .uv-tabs {
             display: inline-block;
         }
         .uv-ticket-section span.uv-mail-status {
@@ -222,10 +222,10 @@
             .uv-ticket-action-bar-fixed{
                 position: relative;
             }
-            .uv-ticket-action-bar-fixed + .uv-ticket-viewer-bar{
+            .uv-ticket-action-bar-fixed + .uv-ticket-viewer-bar {
                 margin-top: 0px;
             }
-            .uv-ticket-action-bar-fixed .uv-ticket-action-bar-rt{
+            .uv-ticket-action-bar-fixed .uv-ticket-action-bar-rt {
                 position: relative;
             }
             .uv-inner-section .uv-view .uv-ticket-action-bar.uv-ticket-action-bar-fixed .uv-ticket-action-bar-lt{
@@ -235,7 +235,7 @@
                 width: 21%;
                 padding-right: 33px;
             }
-            .uv-header-fix{
+            .uv-header-fix {
                 display: none;
             }
         }
@@ -266,7 +266,7 @@
             .uv-inner-section .uv-view .uv-ticket-scroll-region  .uv-ticket-main-rt {
                 width: 80%;
             }
-            .uv-paper,.uv-view ,.uv-ticket-scroll-region, .uv-wrapper  {
+            .uv-paper,.uv-view ,.uv-ticket-scroll-region, .uv-wrapper {
                 position: initial !important;
             }
         }
@@ -324,7 +324,7 @@
             width: 100%;
         }
 
-        .uv-aside-select.search .uv-dropdown-list ul{
+        .uv-aside-select.search .uv-dropdown-list ul {
             padding: 0px 10px;
         }
 
@@ -340,7 +340,7 @@
             border-top:0px;
         }
 
-        .uv-search-inline{
+        .uv-search-inline {
             width: 100%;
         }
 
@@ -410,7 +410,7 @@
 
                         <div class="uv-aside-ticket-brick">
                             <h3>{{ 'TimeStamp'|trans }}</h3>
-                            <span class="uv-icon-timestamp"></span> <span>{{ ticket_service.timeZoneConverter(initialThread.createdAt) }}</span>
+                            <span class="uv-icon-timestamp"></span> <span>{{ ticket_service.timeZoneConverter(ticket.createdAt) }}</span>
                         </div>
 
                         <div class="uv-aside-ticket-brick">
@@ -839,7 +839,7 @@
                 <div class="uv-ticket-strip">
                     <span>
                         <span class="uv-ticket-strip-label">{{ 'Created'|trans }} - </span>
-                        <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(initialThread.createdAt) }}</span>
+                        <span class="timeago uv-margin-0" data-timestamp="{{ ticket.createdAt.getTimestamp() }}" title="{{ ticket.createdAt.format('d-m-Y h:ia') }}">{{ ticket_service.timeZoneConverter(ticket.createdAt) }}</span>
                     </span>
 
                     <span>
@@ -1755,14 +1755,14 @@
             var CustomerForm = Backbone.View.extend({
                 events : {
                     'click .uv-btn.update-btn' : "saveCustomer",
-                    'blur input': 'formChanegd',
+                    'blur input': 'formChanged',
                     'click .cancel-btn': 'backToInfo',
                     'click .uv-aside-back': 'backToInfo'
                 },
                 initialize : function() {
                     Backbone.Validation.bind(this);
                 },
-                formChanegd: function(e) {
+                formChanged: function(e) {
                     this.model.set(Backbone.$(e.currentTarget).attr('name'), Backbone.$(e.currentTarget).val())
                     this.model.isValid([Backbone.$(e.currentTarget).attr('name')])
                 },
@@ -1772,25 +1772,25 @@
                     this.model.clear();
                     this.model.set(this.$el.find('form').serializeObject());
                     self = this;
-                    if(this.model.isValid(true)) {
+                    if (this.model.isValid(true)) {
                         app.appView.showLoader();
                         currentElement.attr('disabled', 'disabled');
                         this.model.save({}, {
                             success: function (model, response, options) {
                                 app.appView.hideLoader();
                                 currentElement.removeAttr("disabled");
-                                if(response.alertClass == "success") {
+                                if (response.alertClass == "success") {
                                     app.appView.renderResponseAlert(response);
                                     $('.uv-aside-customer-info').html("<span>" + self.model.attributes.name + "</span><span>" + self.model.attributes.email + "</span><span>" + self.model.attributes.contactNumber + "</span><span class='uv-customize'></span>")
                                     self.backToInfo();
-                                } else if(response.errors) {
+                                } else if (response.errors) {
                                     self.addErrors(JSON.parse(response.errors));
-                                } else if(response.alertMessage) {
+                                } else if (response.alertMessage) {
                                     app.appView.renderResponseAlert(response);
                                 }
                             },
                             error: function (model, xhr, options) {
-                                if(url = xhr.getResponseHeader('Location'))
+                                if (url = xhr.getResponseHeader('Location'))
                                     window.location = url;
 
                                 app.appView.hideLoader();
@@ -1805,7 +1805,7 @@
                     }
                 },
                 backToInfo: function(e) {
-                    if(e)
+                    if (e)
                         e.preventDefault()
 
                     $('.uv-main-info-update-block').hide()
@@ -1818,7 +1818,7 @@
                 el: $('.uv-wrapper'),
                 stopDraftSaveFlag: 0,
                 events: {
-                    'click .uv-ticket-action .uv-dropdown-list li[data-action="spam"], .uv-ticket-action .uv-dropdown-list li[data-action="closed"]': 'masrkSpamAndClosed',
+                    'click .uv-ticket-action .uv-dropdown-list li[data-action="spam"], .uv-ticket-action .uv-dropdown-list li[data-action="closed"]': 'markSpamAndClosed',
                     'click .uv-aside-ticket-actions .uv-aside-select .uv-dropdown-list li': 'editTicketProperty',
                     'click .uv-aside-customer-info .uv-customize': 'showCustomerUpdateBlock',
                     'click .uv-ticket-head .uv-star-large': 'updateStar',
@@ -1852,26 +1852,26 @@
                     InitTinyMce('#uv-edit-create-thread');
                     $('.uv-ticket-fixed-region .uv-ticket-fixed-region-rt').html(this.ticketNavigationTemplate(ticketNavigation))
                     var threadTab = localStorage.getItem("threadTab");
-                    if(threadTab){
+                    if (threadTab){
                         $('.uv-ticket-action-bar-lt .uv-tabs li').removeClass('uv-tab-active');
                         $('.uv-ticket-action-bar-lt .uv-tabs [data-type="' + threadTab + '"]').addClass('uv-tab-active');
                     }
                     nextView = localStorage.getItem("nextView");
-                    if(nextView) {
+                    if (nextView) {
                         $(".next-view input").val(nextView)
                         $(".next-view .uv-dropdown-btn").text($("#reply .next-view .uv-dropdown-list li[data-value='" + nextView + "']").text())
                     }
-                    if(!localStorage.getItem('ticketTour')) {
+                    if (!localStorage.getItem('ticketTour')) {
                         $('.uv-ticket-tour').show()
                     }
-                    this.fixheaderInit();
+                    this.fixHeaderInit();
                 },
                 printTicket: function(e) {
                     window.print();
                 },
                 enterManualAdd: function(e) {
                     var target = $(e.target);
-                    if(target.val()) {
+                    if (target.val()) {
                         var e = $.Event("keypress");
                         e.which = 13; //choose the one you want
                         target.trigger(e);
@@ -1882,19 +1882,19 @@
                     var header = localStorage.getItem("fixHeader");
                     header = !(header == 'true');
                     localStorage.setItem("fixHeader", header);
-                    this.fixheaderInit();
+                    this.fixHeaderInit();
                 },
-                fixheaderInit: function(){
+                fixHeaderInit: function(){
                     var header = localStorage.getItem("fixHeader");
-                    if(header == 'true'){
+                    if (header == 'true') {
                         $('a.uv-icon-pin').addClass('uv-icon-pinned');
                         $('.uv-ticket-action-bar').addClass('uv-ticket-action-bar-fixed');
-                    }else{
+                    } else {
                         $('a.uv-icon-pin').removeClass('uv-icon-pinned');
                         $('.uv-ticket-action-bar').removeClass('uv-ticket-action-bar-fixed');
                     }
                 },
-                masrkSpamAndClosed: function(e) {
+                markSpamAndClosed: function(e) {
                     var currentElement = Backbone.$(e.currentTarget);
                     var value = currentElement.attr('data-index');
                     $(".uv-aside-select .uv-dropdown-list ul.status li[data-index='" + value + "']").trigger('click')
@@ -1911,9 +1911,9 @@
                             patch: true,
                             success: function (model, response, options) {
                                 uvSelect.find('.uv-aside-select-value').attr('data-id', value).text(name)
-                                if(field == 'priority') {
+                                if (field == 'priority') {
                                     uvSelect.find('.uv-list-ticket-priority').attr('style', 'background:' + currentElement.attr('data-color'));
-                                } else if(field == 'agent') {
+                                } else if (field == 'agent') {
                                     $('.uv-ticket-strip .agent-info').show()
                                     $('.uv-ticket-strip .agent-info .name').text(name)
                                 }
@@ -1921,10 +1921,10 @@
                                 app.appView.renderResponseAlert(response);
                             },
                             error: function (model, xhr, options) {
-                                if(url = xhr.getResponseHeader('Location'))
+                                if (url = xhr.getResponseHeader('Location'))
                                     window.location = url;
                                 var response = warningResponse;
-                                if(xhr.responseJSON)
+                                if (xhr.responseJSON)
                                     response = xhr.responseJSON;
 
                                 app.appView.hideLoader();
@@ -1947,7 +1947,7 @@
                         success: function (model, response, options) {
                         },
                         error: function (model, xhr, options) {
-                            if(url = xhr.getResponseHeader('Location'))
+                            if (url = xhr.getResponseHeader('Location'))
                                 window.location = url;
                         }
                     });
@@ -1956,7 +1956,7 @@
                     var currentElement = Backbone.$(e.currentTarget);
                     if(type = currentElement.attr('data-type')) {
                         localStorage.setItem("threadTab", type);
-                        if(type != 'all')
+                        if (type != 'all')
                             $('.uv-ticket-main.create').hide()
                         else
                             $('.uv-ticket-main.create').show()
@@ -1967,7 +1967,7 @@
                         })
                         total = threadCollection.models.length;
                         count = 0;
-                        if(total) {
+                        if (total) {
                             _.each(models, function (model) {
                                 threadCollection.remove(model)
                                 count++;
@@ -1988,13 +1988,13 @@
                     app.appView.openConfirmModal(this);
                 },
                 removeItem : function() {
-                    if(this.model.attributes.isTrashed)
+                    if (this.model.attributes.isTrashed)
                         window.location.href = "{{ path('helpdesk_member_delete_ticket', {'ticketId': ticket.id}) }}";
                     else
                         window.location.href = "{{ path('helpdesk_member_trash_ticket', {'ticketId': ticket.id}) }}";
                 },
                 addCCCollaborators: function() {
-                    if(collaboratorCollection.length) {
+                    if (collaboratorCollection.length) {
                         var collaboratorContainer = $('.uv-element-block.collaborators');
                         collaboratorContainer.find('.uv-field-block').html('');
                         collaboratorContainer.show()
@@ -2008,7 +2008,7 @@
                     e.preventDefault()
                     Backbone.$(e.currentTarget).parent().remove();
                     var collaboratorContainer = $('.uv-element-block.collaborators');
-                    if(!collaboratorContainer.find('.uv-btn-tag').length)
+                    if (!collaboratorContainer.find('.uv-btn-tag').length)
                         collaboratorContainer.hide()
                 },
                 addToInput: function(e) {
@@ -2017,11 +2017,11 @@
                     var email = inputElement.val().trim();
                     if (e.which === 13 && email) {
                         e.preventDefault()
-                        if(!this.model.preValidate({name: 'email', email: email})) {
+                        if (!this.model.preValidate({name: 'email', email: email})) {
                             inputElement.val('').trigger('input')
                             inputElement.removeClass('uv-dropdown-btn-active')
                             inputElement.siblings('.uv-dropdown-list').hide()
-                            if(!currentTab.find(".to-list input[value='" + email + "'].to").length) {
+                            if (!currentTab.find(".to-list input[value='" + email + "'].to").length) {
                                 currentTab.find('.to-list').append("<span><input type='hidden' name='to[]' value='" + email + "' class='to'/><a class='uv-btn-tag' href='#'><span class='uv-icon-remove-dark-before'></span>" + email + "</span></a></span>")
                             }
                         }
@@ -2030,14 +2030,14 @@
                 addTo: function(e) {
                     var currentTab = Backbone.$(e.currentTarget).parents('.uv-tab-view');
                     var email =  Backbone.$(e.currentTarget).attr('data-id');
-                    if(!currentTab.find(".to-list input[value='" + email + "'].to").length) {
+                    if (!currentTab.find(".to-list input[value='" + email + "'].to").length) {
                         currentTab.find('.to-list').append("<span><input type='hidden' name='to[]' value='" + email + "' class='to'/><a class='uv-btn-tag' href='#'><span class='uv-icon-remove-dark-before'></span>" + email + "</span></a></span>")
                     }
                 },
                 showCcBccBlock: function(e) {
                     var currentElement = Backbone.$(e.currentTarget);
                     var currentTab = currentElement.parents('.uv-tab-view');
-                    if(currentElement.is(':checked')) {
+                    if (currentElement.is(':checked')) {
                         currentTab.find('.uv-element-block.cc-bcc').find('.uv-field-block').show()
                     } else {
                         currentTab.find('.uv-element-block.cc-bcc').find('.uv-field-block').hide()
@@ -2051,12 +2051,12 @@
                     if (e.which === 13 && email) {
                         e.preventDefault()
                         type = currentTab.find('.cc-bcc-select option:selected').text()
-                        if(!this.model.preValidate({name: 'email', email: email})) {
+                        if (!this.model.preValidate({name: 'email', email: email})) {
                             inputName = $('.cc-bcc-select').val()
                             inputElement.val('').trigger('input')
                             inputElement.removeClass('uv-dropdown-btn-active')
                             inputElement.siblings('.uv-dropdown-list').hide()
-                            if(!currentTab.find(".cc-bcc-list input[value='" + email + "']." + inputName).length) {
+                            if (!currentTab.find(".cc-bcc-list input[value='" + email + "']." + inputName).length) {
                                 currentTab.find('.cc-bcc-list').append("<span><input type='hidden' name='" + inputName + "[]' value='" + email + "' class='" + inputName + "'/><a class=uv-btn-tag uv-lowercase' href='#'><span class='uv-icon-remove-dark-before'></span>" + email + " : <span class='uv-uppercase'>" + type + "</span></a></span>")
                             }
                         }
@@ -2067,7 +2067,7 @@
                     var email =  Backbone.$(e.currentTarget).attr('data-id');
                     type = currentTab.find('.cc-bcc-select option:selected').text()
                     inputName = currentTab.find('.cc-bcc-select').val()
-                    if(!currentTab.find(".cc-bcc-list input[value='" + email + "']." + inputName).length) {
+                    if (!currentTab.find(".cc-bcc-list input[value='" + email + "']." + inputName).length) {
                         currentTab.find('.uv-element-block.cc-bcc .uv-group-field.uv-dropdown-other').val('').trigger('input')
                         currentTab.find('.cc-bcc-list').append("<span><input type='hidden' name='" + inputName + "[]' value='" + email + "' class='" + inputName + "'/><a class=uv-btn-tag uv-lowercase' href='#'><span class='uv-icon-remove-dark-before'></span>" + email + " : <span class='uv-uppercase'>" + type + "</span></a></span>")
                     }
@@ -2092,9 +2092,9 @@
                     form.find('.uv-field-message').remove()
 
                     var html = tinyMCE.get(formType + "-area").getContent();
-                    if(app.appView.htmlText(html) != '' || -1 != html.indexOf('<img')) {
-                        if(formType == 'forward') {
-                            if(!form.find(".to-list input.to").length) {
+                    if (app.appView.htmlText(html) != '' || -1 != html.indexOf('<img')) {
+                        if (formType == 'forward') {
+                            if (!form.find(".to-list input.to").length) {
                                 $('.uv-element-block.to').append("<span class='uv-field-message'>{{ 'This field is mandatory'|trans }}</span>")
                             } else {
                                 this.stopDraftSaveFlag = 1;
@@ -2109,7 +2109,7 @@
                             }
                         } else {
                             this.stopDraftSaveFlag = 1;
-                            if(localStorage) {
+                            if (localStorage) {
                                 localStorage.setItem("threadTab", "all");
                             }
 
@@ -2123,7 +2123,7 @@
                         }
                     } else {
                         form.find('.uv-element-block-textarea').append("<span class='uv-field-message'>{{ 'This field is mandatory'|trans }}</span>");
-                        if(formType == 'forward') {
+                        if (formType == 'forward') {
                             if(!form.find(".to-list input.to").length) {
                                 $('.uv-element-block.to').append("<span class='uv-field-message'>{{ 'This field is mandatory'|trans }}</span>")
                             }
@@ -2133,7 +2133,7 @@
                 updateTicket: function(e) {
                     e.preventDefault();
                     this.model.set($('#edit-ticket-modal form').serializeObject());
-                    if(this.model.isValid(['subject', 'reply'])) {
+                    if (this.model.isValid(['subject', 'reply'])) {
                         $('#edit-ticket-modal form').find('.uv-btn').attr('disabled', 'disabled');
                         $('#edit-ticket-modal form').submit();
                     }
@@ -2144,11 +2144,11 @@
                 searchFilterXhr: _.debounce(function(e) {
                     currentElement = Backbone.$(e.currentTarget);
                     var parent = currentElement.parent();
-                    if($('.uv-dropdown-other.uv-dropdown-btn-active').parent().attr('id') != parent.attr('id'))
+                    if ($('.uv-dropdown-other.uv-dropdown-btn-active').parent().attr('id') != parent.attr('id'))
                         return;
                     parent.find("li:not(.uv-no-results, .uv-filter-info)").remove();
                     parent.find(".uv-filter-info").show()
-                    if(currentElement.val().length > 1) {
+                    if (currentElement.val().length > 1) {
                         parent.append(this.loaderTemplate())
                         parent.find('.uv-filter-info').text("{% trans %}Searching{% endtrans %} ...")
                         if(self.xhrReq)
@@ -2163,7 +2163,7 @@
                                 self.xhrReq = 0;
                                 parent.find('.uv-loader').remove()
                                 parent.find('.uv-filter-info').text("{{ 'Type atleast 2 letters'|trans }}").hide();
-                                if(response.length == 0) {
+                                if (response.length == 0) {
                                     parent.find('.uv-no-results').show();
                                     parent.find('.uv-no-results').disabled = true;
                                 } else {
@@ -2179,7 +2179,7 @@
                                 parent.find('.uv-no-results').hide();
                                 parent.find('.uv-filter-info').text("{{ 'Type atleast 2 letters'|trans }}").show();
 
-                                if(url = xhr.getResponseHeader('Location'))
+                                if (url = xhr.getResponseHeader('Location'))
                                     window.location = url;
                             }
                         });
@@ -2211,7 +2211,7 @@
                     this.$el.html(this.template(this.model.toJSON()));
 
                     this.$el.addClass("thread-" + this.model.id)
-                    if(this.model.attributes.threadType == 'note')
+                    if (this.model.attributes.threadType == 'note')
                         this.$el.addClass('uv-ticket-note')
                     return this;
                 },
@@ -2632,6 +2632,7 @@
                 },
                 render : function () {
                     this.$el.html(this.template(this.model.toJSON()));
+
                     return this;
                 },
                 unrender : function(response) {
@@ -2667,7 +2668,7 @@
                 confirmRemove: function(e) {
                     e.preventDefault();
                     {% if user_service.isAccessAuthorized('ROLE_AGENT_DELETE_TAG') %}
-                    app.appView.openConfirmModal(this)
+                        app.appView.openConfirmModal(this)
                     {% endif %}
                 }
             });
@@ -2683,7 +2684,7 @@
                 render : function() {
                     var self = this;
                     this.$el.find(".tag-list").html('');
-                    if(tagCollection.length) {
+                    if (tagCollection.length) {
                         _.each(tagCollection.models, function (item) {
                             this.renderTag(item);
                         }, this);
@@ -2698,7 +2699,7 @@
                 addTag : function(e) {
                     {% if user_service.isAccessAuthorized('ROLE_AGENT_ADD_TAG') %}
                         var currentElement = Backbone.$(e.currentTarget);
-                        if(currentElement.is('li')) {
+                        if (currentElement.is('li')) {
                             var inputElement = currentElement.parents('.uv-field-block').find('.uv-dropdown-other');
                             var text = currentElement.text().trim();
                         } else {
@@ -2709,8 +2710,8 @@
                         inputElement.parents('.uv-element-block').find('.uv-field-message').remove()
 
                         if (currentElement.is('li') || (e.which === 13 && text)) {
-                            if(text.length <= 20) {
-                                if(tagCollection.isTagExist(text)) {
+                            if (text.length <= 20) {
+                                if (tagCollection.isTagExist(text)) {
                                     var self = this;
                                     inputElement.val('');
                                     this.model = new TagModel();
@@ -2722,10 +2723,10 @@
                                         success: function (model, response, options) {
                                             inputElement.parent().find("li:not(.uv-no-results)").remove()
                                             inputElement.parent().find(".uv-no-results").show()
-                                            if(!currentElement.is('li')) {
+                                            if (!currentElement.is('li')) {
                                                 inputElement.trigger('click')
                                             }
-                                            if(response.alertClass == "success") {
+                                            if (response.alertClass == "success") {
                                                 tagCollection.add(model);
                                                 self.render();
                                             }
@@ -2734,10 +2735,10 @@
                                             app.appView.renderResponseAlert(response);
                                         },
                                         error: function (model, xhr, options) {
-                                            if(url = xhr.getResponseHeader('Location'))
+                                            if (url = xhr.getResponseHeader('Location'))
                                                 window.location = url;
                                             var response = warningResponse;
-                                            if(xhr.responseJSON)
+                                            if (xhr.responseJSON)
                                                 response = xhr.responseJSON;
 
                                             app.appView.hideLoader();
@@ -2772,10 +2773,11 @@
                 },
                 render : function () {
                     this.$el.html(this.template(this.model.toJSON()));
+
                     return this;
                 },
                 unrender : function(response) {
-                    if(response.alertMessage != undefined) {
+                    if (response.alertMessage != undefined) {
                         labelListView.render();
                         app.appView.renderResponseAlert(response);
                     }
@@ -2793,10 +2795,10 @@
                             self.unrender(response);
                         },
                         error: function (model, xhr, options) {
-                            if(url = xhr.getResponseHeader('Location'))
+                            if (url = xhr.getResponseHeader('Location'))
                                 window.location = url;
                             var response = warningResponse;
-                            if(xhr.responseJSON)
+                            if (xhr.responseJSON)
                                 response = xhr.responseJSON;
 
                             app.appView.hideLoader();
@@ -2812,8 +2814,8 @@
 
             // Ticket Label View
             var LabelList = Backbone.View.extend({
-                el : $(".label-list-block"),
-                events : {
+                el: $(".label-list-block"),
+                events: {
                     'keypress .uv-field' : 'addLabel',
                     'focusout .uv-field' : 'removeErrorClass',
                     'click .uv-dropdown-list li': 'addLabel'
@@ -2821,7 +2823,7 @@
                 render : function() {
                     var self = this;
                     this.$el.find(".label-list").html('');
-                    if(labelCollection.length) {
+                    if (labelCollection.length) {
                         _.each(labelCollection.models, function (item) {
                             this.renderLabel(item);
                         }, this);
@@ -2837,7 +2839,7 @@
                 },
                 addLabel : function(e) {
                     var currentElement = Backbone.$(e.currentTarget);
-                    if(currentElement.is('li')) {
+                    if (currentElement.is('li')) {
                         var inputElement = currentElement.parents('.uv-field-block').find('.uv-dropdown-other');
                         var text = currentElement.text().trim();
                     } else {
@@ -2848,8 +2850,8 @@
                     inputElement.parents('.uv-element-block').find('.uv-field-message').remove()
 
                     if (currentElement.is('li') || (e.which === 13 && text)) {
-                        if(text.length <= 20) {
-                            if(labelCollection.isLabelExist(text)) {
+                        if (text.length <= 20) {
+                            if (labelCollection.isLabelExist(text)) {
                                 var self = this;
                                 inputElement.val('');
                                 this.model = new LabelModel();
@@ -2861,10 +2863,10 @@
                                     success: function (model, response, options) {
                                         inputElement.parent().find("li:not(.uv-no-results)").remove()
                                         inputElement.parent().find(".uv-no-results").show()
-                                        if(!currentElement.is('li')) {
+                                        if (!currentElement.is('li')) {
                                             inputElement.trigger('click')
                                         }
-                                        if(response.alertClass == "success") {
+                                        if (response.alertClass == "success") {
                                             labelCollection.add(model);
                                             self.render();
                                         }
@@ -2873,10 +2875,10 @@
                                         app.appView.renderResponseAlert(response);
                                     },
                                     error: function (model, xhr, options) {
-                                        if(url = xhr.getResponseHeader('Location'))
+                                        if (url = xhr.getResponseHeader('Location'))
                                             window.location = url;
                                         var response = warningResponse;
-                                        if(xhr.responseJSON)
+                                        if (xhr.responseJSON)
                                             response = xhr.responseJSON;
 
                                         app.appView.hideLoader();
@@ -2909,13 +2911,13 @@
                     threadCollection.threadRequestedId = thread;
                 },
                 scrollPage : function(divId) {
-                    if($(divId).length){
+                    if ($(divId).length){
                         $('li a[href="'+divId+'"]').trigger('click');
                         $('.uv-ticket-scroll-region').animate({
                             scrollTop: $(divId).offset().top
                         }, 'slow');
-                    } else if(divId == '#') { //scroll to last thread added
-                        if(threadCollection.fullCollection.length)
+                    } else if (divId == '#') { //scroll to last thread added
+                        if (threadCollection.fullCollection.length)
                             this.scrollPage('#thread' + threadCollection.fullCollection.at(0).id);
                     }
                 }
