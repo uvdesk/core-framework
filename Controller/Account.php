@@ -45,7 +45,6 @@ class Account extends AbstractController
         $this->uvdeskService = $uvdeskService;
         $this->fileSystem = $fileSystem;
         $this->fileUploadService = $fileUploadService;
-        
     }
     
     private function encodePassword(User $user, $plainPassword)
@@ -206,7 +205,7 @@ class Account extends AbstractController
         }
 
         return $this->render('@UVDeskCoreFramework//profile.html.twig', array(
-            'user' => $user,
+            'user'   => $user,
             'errors' => json_encode($errors)
         ));
     }

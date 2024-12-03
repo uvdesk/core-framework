@@ -90,7 +90,6 @@ class Email extends AbstractController
                 $message = $this->translator->trans('Success! Template has been updated successfully.');
             } else {
                 $message = $this->translator->trans('Success! Template has been added successfully.');
-
             }
 
             $this->addFlash('success', $message);

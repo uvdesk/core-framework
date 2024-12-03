@@ -350,8 +350,8 @@ class Ticket extends AbstractController
             if (!empty($ticketType) && $id != $ticketType->getId()) {
                 $this->addFlash('warning', sprintf('Error! Ticket type with same name already exist'));
             } else {
-                $type->setCode($data['code']);
-                $type->setDescription($data['description']);
+                $type->setCode(trim($data['code']));
+                $type->setDescription(trim($data['description']));
                 $type->setIsActive(isset($data['isActive']) ? 1 : 0);
 
                 $em->persist($type);

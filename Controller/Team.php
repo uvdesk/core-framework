@@ -52,8 +52,8 @@ class Team extends AbstractController
             $allDetails = $request->request->all();
 
             $em = $this->getDoctrine()->getManager();
-            $supportTeam->setName($allDetails['name']);
-            $supportTeam->setDescription($allDetails['description']);
+            $supportTeam->setName(trim($allDetails['name']));
+            $supportTeam->setDescription(trim($allDetails['description']));
             $supportTeam->setIsActive((bool) isset($allDetails['isActive']));
             $em->persist($supportTeam);
 
@@ -128,8 +128,8 @@ class Team extends AbstractController
             $allDetails = $request->request->all();
 
             $em = $this->getDoctrine()->getManager();
-            $supportTeam->setName($allDetails['name']);
-            $supportTeam->setDescription($allDetails['description']);
+            $supportTeam->setName(trim($allDetails['name']));
+            $supportTeam->setDescription(trim($allDetails['description']));
             $supportTeam->setIsActive((bool) isset($allDetails['isActive']));
 
             $usersList = (!empty($allDetails['users']))? $allDetails['users'] : [];

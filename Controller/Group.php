@@ -68,8 +68,8 @@ class Group extends AbstractController
             $allDetails = $request->request->all();
 
             $em = $this->getDoctrine()->getManager();
-            $group->setName($allDetails['name']);
-            $group->setDescription($allDetails['description']);
+            $group->setName(trim($allDetails['name']));
+            $group->setDescription(trim($allDetails['description']));
             $group->setIsActive((bool) isset($allDetails['isActive']));
 
             $usersList = (!empty($allDetails['users']))? $allDetails['users'] : [];
@@ -168,8 +168,8 @@ class Group extends AbstractController
             $allDetails = $request->request->all();
 
             $em = $this->getDoctrine()->getManager();
-            $group->setName($allDetails['name']);
-            $group->setDescription($allDetails['description']);
+            $group->setName(trim($allDetails['name']));
+            $group->setDescription(trim($allDetails['description']));
             $group->setIsActive((bool) isset($allDetails['isActive']));
 
             $usersList = (!empty($allDetails['users']))? $allDetails['users'] : [];
