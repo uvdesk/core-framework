@@ -740,6 +740,9 @@ class TicketService
             }
         }
 
+        $queryBuilder->andWhere('ticket.status NOT IN (:statuses)')
+             ->setParameter('statuses', [4, 5, 6]);
+
         // for all tickets count
         $data['all'] = $queryBuilder->getQuery()->getSingleScalarResult();
 
