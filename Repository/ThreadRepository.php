@@ -139,19 +139,19 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
         foreach ($results->getItems() as $key => $row) {
             $thread = $row[0];
             $threadResponse = [
-                'id' => $thread['id'],
-                'user' => $row['userId'] ? ['id' => $row['userId']] : null,
-                'fullname' => $row['fullname'],
-                'smallThumbnail'=> $row['smallThumbnail'],
-                'reply' => html_entity_decode($thread['message']),
-                'source' => $thread['source'],
-                'threadType' => $thread['threadType'],
-                'userType' => $thread['createdBy'],
+                'id'                => $thread['id'],
+                'user'              => $row['userId'] ? ['id' => $row['userId']] : null,
+                'fullname'          => $row['fullname'],
+                'smallThumbnail'    => $row['smallThumbnail'],
+                'reply'             => html_entity_decode($thread['message']),
+                'source'            => $thread['source'],
+                'threadType'        => $thread['threadType'],
+                'userType'          => $thread['createdBy'],
                 'formatedCreatedAt' => $userService->getLocalizedFormattedTime($thread['createdAt'], $userService->getSessionUser()),
-                'timestamp' => $userService->convertToDatetimeTimezoneTimestamp($thread['createdAt']),
-                'cc' => $thread['cc'],
-                'bcc' => $thread['bcc'],
-                'attachments' => $thread['attachments'],
+                'timestamp'         => $userService->convertToDatetimeTimezoneTimestamp($thread['createdAt']),
+                'cc'                => $thread['cc'],
+                'bcc'               => $thread['bcc'],
+                'attachments'       => $thread['attachments'],
             ];
 
             if (!empty($threadResponse['attachments'])) {

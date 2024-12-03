@@ -31,7 +31,7 @@ class UpdatePriority extends PreparedResponseAction
 
         return array_map(function ($ticketPriority) {
             return [
-                'id' => $ticketPriority->getId(),
+                'id'   => $ticketPriority->getId(),
                 'name' => $ticketPriority->getDescription(),
             ];
         }, $entityManager->getRepository(TicketPriority::class)->findAll());
@@ -40,7 +40,7 @@ class UpdatePriority extends PreparedResponseAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        if( ($entity instanceof Ticket) && $value) {
+        if (($entity instanceof Ticket) && $value) {
             $priority = $entityManager->getRepository(TicketPriority::class)->find($value);
             $entity->setPriority($priority);
             $entityManager->persist($entity);

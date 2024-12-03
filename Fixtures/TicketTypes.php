@@ -11,9 +11,9 @@ class TicketTypes extends DoctrineFixture
 {
     private static $seeds = [
         [
-            'code' => 'support',
+            'code'        => 'support',
             'description' => 'Support',
-            'isActive' => true,
+            'isActive'    => true,
         ],
     ];
 

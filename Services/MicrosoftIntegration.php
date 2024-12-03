@@ -18,10 +18,10 @@ class MicrosoftIntegration
     public function getAuthorizationUrl(MicrosoftApp $app, $redirectEndpoint, array $state = [])
     {
         $params = [
-            '{tenant}' => $app->getTenantId(), 
-            '{client_id}' => $app->getClientId(), 
+            '{tenant}'       => $app->getTenantId(), 
+            '{client_id}'    => $app->getClientId(), 
             '{redirect_uri}' => urlencode($redirectEndpoint), 
-            '{scope}' => urlencode(implode(' ', $app->getApiPermissions())), 
+            '{scope}'        => urlencode(implode(' ', $app->getApiPermissions())), 
         ];
 
         if (!empty($state)) {

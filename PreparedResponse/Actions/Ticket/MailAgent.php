@@ -32,29 +32,29 @@ class MailAgent extends PreparedResponseAction
 
         $emailTemplateCollection = array_map(function ($emailTemplate) {
             return [
-                'id' => $emailTemplate->getId(),
+                'id'   => $emailTemplate->getId(),
                 'name' => $emailTemplate->getName(),
             ];
         }, $entityManager->getRepository(EmailTemplates::class)->findAll());
 
         $agentCollection = array_map(function ($agent) {
             return [
-                'id' => $agent['id'],
+                'id'   => $agent['id'],
                 'name' => $agent['name'],
             ];
         }, $container->get('user.service')->getAgentPartialDataCollection());
 
         array_unshift($agentCollection, [
-            'id' => 'responsePerforming',
+            'id'   => 'responsePerforming',
             'name' => 'Response Performing Agent',
         ], [
-            'id' => 'assignedAgent',
+            'id'   => 'assignedAgent',
             'name' => 'Assigned Agent',
         ]);
 
         return [
             'partResults' => $agentCollection,
-            'templates' => $emailTemplateCollection,
+            'templates'   => $emailTemplateCollection,
         ];
     }
 
@@ -62,11 +62,11 @@ class MailAgent extends PreparedResponseAction
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         
-        if($entity instanceof Ticket) {
+        if ($entity instanceof Ticket) {
             $emailTemplate = $entityManager->getRepository(EmailTemplates::class)->findOneById($value['value']);
             $emails = self::getAgentMails($value['for'], (($ticketAgent = $entity->getAgent()) ? $ticketAgent->getEmail() : ''), $container);
             
-            if($emails && $emailTemplate) {
+            if ($emails && $emailTemplate) {
                 $mailData = array();
                 if($entity instanceof Ticket) {
                     $createThread = $container->get('ticket.service')->getCreateReply($entity->getId(), false);
@@ -78,7 +78,7 @@ class MailAgent extends PreparedResponseAction
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(),$placeHolderValues);
                 $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(),$placeHolderValues);
 
-                foreach($mailData['email'] as $email){
+                foreach ($mailData['email'] as $email) {
                     $messageId = $container->get('email.service')->sendMail($subject, $message, $email);
                 }
             } else {
@@ -94,27 +94,27 @@ class MailAgent extends PreparedResponseAction
         $entityManager = $container->get('doctrine.orm.entity_manager');
         $agentMails = [];
         foreach ($for as $agent) {
-            if($agent == 'assignedAgent'){
+            if ($agent == 'assignedAgent') {
                 if(is_array($currentEmails))
                     $agentMails = array_merge($agentMails, $currentEmails);
                 else
                     $agentMails[] = $currentEmails;
-            }elseif($agent == 'responsePerforming' && is_object($currentUser = $container->get('security.tokenstorage')->getToken()->getUser())) //add current user email if any
+            } elseif ($agent == 'responsePerforming' && is_object($currentUser = $container->get('security.tokenstorage')->getToken()->getUser())) //add current user email if any
                 $agentMails[] = $currentUser->getEmail();
             
-            elseif($agent == 'baseAgent'){ //add selected user email if any
-                if(is_array($currentEmails))
+            elseif ($agent == 'baseAgent') { //add selected user email if any
+                if (is_array($currentEmails))
                     $agentMails = array_merge($agentMails, $currentEmails);
                 else
                     $agentMails[] = $currentEmails;
-            }elseif((int)$agent){
+            } elseif ((int)$agent) {
                 $qb = $entityManager->createQueryBuilder();
                 $email = $qb->select('u.email')->from(User::class, 'u')
                             ->andWhere("u.id = :userId")
                             ->setParameter('userId', $agent)
                             ->getQuery()->getResult()
                         ;
-                if(isset($email[0]['email']))
+                if (isset($email[0]['email']))
                     $agentMails[] = $email[0]['email'];
             }
         }

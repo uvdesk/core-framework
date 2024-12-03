@@ -689,11 +689,11 @@ class TicketService
         $_s = ($s < 10 ? '0' : '').$s;
 
         $time_str = "0 minutes";
-        if($_d != 00)
+        if ($_d != 00)
             $time_str = $_d." ".'days';
-        elseif($_h != 00)
+        elseif ($_h != 00)
             $time_str = $_h." ".'hours';
-        elseif($_m != 00)
+        elseif ($_m != 00)
             $time_str = $_m." ".'minutes';
 
         return $time_str." "."ago";

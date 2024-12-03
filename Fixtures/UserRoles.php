@@ -11,19 +11,19 @@ class UserRoles extends DoctrineFixture
 {
     private static $seeds = [
         [
-            'code' => 'ROLE_SUPER_ADMIN',
+            'code'        => 'ROLE_SUPER_ADMIN',
             'description' => 'Account Owner'
         ],
         [
-            'code' => 'ROLE_ADMIN',
+            'code'        => 'ROLE_ADMIN',
             'description' => 'Administrator'
         ],
         [
-            'code' => 'ROLE_AGENT',
+            'code'        => 'ROLE_AGENT',
             'description' => 'Agent'
         ],
         [
-            'code' => 'ROLE_CUSTOMER',
+            'code'        => 'ROLE_CUSTOMER',
             'description' => 'Customer'
         ],
     ];

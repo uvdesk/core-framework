@@ -33,9 +33,9 @@ class UpdateGroup extends PreparedResponseAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        if($entity instanceof Ticket) {
+        if ($entity instanceof Ticket) {
             $group = $entityManager->getRepository(SupportGroup::class)->find($value);
-            if($group) {
+            if ($group) {
                 $entity->setSupportGroup($group);
                 $entityManager->persist($entity);
                 $entityManager->flush();

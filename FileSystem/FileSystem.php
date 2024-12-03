@@ -121,12 +121,12 @@ class FileSystem
         $request = $this->requestStack->getCurrentRequest();
         
         $assetDetails = [
-            'id' => $attachment->getId(),
-            'name' => $attachment->getName(),
-            'path' => $this->container->get('uvdesk.service')->generateCompleteLocalResourcePathUri($attachment->getPath()), 
-            'relativePath' => $attachment->getPath(),
-            'iconURL' => $this->container->get('uvdesk.service')->generateCompleteLocalResourcePathUri($this->getAssetIconURL($attachment)), 
-            'downloadURL' => null,
+            'id'            => $attachment->getId(),
+            'name'          => $attachment->getName(),
+            'path'          => $this->container->get('uvdesk.service')->generateCompleteLocalResourcePathUri($attachment->getPath()), 
+            'relativePath'  => $attachment->getPath(),
+            'iconURL'       => $this->container->get('uvdesk.service')->generateCompleteLocalResourcePathUri($this->getAssetIconURL($attachment)), 
+            'downloadURL'   => null,
         ];
 
         if ('member' == $firewall) {

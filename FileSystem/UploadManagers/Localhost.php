@@ -90,11 +90,11 @@ class Localhost implements FileUploadServiceInterface
         $uploadedFile = $temporaryFile->move($relativeTargetDirectory, $fileName);
 
         return [
-            'name' => $fileName,
-            'path' => $relativePath,
+            'name'           => $fileName,
+            'path'           => $relativePath,
             'isPathRelative' => true,
-            'size' => $uploadedFile->getSize(),
-            'content-type' => $uploadedFile->getMimeType(),
+            'size'           => $uploadedFile->getSize(),
+            'content-type'   => $uploadedFile->getMimeType(),
         ];
     }
 
@@ -112,11 +112,11 @@ class Localhost implements FileUploadServiceInterface
         file_put_contents($absolutePath, $attachmentStream->getStream());
 
         return [
-            'name' => $fileName,
-            'path' => $relativePath,
+            'name'           => $fileName,
+            'path'           => $relativePath,
             'isPathRelative' => true,
-            'size' => filesize($absolutePath),
-            'content-type' => $attachmentStream->getContentType(),
+            'size'           => filesize($absolutePath),
+            'content-type'   => $attachmentStream->getContentType(),
         ];
     }
 }

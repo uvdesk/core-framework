@@ -11,40 +11,40 @@ class TicketStatuses extends DoctrineFixture
 {
     private static $seeds = [
         [
-            'code' => 'open',
+            'code'        => 'open',
             'description' => 'Open',
-            'colorCode' => '#7E91F0',
-            'sortOrder' => 1
+            'colorCode'   => '#7E91F0',
+            'sortOrder'   => 1
         ],
         [
-            'code' => 'pending',
+            'code'        => 'pending',
             'description' => 'Pending',
-            'colorCode' => '#FF6A6B',
-            'sortOrder' => 2
+            'colorCode'   => '#FF6A6B',
+            'sortOrder'   => 2
         ],
         [
-            'code' => 'answered',
+            'code'        => 'answered',
             'description' => 'Answered',
-            'colorCode' => '#FFDE00',
-            'sortOrder' => 3
+            'colorCode'   => '#FFDE00',
+            'sortOrder'   => 3
         ],
         [
-            'code' => 'resolved',
+            'code'        => 'resolved',
             'description' => 'Resolved',
-            'colorCode' => '#2CD651',
-            'sortOrder' => 4
+            'colorCode'   => '#2CD651',
+            'sortOrder'   => 4
         ],
         [
-            'code' => 'closed',
+            'code'        => 'closed',
             'description' => 'Closed',
-            'colorCode' => '#767676',
-            'sortOrder' => 5
+            'colorCode'   => '#767676',
+            'sortOrder'   => 5
         ],
         [
-            'code' => 'spam',
+            'code'        => 'spam',
             'description' => 'Spam',
-            'colorCode' => '#00A1F2',
-            'sortOrder' => 6
+            'colorCode'   => '#00A1F2',
+            'sortOrder'   => 6
         ],
     ];
 

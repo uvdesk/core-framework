@@ -20,8 +20,8 @@ class SupportGroupRepository extends \Doctrine\ORM\EntityRepository
         $data = $obj->all();
         $data = array_reverse($data);
         foreach ($data as $key => $value) {
-            if(!in_array($key,$this->safeFields)) {
-                if($key!='dateUpdated' AND $key!='dateAdded' AND $key!='search') {
+            if (!in_array($key,$this->safeFields)) {
+                if ($key!='dateUpdated' AND $key!='dateAdded' AND $key!='search') {
                     $qb->andWhere('a.'.$key.' = :'.$key);
                     $qb->setParameter($key, $value);
                 } else {
@@ -35,7 +35,7 @@ class SupportGroupRepository extends \Doctrine\ORM\EntityRepository
             }
         }   
         
-        if(!isset($data['sort'])){
+        if (!isset($data['sort'])){
             $qb->orderBy('a.createdAt',Criteria::DESC);
         }
 
