@@ -539,7 +539,7 @@ class Ticket extends AbstractController
             }
         }
 
-        $path = $this->kernel->getProjectDir() . "/public/". $attachment->getPath();
+        $path = $this->kernel->getProjectDir() . "/public/". str_replace('public/', '', $attachment->getPath());
 
         $response = new Response();
         $response->headers->set('Content-type', $attachment->getContentType());
@@ -548,7 +548,6 @@ class Ticket extends AbstractController
 
         $response->setStatusCode(200);
         $response->sendHeaders();
-        
         readfile($path);
 
         return $response;

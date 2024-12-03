@@ -455,7 +455,7 @@ class TicketService
         }
 
         // Microsoft 365 Attachments.
-        $prefixOutlook = 'assets/threads/'. $thread->getId(). '/';
+        $prefixOutlook = 'public/assets/threads/'. $thread->getId(). '/';
         foreach ($attachmentContents as $attachmentContent) {
             $decodedData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $attachmentContent['content']));
             
