@@ -1062,9 +1062,33 @@ class TicketService
 
         $this->entityManager->flush();
 
+        if ($params['actionType'] == 'trashed') {
+            $message = 'Success ! Tickets moved to trashed successfully.';
+        } elseif ($params['actionType'] == 'restored') {
+            $message = 'Success ! Tickets restored successfully.';
+        } elseif ($params['actionType'] == 'delete') {
+            $message = 'Success ! Tickets removed successfully.';
+        } elseif ($params['actionType'] == 'agent'){
+            $message = 'Success ! Agent assigned successfully.';
+        } elseif ($params['actionType'] == 'status'){
+            $message = 'Success ! Tickets status updated successfully.';
+        } elseif ($params['actionType'] == 'type'){
+            $message = 'Success ! Tickets type updated successfully.';
+        } elseif ($params['actionType'] == 'group'){
+            $message = 'Success ! Tickets group updated successfully.';
+        } elseif ($params['actionType'] == 'team') {
+            $message = 'Success ! Tickets team updated successfully.';
+        } elseif ($params['actionType'] == 'priority') {
+            $message = 'Success ! Tickets priority updated successfully.';
+        } elseif ($params['actionType'] == 'label') {
+            $message = 'Success ! Tickets added to label successfully.';  
+        } else {
+            $message = 'Success ! Tickets have been updated successfully';
+        }
+
         return [
             'alertClass' => 'success',
-            'alertMessage' => $this->trans('Tickets have been updated successfully'),
+            'alertMessage' => $this->trans($message),
         ];
     }
     
