@@ -281,13 +281,18 @@
                 el: $("#agent-activities"),
                 listing_template: _.template($("#agent-listing-template").html()),
                 events: {
-                    'click .uv-dropdown-list li' : 'applyFilter',
-                    'keyup #agent-filter-input' : 'initializeback',
-                    'dp.change input#from': 'initializeback',
-                    'dp.change input#to': 'initializeback'
+                    'click .uv-dropdown-list li': 'applyFilter',
+                    'keyup #agent-filter-input': 'initializeBack',
+                    'dp.change input#from': 'initializeBack',
+                    'dp.change input#to': 'initializeBack'
                 },
-                initializeback: function(e) {
-                     if (e.keyCode == 8 && $('#agent-filter-input').val() == '' || e.type == "dp") { 
+                initializeBack: function(e) {
+                     if (e.keyCode == 8 && $('#agent-filter-input').val() == '' || e.type == "dp") {
+                       if (new Date($(".date-from").val()) > new Date($(".date-to").val())) {
+                            $('.date').addClass('uv-field-error');
+                            return;
+                        }
+
                         agentActivityCollection.filterParameters.after = $('#from').val();
                         agentActivityCollection.filterParameters.before = $('#to').val();
 
