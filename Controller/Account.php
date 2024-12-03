@@ -121,9 +121,9 @@ class Account extends AbstractController
                         }
                     }
 
-                    $user->setFirstName($data['firstName']);
-                    $user->setLastName($data['lastName']);
-                    $user->setEmail($data['email']);
+                    $user->setFirstName(trim($data['firstName']));
+                    $user->setLastName(trim($data['lastName']));
+                    $user->setEmail(trim($data['email']));
                     $user->setTimezone($data['timezone']);
                     $user->setTimeformat($data['timeformat']);
 
@@ -264,9 +264,9 @@ class Account extends AbstractController
                         $user->setPassword($encodedPassword);
                     }
 
-                    $user->setFirstName($data['firstName']);
-                    $user->setLastName($data['lastName']);
-                    $user->setEmail($data['email']);
+                    $user->setFirstName(trim($data['firstName']));
+                    $user->setLastName(trim($data['lastName']));
+                    $user->setEmail(trim($data['email']));
                     $user->setIsEnabled(true);
                     
                     $userInstance = $em->getRepository(UserInstance::class)->findOneBy(array('user' => $agentId, 'supportRole' => array(1, 2, 3)));

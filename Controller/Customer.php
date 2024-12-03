@@ -146,9 +146,9 @@ class Customer extends AbstractController
                     }
 
                     $email = $user->getEmail();
-                    $user->setFirstName($data['firstName']);
-                    $user->setLastName($data['lastName']);
-                    $user->setEmail($data['email']);
+                    $user->setFirstName(trim($data['firstName']));
+                    $user->setLastName(trim($data['lastName']));
+                    $user->setEmail(trim($data['email']));
                     $user->setIsEnabled(true);
                     $em->persist($user);
 
@@ -214,9 +214,9 @@ class Customer extends AbstractController
             if (!$errorFlag && 'hello@uvdesk.com' !== $user->getEmail()) {
                 $name = explode(' ', $content['name']);
                 $lastName = isset($name[1]) ? $name[1] : ' ';
-                $user->setFirstName($name[0]);
-                $user->setLastName($lastName);
-                $user->setEmail($content['email']);
+                $user->setFirstName(trim($name[0]));
+                $user->setLastName(trim($lastName));
+                $user->setEmail(trim($content['email']));
                 $em->persist($user);
 
                 //user Instance
