@@ -499,7 +499,7 @@ class Ticket extends AbstractController
         $zip->open($zipName, \ZipArchive::CREATE);
         if (count($attachment)) {
             foreach ($attachment as $attach) {
-                $zip->addFile(substr(str_replace('public', '', $attach->getPath()), 1));
+                $zip->addFile(ltrim($attach->getPath(), '/'));
             }
         }
 
@@ -539,16 +539,16 @@ class Ticket extends AbstractController
             }
         }
 
-        $path = $this->kernel->getProjectDir() . "/public/". str_replace('public/', '', $attachment->getPath());
+        $path = $this->kernel->getProjectDir() . "/public/". $attachment->getPath();
 
         $response = new Response();
+        $response->setStatusCode(200);
         $response->headers->set('Content-type', $attachment->getContentType());
         $response->headers->set('Content-Disposition', 'attachment; filename='. $attachment->getName());
         $response->headers->set('Content-Length', $attachment->getSize());
 
-        $response->setStatusCode(200);
         $response->sendHeaders();
-        readfile($path);
+        $response->setContent(readfile($path));
 
         return $response;
     }

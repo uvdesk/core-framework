@@ -41,7 +41,7 @@ class FileSystem
                 case '.png':
                 case '.gif':
                 case '.jpeg':
-                    $relativePathToAsset = (str_replace('public/', '', $attachment->getPath()));
+                    $relativePathToAsset = $attachment->getPath();
                     break;
                 case '.zip':
                     $relativePathToAsset = '/bundles/uvdeskcoreframework/images/icons/file-system/zip.png';
