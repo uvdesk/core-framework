@@ -499,7 +499,7 @@ class Ticket extends AbstractController
         $zip->open($zipName, \ZipArchive::CREATE);
         if (count($attachment)) {
             foreach ($attachment as $attach) {
-                $zip->addFile(substr($attach->getPath(), 1));
+                $zip->addFile(substr(str_replace('public', '', $attach->getPath()), 1));
             }
         }
 
