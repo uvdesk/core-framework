@@ -151,6 +151,7 @@ class Thread extends AbstractController
                     ;
     
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
+                    $this->eventDispatcher->dispatch($event, 'uvdesk.automation.report_app.workflow.execute');
                 }
                 // @TODO: Render response on the basis of event response (if propagation was stopped or not)
                 $this->addFlash('success', $this->translator->trans('Success ! Reply added successfully.'));
