@@ -513,11 +513,16 @@ class EmailService
                     $mailbox = $this->container->get('uvdesk.mailbox')->getMailboxByEmail($mailboxEmail);
 
                     if (true === $mailbox['enabled']) {
-                        $supportEmail = $mailbox['email'];
-                        $supportEmailName = $mailbox['name'];
-                        $mailerID = $mailbox['smtp_swift_mailer_server']['mailer_id'];
+                        if ($mailer_type == 'swiftmailer_id') {
+                            $supportEmail = $mailbox['email'];
+                            $supportEmailName = $mailbox['name'];
+                            $mailerID = $mailbox['smtp_swift_mailer_server']['mailer_id'];
+                        } else {
+                            $supportEmail = $mailbox['email'];
+                            $supportEmailName = $mailbox['name'];
+                            $mailerID = $this->container->getParameter('uvdesk.support_email.mailer_id');
+                        }
                     } else {
-                        // @TODO: Log mailbox disabled notice
                         return;
                     }
                 } catch (\Exception $e) {
