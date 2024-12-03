@@ -474,10 +474,10 @@ class TicketService
                 ($threadAttachment = new Attachment())
                     ->setThread($thread)
                     ->setName($attachmentContent['name'])
-                    ->setPath($filePath)
+                    ->setPath(str_replace('public/', '' , $filePath))
                     ->setSize(23343)
                     ->setContentType($attachmentContent['mimeType']);
-                
+
                 $this->entityManager->persist($threadAttachment);
             }
 
