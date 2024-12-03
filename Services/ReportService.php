@@ -112,7 +112,7 @@ class ReportService {
             $qb = $this->em->createQueryBuilder()
                     ->select("Count(thread.id) as ticketCount, IDENTITY (thread.ticket) AS ticketId")
                     ->from(Thread::class, 'thread')
-                    ->andwhere('thread.ticket IN (:ticket)')
+                    ->andWhere('thread.ticket IN (:ticket)')
                     ->andWhere('thread.threadType =:threadType')
                     ->andWhere('thread.createdAt BETWEEN :startDate AND :endDate');
                     if(!empty($agentClause))

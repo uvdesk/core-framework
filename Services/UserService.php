@@ -162,25 +162,27 @@ class UserService
     public function getSupportGroups(Request $request = null)
     {
         static $results;
-        if(null !== $results)
+        if (null !== $results)
             return $results;
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('supportGroup.id, supportGroup.name')->from(SupportGroup::class, 'supportGroup')
-                ->andwhere('supportGroup.isActive = 1');
-        if($request) {
-            $qb->andwhere("supportGroup.name LIKE :groupName");
-            $qb->setParameter('groupName', '%'.urldecode($request->query->get('query')).'%');
-            $qb->andwhere("supportGroup.id NOT IN (:ids)");
+                ->andWhere('supportGroup.isActive = 1');
+        if ($request) {
+            $qb->andWhere("supportGroup.name LIKE :groupName");
+            $qb->setParameter('groupName', '%'.urldecode(trim($request->query->get('query'))).'%');
+            $qb->andWhere("supportGroup.id NOT IN (:ids)");
             $qb->setParameter('ids', explode(',',urldecode($request->query->get('not'))));
         }
+
         return $results = $qb->getQuery()->getArrayResult();
     }
 
     public function getSupportTeams(Request $request = null)
     {
         static $results;
-        if(null !== $results)
+        if (null !== $results)
             return $results;
+
         $queryBuilder = $this->entityManager->createQueryBuilder()
             ->select("user.id, user.email, CONCAT(user.firstName, ' ', user.lastName) as name, userInstance.profileImagePath as smallThumbnail")
             ->from(User::class, 'user')
@@ -193,18 +195,18 @@ class UserService
         if ($request && null != $request->query->get('query')) {
             $queryBuilder
                 ->andWhere("CONCAT(dt.firstName,' ', dt.lastName) LIKE :customerName")
-                ->setParameter('customerName', '%'.urldecode($request->query->get('query')).'%');
+                ->setParameter('customerName', '%'.urldecode(trim($request->query->get('query'))).'%');
         }
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('supportTeam.id, supportTeam.name')
            ->from(SupportTeam::class, 'supportTeam');
-        $qb->andwhere('supportTeam.isActive = 1');
+        $qb->andWhere('supportTeam.isActive = 1');
         
-        if($request) {
-            $qb->andwhere("supportTeam.name LIKE :subGroupName");
+        if ($request) {
+            $qb->andWhere("supportTeam.name LIKE :subGroupName");
             $qb->setParameter('subGroupName', '%'.urldecode($request->query->get('query')).'%');
-            $qb->andwhere("supportTeam.id NOT IN (:ids)");
+            $qb->andWhere("supportTeam.id NOT IN (:ids)");
             $qb->setParameter('ids', explode(',',urldecode($request->query->get('not'))));
         }
 
@@ -296,7 +298,7 @@ class UserService
 
         if ($request && null != $request->query->get('not')) {
             $queryBuilder
-                ->andwhere("u.id NOT IN (:ids)")
+                ->andWhere("u.id NOT IN (:ids)")
                 ->setParameter('ids', explode(',', urldecode($request->query->get('not'))))
             ;
         }
@@ -317,16 +319,16 @@ class UserService
             ->select("u.id, userInstance.id as udId,u.email,CONCAT(u.firstName,' ', u.lastName) AS name,userInstance.profileImagePath as smallThumbnail")
             ->from(User::class, 'u')
             ->leftJoin('u.userInstance', 'userInstance')
-            ->andwhere('userInstance.supportRole != :roles')
+            ->andWhere('userInstance.supportRole != :roles')
             ->setParameter('roles', 4)
-            ->andwhere('userInstance.isActive = 1')
+            ->andWhere('userInstance.isActive = 1')
             ->orderBy('name','ASC')
         ;
 
         if ($request) {
-            $qb->andwhere("CONCAT(u.firstName,' ', u.lastName) LIKE :customerName");
-            $qb->setParameter('customerName', '%'.urldecode($request->query->get('query')).'%');
-            $qb->andwhere("u.id NOT IN (:ids)");
+            $qb->andWhere("CONCAT(u.firstName,' ', u.lastName) LIKE :customerName");
+            $qb->setParameter('customerName', '%'.urldecode(trim($request->query->get('query'))).'%');
+            $qb->andWhere("u.id NOT IN (:ids)");
             $qb->setParameter('ids', explode(',',urldecode($request->query->get('not'))));
         }
 
@@ -346,8 +348,8 @@ class UserService
             ->select("DISTINCT u.id,u.email,CONCAT(u.firstName,' ', COALESCE(u.lastName,'')) AS name,u.firstName,u.lastName,u.isEnabled,userInstance.profileImagePath,userInstance.profileImagePath as smallThumbnail,userInstance.isActive, userInstance.isVerified, userInstance.designation, userInstance.contactNumber,userInstance.signature,userInstance.ticketAccessLevel")
             ->from(User::class, 'u')
             ->leftJoin('u.userInstance', 'userInstance')
-            ->andwhere('userInstance.supportRole != :roles')
-            ->andwhere('u.id = :agentId')
+            ->andWhere('userInstance.supportRole != :roles')
+            ->andWhere('u.id = :agentId')
             ->setParameter('roles', 4)
             ->setParameter('agentId', $agentId)
         ;
@@ -365,8 +367,8 @@ class UserService
             ->leftJoin('user.userInstance', 'userInstance')
             ->leftJoin('userInstance.supportGroups', 'supportGroup')
             ->andWhere('userInstance.supportRole != :roles')->setParameter('roles', 4)
-            ->andwhere('supportGroup.id = :groupId')->setParameter('groupId', $groupId)
-            ->andwhere('userInstance.isActive = 1')
+            ->andWhere('supportGroup.id = :groupId')->setParameter('groupId', $groupId)
+            ->andWhere('userInstance.isActive = 1')
         ;
 
         $data = $qb->getQuery()->getArrayResult();
@@ -381,14 +383,15 @@ class UserService
                 ->from(User::class, 'user')
                 ->leftJoin('user.userInstance', 'userInstance')
                 ->leftJoin('userInstance.supportTeams', 'supportTeam')
-                ->andwhere('userInstance.supportRole != :roles')
-                ->andwhere('supportTeam.id = :subGroupId')
+                ->andWhere('userInstance.supportRole != :roles')
+                ->andWhere('supportTeam.id = :subGroupId')
                 ->setParameter('roles', 4)
                 ->setParameter('subGroupId', $subGroupId)
-                ->andwhere('supportTeam.isActive = 1')
-                ->andwhere('userInstance.isActive = 1');
+                ->andWhere('supportTeam.isActive = 1')
+                ->andWhere('userInstance.isActive = 1');
 
         $data = $qb->getQuery()->getArrayResult();
+
         return $data;
     }
 
@@ -397,12 +400,13 @@ class UserService
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select("user.id,user.email,CONCAT(user.firstName,' ', COALESCE(user.lastName,'')) AS name,user.firstName,user.lastName,user.isEnabled,userInstance.contactNumber,userInstance.profileImagePath,userInstance.profileImagePath as smallThumbnail,userInstance.isActive, userInstance.isVerified")->from(User::class, 'user')
                 ->leftJoin('user.userInstance', 'userInstance')
-                ->andwhere('userInstance.supportRole = :roles')
-                ->andwhere('user.id = :customerId')
+                ->andWhere('userInstance.supportRole = :roles')
+                ->andWhere('user.id = :customerId')
                 ->setParameter('roles', 4)
                 ->setParameter('customerId', $customerId);
 
         $result = $qb->getQuery()->getResult();
+
         return ($result ? $result[0] : null);
     }
 
@@ -411,8 +415,8 @@ class UserService
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select("u.id,u.email,CONCAT(u.firstName,' ', COALESCE(u.lastName,'')) AS name,u.firstName,u.lastName,userInstance.contactNumber,userInstance.profileImagePath,userInstance.profileImagePath as smallThumbnail")->from(User::class, 'u')
             ->leftJoin('u.userInstance', 'userInstance')
-            ->andwhere('userInstance.supportRole = :roles')
-            ->andwhere('u.id = :customerId')
+            ->andWhere('userInstance.supportRole = :roles')
+            ->andWhere('u.id = :customerId')
             ->setParameter('roles', 4)
             ->setParameter('customerId', $customerId);
 
@@ -428,19 +432,19 @@ class UserService
 
         $qb->select("DISTINCT u.id,CONCAT(u.firstName,' ', COALESCE(u.lastName,'')) AS name, userInstance.profileImagePath as smallThumbnail ")
             ->leftJoin('u.userInstance', 'userInstance')
-            ->andwhere('userInstance.supportRole = :roles')
+            ->andWhere('userInstance.supportRole = :roles')
             ->setParameter('roles', 4)
             ->orderBy('name','ASC');
         
         if ($request) {
             if ($request->query->get('query')) {
-                $qb->andwhere("CONCAT(u.firstName,' ', u.lastName) LIKE :customerName OR u.email LIKE :customerName");
+                $qb->andWhere("CONCAT(u.firstName,' ', u.lastName) LIKE :customerName OR u.email LIKE :customerName");
             } else {
-                $qb->andwhere("CONCAT(u.firstName,' ', u.lastName) LIKE :customerName");
+                $qb->andWhere("CONCAT(u.firstName,' ', u.lastName) LIKE :customerName");
             }
             
-            $qb->setParameter('customerName', '%'.urldecode($request->query->get('query')).'%')
-                ->andwhere("u.id NOT IN (:ids)")
+            $qb->setParameter('customerName', '%'.urldecode(trim($request->query->get('query'))).'%')
+                ->andWhere("u.id NOT IN (:ids)")
                 ->setParameter('ids', explode(',',urldecode($request->query->get('not'))));
         }
 
@@ -466,9 +470,9 @@ class UserService
         $qb->select('supportTeams.id')->from(User::class, 'user')
                 ->leftJoin('user.userInstance','userInstance')
                 ->leftJoin('userInstance.supportTeams','supportTeams')
-                ->andwhere('user.id = :userId')
-                ->andwhere('userInstance.supportRole != :agentRole')
-                ->andwhere('supportTeams.isActive = 1')
+                ->andWhere('user.id = :userId')
+                ->andWhere('userInstance.supportRole != :agentRole')
+                ->andWhere('supportTeams.isActive = 1')
                 ->setParameter('userId', $userId)
                 ->setParameter('agentRole', '4'); 
 
@@ -480,8 +484,8 @@ class UserService
         $qb->select('supportGroup.id')->from(User::class, 'user')
                 ->leftJoin('user.userInstance','userInstance')
                 ->leftJoin('userInstance.supportGroups','supportGroup')
-                ->andwhere('user.id = :userId')
-                ->andwhere('supportGroup.isActive = 1')
+                ->andWhere('user.id = :userId')
+                ->andWhere('supportGroup.isActive = 1')
                 ->setParameter('userId', $userId);
 
         return array_column($qb->getQuery()->getArrayResult(), 'id');
@@ -503,11 +507,11 @@ class UserService
         $userInstance->setUser($user);
         $userInstance->setIsActive($data['isActive']);
         $userInstance->setIsVerified(0);
-        if(isset($data['source']))
+        if (isset($data['source']))
             $userInstance->setSource($data['source']);
         else
             $userInstance->setSource('website');
-        if(isset($data['contactNumber'])) {
+        if (isset($data['contactNumber'])) {
             $userInstance->setContactNumber($data['contactNumber']);
         }
         if(isset($data['profileImage']) && $data['profileImage']) {
@@ -530,37 +534,37 @@ class UserService
         
         if (!in_array('UVDeskSupportCenterBundle', array_keys($enabled_bundles))) {
             return [
-                'id' =>  1,
-                'website' =>  1,
-                'status' =>  1,
-                'brandColor' => '#7E91F0',
-                'pageBackgroundColor' => '#FFFFFF',
-                'headerBackgroundColor' => '#FFFFFF',
-                'bannerBackgroundColor' => '#7085F4',
-                'navTextColor' =>  '#7085F4',
-                'navActiveColor' => '#7085F4',
-                'linkColor' => '#7085F4',
-                'linkHoverColor' => '#7085F4',
-                'headerLinks' => null,
-                'footerLinks' => null,
-                'articleTextColor' => '#7085F4',
-                'whiteList' => null,
-                'blackList' => null,
-                'siteDescritption' => 'Hi! how can i help you.',
-                'metaDescription' => null,
-                'metaKeywords' => null,
-                'homepageContent' => null,
-                'ticketCreateOption' =>  1,
-                'createdAt' =>  '2018-09-21 16:20:01',
-                'updatedat' =>  '2018-09-21 16:20:01',
-                'broadcastMessage' => null,
+                'id'                        =>  1,
+                'website'                   =>  1,
+                'status'                    =>  1,
+                'brandColor'                => '#7E91F0',
+                'pageBackgroundColor'       => '#FFFFFF',
+                'headerBackgroundColor'     => '#FFFFFF',
+                'bannerBackgroundColor'     => '#7085F4',
+                'navTextColor'              =>  '#7085F4',
+                'navActiveColor'            => '#7085F4',
+                'linkColor'                 => '#7085F4',
+                'linkHoverColor'            => '#7085F4',
+                'headerLinks'               => null,
+                'footerLinks'               => null,
+                'articleTextColor'          => '#7085F4',
+                'whiteList'                 => null,
+                'blackList'                 => null,
+                'siteDescritption'          => 'Hi! how can i help you.',
+                'metaDescription'           => null,
+                'metaKeywords'              => null,
+                'homepageContent'           => null,
+                'ticketCreateOption'        =>  1,
+                'createdAt'                 =>  '2024-09-21 16:20:01',
+                'updatedat'                 =>  '2024-09-21 16:20:01',
+                'broadcastMessage'          => null,
                 'removeCustomerLoginButton' => null,
-                'disableCustomerlogin' =>  0,
-                'removeBrandingContent' => null,
-                'loginRequiredToCreate' => null,
-                'script' => null,
-                'customCss' => null,
-                'isActive' => 1,
+                'disableCustomerlogin'      =>  0,
+                'removeBrandingContent'     => null,
+                'loginRequiredToCreate'     => null,
+                'script'                    => null,
+                'customCss'                 => null,
+                'isActive'                  => 1,
             ];
         }
         
@@ -568,7 +572,7 @@ class UserService
 
         if ($website) {
             $configuration = $this->entityManager->getRepository(KnowledgebaseWebsite::class)->findOneBy([
-                'website' => $website->getId(), 
+                'website'  => $website->getId(), 
                 'isActive' => 1
             ]);
         }
@@ -627,7 +631,7 @@ class UserService
 
     public function convertToDatetimeTimezoneTimestamp($date, $format = "d-m-Y h:ia")
     {
-        if(!$date)
+        if (!$date)
             return "N/A";
         $currentUser = $this->getCurrentUser();
         $date = date_format($date, $format);
@@ -649,11 +653,11 @@ class UserService
 
         $fileService = new Fileservice();
         // Delete all tickets attachments.
-        if($ticketData) {
-            foreach($ticketData as $ticket) {
+        if ($ticketData) {
+            foreach ($ticketData as $ticket) {
                 $threads = $ticket->getThreads();
                 if (count($threads) > 0) {
-                    foreach($threads as $thread) {
+                    foreach ($threads as $thread) {
                         if (!empty($thread)) {
                             $fileService->remove($this->container->getParameter('kernel.project_dir').'/public/assets/threads/'.$thread->getId());
 
@@ -664,8 +668,8 @@ class UserService
         }
 
         // Remove profile.
-        foreach($userData as $user) {
-            if($user->getSupportRole()->getId() == 4 && $user->getProfileImagePath()) {
+        foreach ($userData as $user) {
+            if ($user->getSupportRole()->getId() == 4 && $user->getProfileImagePath()) {
                 $fileService->remove($this->container->getParameter('kernel.project_dir').'/public'.$user->getProfileImagePath());
             }
         }
@@ -673,7 +677,7 @@ class UserService
         // getCustomerTickets
         $qb = $this->entityManager->createQueryBuilder();
         $query = $qb->delete(Ticket::class, 't')
-                    ->andwhere('t.customer = :customerId')
+                    ->andWhere('t.customer = :customerId')
                     ->setParameter('customerId', $customer->getId())
                     ->getQuery();
 
@@ -681,15 +685,15 @@ class UserService
 
         $qb = $this->entityManager->createQueryBuilder();
         $query = $qb->delete(UserInstance::class, 'userInstance')
-                    ->andwhere('userInstance.user = :customerId')
-                    ->andwhere('userInstance.supportRole = :roleId')
+                    ->andWhere('userInstance.user = :customerId')
+                    ->andWhere('userInstance.supportRole = :roleId')
                     ->setParameter('customerId', $customer->getId())
                     ->setParameter('roleId', 4)
                     ->getQuery();
 
         $query->execute();
 
-        if($count == 1) {
+        if ($count == 1) {
             $this->entityManager->remove($customer);
             $this->entityManager->flush();
         }
@@ -702,8 +706,8 @@ class UserService
 
         $qb = $this->entityManager->createQueryBuilder();
         $query = $qb->delete(UserInstance::class, 'ud')
-                    ->andwhere('ud.user = :userId')
-                    ->andwhere('ud.supportRole = :roleId')
+                    ->andWhere('ud.user = :userId')
+                    ->andWhere('ud.supportRole = :roleId')
                     ->setParameter('userId', $user->getId())
                     ->setParameter('roleId', 3)
                     ->getQuery();
@@ -720,15 +724,14 @@ class UserService
         $qb = $this->entityManager->createQueryBuilder();
         $query = $qb->update(Ticket::class, 't')
                     ->set('t.agent', ':nullAgent')
-                    ->andwhere('t.agent = :agentId')
+                    ->andWhere('t.agent = :agentId')
                     ->setParameter('agentId', $user->getId())
                     ->setParameter('nullAgent', null)
                     ->getQuery();
 
         $query->execute();
 
-       
-        if($count == 1) {
+        if ($count == 1) {
             $this->entityManager->remove($user);
             $this->entityManager->flush();
         }
@@ -740,15 +743,17 @@ class UserService
         $layout  = $this->entityManager->getRepository(KnowledgebaseWebsite::class)->findOneBy(['website'=>$website->getId()]);
       
         $homepageContent = $layout->getHomepageContent();
+
         return (!empty($homepageContent)) ? $homepageContent . 'View' : 'masonryView';
     }
 
     public function getUserDetailById($userId) {
         $user = $this->entityManager->getRepository(User::class)->find($userId);
         foreach ($user->getUserInstance() as $row) {
-            if($row->getSupportRole()->getId() != 4)
+            if ($row->getSupportRole()->getId() != 4)
                 return $row;
         }
+
         return null;
     }
 
@@ -760,7 +765,7 @@ class UserService
             ->from(User::class, 'user')
             ->leftJoin('user.userInstance','userInstance')
             ->leftJoin('userInstance.supportPrivileges','supportPrivileges')
-            ->andwhere('user.id = :userId')
+            ->andWhere('user.id = :userId')
             ->setParameter('userId', $userId)
         ;
 
@@ -860,7 +865,7 @@ class UserService
         $stmt->execute();
         $result = $stmt->fetchAll();
 
-        foreach($result as $row) {
+        foreach ($result as $row) {
             if ($row['userInstanceId'] == $userId) {
                 array_push($teamIds, $row['supportTeamId']);
             }
@@ -889,7 +894,7 @@ class UserService
             
             $timestamp->setTimeZone(new \DateTimeZone($user->getTimeZone()));
             $format = $user->getTimeFormat();
-        }elseif (!empty($activeUserTimeZone) && $activeUserTimeZone != 'anon.' && $activeUserTimeZone->getTimezone() != null) {
+        } elseif (!empty($activeUserTimeZone) && $activeUserTimeZone != 'anon.' && $activeUserTimeZone->getTimezone() != null) {
             $timestamp = clone $timestamp;
             
             $timestamp->setTimeZone(new \DateTimeZone($activeUserTimeZone->getTimeZone()));

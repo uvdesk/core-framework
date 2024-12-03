@@ -168,7 +168,7 @@ class TicketService
 
         return $twigTemplatingEngine->render('@UVDeskCoreFramework/Snippets/createMemberTicket.html.twig', [
             'ticketTypeCollection' => $ticketTypeCollection,
-            'headerCustomFields' => $headerCustomFields ?? null,
+            'headerCustomFields'   => $headerCustomFields ?? null,
         ]);
     }
 
@@ -493,7 +493,7 @@ class TicketService
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('tp.id','tp.code As name')->from(TicketType::class, 'tp')
-                ->andwhere('tp.isActive = 1')
+                ->andWhere('tp.isActive = 1')
                 ->orderBy('tp.code', 'ASC');
 
         return $types = $qb->getQuery()->getArrayResult();
@@ -538,9 +538,9 @@ class TicketService
         $qb->select('tg')->from(Tag::class, 'tg');
 
         if($request) {
-            $qb->andwhere("tg.name LIKE :tagName");
-            $qb->setParameter('tagName', '%'.urldecode($request->query->get('query')).'%');
-            $qb->andwhere("tg.id NOT IN (:ids)");
+            $qb->andWhere("tg.name LIKE :tagName");
+            $qb->setParameter('tagName', '%'.urldecode(trim($request->query->get('query'))).'%');
+            $qb->andWhere("tg.id NOT IN (:ids)");
             $qb->setParameter('ids', explode(',',urldecode($request->query->get('not'))));
         }
 
@@ -614,7 +614,7 @@ class TicketService
             $formattedTime= $this->fomatTimeByPreference($dbTime,$timeZone,$timeFormat,$agentTimeZone,$agentTimeFormat);
 
             $currentDateTime  = new \DateTime('now');
-            if($this->getLastReply($ticket['id'])) {
+            if ($this->getLastReply($ticket['id'])) {
                 $lastRepliedTime = 
                 $this->time2string($currentDateTime->getTimeStamp() - $this->getLastReply($ticket['id'])['createdAt']->getTimeStamp());
             } else {
@@ -623,23 +623,23 @@ class TicketService
             }
 
             $ticketResponse = [
-                'id' => $ticket['id'],
-                'subject' => $ticket['subject'],
-                'isStarred' => $ticket['isStarred'],
-                'isAgentView' => $ticket['isAgentViewed'],
-                'isTrashed' => $ticket['isTrashed'],
-                'source' => $ticket['source'],
-                'group' => $ticketDetails['groupName'],
-                'team' => $ticketDetails['teamName'],
-                'priority' => $ticket['priority'],
-                'type' => $ticketDetails['typeName'],
-                'timestamp' => $formattedTime['dateTimeZone'],
+                'id'                => $ticket['id'],
+                'subject'           => $ticket['subject'],
+                'isStarred'         => $ticket['isStarred'],
+                'isAgentView'       => $ticket['isAgentViewed'],
+                'isTrashed'         => $ticket['isTrashed'],
+                'source'            => $ticket['source'],
+                'group'             => $ticketDetails['groupName'],
+                'team'              => $ticketDetails['teamName'],
+                'priority'          => $ticket['priority'],
+                'type'              => $ticketDetails['typeName'],
+                'timestamp'         => $formattedTime['dateTimeZone'],
                 'formatedCreatedAt' => $formattedTime['dateTimeZone']->format($formattedTime['timeFormatString']),
-                'totalThreads' => $totalTicketReplies,
-                'agent' => null,
-                'customer' => null,
-                'hasAttachments' => $ticketHasAttachments,
-                'lastReplyTime' => $lastRepliedTime
+                'totalThreads'      => $totalTicketReplies,
+                'agent'             => null,
+                'customer'          => null,
+                'hasAttachments'    => $ticketHasAttachments,
+                'lastReplyTime'     => $lastRepliedTime
             ];
            
             if (!empty($ticketDetails['agentId'])) {
@@ -652,9 +652,9 @@ class TicketService
 
             if (!empty($ticketDetails['customerId'])) {
                 $ticketResponse['customer'] = [
-                    'id' => $ticketDetails['customerId'],
-                    'name' => $ticketDetails['customerName'],
-                    'email' => $ticketDetails['customerEmail'],
+                    'id'             => $ticketDetails['customerId'],
+                    'name'           => $ticketDetails['customerName'],
+                    'email'          => $ticketDetails['customerEmail'],
                     'smallThumbnail' => $ticketDetails['customersmallThumbnail'],
                 ];
             }
@@ -663,12 +663,12 @@ class TicketService
         }
          
         return [
-            'tickets' => $ticketCollection,
+            'tickets'    => $ticketCollection,
             'pagination' => $paginationData,
-            'tabs' => $ticketTabs,
+            'tabs'       => $ticketTabs,
             'labels' => [
                 'predefind' => $this->getPredefindLabelDetails($activeUser, $supportGroupReference, $supportTeamReference, $params),
-                'custom' => $this->getCustomLabelDetails($this->container),
+                'custom'    => $this->getCustomLabelDetails($this->container),
             ],
           
         ];
@@ -716,7 +716,7 @@ class TicketService
             $supportTeamIds = implode(',', $supportTeamIds);
 
             if ($userInstance->getTicketAccesslevel() == 4) {
-                $queryBuilder->andwhere('ticket.agent = ' . $currentUser->getId());
+                $queryBuilder->andWhere('ticket.agent = ' . $currentUser->getId());
             } elseif ($userInstance->getTicketAccesslevel() == 2) {
                 $query = '';
                 if ($supportGroupIds){
@@ -727,7 +727,7 @@ class TicketService
                 }
                 $queryBuilder->leftJoin('ticket.supportGroup', 'supportGroup')
                             ->leftJoin('ticket.supportTeam', 'supportTeam')
-                            ->andwhere('( ticket.agent = ' . $currentUser->getId().$query.')');
+                            ->andWhere('( ticket.agent = ' . $currentUser->getId().$query.')');
                     
             } elseif ($userInstance->getTicketAccesslevel() == 3) {
                 $query = '';
@@ -736,7 +736,7 @@ class TicketService
                 }
                 $queryBuilder->leftJoin('ticket.supportGroup', 'supportGroup')
                             ->leftJoin('ticket.supportTeam', 'supportTeam')
-                            ->andwhere('( ticket.agent = ' . $currentUser->getId().$query. ')');
+                            ->andWhere('( ticket.agent = ' . $currentUser->getId().$query. ')');
             }
         }
 
@@ -745,17 +745,17 @@ class TicketService
 
         // for new tickets count
         $newQb = clone $queryBuilder;
-        $newQb->andwhere('ticket.isNew = 1');
+        $newQb->andWhere('ticket.isNew = 1');
         $data['new'] = $newQb->getQuery()->getSingleScalarResult();
 
         // for unassigned tickets count
         $unassignedQb = clone $queryBuilder;
-        $unassignedQb->andwhere("ticket.agent is NULL");
+        $unassignedQb->andWhere("ticket.agent is NULL");
         $data['unassigned'] = $unassignedQb->getQuery()->getSingleScalarResult();
 
         // for unanswered ticket count
         $unansweredQb = clone $queryBuilder;
-        $unansweredQb->andwhere('ticket.isReplied = 0');
+        $unansweredQb->andWhere('ticket.isReplied = 0');
         $data['notreplied'] = $unansweredQb->getQuery()->getSingleScalarResult();
 
         // for my tickets count
@@ -766,14 +766,14 @@ class TicketService
 
         // for starred tickets count
         $starredQb = clone $queryBuilder;
-        $starredQb->andwhere('ticket.isStarred = 1');
+        $starredQb->andWhere('ticket.isStarred = 1');
         $data['starred'] = $starredQb->getQuery()->getSingleScalarResult();
 
         // for trashed tickets count
         $trashedQb = clone $queryBuilder;
         $trashedQb->where('ticket.isTrashed = 1');
         if ($currentUser->getRoles()[0] != 'ROLE_SUPER_ADMIN' && $userInstance->getTicketAccesslevel() != 1) {
-            $trashedQb->andwhere('ticket.agent = ' . $currentUser->getId());
+            $trashedQb->andWhere('ticket.agent = ' . $currentUser->getId());
         }
         $data['trashed'] = $trashedQb->getQuery()->getSingleScalarResult();
 
@@ -840,21 +840,21 @@ class TicketService
             $formattedTime = $this->fomatTimeByPreference($dbTime,$timeZone,$timeFormat,$agentTimeZone,$agentTimeFormat);
 
             $threadResponse = [
-                'id' => $threadDetails['id'],
-                'user' => null,
-                'fullname' => null,
-				'reply' => html_entity_decode($threadDetails['message']),
-				'source' => $threadDetails['source'],
-                'threadType' => $threadDetails['threadType'],
-                'userType' => $threadDetails['createdBy'],
-                'timestamp' => $formattedTime['dateTimeZone'],
+                'id'                => $threadDetails['id'],
+                'user'              => null,
+                'fullname'          => null,
+				'reply'             => html_entity_decode($threadDetails['message']),
+				'source'            => $threadDetails['source'],
+                'threadType'        => $threadDetails['threadType'],
+                'userType'          => $threadDetails['createdBy'],
+                'timestamp'         => $formattedTime['dateTimeZone'],
                 'formatedCreatedAt' => $formattedTime['dateTimeZone']->format($formattedTime['timeFormatString']),
-                'bookmark' => $threadDetails['isBookmarked'],
-                'isLocked' => $threadDetails['isLocked'],
-                'replyTo' => $threadDetails['replyTo'],
-                'cc' => $threadDetails['cc'],
-                'bcc' => $threadDetails['bcc'],
-                'attachments' => $threadDetails['attachments'],
+                'bookmark'          => $threadDetails['isBookmarked'],
+                'isLocked'          => $threadDetails['isLocked'],
+                'replyTo'           => $threadDetails['replyTo'],
+                'cc'                => $threadDetails['cc'],
+                'bcc'               => $threadDetails['bcc'],
+                'attachments'       => $threadDetails['attachments'],
             ];
   
             if (!empty($threadDetails['user'])) {
@@ -877,7 +877,7 @@ class TicketService
         }
 
         return [
-            'threads' => $threadCollection,
+            'threads'    => $threadCollection,
             'pagination' => $paginationData,
         ];
     }
@@ -1179,9 +1179,9 @@ class TicketService
             return [
                 'tags' => array_map(function ($supportTag) use ($articleRepository) {
                     return [
-                        'id' => $supportTag['id'],
-                        'name' => $supportTag['name'],
-                        'ticketCount' => $supportTag['totalTickets'],
+                        'id'           => $supportTag['id'],
+                        'name'         => $supportTag['name'],
+                        'ticketCount'  => $supportTag['totalTickets'],
                         'articleCount' => $articleRepository->getTotalArticlesBySupportTag($supportTag['id']),
                     ];
                 }, $pagination->getItems()),
@@ -1191,8 +1191,8 @@ class TicketService
             return [
                 'tags' => array_map(function ($supportTag) {
                     return [
-                        'id' => $supportTag['id'],
-                        'name' => $supportTag['name'],
+                        'id'          => $supportTag['id'],
+                        'name'        => $supportTag['name'],
                         'ticketCount' => $supportTag['totalTickets'],
                     ];
                 }, $pagination->getItems()),
@@ -1204,7 +1204,7 @@ class TicketService
     public function getTicketInitialThreadDetails(Ticket $ticket)
     {
         $initialThread = $this->entityManager->getRepository(Thread::class)->findOneBy([
-            'ticket' => $ticket,
+            'ticket'     => $ticket,
             'threadType' => 'create',
         ]);
 
@@ -1213,17 +1213,17 @@ class TicketService
             $authorInstance = 'agent' == $initialThread->getCreatedBy() ? $author->getAgentInstance() : $author->getCustomerInstance();
         
             $threadDetails = [
-                'id' => $initialThread->getId(),
-                'source' => $initialThread->getSource(),
-                'messageId' => $initialThread->getMessageId(),
-                'threadType' => $initialThread->getThreadType(),
-                'createdBy' => $initialThread->getCreatedBy(),
-                'message' => html_entity_decode($initialThread->getMessage()),
+                'id'          => $initialThread->getId(),
+                'source'      => $initialThread->getSource(),
+                'messageId'   => $initialThread->getMessageId(),
+                'threadType'  => $initialThread->getThreadType(),
+                'createdBy'   => $initialThread->getCreatedBy(),
+                'message'     => html_entity_decode($initialThread->getMessage()),
                 'attachments' => $initialThread->getAttachments(),
-                'timestamp' => $initialThread->getCreatedAt()->getTimestamp(),
-                'createdAt' => $initialThread->getCreatedAt()->format('d-m-Y h:ia'),
-                'user' => $authorInstance->getPartialDetails(),
-                'cc' => is_array($initialThread->getCc()) ? implode(', ', $initialThread->getCc()) : '',
+                'timestamp'   => $initialThread->getCreatedAt()->getTimestamp(),
+                'createdAt'   => $initialThread->getCreatedAt()->format('d-m-Y h:ia'),
+                'user'        => $authorInstance->getPartialDetails(),
+                'cc'          => is_array($initialThread->getCc()) ? implode(', ', $initialThread->getCc()) : '',
             ];
 
             $attachments = $threadDetails['attachments']->getValues();
@@ -1256,7 +1256,7 @@ class TicketService
 
         $threadResponse = $qb->getQuery()->getArrayResult();
 
-        if((!empty($threadResponse[0][0]))) {
+        if ((!empty($threadResponse[0][0]))) {
             $threadDetails = $threadResponse[0][0];
             $userService = $this->container->get('user.service');
             
@@ -1310,6 +1310,7 @@ class TicketService
     public function getAllSources()
     {
         $sources = ['email' => 'Email', 'website' => 'Website'];
+
         return $sources;
     }
 
@@ -1320,7 +1321,7 @@ class TicketService
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('COUNT(DISTINCT t) as ticketCount,sl.id')->from(Ticket::class, 't')
                 ->leftJoin('t.supportLabels','sl')
-                ->andwhere('sl.user = :userId')
+                ->andWhere('sl.user = :userId')
                 ->setParameter('userId', $currentUser->getId())
                 ->groupBy('sl.id');
 
@@ -1329,7 +1330,7 @@ class TicketService
         $data = array();
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('sl.id,sl.name,sl.colorCode')->from(SupportLabel::class, 'sl')
-                ->andwhere('sl.user = :userId')
+                ->andWhere('sl.user = :userId')
                 ->setParameter('userId', $currentUser->getId());
 
         $labels = $qb->getQuery()->getResult();
@@ -1337,7 +1338,7 @@ class TicketService
         foreach ($labels as $key => $label) {
             $labels[$key]['count'] = 0;
             foreach ($ticketCountResult as $ticketCount) {
-                if(($label['id'] == $ticketCount['id']))
+                if (($label['id'] == $ticketCount['id']))
                     $labels[$key]['count'] = $ticketCount['ticketCount'] ?: 0;
             }
         }
@@ -1353,12 +1354,12 @@ class TicketService
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('sl')->from(SupportLabel::class, 'sl')
-            ->andwhere('sl.user = :userId')
+            ->andWhere('sl.user = :userId')
             ->setParameter('userId', $this->getUser()->getId());
 
-        if($request) {
-            $qb->andwhere("sl.name LIKE :labelName");
-            $qb->setParameter('labelName', '%'.urldecode($request->query->get('query')).'%');
+        if ($request) {
+            $qb->andWhere("sl.name LIKE :labelName");
+            $qb->setParameter('labelName', '%'.urldecode(trim($request->query->get('query'))).'%');
         }
 
         return $labels = $qb->getQuery()->getArrayResult();
@@ -1370,8 +1371,8 @@ class TicketService
         $qb->select("DISTINCT c.id, c.email, CONCAT(c.firstName,' ', c.lastName) AS name, userInstance.profileImagePath, userInstance.profileImagePath as smallThumbnail")->from(Ticket::class, 't')
                 ->leftJoin('t.collaborators', 'c')
                 ->leftJoin('c.userInstance', 'userInstance')
-                ->andwhere('t.id = :ticketId')
-                ->andwhere('userInstance.supportRole = :roles')
+                ->andWhere('t.id = :ticketId')
+                ->andWhere('userInstance.supportRole = :roles')
                 ->setParameter('ticketId', $ticketId)
                 ->setParameter('roles', 4)
                 ->orderBy('name','ASC');
@@ -1384,7 +1385,7 @@ class TicketService
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('tg')->from(Tag::class, 'tg')
                 ->leftJoin('tg.tickets' ,'t')
-                ->andwhere('t.id = :ticketId')
+                ->andWhere('t.id = :ticketId')
                 ->setParameter('ticketId', $ticketId);
 
         return $qb->getQuery()->getArrayResult();
@@ -1434,7 +1435,6 @@ class TicketService
 
     public function getManualWorkflow()
     {
-
         $preparedResponseIds = [];
         $groupIds = [];
         $teamIds = []; 
@@ -1552,7 +1552,7 @@ class TicketService
         $stmt->execute();
         $result = $stmt->fetchAll();
 
-        foreach($result as $row) {
+        foreach ($result as $row) {
             if ($row['userInstanceId'] == $userId) {
                 array_push($teamIds, $row['supportTeamId']);
             }
@@ -1609,7 +1609,7 @@ class TicketService
                 ->leftJoin('th.ticket','t')
                 ->leftJoin('th.user', 'u')
                 ->leftJoin('u.userInstance', 'userInstance')
-                ->andwhere('userInstance.supportRole != :roles')
+                ->andWhere('userInstance.supportRole != :roles')
                 ->andWhere('t.id = :ticketId')
                 ->andWhere('th.threadType = :threadType')
                 ->setParameter('threadType','reply')
@@ -1620,6 +1620,7 @@ class TicketService
                 ->orderBy('th.id', 'DESC');
 
         $result = $qb->getQuery()->setMaxResults(1)->getResult();
+
         return $result ? $result[0] : null;
     }
 
@@ -1689,7 +1690,7 @@ class TicketService
 
         $variables['ticket.status'] = $ticket->getStatus()->getCode();
         $variables['ticket.priority'] = $ticket->getPriority()->getCode();
-        if($ticket->getSupportGroup())
+        if ($ticket->getSupportGroup())
             $variables['ticket.group'] = $ticket->getSupportGroup()->getName();
         else
             $variables['ticket.group'] = '';
@@ -1705,7 +1706,7 @@ class TicketService
         $variables['ticket.agentEmail'] = '';
         if ($ticket->getAgent()) {
             $agent = $this->container->get('user.service')->getAgentDetailById($ticket->getAgent()->getId());
-            if($agent) {
+            if ($agent) {
                 $variables['ticket.agentName'] = $agent['name'];
                 $variables['ticket.agentEmail'] = $agent['email'];
             }
@@ -1778,24 +1779,27 @@ class TicketService
         $agentTimeFormat = !empty($activeUser) ? $activeUser->getTimeformat() : null;
 
         $parameterType = gettype($dateFlag);
-        if($parameterType == 'string'){
-            if(is_null($agentTimeZone) && is_null($agentTimeFormat)){
+        if ($parameterType == 'string') {
+            if (is_null($agentTimeZone) && is_null($agentTimeFormat)) {
                 if(is_null($timeZone) && is_null($timeFormat)){
                     $datePattern = date_create($dateFlag);
+
                     return date_format($datePattern,'d-m-Y h:ia');
                 } else {
                     $dateFlag = new \DateTime($dateFlag);
                     $datePattern = $dateFlag->setTimezone(new \DateTimeZone($timeZone));
+
                     return date_format($datePattern, $timeFormat);
                 }
             } else {
                 $dateFlag = new \DateTime($dateFlag);
                 $datePattern = $dateFlag->setTimezone(new \DateTimeZone($agentTimeZone));
+
                 return date_format($datePattern, $agentTimeFormat);
             }          
         } else {
-            if(is_null($agentTimeZone) && is_null($agentTimeFormat)){
-                if(is_null($timeZone) && is_null($timeFormat)){
+            if (is_null($agentTimeZone) && is_null($agentTimeFormat)){
+                if (is_null($timeZone) && is_null($timeFormat)) {
                     return date_format($dateFlag,'d-m-Y h:ia');
                 } else {
                     $datePattern = $dateFlag->setTimezone(new \DateTimeZone($timeZone));
@@ -1803,6 +1807,7 @@ class TicketService
                 }
             } else {
                 $datePattern = $dateFlag->setTimezone(new \DateTimeZone($agentTimeZone));
+
                 return date_format($datePattern, $agentTimeFormat);
             }    
         }         
@@ -1810,8 +1815,8 @@ class TicketService
 
     public function fomatTimeByPreference($dbTime,$timeZone,$timeFormat,$agentTimeZone,$agentTimeFormat)
     {
-        if(is_null($agentTimeZone) && is_null($agentTimeFormat)) {
-            if(is_null($timeZone) && is_null($timeFormat)){
+        if (is_null($agentTimeZone) && is_null($agentTimeFormat)) {
+            if (is_null($timeZone) && is_null($timeFormat)) {
                 $dateTimeZone = $dbTime;
                 $timeFormatString = 'd-m-Y h:ia';
             } else {
@@ -1822,8 +1827,10 @@ class TicketService
             $dateTimeZone = $dbTime->setTimezone(new \DateTimeZone($agentTimeZone));
             $timeFormatString = $agentTimeFormat;
         }
+
         $time['dateTimeZone'] = $dateTimeZone;
         $time['timeFormatString'] = $timeFormatString;
+
         return $time;
     }
     
@@ -1928,7 +1935,7 @@ class TicketService
                     if (is_array($submittedCustomFields[$customFields->getId()])) {
                         foreach ($submittedCustomFields[$customFields->getId()] as $value) {
                             $ticketCustomFieldValues = $customFieldValuesEntityRepository->findOneBy([
-                                'id' => $value, 
+                                'id'           => $value, 
                                 'customFields' => $customFields, 
                             ]);
 
@@ -1940,7 +1947,7 @@ class TicketService
                         }
                     } else {
                         $ticketCustomFieldValues = $customFieldValuesEntityRepository->findOneBy([
-                            'id' => $submittedCustomFields[$customFields->getId()], 
+                            'id'           => $submittedCustomFields[$customFields->getId()], 
                             'customFields' => $customFields, 
                         ]);
 
@@ -1976,7 +1983,7 @@ class TicketService
                                 ->setValue(json_encode([
                                     'name' => $value['name'], 
                                     'path' => $value['path'], 
-                                    'id' => $value['id'], 
+                                    'id'   => $value['id'], 
                                 ]))
                             ;
 
@@ -2455,82 +2462,70 @@ class TicketService
     {
         $actionArray =  array(
             'ticket' => [
-                'priority' => ('action.priority'),
-                'type' => ('action.type'),
-                'status' => ('action.status'),
-
-                'tag' => ('action.tag'),
-                'note' => ('action.note'),
-                'label' => ('action.label'),
-
-                'assign_agent' => ('action.assign_agent'),
-                'assign_group' => ('action.assign_group'),
-                'assign_team' => ('action.assign_team'),
-
-                'mail_agent' => ('action.mail_agent'),
-                'mail_group' => ('action.mail_group'),
-                'mail_team' => ('action.mail_team'),
-                'mail_customer' => ('action.mail_customer'),
-
+                'priority'               => ('action.priority'),
+                'type'                   => ('action.type'),
+                'status'                 => ('action.status'),
+                'tag'                    => ('action.tag'),
+                'note'                   => ('action.note'),
+                'label'                  => ('action.label'),
+                'assign_agent'           => ('action.assign_agent'),
+                'assign_group'           => ('action.assign_group'),
+                'assign_team'            => ('action.assign_team'),
+                'mail_agent'             => ('action.mail_agent'),
+                'mail_group'             => ('action.mail_group'),
+                'mail_team'              => ('action.mail_team'),
+                'mail_customer'          => ('action.mail_customer'),
                 'mail_last_collaborator' => ('action.mail_last_collaborator'),
-
                 'mail_all_collaborators' => ('action.mail_all_collaborators'),
-
-                'delete_ticket' => ('action.delete_ticket'),
-                'mark_spam' => ('action.mark_spam'),
+                'delete_ticket'          => ('action.delete_ticket'),
+                'mark_spam'              => ('action.mark_spam'),
             ],
-            'task'  => [
-                // 'assign_agent' => ('action.assign_agent'),
-                'reply' => ('action.reply'),
-                'mail_agent' => ('action.mail_agent'),
-                'mail_members' => ('action.mail_members'),
+            'task' => [
+                'reply'            => ('action.reply'),
+                'mail_agent'       => ('action.mail_agent'),
+                'mail_members'     => ('action.mail_members'),
                 'mail_last_member' => ('action.mail_last_member'),
             ],
-            'customer'  => [
+            'customer' => [
                 'mail_customer' => ('action.mail_customer'),
             ],
-            'agent'  => [
-                'mail_agent' => ('action.mail_agent'),
-                // 'ticket_transfer' => ('action.ticket_transfer'),
+            'agent' => [
+                'mail_agent'    => ('action.mail_agent'),
                 'task_transfer' => ('action.task_transfer'),
-                'assign_agent' => ('action.assign_agent'),
-                'assign_group' => ('action.assign_group'),
-                'assign_team' => ('action.assign_team'),
+                'assign_agent'  => ('action.assign_agent'),
+                'assign_group'  => ('action.assign_group'),
+                'assign_team'   => ('action.assign_team'),
             ],
         );
 
         $actionRoleArray = [
-            'ticket->priority' => 'ROLE_AGENT_UPDATE_TICKET_PRIORITY',
-            'ticket->type' => 'ROLE_AGENT_UPDATE_TICKET_TYPE',
-            'ticket->status' => 'ROLE_AGENT_UPDATE_TICKET_STATUS',
-            'ticket->tag' => 'ROLE_AGENT_ADD_TAG',
-            'ticket->note' => 'ROLE_AGENT_ADD_NOTE',
-            'ticket->assign_agent' => 'ROLE_AGENT_ASSIGN_TICKET',
-            'ticket->assign_group' => 'ROLE_AGENT_ASSIGN_TICKET_GROUP',
-            'ticket->assign_team' => 'ROLE_AGENT_ASSIGN_TICKET_GROUP',
-            'ticket->mail_agent' => 'ROLE_AGENT',
-            'ticket->mail_group' => 'ROLE_AGENT_MANAGE_GROUP',
-            'ticket->mail_team' => 'ROLE_AGENT_MANAGE_SUB_GROUP',
-            'ticket->mail_customer' => 'ROLE_AGENT',
+            'ticket->priority'               => 'ROLE_AGENT_UPDATE_TICKET_PRIORITY',
+            'ticket->type'                   => 'ROLE_AGENT_UPDATE_TICKET_TYPE',
+            'ticket->status'                 => 'ROLE_AGENT_UPDATE_TICKET_STATUS',
+            'ticket->tag'                    => 'ROLE_AGENT_ADD_TAG',
+            'ticket->note'                   => 'ROLE_AGENT_ADD_NOTE',
+            'ticket->assign_agent'           => 'ROLE_AGENT_ASSIGN_TICKET',
+            'ticket->assign_group'           => 'ROLE_AGENT_ASSIGN_TICKET_GROUP',
+            'ticket->assign_team'            => 'ROLE_AGENT_ASSIGN_TICKET_GROUP',
+            'ticket->mail_agent'             => 'ROLE_AGENT',
+            'ticket->mail_group'             => 'ROLE_AGENT_MANAGE_GROUP',
+            'ticket->mail_team'              => 'ROLE_AGENT_MANAGE_SUB_GROUP',
+            'ticket->mail_customer'          => 'ROLE_AGENT',
             'ticket->mail_last_collaborator' => 'ROLE_AGENT',
             'ticket->mail_all_collaborators' => 'ROLE_AGENT',
-            'ticket->delete_ticket' => 'ROLE_AGENT_DELETE_TICKET',
-            'ticket->mark_spam' => 'ROLE_AGENT_UPDATE_TICKET_STATUS',
-            'ticket->label' => 'ROLE_ADMIN',
-
-            'task->reply' => 'ROLE_AGENT',
-            'task->mail_agent' => 'ROLE_AGENT',
-            'task->mail_members' => 'ROLE_AGENT',
-            'task->mail_last_member' => 'ROLE_AGENT',
-
-            'customer->mail_customer' => 'ROLE_AGENT',
-
-            'agent->mail_agent' => 'ROLE_AGENT',
-            // 'agent->ticket_transfer' => 'ROLE_AGENT_ASSIGN_TICKET',
-            'agent->task_transfer' => 'ROLE_AGENT_EDIT_TASK',
-            'agent->assign_agent' => 'ROLE_AGENT_ASSIGN_TICKET',
-            'agent->assign_group' => 'ROLE_AGENT_ASSIGN_TICKET_GROUP',
-            'agent->assign_team' => 'ROLE_AGENT_ASSIGN_TICKET_GROUP',
+            'ticket->delete_ticket'          => 'ROLE_AGENT_DELETE_TICKET',
+            'ticket->mark_spam'              => 'ROLE_AGENT_UPDATE_TICKET_STATUS',
+            'ticket->label'                  => 'ROLE_ADMIN',
+            'task->reply'                    => 'ROLE_AGENT',
+            'task->mail_agent'               => 'ROLE_AGENT',
+            'task->mail_members'             => 'ROLE_AGENT',
+            'task->mail_last_member'         => 'ROLE_AGENT',
+            'customer->mail_customer'        => 'ROLE_AGENT',
+            'agent->mail_agent'              => 'ROLE_AGENT',
+            'agent->task_transfer'           => 'ROLE_AGENT_EDIT_TASK',
+            'agent->assign_agent'            => 'ROLE_AGENT_ASSIGN_TICKET',
+            'agent->assign_group'            => 'ROLE_AGENT_ASSIGN_TICKET_GROUP',
+            'agent->assign_team'             => 'ROLE_AGENT_ASSIGN_TICKET_GROUP',
         ];
 
         $resultArray = [];
@@ -2547,7 +2542,7 @@ class TicketService
         $ecomArray= [];
         $ecomChannels = $repo->getActiveChannelsByCompany($this->container->get('user.service')->getCurrentCompany());
 
-        foreach($ecomChannels as $channel) {
+        foreach ($ecomChannels as $channel) {
             $ecomArray['add_order_to_' . $channel['id']] = ('Add order to: ') . $channel['title'];
         }
 

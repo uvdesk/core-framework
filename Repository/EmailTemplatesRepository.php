@@ -22,11 +22,11 @@ class EmailTemplatesRepository extends EntityRepository
         foreach ($data as $key => $value) {
             if(!in_array($key,$this->safeFields)) {
                 if($key!='dateUpdated' AND $key!='dateAdded' AND $key!='search') {
-                    $qb->andwhere('sr.'.$key.' = :'.$key);
+                    $qb->andWhere('sr.'.$key.' = :'.$key);
                     $qb->setParameter($key, $value);
                 } else {
                     if($key == 'search') {
-                        $qb->andwhere('sr.name'.' LIKE :name');
+                        $qb->andWhere('sr.name'.' LIKE :name');
                         $qb->setParameter('name', '%'.urldecode(trim($value)).'%');    
                     }
                 }

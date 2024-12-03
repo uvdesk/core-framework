@@ -22,7 +22,7 @@ class SupportGroupRepository extends \Doctrine\ORM\EntityRepository
         foreach ($data as $key => $value) {
             if(!in_array($key,$this->safeFields)) {
                 if($key!='dateUpdated' AND $key!='dateAdded' AND $key!='search') {
-                    $qb->Andwhere('a.'.$key.' = :'.$key);
+                    $qb->andWhere('a.'.$key.' = :'.$key);
                     $qb->setParameter($key, $value);
                 } else {
                     if($key == 'search') {
@@ -75,7 +75,7 @@ class SupportGroupRepository extends \Doctrine\ORM\EntityRepository
         $qb->select('a')->from($this->getEntityName(), 'a');
 
         foreach ($filterArray as $key => $value) {
-            $qb->Andwhere('a.'.$key.' = :'.$key);
+            $qb->andWhere('a.'.$key.' = :'.$key);
             $qb->setParameter($key, $value);
         }   
 

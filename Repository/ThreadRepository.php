@@ -108,9 +108,9 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
             ->leftJoin('th.user', 'u')
             ->leftJoin('th.attachments', 'a')
             ->leftJoin('u.userInstance', 'userInstance')
-            ->andwhere('th.threadType = :threadType')
+            ->andWhere('th.threadType = :threadType')
             ->setParameter('threadType', 'reply')
-            ->andwhere('th.ticket = :ticketId')
+            ->andWhere('th.ticket = :ticketId')
             ->setParameter('ticketId', $ticketId)
             ->orderBy('th.id', 'DESC');
 

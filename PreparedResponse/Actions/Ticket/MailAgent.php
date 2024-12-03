@@ -110,7 +110,7 @@ class MailAgent extends PreparedResponseAction
             }elseif((int)$agent){
                 $qb = $entityManager->createQueryBuilder();
                 $email = $qb->select('u.email')->from(User::class, 'u')
-                            ->andwhere("u.id = :userId")
+                            ->andWhere("u.id = :userId")
                             ->setParameter('userId', $agent)
                             ->getQuery()->getResult()
                         ;

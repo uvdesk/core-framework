@@ -27,9 +27,9 @@ class SupportPrivilegeRepository extends \Doctrine\ORM\EntityRepository
 
         $data = array_reverse($data);
         foreach ($data as $key => $value) {
-            if(!in_array($key,$this->safeFields)) {
-                if($key!='dateUpdated' AND $key!='dateAdded' AND $key!='search') {
-                    $qb->Andwhere('ap.'.$key.' = :'.$key);
+            if (!in_array($key,$this->safeFields)) {
+                if ($key!='dateUpdated' AND $key!='dateAdded' AND $key!='search') {
+                    $qb->andWhere('ap.'.$key.' = :'.$key);
                     $qb->setParameter($key, $value);
                 } else {
                     if($key == 'search') {

@@ -662,13 +662,13 @@ class TicketXHR extends AbstractController
 
         $qb = $this->em->createQueryBuilder();
         $qb->select('tl')->from(TicketLabel::class, 'tl')
-            ->andwhere('tl.labelUser = :labelUserId')
-            ->andwhere('tl.company = :companyId')
+            ->andWhere('tl.labelUser = :labelUserId')
+            ->andWhere('tl.company = :companyId')
             ->setParameter('labelUserId', $this->getUser()->getId())
             ->setParameter('companyId', $this->getCompany()->getId());
 
         if($request) {
-            $qb->andwhere("tl.name LIKE :labelName");
+            $qb->andWhere("tl.name LIKE :labelName");
             $qb->setParameter('labelName', '%'.urldecode($request->query->get('query')).'%');
         }
 

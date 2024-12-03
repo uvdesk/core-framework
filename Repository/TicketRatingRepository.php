@@ -47,37 +47,37 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
                 ->where('r.createdAt BETWEEN :startDate AND :endDate')
                 ->setParameter('startDate', $startDate." 00:00:01")
                 ->setParameter('endDate', $endDate." 23:59:59")
-                ->andwhere('t.isTrashed != 1')
-                ->andwhere('cd.supportRole = 4');
+                ->andWhere('t.isTrashed != 1')
+                ->andWhere('cd.supportRole = 4');
 
         $container->get('report.service')->addPermissionFilter($qb, $container);
 
         if (isset($data['priority'])) { 
-            $qb->andwhere('pr.id IN (:priorityIds)');
+            $qb->andWhere('pr.id IN (:priorityIds)');
             $qb->setParameter('priorityIds', explode(',', $data['priority']));
         } 
         if (isset($data['type'])) { 
-            $qb->andwhere('tp.id IN (:typeIds)');
+            $qb->andWhere('tp.id IN (:typeIds)');
             $qb->setParameter('typeIds', explode(',', $data['type']));
         } 
         if (isset($data['agent'])) { 
-            $qb->andwhere('a.id IN (:agentIds)');
+            $qb->andWhere('a.id IN (:agentIds)');
             $qb->setParameter('agentIds', explode(',', $data['agent']));
         } 
         if (isset($data['customer'])) { 
-            $qb->andwhere('tc.id IN (:customerIds)');
+            $qb->andWhere('tc.id IN (:customerIds)');
             $qb->setParameter('customerIds', explode(',', $data['customer']));
         } 
         if (isset($data['group'])) { 
-            $qb->andwhere('gr.id IN (:groupIds)');
+            $qb->andWhere('gr.id IN (:groupIds)');
             $qb->setParameter('groupIds', explode(',', $data['group']));
         }
         if (isset($data['team'])) { 
-            $qb->andwhere('te.id IN (:teamIds)');
+            $qb->andWhere('te.id IN (:teamIds)');
             $qb->setParameter('teamIds', explode(',', $data['team']));
         }
         if (isset($data['source'])) { 
-            $qb->andwhere('t.source IN (:sources)');
+            $qb->andWhere('t.source IN (:sources)');
             $qb->setParameter('sources', explode(',', $data['source']));
         }
 
@@ -133,8 +133,8 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->select('avg(r.stars) as avgCount, count(r.customer) as totalRatedCustomer')->from(TicketRating::class, 'r')
                 ->leftJoin('r.ticket', 't')
-                ->andwhere('r.createdAt BETWEEN :startDate AND :endDate')
-                ->andwhere('t.isTrashed != 1')
+                ->andWhere('r.createdAt BETWEEN :startDate AND :endDate')
+                ->andWhere('t.isTrashed != 1')
                 ->groupBy('r.ticket')
                 ->setParameter('startDate', $startDate." 00:00:01")
                 ->setParameter('endDate', $endDate." 23:59:59");
@@ -163,37 +163,37 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
     {
         if (isset($data_time['priority'])) {
             $qb->leftJoin('t.priority', 'pr')
-                ->andwhere('pr.id IN (:priorityIds)')
+                ->andWhere('pr.id IN (:priorityIds)')
                 ->setParameter('priorityIds', explode(',', $data_time['priority']));
         }
 
         if (isset($data_time['type'])) {
             $qb->leftJoin('t.type', 'tp')
-                ->andwhere('tp.id IN (:typeIds)')
+                ->andWhere('tp.id IN (:typeIds)')
                 ->setParameter('typeIds', explode(',', $data_time['type']));
         }
 
         if ($filterAgent && isset($data_time['agent'])) {
             $qb->leftJoin('t.agent', 'a')
-                ->andwhere('a.id IN (:agentIds)')
+                ->andWhere('a.id IN (:agentIds)')
                 ->setParameter('agentIds', explode(',', $data_time['agent']));
         }
 
         if (isset($data_time['customer'])) {
             $qb->leftJoin('t.customer', 'c')
-                ->andwhere('c.id IN (:customerIds)')
+                ->andWhere('c.id IN (:customerIds)')
                 ->setParameter('customerIds', explode(',', $data_time['customer']));
         }
 
         if (isset($data_time['group'])) {
             $qb->leftJoin('t.supportGroup', 'gr')
-                ->andwhere('gr.id IN (:groupIds)')
+                ->andWhere('gr.id IN (:groupIds)')
                 ->setParameter('groupIds', explode(',', $data_time['group']));
         }
 
         if (isset($data_time['team'])) {
             $qb->leftJoin('t.supportTeam', 'tSub')
-                ->andwhere('tSub.id IN (:subGroupIds)')
+                ->andWhere('tSub.id IN (:subGroupIds)')
                 ->setParameter('subGroupIds', explode(',', $data_time['team']));
         }
 
@@ -211,9 +211,9 @@ class TicketRatingRepository extends \Doctrine\ORM\EntityRepository
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->select('COUNT(r.id)')->from(TicketRating::class, 'r')
                 ->leftJoin('r.ticket', 't')
-                ->andwhere('r.createdAt BETWEEN :startDate AND :endDate')
-                ->andwhere('t.isTrashed != 1')
-                ->andwhere('r.stars = :count')
+                ->andWhere('r.createdAt BETWEEN :startDate AND :endDate')
+                ->andWhere('t.isTrashed != 1')
+                ->andWhere('r.stars = :count')
                 ->setParameter('startDate', $startDate." 00:00:01")
                 ->setParameter('endDate', $endDate." 23:59:59")
                 ->setParameter('count', $rateId);

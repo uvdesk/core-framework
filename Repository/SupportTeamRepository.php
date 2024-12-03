@@ -15,7 +15,6 @@ use Doctrine\Common\Collections\Criteria;
  */
 class SupportTeamRepository extends \Doctrine\ORM\EntityRepository
 {
-    
     public $safeFields = array('page','limit','sort','order','direction');
     const LIMIT = 10;
 
@@ -27,14 +26,14 @@ class SupportTeamRepository extends \Doctrine\ORM\EntityRepository
         $data = $obj->all();
         $data = array_reverse($data);
         foreach ($data as $key => $value) {
-            if(!in_array($key,$this->safeFields)) {
-                if($key!='dateUpdated' AND $key!='dateAdded' AND $key!='search') {
-                    $qb->Andwhere('a.'.$key.' = :'.$key);
+            if (!in_array($key,$this->safeFields)) {
+                if ($key!='dateUpdated' AND $key!='dateAdded' AND $key!='search') {
+                    $qb->andWhere('a.'.$key.' = :'.$key);
                     $qb->setParameter($key, $value);
                 } else {
-                    if($key == 'search') {
+                    if ($key == 'search') {
                         $qb->orwhere('a.name'.' LIKE :name');
-                        $qb->setParameter('name', '%'.urldecode($value).'%');
+                        $qb->setParameter('name', '%'.urldecode(trim($value)).'%');
                         $qb->orwhere('a.description'.' LIKE :description');
                         $qb->setParameter('description', '%'.urldecode(trim($value)).'%');
                     }
@@ -42,7 +41,7 @@ class SupportTeamRepository extends \Doctrine\ORM\EntityRepository
             }
         }
 
-        if(!isset($data['sort'])){
+        if (!isset($data['sort'])){
             $qb->orderBy('a.id',Criteria::DESC);
         }
 
@@ -83,7 +82,7 @@ class SupportTeamRepository extends \Doctrine\ORM\EntityRepository
         $qb->select('a')->from($this->getEntityName(), 'a');
 
         foreach ($filterArray as $key => $value) {
-            $qb->Andwhere('a.'.$key.' = :'.$key);
+            $qb->andWhere('a.'.$key.' = :'.$key);
             $qb->setParameter($key, $value);
         }
 
