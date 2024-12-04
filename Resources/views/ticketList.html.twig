@@ -2024,7 +2024,7 @@
                                     _.each(response, function(item) {
                                         if(currentElement.attr('data-filter-type') == 'customer') {
                                             var img = item.smallThumbnail ? "{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}"+item.smallThumbnail : "{{ asset(default_customer_image_path)}}";
-                                            parent.find('.uv-dropdown-list ul').append("<li data-id='" + item.id + "'><img src='" + img + "'/>" + item.name + item.email+"</li>")
+                                            parent.find('.uv-dropdown-list ul').append("<li data-id='" + item.id + "' name='" + item.name + "' class='uv-dropdown-navigations-support-el' tabindex='0' style='display: flex; gap: 10px;'><div><img src='" + img + "' style='margin: unset;'/></div><div style='font-size: 14px;'><div style='width: 100%;'>" +  item.name + "</div><div style='width: 100%; max-width: 168px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;'>" + item.email + "</div></div></li>")
                                         } else
                                             parent.find('.uv-dropdown-list ul').append("<li data-id='" + item.id + "'>" + item.name + "</li>")
                                     });
@@ -2054,13 +2054,14 @@
                 },
                 applyFilter: function(e) {
                     currentElement = Backbone.$(e.currentTarget);
+
                     if(currentElement.attr("data-id")) {
                         var flag = 1;
                         parent = currentElement.parents(".uv-field-block");
                         filterType = parent.find('input').attr('data-filter-type');
 
                         if(filterType == "customer" || filterType == 'tag') {
-                            sideFilterModel.updateModel(filterType, {'id': currentElement.attr('data-id'), 'name': currentElement.text()})
+                            sideFilterModel.updateModel(filterType, {'id': currentElement.attr('data-id'), 'name': currentElement.attr('name')})
                             parent.find(".uv-no-results").hide()
                             parent.find(".uv-filter-info").show().text("{{ 'Type atleast 2 letters'|trans }}")
                             parent.find("li:not(.uv-no-results, .uv-filter-info)").remove();
@@ -2077,7 +2078,7 @@
                             parent.find("li:not(.uv-no-results)").show()
                         }
                         if(flag) {
-                            parent.find('.uv-filtered-tags').append("<a class='uv-btn-tag' href='#' data-id='" + currentElement.attr('data-id') + "'>"+currentElement.text()+"<span class='uv-icon-remove-dark'></span></a>")
+                            parent.find('.uv-filtered-tags').append("<a class='uv-btn-tag' href='#' data-id='" + currentElement.attr('data-id') + "'>"+currentElement.attr('name')+"<span class='uv-icon-remove-dark'></span></a>")
                             ticketCollection.state.order = null;
                             ticketCollection.state.sortKey = null;
                             ticketCollection.state.currentPage = null;
