@@ -430,7 +430,7 @@ class UserService
         $qb = $this->entityManager->createQueryBuilder();
         $qb->from(User::class, 'u');
 
-        $qb->select("DISTINCT u.id,CONCAT(u.firstName,' ', COALESCE(u.lastName,'')) AS name, userInstance.profileImagePath as smallThumbnail ")
+        $qb->select("DISTINCT u.id,u.email,CONCAT(u.firstName,' ', COALESCE(u.lastName,'')) AS name, userInstance.profileImagePath as smallThumbnail ")
             ->leftJoin('u.userInstance', 'userInstance')
             ->andWhere('userInstance.supportRole = :roles')
             ->setParameter('roles', 4)
