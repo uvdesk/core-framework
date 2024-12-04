@@ -3,6 +3,38 @@ CHANGELOG for 1.1.x
 
 This changelog references any relevant changes introduced in 1.1 minor versions.
 
+* 1.1.6 
+    * Issue #508 #549 - Filter issue resolved for customer filtering.
+    * Issue #552 - In agent activity option: date filter should be select correct date format.
+    * Issue #524 - ticket is in trashed folder and we will reply from the admin then it should not send mail to the customer.
+    * Issue #577 - Customer name edit from admin side on ticket view page, if we leave space in starting customer name is removed in ticket view.
+    * Issue #587 - ticket is updated from the ticket list page flash message should be same of updated option.
+    * Issue #582 - In agent option, the permission tab should be shown a privileges icon.
+    * Issue #583 - If extra enter space leave in ticket type, group, and team description so ticket threads do not loads on ticket view page 
+    * Issue #573 - In the search filter, if we space to leave in the start and last search filter not working.
+    * Issue #702 #601 - system can't calculate kudos score.
+    * Issue #594 - The ticket view page is not showing the proper date time format.
+    * Issue #605 - If saved Replies sharing without any group and team to another agent or administrator so here shows same saved reply instead of the 403 page.
+    * Issue #606 - When mail reply from collaborator side in agent and customer reply email template so collaborator email reply creates a new ticket
+    * Teams not removing from edit agent page - resolved
+    * Issue #665 - When upload txt file in ticket , total count of words attaching at the end of the file.
+    * Issue #644 - On the agent side should not be showing the reports icon without given any agent activity privileges.
+    * Issue #656 - In spam settings: If email added in spam so should not be ticket created from the admin end.
+    * Issue #656 - In spam settings: If email added in spam so should not be ticket created from the admin end.
+    * Download link correction for ticket.
+    * Initial thread opening issue if multiple emails in cc or collaborator.
+    * Microsoft redirect URL update.
+    * Lang select snippets position issue resolved on dashboard.
+    
+    Features:
+    * Microsoft modern app support added.
+    * Added option for select and save country for a ticket.
+    * Round Robin Ticket assignment option added.
+    * Showing customer email along with name in side filters ticket list.
+    * Issue #56 - In case of multiple attachments now added cross button for each attachment,
+    So that user can remove a particular attachment.
+    * Attachments renaming true for security purpose.
+
 * 1.1.4 (2023-06-13)
     * Update: Render package version number dynamically
 
