@@ -569,7 +569,19 @@ class TicketXHR extends AbstractController
 
     public function loadTicketFilterOptionsXHR(Request $request)
     {
-        return new Response(json_encode([]), 404);
+        $json = [];
+
+        if ($request->isXmlHttpRequest()) {
+            $requiredOptions = $request->request->all();
+            foreach ($requiredOptions as $filterType => $values) {
+                $json[$filterType] = $this->ticketService->getDemanedFilterOptions($filterType, $values);
+            }
+        }
+
+        $response = new Response(json_encode($json));
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
     }
 
     public function saveTicketLabel(Request $request)

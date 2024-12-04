@@ -15,6 +15,7 @@ use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity;
 use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity as CommunityPackageEntities;
 use Webkul\UVDesk\AutomationBundle\Entity\PreparedResponses;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\AgentActivity;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread;
@@ -215,6 +216,50 @@ class TicketService
         }
 
         return;
+    }
+
+    public function getDemanedFilterOptions($filterType,$ids) {
+        $qb = $this->entityManager->createQueryBuilder();
+        switch ($filterType) {
+            case 'agent':
+                $qb->select("u.id,u.email,CONCAT(u.firstName,' ', u.lastName) AS name")->from(User::class, 'u')
+                        ->leftJoin(UserInstance::class, 'ud', 'WITH', 'u.id = ud.user')
+                        ->where('ud.supportRole != :roles')
+                        ->andwhere('ud.isActive = 1')
+                        ->andwhere('u.id IN (:ids)')
+                        ->setParameter('roles', 4)
+                        ->setParameter('ids', $ids)
+                        ->orderBy('name','ASC');
+
+                return $qb->getQuery()->getArrayResult();
+            case 'customer':
+                $qb->select("c.id,c.email,CONCAT(c.firstName,' ', c.lastName) AS name")->from(User::class, 'c')
+                        ->leftJoin(UserInstance::class, 'ud', 'WITH', 'c.id = ud.user')
+                        ->where('ud.supportRole = :roles')
+                        ->andwhere('ud.isActive = 1')
+                        ->andwhere('c.id IN (:ids)')
+                        ->setParameter('roles', 4)
+                        ->setParameter('ids', $ids)
+                        ->orderBy('name','ASC');
+
+                return $qb->getQuery()->getArrayResult();
+            case 'group':
+                $qb->select("ug.id,ug.description")->from(SupportGroup::class, 'ug')
+                        ->andwhere('ug.isEnabled = 1')
+                        ->andwhere('ug.id IN (:ids)')
+                        ->setParameter('ids', $ids)
+                        ->orderBy('ug.description','ASC');
+
+                return $qb->getQuery()->getArrayResult();
+            case 'team':
+                $qb->select("usg.id,usg.description")->from(SupportTeam::class, 'usg')
+                        ->andwhere('usg.isActive = 1')
+                        ->andwhere('usg.id IN (:ids)')
+                        ->setParameter('ids', $ids)
+                        ->orderBy('usg.description','ASC');
+
+                return $qb->getQuery()->getArrayResult();
+        }
     }
 
     public function createTicketBase(array $ticketData = [])
