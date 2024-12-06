@@ -2,10 +2,12 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions\Ticket;
 
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 
 class RoundRobinTicketAssignment extends WorkflowAction
 {
@@ -31,13 +33,16 @@ class RoundRobinTicketAssignment extends WorkflowAction
 
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
+        $final = [];
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        if ($entity instanceof Ticket ) {
-            $agents = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->getAllAgents(null, $container);
-            $agentCount =  count($agents['users']);
-            foreach ($agents['users'] as $key => $agent) {
-                $tickets = $entityManager->getRepository('UVDeskCoreFrameworkBundle:Ticket')->findBy(['agent' => $agent['id'], 'status' => 1]);
+        $ticketEntity = $entity->getTicket();
 
+        if ($entity instanceof CoreWorkflowEvents\Ticket\Create &&  $ticketEntity) {
+            $agents = $entityManager->getRepository(User::class)->getAllAgents(null, $container);
+            $agentCount =  count($agents['users']);
+
+            foreach ($agents['users'] as $key => $agent) {
+                $tickets = $entityManager->getRepository(Ticket::class)->findBy(['agent' => $agent['id'], 'status' => 1]);
                 $final[$agent['id']] = count($tickets);
             }
 
@@ -49,9 +54,9 @@ class RoundRobinTicketAssignment extends WorkflowAction
                 $minAssignedAgent = min($minAssignedAgent);
             }
 
-            if ($agent = $entityManager->getRepository('UVDeskCoreFrameworkBundle:User')->findOneBy(array('id' => $minAssignedAgent))) {
-                $entity->setAgent($agent);
-                $entityManager->persist($entity);
+            if ($agent = $entityManager->getRepository(User::class)->findOneBy(array('id' => $minAssignedAgent))) {
+                $ticketEntity->setAgent($agent);
+                $entityManager->persist($ticketEntity);
                 $entityManager->flush();
             }
         }

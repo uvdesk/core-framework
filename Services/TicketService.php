@@ -259,6 +259,13 @@ class TicketService
                         ->orderBy('usg.description','ASC');
 
                 return $qb->getQuery()->getArrayResult();
+            case 'tag':
+                $qb->select("t.id,t.name")->from(Tag::class, 't')
+                        ->andwhere('t.id IN (:ids)')
+                        ->setParameter('ids', $ids)
+                        ->orderBy('t.name','ASC');
+
+                return $qb->getQuery()->getArrayResult();
         }
     }
 
