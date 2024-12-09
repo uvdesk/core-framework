@@ -11,9 +11,9 @@ class AgentGroups extends DoctrineFixture
 {
     private static $seeds = [
         [
-            'name' => 'Default',
+            'name'        => 'Default',
             'description' => 'Account Owner',
-            'isActive' => true,
+            'isActive'    => true,
         ],
     ];
 

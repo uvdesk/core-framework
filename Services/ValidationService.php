@@ -1,4 +1,5 @@
 <?php
+
 namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 
 use Doctrine\ORM\EntityManagerInterface;
@@ -42,20 +43,16 @@ class Inbuilt {
 }
 
 class ValidationService {
-
     private static $inbuilt;
     private $entityManager = null;
     private $requestStack = null;
 	private $container = null;
     private $translator = null;
-
     private $timeRegex = '#^([0-1]*[0-9]|2[1-3]):([0-5][0-9])(\s)(AM|PM)|([0-1]*[0-9]|2[1-3]):([0-5][0-9])$#';
     private $dateRegex = '#^(\d{4})-(\d{1,2})-(\d{1,2})$#';
     private $datetimeRegex = '#([0-1]*[0-9]|2[1-3]):([0-5]*[0-9])(:[0-5]*[0-9])*$#';
     private $urlRegex = "/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i";
-    
     private $emailRegex = '/^(?!(?:(?:\\x22?\\x5C[\\x00-\\x7E]\\x22?)|(?:\\x22?[^\\x5C\\x22]\\x22?)){255,})(?!(?:(?:\\x22?\\x5C[\\x00-\\x7E]\\x22?)|(?:\\x22?[^\\x5C\\x22]\\x22?)){65,}@)(?:(?:[\\x21\\x23-\\x27\\x2A\\x2B\\x2D\\x2F-\\x39\\x3D\\x3F\\x5E-\\x7E]+)|(?:\\x22(?:[\\x01-\\x08\\x0B\\x0C\\x0E-\\x1F\\x21\\x23-\\x5B\\x5D-\\x7F]|(?:\\x5C[\\x00-\\x7F]))*\\x22))(?:\\.(?:(?:[\\x21\\x23-\\x27\\x2A\\x2B\\x2D\\x2F-\\x39\\x3D\\x3F\\x5E-\\x7E]+)|(?:\\x22(?:[\\x01-\\x08\\x0B\\x0C\\x0E-\\x1F\\x21\\x23-\\x5B\\x5D-\\x7F]|(?:\\x5C[\\x00-\\x7F]))*\\x22)))*@(?:(?:(?!.*[^.]{64,})(?:(?:(?:xn--)?[a-z0-9]+(?:-+[a-z0-9]+)*\\.){1,126}){1,}(?:(?:[a-z][a-z0-9]*)|(?:(?:xn--)[a-z0-9]+))(?:-+[a-z0-9]+)*)|(?:\\[(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){7})|(?:(?!(?:.*[a-f0-9][:\\]]){7,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?)))|(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){5}:)|(?:(?!(?:.*[a-f0-9]:){5,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3}:)?)))?(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))(?:\\.(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))){3}))\\]))$/iD';
-
 
 	public function __construct(EntityManagerInterface $entityManager, RequestStack $requestStack, ContainerInterface $container, TranslatorInterface $translator) 
 	{   
@@ -87,31 +84,31 @@ class ValidationService {
     }
 
     public function isTime($value) {
-        if($this->getInbuilt()->getMatchRegex($this->timeRegex, $value)) {
+        if ($this->getInbuilt()->getMatchRegex($this->timeRegex, $value)) {
             return true;
         }
     }
 
     public function isDate($value){
-        if($this->getInbuilt()->getMatchRegex($this->dateRegex, $value)) {
+        if ($this->getInbuilt()->getMatchRegex($this->dateRegex, $value)) {
             return true;
         }
     }
 
     public function isdatetime($value){
-        if($this->getInbuilt()->getMatchRegex($this->datetimeRegex, $value)) {
+        if ($this->getInbuilt()->getMatchRegex($this->datetimeRegex, $value)) {
             return true;
         }
     }
     
     public function isUrl($value){
-        if($this->getInbuilt()->getMatchRegex($this->urlRegex, $value)) {
+        if ($this->getInbuilt()->getMatchRegex($this->urlRegex, $value)) {
             return true;
         }
     }
 
     public function isEmail($value){
-        if($this->getInbuilt()->getMatchRegex($this->emailRegex, $value)) {
+        if ($this->getInbuilt()->getMatchRegex($this->emailRegex, $value)) {
             return true;
         }
     }
@@ -174,7 +171,7 @@ class ValidationService {
 
 	public function messageValidate(Array $validation, $valueField)
 	{          
-		if($validation['required']) {
+		if ($validation['required']) {
 			if($valueField) {
 			} else {
 				return $this->getTranslatedMessage('required_empty');
@@ -184,8 +181,8 @@ class ValidationService {
 		$error = false;
 		$fieldtype = !empty($validation['fieldtype']) ? $validation['fieldtype'] : 'text';
 		
-		foreach($validation as $keyValidation => $valueValidation) {
-			if($valueField && $valueValidation) {
+		foreach ($validation as $keyValidation => $valueValidation) {
+			if ($valueField && $valueValidation) {
 				switch($keyValidation) {
 					case 'fieldtype':
 						switch($valueValidation) {
@@ -254,6 +251,7 @@ class ValidationService {
 				}
 			}
 		}
+
 		return $error;
 	}
 

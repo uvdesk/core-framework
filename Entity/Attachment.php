@@ -4,7 +4,6 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-
 /** 
  * @ORM\Entity()
  * @ORM\HasLifecycleCallbacks()

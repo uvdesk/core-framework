@@ -90,28 +90,28 @@ class Website
     private $businessHourStatus;
 
     /**
-     * Get bussiness hour
+     * Get business hour
      */
     public function getBusinessHour() {
         return $this->businessHour;
     }
 
     /**
-     * Set bussiness hour
+     * Set business hour
      */
     public function setBusinessHour($businessHour) {
         $this->businessHour = $businessHour;
     }
 
     /**
-     * Get bussinessHourStatus
+     * Get business hour status
      */
     public function getBusinessHourStatus() {
         return $this->businessHourStatus;
     }
 
     /**
-     * Set bussinessHourStatus 
+     * Set business hour status
      */
     public function setBusinessHourStatus($businessHourStatus) {
         $this->businessHourStatus = $businessHourStatus;

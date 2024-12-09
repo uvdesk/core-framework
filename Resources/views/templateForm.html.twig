@@ -172,18 +172,17 @@
 					'name': [{
 						required: true,
 						msg: '{{ "This field is mandatory" | trans}}'
-					},
-					{
+					}, {
 						maxLength: 100,
 						msg: '{{ "This field contain 100 characters only" | trans}}'
-					},{
+					}, {
 						pattern:"^[ a-zA-Z_0-9 ']*$",
 						msg:'{{ "This field contain characters only" | trans}}'
 					}],
 					'subject': [{
 						required: true,
 						msg: '{{ "This field is mandatory" | trans}}'
-					},{
+					}, {
 						maxLength:100,
 						msg: '{{ "This field contain 100 characters only" | trans}}'
 					}]
@@ -193,7 +192,7 @@
 			var TemplateForm = Backbone.View.extend({
 				events : {
 					'click .uv-btn' : "saveTemplate",
-					'blur input': 'formChanegd'
+					'blur input': 'formChanged'
 				},
 				initialize : function() {
 					Backbone.Validation.bind(this);
@@ -203,7 +202,7 @@
 		    			Backbone.Validation.callbacks.invalid(this, field, jsonContext[field], 'input');
 					}
 				},
-				formChanegd: function(e) {
+				formChanged: function(e) {
 			    	this.model.set(Backbone.$(e.currentTarget).attr('name'), Backbone.$(e.currentTarget).val())
 			    	this.model.isValid([Backbone.$(e.currentTarget).attr('name')])
 			    },

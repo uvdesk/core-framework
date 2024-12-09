@@ -281,16 +281,16 @@ email_templates_action:
     path:     /templates
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Email::templates
 
-email_templates_xhraction:
+email_templates_xhr_action:
     path:     /template-ajax/{template}
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Email::templatesxhr
     defaults: { template: 0 }
 
-email_templates_addaction:
+email_templates_add_action:
     path:     /template/add
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Email::templateForm
 
-email_templates_editaction:
+email_templates_edit_action:
     path:     /template/edit/{template}
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Email::templateForm
     defaults: { template: 0 }
