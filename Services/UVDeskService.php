@@ -45,7 +45,7 @@ class UVDeskService
 	}
 
     public function updatesLocales($locales)
-    {  
+    {
         $fileTranslation = $this->container->get('kernel')->getProjectDir() . '/config/packages/translation.yaml';
         $fileServices = $this->container->get('kernel')->getProjectDir() . '/config/services.yaml';
 
@@ -68,7 +68,6 @@ class UVDeskService
                 list($helpdesk_services_locales, $helpdesk_services_text) = array($indexs, $contents);
             }
         }
-
 
         // save updated data in a variable ($updatedFileContent)
         $updatedFileContent = $fileTrans;
@@ -230,7 +229,10 @@ class UVDeskService
 
     public function getConfigParameter($param)
 	{
-		if ($param && $this->container->hasParameter($param)) {
+		if (
+            $param 
+            && $this->container->hasParameter($param)
+        ) {
 			return $this->container->getParameter($param);
 		} else {
 			return false;
@@ -412,7 +414,7 @@ class UVDeskService
         $memberLoginURL = str_replace($oldMemberPrefix, $website_prefixes['member_prefix'], $memberLoginURL);
 
         return $collectionURL = [
-            'memberLogin' => $memberLoginURL,
+            'memberLogin'   => $memberLoginURL,
             'knowledgebase' => $knowledgebaseURL,
         ];
     }

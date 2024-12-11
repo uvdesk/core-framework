@@ -167,8 +167,8 @@
                         }
                     },
                     'customer_form[password][first]' : function(value) {
-                        if(value != undefined && value !== '') {
-                            if(value.length < 8)
+                        if (value != undefined && value !== '') {
+                            if (value.length < 8)
                                return '{{ "Password must contains 8 Characters" | trans}}';
                         }
                     },

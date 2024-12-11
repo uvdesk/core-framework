@@ -142,10 +142,10 @@
 					'name': [{
                         required: true,
                         msg: "{{ 'This field is mandatory'|trans }}"
-                    },{
+                    }, {
                         pattern: /^((?![!@#$%^&*()<_+]).)*$/,
                         msg: "{{ 'This field must have characters only'|trans }}"
-                    },{
+                    }, {
 						maxLength:50,
                         msg: "{{ 'Maximum character length is 50'|trans }}"
 					}],
@@ -159,7 +159,7 @@
 			var TeamForm = Backbone.View.extend({
 				events : {
 					'click .uv-btn': "saveTeam",
-					'blur input, textarea': 'formChanegd',
+					'blur input, textarea': 'formChanged',
                     'click .uv-dropdown-list li': 'addEntity',
                     'click .uv-filtered-tags .uv-btn-small': 'removeEntity'
 				},
@@ -172,14 +172,14 @@
 		    			Backbone.Validation.callbacks.invalid(this, field, jsonContext[field], 'input');
 					}
 				},
-				formChanegd: function(e) {
+				formChanged: function(e) {
 			    	this.model.set(Backbone.$(e.currentTarget).attr('name'), Backbone.$(e.currentTarget).val())
 			    	this.model.isValid([Backbone.$(e.currentTarget).attr('name')])
 			    },
 				saveTeam : function (e) {
 					e.preventDefault();
 			        this.model.set(this.$el.serializeObject());
-					if(this.model.isValid(true) && this.checkCustomValidation()) {
+					if (this.model.isValid(true) && this.checkCustomValidation()) {
 						this.$el.find('.uv-btn').attr('disabled', 'disabled');
 						this.$el.submit();
 			        } else {

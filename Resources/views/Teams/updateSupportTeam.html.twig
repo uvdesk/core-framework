@@ -142,10 +142,10 @@
 					'name': [{
                         required: true,
                         msg: "{{ 'This field is mandatory'|trans }}"
-                    },{
+                    }, {
                         pattern: /^((?![!@#$%^&*()<_+]).)*$/,
                         msg: "{{ 'This field must have characters only'|trans }}"
-                    },{
+                    }, {
 						maxLength:50,
                         msg: "{{ 'Maximum character length is 50'|trans }}"
 					}],
@@ -159,7 +159,7 @@
 			var TeamForm = Backbone.View.extend({
 				events : {
 					'click .uv-btn': "saveTeam",
-					'blur input, textarea': 'formChanegd',
+					'blur input, textarea': 'formChanged',
                     'click .uv-dropdown-list li': 'addEntity',
                     'click .uv-filtered-tags .uv-btn-small': 'removeEntity'
 				},
@@ -172,14 +172,14 @@
 		    			Backbone.Validation.callbacks.invalid(this, field, jsonContext[field], 'input');
 					}
 				},
-				formChanegd: function(e) {
+				formChanged: function(e) {
 			    	this.model.set(Backbone.$(e.currentTarget).attr('name'), Backbone.$(e.currentTarget).val())
 			    	this.model.isValid([Backbone.$(e.currentTarget).attr('name')])
 			    },
 				saveTeam : function (e) {
 					e.preventDefault();
 			        this.model.set(this.$el.serializeObject());
-					if(this.model.isValid(true) && this.checkCustomValidation()) {
+					if (this.model.isValid(true) && this.checkCustomValidation()) {
 						this.$el.find('.uv-btn').attr('disabled', 'disabled');
 						this.$el.submit();
 			        } else {
@@ -188,11 +188,11 @@
 				},
 				checkCustomValidation: function() {
 					var isValid = 1;
-					if(!this.setAddedIds('#agent-filter').length || !this.setAddedIds('#group-filter').length) {
+					if (!this.setAddedIds('#agent-filter').length || !this.setAddedIds('#group-filter').length) {
 						isValid = 0;
-						if(!this.setAddedIds('#agent-filter').length)
+						if (!this.setAddedIds('#agent-filter').length)
 							Backbone.Validation.callbacks.invalid(this, 'users', "{{ 'This field is mandatory'|trans }}", 'input');
-						if(!this.setAddedIds('#group-filter').length)
+						if (!this.setAddedIds('#group-filter').length)
 							Backbone.Validation.callbacks.invalid(this, 'groups', "{{ 'This field is mandatory'|trans }}", 'input');
 					}
 
@@ -210,7 +210,7 @@
                 },
                 addEntity: function(e) {
                     currentElement = Backbone.$(e.currentTarget);
-                    if(id = currentElement.attr("data-id")) {
+                    if (id = currentElement.attr("data-id")) {
                         parent = currentElement.parents(".uv-field-block");
                         parent.find('input').val('')
                         parent.find("li:not(.uv-no-results)").show()

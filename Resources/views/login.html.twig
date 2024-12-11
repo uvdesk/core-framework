@@ -108,21 +108,21 @@
                     '_username': [{
                         required: true,
                         msg: '{{ "This field is mandatory"|trans }}'
-                    },{
+                    }, {
                         pattern: 'email',
                         msg: '{{ "This is not a valid email address"|trans }}'
                     }],
                     '_password': [{
                         required: true,
                         msg: '{{"This field is mandatory"|trans }}'
-                    },{
+                    }, {
                         minLength: 8,
                         msg: '{{"Password must contains 8 Characters"|trans }}'
                     }],
                     {% if recaptchaDetail and recaptchaDetail.isActive == true %}
                         'g-recaptcha-response' : {
                             fn: function(value) {
-                                if(grecaptcha.getResponse().length > 0)
+                                if (grecaptcha.getResponse().length > 0)
                                     return false;
                                 else
                                     return true;
@@ -136,7 +136,7 @@
             var LoginForm = Backbone.View.extend({
                 events: {
                     'click .uv-btn': 'submit',
-                    'blur input': 'formChanegd'
+                    'blur input': 'formChanged'
                 },
                 initialize: function () {
                     Backbone.Validation.bind(this);
@@ -144,7 +144,7 @@
                         app.appView.renderResponseAlert({'alertClass': 'danger', 'alertMessage': '{{ error.messageKey|trans}}'})
                     {% endif %}
                 },
-                formChanegd: function(e) {
+                formChanged: function(e) {
 			    	this.model.set(Backbone.$(e.currentTarget).attr('name'), Backbone.$(e.currentTarget).val())
 			    	this.model.isValid([Backbone.$(e.currentTarget).attr('name')])
 			    },
@@ -153,7 +153,7 @@
 
                     var data = this.$el.serializeObject();
                     this.model.set(data);
-                    if(this.model.isValid(true)){
+                    if (this.model.isValid(true)) {
                         this.$el.submit();
                     }
                 }

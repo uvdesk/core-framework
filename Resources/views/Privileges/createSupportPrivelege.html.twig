@@ -45,14 +45,14 @@
 
 					<div>
 						<div class="uv-scroll-block" id="beauty-scroll">
-							{% for privelegeCode, privelegeDescription in supportPrivilegeResources.ticket %}
+							{% for privilegeCode, privilegeDescription in supportPrivilegeResources.ticket %}
 								<div class="uv-element-block">
 									<label>
 										<div class="uv-checkbox">
-											<input name="privilege_form[privileges][]" type="checkbox" value="{{ privelegeCode }}">
+											<input name="privilege_form[privileges][]" type="checkbox" value="{{ privilegeCode }}">
 											<span class="uv-checkbox-view"></span>
 										</div>
-										<span class="uv-checkbox-label">{{ privelegeDescription }}</span>
+										<span class="uv-checkbox-label">{{ privilegeDescription }}</span>
 									</label>
 								</div>
 							{% endfor %}
@@ -75,14 +75,14 @@
 
 					<div>
 						<div class="uv-scroll-block" id="beauty-scroll">
-							{% for privelegeCode, privelegeDescription in supportPrivilegeResources.advanced %}
+							{% for privilegeCode, privilegeDescription in supportPrivilegeResources.advanced %}
 								<div class="uv-element-block">
 									<label>
 										<div class="uv-checkbox">
-											<input name="privilege_form[privileges][]" type="checkbox" value="{{ privelegeCode }}" {% if supportPrivilege and privelegeCode in supportPrivilege.privileges %}checked{% endif %}>
+											<input name="privilege_form[privileges][]" type="checkbox" value="{{ privilegeCode }}" {% if supportPrivilege and privilegeCode in supportPrivilege.privileges %}checked{% endif %}>
 											<span class="uv-checkbox-view"></span>
 										</div>
-										<span class="uv-checkbox-label">{{ privelegeDescription }}</span>
+										<span class="uv-checkbox-label">{{ privilegeDescription }}</span>
 									</label>
 								</div>
 							{% endfor %}
