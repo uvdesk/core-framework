@@ -306,7 +306,7 @@
                     {% elseif('file' == fieldtype) %}
                         {
                             checkMaxFileSize: "{{ customField['validation']['maxFileSize'] }}",
-                            msg: '{{ "file size should not exceed %value% KB"|trans({"%value%": customField["validation"]["maxFileSize"] ? : "5120"}) }}',
+                            msg: '{{ "file size should not exceed %value% KB"|trans({"%value%": customField["validation"]["maxFileSize"] ?? "5120"}) }}',
                         } ,
                     {% endif %}
                     {% if (not (fieldtype in ['checkbox', 'radio', 'select'])) and customField['validation']['regex'] is defined and customField['validation']['regex'] %}
@@ -371,7 +371,7 @@
                     {% elseif('file' == fieldtype) %}
                         {
                             checkMaxFileSize: "{{ customField['validation']['maxFileSize'] }}",
-                            msg: '{{ "file size should not exceed %value% KB"|trans({"%value%": customField["validation"]["maxFileSize"] ? : "5120"}) }}',
+                            msg: '{{ "file size should not exceed %value% KB"|trans({"%value%": customField["validation"]["maxFileSize"] ?? "5120"}) }}',
                         } ,
                     {% endif %}
                     {% if (not (fieldtype in ['checkbox', 'radio', 'select'])) and customField['validation']['regex'] is defined and customField['validation']['regex'] %}
