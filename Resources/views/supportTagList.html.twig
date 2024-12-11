@@ -168,17 +168,17 @@
 							app.pager.paginationData = response.pagination_data;
 
 							var url = app.pager.paginationData.url;
-							if(tagCollection.length == 0 && app.pager.paginationData.current != "0")
+							if (tagCollection.length == 0 && app.pager.paginationData.current != "0")
 								router.navigate(url.replace('replacePage', app.pager.paginationData.last),{trigger: true});
 							else {
 								app.pager.render();
 							}
-							if(globalMessageResponse)
+							if (globalMessageResponse)
 								app.appView.renderResponseAlert(globalMessageResponse);
 							globalMessageResponse = null;
 						},
 						error: function (model, xhr, options) {
-							if(url = xhr.getResponseHeader('Location'))
+							if (url = xhr.getResponseHeader('Location'))
 								window.location = url;
 						}
 					});
@@ -217,10 +217,10 @@
 							tagCollection.syncData();
 						},
 						error: function (model, xhr, options) {
-							if(url = xhr.getResponseHeader('Location'))
+							if (url = xhr.getResponseHeader('Location'))
 								window.location = url;
 							var response = warningResponse;
-							if(xhr.responseJSON)
+							if (xhr.responseJSON)
 								response = xhr.responseJSON;
 
 							app.appView.hideLoader();
@@ -230,7 +230,7 @@
 				},
                 editCell : function(e) {
                     e.stopPropagation();
-                    if(targetCell != "")
+                    if (targetCell != "")
                         targetCell.updateTag();
 
                     targetCell = this;
@@ -242,10 +242,10 @@
                     var spamText = element.find('span').text().trim();
                     var inputText = element.find('input').val().trim();
 
-                    if(inputText == "" || inputText.length > 20) {
+                    if (inputText == "" || inputText.length > 20) {
                         element.find('input').val(spamText)
                     } else {
-                        if(inputText != spamText) {
+                        if (inputText != spamText) {
                             element.find('span').eq(0).text(inputText)
                             targetCell.model.set('name',inputText);
                             targetCell.model.save({}, {
@@ -254,7 +254,7 @@
                                     $('td.first').removeClass('edit');
                                 },
                                 error: function (model, xhr, options) {
-                                    if(url = xhr.getResponseHeader('Location'))
+                                    if (url = xhr.getResponseHeader('Location'))
                                         window.location = url;
                                     app.appView.renderResponseAlert(response);
                                 }
@@ -266,7 +266,7 @@
 			});
 
 			Backbone.$('body').on('click', function() {
-				if(targetCell != "") {
+				if (targetCell != "") {
 					targetCell.updateTag();
 				}
 			});
@@ -278,7 +278,7 @@
 				},
 				render : function () {
 					this.$el.find("tr").remove();
-					if(tagCollection.length) {
+					if (tagCollection.length) {
 						_.each(tagCollection.models, function (item) {
 							this.renderTag(item);
 						}, this);
@@ -332,7 +332,7 @@
 					tagCollection.syncData();
 				},
 				resetParams : function(query) {
-					if(query != null)
+					if (query != null)
 						query = query.replace(/\+/g,' ');
 					tagCollection.filterParameters.search = query;
 					$(".uv-search-inline").val(query);

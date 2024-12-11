@@ -9,7 +9,6 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Webkul\UVDesk\CoreFrameworkBundle\Definition\RouterInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Definition\RoutingResourceInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Framework\ExtendableComponentInterface;
-
 use Webkul\UVDesk\CoreFrameworkBundle\Tickets\WidgetInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Tickets\QuickActionButtonInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\SearchItemInterface;

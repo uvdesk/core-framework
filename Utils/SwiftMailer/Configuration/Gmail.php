@@ -33,12 +33,12 @@ MAILER;
     public function getWritableConfigurations()
     {
         $params = [
-            '[[ id ]]' => $this->getId(),
-            '[[ username ]]' => sprintf("username: %s", $this->getUsername()),
-            '[[ password ]]' => sprintf("password: %s", $this->getPassword()),
-            '[[ sender_address ]]' => '# sender_address: ~',
+            '[[ id ]]'                 => $this->getId(),
+            '[[ username ]]'           => sprintf("username: %s", $this->getUsername()),
+            '[[ password ]]'           => sprintf("password: %s", $this->getPassword()),
+            '[[ sender_address ]]'     => '# sender_address: ~',
             '[[ delivery_addresses ]]' => '# delivery_addresses: ~',
-            '[[ disable_delivery ]]' => "disable_delivery: " . ($this->getDeliveryStatus() ? "false" : "true"),
+            '[[ disable_delivery ]]'   => "disable_delivery: " . ($this->getDeliveryStatus() ? "false" : "true"),
         ];
 
         return strtr(self::TEMPLATE, $params);
@@ -47,13 +47,13 @@ MAILER;
     public function castArray()
     {
         return [
-            'transport' => $this->getTransportCode(),
-            'id' => $this->getId(),
-            'username' => $this->getUsername(),
-            'password' => $this->getPassword(),
-            'sender_address' => $this->getSenderAddress(),
+            'transport'          => $this->getTransportCode(),
+            'id'                 => $this->getId(),
+            'username'           => $this->getUsername(),
+            'password'           => $this->getPassword(),
+            'sender_address'     => $this->getSenderAddress(),
             'delivery_addresses' => $this->getDeliveryAddress(),
-            'deliveryStatus' => $this->getDeliveryStatus(),
+            'deliveryStatus'     => $this->getDeliveryStatus(),
         ];
     }
 

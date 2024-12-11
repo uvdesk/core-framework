@@ -3,6 +3,7 @@
       		display: none !important;
 	}
 </style>
+
 {% set isTicketViewPage = ('helpdesk_member_ticket' == app.request.attributes.get('_route')) %}
 
 <div class="uv-pop-up-overlay uv-no-error-success-icon" id="create-ticket-modal">
@@ -177,12 +178,21 @@
 <script>
     customFieldValidation = {};
     customHandler = function(value, attr, computedState) {
-        if(!$('[name="'+ attr + '"]').parents('.uv-element-block').is(':visible') && !$('[name="'+ attr + '[]' + '"]').parents('.uv-element-block').is(':visible')) {
+        if (!$('[name="'+ attr + '"]').parents('.uv-element-block').is(':visible') && !$('[name="'+ attr + '[]' + '"]').parents('.uv-element-block').is(':visible')) {
             return false;
         } else {
             var ele = $('[name="'+ attr + '"]');
             ele = ele.length ? ele : $('[name="'+ attr + '[]' + '"]');
-            if(ele[0].type == 'radio') {
+            if (ele[0].type == 'radio') {
+                var returnMe = true;
+                $.each(ele, function(key, eleChild) {
+                    if ($(eleChild).is(':checked')) {
+                        returnMe = false;
+                    }
+                });
+
+                return returnMe;
+            } else if (ele[0].type == 'checkbox') {
                 var returnMe = true;
                 $.each(ele, function(key, eleChild) {
                     if($(eleChild).is(':checked')) {
@@ -190,45 +200,37 @@
                     }
                 });
                 return returnMe;
-            } else if(ele[0].type == 'checkbox') {
-                var returnMe = true;
-                $.each(ele, function(key, eleChild) {
-                    if($(eleChild).is(':checked')) {
-                        returnMe = false;
-                    }
-                });
-                return returnMe;
-            } else if(!$('#create-ticket-form [name="'+ attr + '"]').val()) {
+            } else if (!$('#create-ticket-form [name="'+ attr + '"]').val()) {
                 return true;
             }
         }
     };
     _.extend(Backbone.Validation.validators, {
         checkAllowedDomain: function(value, attr, customValue, model) {
-            if(!$('[name="'+ attr + '"]').parents('.uv-element-block').is(':visible'))
+            if (!$('[name="'+ attr + '"]').parents('.uv-element-block').is(':visible'))
                 return false;
             domain = value.substring(value.indexOf("@") + 1);
-            if(customValue && customValue.indexOf(domain) === -1) {
+            if (customValue && customValue.indexOf(domain) === -1) {
                 return true; //return error
             }
         },
         checkRestrictedDomain: function(value, attr, customValue, model) {
-            if(!$('[name="'+ attr + '"]').parents('.uv-element-block').is(':visible'))
+            if (!$('[name="'+ attr + '"]').parents('.uv-element-block').is(':visible'))
                 return false;
             domain = value.substring(value.indexOf("@") + 1);
-            if(customValue && customValue.indexOf(domain) !== -1) {
+            if (customValue && customValue.indexOf(domain) !== -1) {
                 return true; //return error
             }
         },
         checkMaxFileSize: function(value, attr, customValue, model) {
-            if(!$('[name="'+ attr + '"]').parents('.uv-element-block').is(':visible'))
+            if (!$('[name="'+ attr + '"]').parents('.uv-element-block').is(':visible'))
                 return false;
             fileInput = $('input[name="' + attr + '"]')[0] ? $('input[name="' + attr + '"]')[0] : $('input[name="' + attr + '"]');
             file = fileInput.files? fileInput.files[0] : '';
-            filesize = file ? file.size / 1024 : 0;
+            fileSize = file ? file.size / 1024 : 0;
             maxSize = (customValue && parseInt(customValue)) ? parseInt(customValue) : 5120;
             
-            if(filesize > maxSize) {
+            if (fileSize > maxSize) {
                 return true; //return error
             }
         },
@@ -478,10 +480,10 @@
             events : {
                 'click #create-ticket-btn': "saveTicket",
                 'change #type': "updateCustomFields",
-                'blur input.create-ticket:not(input[type=file]), textarea.create-ticket, select.create-ticket, checkbox.create-ticket': 'formChanegd',
-                'change input[type=file].create-ticket': 'formChanegd',
+                'blur input.create-ticket:not(input[type=file]), textarea.create-ticket, select.create-ticket, checkbox.create-ticket': 'formChanged',
+                'change input[type=file].create-ticket': 'formChanged',
             },
-            formChanegd: function(e) {
+            formChanged: function(e) {
                 this.model.set(Backbone.$(e.currentTarget).attr('name'), Backbone.$(e.currentTarget).val())
                 this.model.isValid([Backbone.$(e.currentTarget).attr('name')])
             },

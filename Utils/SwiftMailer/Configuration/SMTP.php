@@ -82,16 +82,16 @@ MAILER;
     public function getWritableConfigurations()
     {
         $params = [
-            '[[ id ]]' => $this->getId(),
-            '[[ username ]]' => sprintf("username: %s", $this->getUsername()),
-            '[[ password ]]' => sprintf("password: %s", $this->getPassword()),
-            '[[ host ]]' => sprintf("host: %s", $this->getHost()),
-            '[[ port ]]' => sprintf("port: %s", $this->getPort()),
-            '[[ encryption ]]' => sprintf("encryption: %s", $this->getEncryptionMode()),
-            '[[ authentication ]]' => sprintf("auth_mode: %s", $this->getAuthenticationMode()),
-            '[[ sender_address ]]' => sprintf("sender_address: %s", $this->getSenderAddress()),
+            '[[ id ]]'                 => $this->getId(),
+            '[[ username ]]'           => sprintf("username: %s", $this->getUsername()),
+            '[[ password ]]'           => sprintf("password: %s", $this->getPassword()),
+            '[[ host ]]'               => sprintf("host: %s", $this->getHost()),
+            '[[ port ]]'               => sprintf("port: %s", $this->getPort()),
+            '[[ encryption ]]'         => sprintf("encryption: %s", $this->getEncryptionMode()),
+            '[[ authentication ]]'     => sprintf("auth_mode: %s", $this->getAuthenticationMode()),
+            '[[ sender_address ]]'     => sprintf("sender_address: %s", $this->getSenderAddress()),
             '[[ delivery_addresses ]]' => "delivery_addresses: ['".$this->getDeliveryAddress()."']",
-            '[[ disable_delivery ]]' => "disable_delivery: " . ($this->getDeliveryStatus() ? "false" : "true"),
+            '[[ disable_delivery ]]'   => "disable_delivery: " . ($this->getDeliveryStatus() ? "false" : "true"),
         ];
 
         return strtr(self::TEMPLATE, $params);
@@ -100,17 +100,17 @@ MAILER;
     public function castArray()
     {
         return [
-            'transport' => $this->getTransportCode(),
-            'id' => $this->getId(),
-            'username' => $this->getUsername(),
-            'password' => $this->getPassword(),
-            'host' => $this->getHost(),
-            'port' => $this->getPort(),
-            'encryption' => $this->getEncryptionMode(),
-            'authentication' => $this->getAuthenticationMode(),
+            'transport'          => $this->getTransportCode(),
+            'id'                 => $this->getId(),
+            'username'           => $this->getUsername(),
+            'password'           => $this->getPassword(),
+            'host'               => $this->getHost(),
+            'port'               => $this->getPort(),
+            'encryption'         => $this->getEncryptionMode(),
+            'authentication'     => $this->getAuthenticationMode(),
             'delivery_addresses' => $this->getDeliveryAddress(),
-            'sender_address' => $this->getSenderAddress(),
-            'deliveryStatus' => $this->getDeliveryStatus(),
+            'sender_address'     => $this->getSenderAddress(),
+            'deliveryStatus'     => $this->getDeliveryStatus(),
         ];
     }
 

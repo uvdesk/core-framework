@@ -158,7 +158,7 @@
 							app.pager.paginationData = response.pagination_data;
 
 							var url = app.pager.paginationData.url;
-							if(typeCollection.length == 0 && app.pager.paginationData.current != "0")
+							if (typeCollection.length == 0 && app.pager.paginationData.current != "0")
 								router.navigate(url.replace('replacePage', app.pager.paginationData.last),{trigger: true});
 							else {
 								app.pager.render();
@@ -186,7 +186,7 @@
 					return this;
 				},
 				unrender : function(response) {
-					if(response.alertMessage != undefined) {
+					if (response.alertMessage != undefined) {
 						typeCollection.syncData();
 						app.appView.renderResponseAlert(response)
 					}
@@ -206,10 +206,10 @@
 							typeCollection.syncData();
 						},
 						error: function (model, xhr, options) {
-							if(url = xhr.getResponseHeader('Location'))
+							if (url = xhr.getResponseHeader('Location'))
 								window.location = url;
 							var response = warningResponse;
-							if(xhr.responseJSON)
+							if (xhr.responseJSON)
 								response = xhr.responseJSON;
 
 							app.appView.hideLoader();
@@ -226,7 +226,7 @@
 				},
 				render : function () {
 					this.$el.find("tr").remove();
-					if(typeCollection.length) {
+					if (typeCollection.length) {
 						_.each(typeCollection.models, function (item) {
 							this.renderType(item);
 						}, this);

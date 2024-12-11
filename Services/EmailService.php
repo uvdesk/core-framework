@@ -491,6 +491,7 @@ class EmailService
         }
 
         $content = $isSavedReply ? stripslashes($content) : htmlspecialchars_decode(preg_replace(['#&lt;script&gt;#', '#&lt;/script&gt;#'], ['&amp;lt;script&amp;gt;', '&amp;lt;/script&amp;gt;'], $content));
+        
         return $twigTemplatingEngine->render($baseEmailTemplate, ['message' => $content]);
     }
 
@@ -694,7 +695,7 @@ class EmailService
                     }
 
                     $microsoftAccount = $this->entityManager->getRepository(MicrosoftAccount::class)->findOneBy([
-                        'email' => $mailboxSmtpConfiguration->getUsername(), 
+                        'email'        => $mailboxSmtpConfiguration->getUsername(), 
                         'microsoftApp' => $microsoftApp, 
                     ]);
     
@@ -710,7 +711,7 @@ class EmailService
                         'subject' => $subject, 
                         'body' => [
                             'contentType' => 'HTML', 
-                            'content' => $content, 
+                            'content'     => $content, 
                         ], 
                         'toRecipients' => [
                             [
@@ -759,10 +760,10 @@ class EmailService
                     }
                 } else {
                     $dsn = strtr("smtp://{email}:{password}@{host}:{port}", [
-                        "{email}" => $mailboxSmtpConfiguration->getUsername(), 
+                        "{email}"    => $mailboxSmtpConfiguration->getUsername(), 
                         "{password}" => $mailboxSmtpConfiguration->getPassword(), 
-                        "{host}" => $mailboxSmtpConfiguration->getHost(), 
-                        "{port}" => $mailboxSmtpConfiguration->getPort(), 
+                        "{host}"     => $mailboxSmtpConfiguration->getHost(), 
+                        "{port}"     => $mailboxSmtpConfiguration->getPort(), 
                     ]);
 
                     if (false == $mailbox->getIsStrictModeEnabled()) {

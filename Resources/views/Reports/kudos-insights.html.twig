@@ -1,160 +1,161 @@
 {% extends "@UVDeskCoreFramework//Templates//layout.html.twig" %}
 
-{# WebkulUserBundle/Resources/views/dashboard.html.twig #}
 {% block title %} 
 	{{ 'kudos'|trans }}
 {% endblock %}
 
 {% block pageContent %}
     <style>
-    .uv-action-bar {
-  border-bottom: 1px solid #d3d3d3;
-  padding-bottom: 10px;
-}
-.uv-action-bar .uv-field-block.date {
-  display: inline-block;
-  margin-right: 10px;
-}
-.uv-action-bar label {
-  font-size: 16px;
-  vertical-align: middle;
-  margin-right: 10px;
-}
-.uv-report-wrapper {
-  padding-right: 20px;
-}
-.uv-report-wrapper .uv-middle {
-  position: absolute;
-  width: 100%;
-  left: 0;
-  top: 50%;
-  text-align: center;
-}
-.uv-report-wrapper svg {
-  width: 100%;
-}
-.uv-report-wrapper svg text {
-  fill: #333;
-}
-.uv-report-brick-wrapper {
-  width: 100%;
-  display: inline-block;
-  border: 1px solid #d3d3d3;
-  margin: 20px 0;
-  border-radius: 3px;
-}
-.uv-report-brick-wrapper {
-  width: 100%;
-  display: inline-block;
-  border: 1px solid #d3d3d3;
-  margin: 20px 0;
-  border-radius: 3px;
-}
-.uv-report-brick {
-  position: relative;
-  display: inline-block;
-  float: left;
-  width: 20%;
-  text-align: center;
-  padding: 18px 0;
-  border-right: 1px solid #d3d3d3;
-}
-.uv-report-brick:last-child {
-  border-right: none;
-}
-.uv-report-brick-count {
-  width: 100%;
-  display: inline-block;
-  color: #8473f3;
-  font-size: 30px;
-}
-.uv-report-brick-label {
-  width: 100%;
-  display: inline-block;
-  font-size: 18px;
-}
-.uv-icon-kudos {
-  background-image: url("{{ asset('bundles/uvdeskcoreframework/images/uvdesk-kudo-sprite.svg') }}");
-  display: inline-block;
-  width: 40px;
-  height: 40px;
-}
-.uv-icon-kudos.kudos-1 {
-  background-position: 0px 40px;
-}
-.uv-icon-kudos.kudos-2 {
-  background-position: -40px 40px;
-}
-.uv-icon-kudos.kudos-3 {
-  background-position: -80px 40px;
-}
-.uv-icon-kudos.kudos-4 {
-  background-position: -120px 40px;
-}
-.uv-icon-kudos.kudos-5 {
-  background-position: -160px 40px;
-}
-.kudos-text-1 {
-  color: #FC6E46;
-}
-.kudos-text-2 {
-  color: #FC6E46;
-}
-.kudos-text-3 {
-  color: #FCDA32;
-}
-.kudos-text-4 {
-  color: #01D101;
-}
-.kudos-text-5 {
-  color: #01D101;
-}
-@media screen and (max-width: 1024px) {
-  .uv-report-chart-top-row .uv-report-chart-col-lt {
-      width: 100%;
-      padding: 0;
-  }
-  .uv-report-chart-top-row .uv-report-chart-col-rt {
-      width: 100%;
-  }
-  .uv-report-chart-bottom-row .uv-col-4 {
-      width: 100%;
-      padding: 0;
-  }
-  .uv-pannel-body.ticket-customer {
-      padding: 0 !important;
-  }
-  .uv-report-brick {
-      width: 100%;
-      border-right: none;
-      border-bottom: 1px solid #d3d3d3;
-  }
-  .uv-report-brick:last-child {
-      border-bottom: none;
-  }
-}
-@media screen and (max-width: 500px) {
-  .uv-action-bar label {
-      display: none;
-  }
-  .uv-action-bar .uv-field-block.date {
-      width: 100%;
-      padding: 0px 0px 0px 5px;
-      margin-right: 0;
-  }
-  .uv-action-bar .uv-field-block.date input {
-      width: 100%;
-  }
-  .uv-inner-section .uv-action-bar .uv-action-bar-col-lt {
-      padding-right: 15px;
-  }
-  .uv-report-chart-col-lt .uv-pannel-body {
-      padding: 0;
-  }
-  .uv-pannel-heading select {
-      width: 100px;
-  }
-}
+        .uv-action-bar {
+            border-bottom: 1px solid #d3d3d3;
+            padding-bottom: 10px;
+        }
+        .uv-action-bar .uv-field-block.date {
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .uv-action-bar label {
+            font-size: 16px;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        .uv-report-wrapper {
+            padding-right: 20px;
+        }
+        .uv-report-wrapper .uv-middle {
+            position: absolute;
+            width: 100%;
+            left: 0;
+            top: 50%;
+            text-align: center;
+        }
+        .uv-report-wrapper svg {
+            width: 100%;
+        }
+        .uv-report-wrapper svg text {
+            fill: #333;
+        }
+        .uv-report-brick-wrapper {
+            width: 100%;
+            display: inline-block;
+            border: 1px solid #d3d3d3;
+            margin: 20px 0;
+            border-radius: 3px;
+        }
+        .uv-report-brick-wrapper {
+            width: 100%;
+            display: inline-block;
+            border: 1px solid #d3d3d3;
+            margin: 20px 0;
+            border-radius: 3px;
+        }
+        .uv-report-brick {
+            position: relative;
+            display: inline-block;
+            float: left;
+            width: 20%;
+            text-align: center;
+            padding: 18px 0;
+            border-right: 1px solid #d3d3d3;
+        }
+        .uv-report-brick:last-child {
+            border-right: none;
+        }
+        .uv-report-brick-count {
+            width: 100%;
+            display: inline-block;
+            color: #8473f3;
+            font-size: 30px;
+        }
+        .uv-report-brick-label {
+            width: 100%;
+            display: inline-block;
+            font-size: 18px;
+        }
+        .uv-icon-kudos {
+            background-image: url("{{ asset('bundles/uvdeskcoreframework/images/uvdesk-kudo-sprite.svg') }}");
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+        }
+        .uv-icon-kudos.kudos-1 {
+            background-position: 0px 40px;
+        }
+        .uv-icon-kudos.kudos-2 {
+            background-position: -40px 40px;
+        }
+        .uv-icon-kudos.kudos-3 {
+            background-position: -80px 40px;
+        }
+        .uv-icon-kudos.kudos-4 {
+        background-position: -120px 40px;
+        }
+        .uv-icon-kudos.kudos-5 {
+            background-position: -160px 40px;
+        }
+        .kudos-text-1 {
+            color: #FC6E46;
+        }
+        .kudos-text-2 {
+            color: #FC6E46;
+        }
+        .kudos-text-3 {
+            color: #FCDA32;
+        }
+        .kudos-text-4 {
+            color: #01D101;
+        }
+        .kudos-text-5 {
+            color: #01D101;
+        }
+
+        @media screen and (max-width: 1024px) {
+            .uv-report-chart-top-row .uv-report-chart-col-lt {
+                width: 100%;
+                padding: 0;
+            }
+            .uv-report-chart-top-row .uv-report-chart-col-rt {
+                width: 100%;
+            }
+            .uv-report-chart-bottom-row .uv-col-4 {
+                width: 100%;
+                padding: 0;
+            }
+            .uv-pannel-body.ticket-customer {
+                padding: 0 !important;
+            }
+            .uv-report-brick {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #d3d3d3;
+            }
+            .uv-report-brick:last-child {
+                border-bottom: none;
+            }
+        }
+
+        @media screen and (max-width: 500px) {
+            .uv-action-bar label {
+                display: none;
+            }
+            .uv-action-bar .uv-field-block.date {
+                width: 100%;
+                padding: 0px 0px 0px 5px;
+                margin-right: 0;
+            }
+            .uv-action-bar .uv-field-block.date input {
+                width: 100%;
+            }
+            .uv-inner-section .uv-action-bar .uv-action-bar-col-lt {
+                padding-right: 15px;
+            }
+            .uv-report-chart-col-lt .uv-pannel-body {
+                padding: 0;
+            }
+            .uv-pannel-heading select {
+                width: 100px;
+            }
+        }
     </style>
 
 	<div class="uv-inner-section">
@@ -848,15 +849,15 @@
                 },
                 searchFilterXhr: _.debounce(function(currentElement) {
                     var parent = currentElement.parent();
-                    if($('.uv-dropdown-other.uv-dropdown-btn-active').parent().attr('id') != parent.attr('id'))
+                    if ($('.uv-dropdown-other.uv-dropdown-btn-active').parent().attr('id') != parent.attr('id'))
                         return;
                     
                     parent.find("li:not(.uv-no-results, .uv-filter-info)").remove();
                     parent.find(".uv-filter-info").show()
-                    if(currentElement.val().length > 1) {
+                    if (currentElement.val().length > 1) {
                         parent.append(this.loaderTemplate())
                         parent.find('.uv-filter-info').text("{% trans %}Searching{% endtrans %} ...")
-                        if(self.xhrReq)
+                        if (self.xhrReq)
                             self.xhrReq.abort();
                         self.xhrReq = $.ajax({
                             url : "{{ path('helpdesk_member_ticket_collection_search_filter_options_xhr') }}",
@@ -867,7 +868,7 @@
                                 self.xhrReq = 0;
                                 parent.find('.uv-loader').remove()
                                 parent.find('.uv-filter-info').text("{{ 'Type atleast 2 letters'|trans }}").hide();
-                                if(response.length == 0) {
+                                if (response.length == 0) {
                                     parent.find('.uv-no-results').show()
                                 } else {
                                     parent.find('.uv-no-results').hide();
@@ -895,12 +896,12 @@
                 },1000),
                 applyFilter: function(e) {
                     currentElement = Backbone.$(e.currentTarget);
-                    if(currentElement.attr("data-id")) {
+                    if (currentElement.attr("data-id")) {
                         var flag = 1;
                         parent = currentElement.parents(".uv-field-block");
                         filterType = parent.find('input').attr('data-filter-type');
                         
-                        if(filterType == "customer" || filterType == 'agent' || filterType == 'group' || filterType == 'team') {
+                        if (filterType == "customer" || filterType == 'agent' || filterType == 'group' || filterType == 'team') {
                             sideFilterModel.updateModel(filterType, {'id': currentElement.attr('data-id'), 'name': currentElement.attr('name')})
                             parent.find(".uv-no-results").hide()
                             parent.find(".uv-filter-info").show().text("{{ 'Type atleast 2 letters'|trans }}")
@@ -913,10 +914,10 @@
                             }
                         }
                         parent.find('input').val('')
-                        if(jQuery.inArray(filterType, ['priority', 'type', 'source']) !== -1) {
+                        if (jQuery.inArray(filterType, ['priority', 'type', 'source']) !== -1) {
                             parent.find("li:not(.uv-no-results)").show()
                         }
-                        if(flag) {
+                        if (flag) {
                             parent.find('.uv-filtered-tags').append("<a class='uv-btn-tag' href='#' data-id='" + currentElement.attr('data-id') + "'>"+currentElement.attr('name')+"<span class='uv-icon-remove-dark'></span></a>")
                             ratedTicketCollection.filterParameters[filterType] = this.joinTagValues(parent.find(".uv-filtered-tags"));
                             var queryString = app.appView.buildQuery($.param(ratedTicketCollection.getValidParameters()));
@@ -942,6 +943,7 @@
                     parent.find('.uv-btn-tag').each(function() {
                         ids.push($(this).attr('data-id'))
                     });
+                    
                     return ids.join();
                 },
                 

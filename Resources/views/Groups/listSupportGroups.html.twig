@@ -160,7 +160,7 @@
 							app.pager.paginationData = response.pagination_data;
 
 							var url = app.pager.paginationData.url;
-							if(groupCollection.length == 0 && app.pager.paginationData.current != "0")
+							if (groupCollection.length == 0 && app.pager.paginationData.current != "0")
 								router.navigate(url.replace('replacePage', app.pager.paginationData.last),{trigger: true});
 							else {
 								app.pager.render();

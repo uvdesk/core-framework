@@ -135,7 +135,7 @@
 			var UpdateSupportPrivilegeForm = Backbone.View.extend({
 				events : {
 					'click .uv-btn' : "savePrivilege",
-					'blur input, textarea': 'formChanegd',
+					'blur input, textarea': 'formChanged',
 					'click a.select': 'selectAll',
 		            'click a.deselect': 'deselectAll',
 				},
@@ -150,7 +150,7 @@
 						}
 					}
 				},
-				formChanegd: function(e) {
+				formChanged: function(e) {
 			    	this.model.set(Backbone.$(e.currentTarget).attr('name'), Backbone.$(e.currentTarget).val())
 			    	this.model.isValid([Backbone.$(e.currentTarget).attr('name')])
 			    },
