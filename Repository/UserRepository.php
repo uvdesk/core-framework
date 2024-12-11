@@ -284,4 +284,17 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function retrieveHelpdeskCustomerInstances($username)
+    {
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder()
+            ->select('u, dt')
+            ->from(User::class, 'u')
+            ->leftJoin('u.userInstance', 'dt')
+            ->where('u.email = :email')->setParameter('email', $username)
+            ->andWhere('dt.supportRole = :roles')->setParameter('roles', 4)
+        ;
+
+        return $queryBuilder->getQuery()->getOneOrNullResult();
+    }
 }

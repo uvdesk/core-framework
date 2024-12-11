@@ -90,6 +90,12 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=191, nullable=true)
      */
     private $timeformat;
+    
+    /**
+     * @var \DateTime
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $lastOtpGeneratedAt;
 
     /**
      * Constructor
@@ -107,6 +113,29 @@ class User implements UserInterface
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set lastOtpGeneratedAt
+     *
+     * @param \DateTime $lastOtpGeneratedAt
+     *     
+     */
+    public function setLastOtpGeneratedAt($lastOtpGeneratedAt)
+    {
+        $this->lastOtpGeneratedAt = $lastOtpGeneratedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get lastOtpGeneratedAt
+     *
+     * @return \DateTime
+     */
+    public function getLastOtpGeneratedAt()
+    {
+        return $this->lastOtpGeneratedAt;
     }
 
     /**
