@@ -424,7 +424,7 @@
                             {% endif %}
                         </div>
 
-                        {% if user_service.isfileExists('apps/uvdesk/sla') %}
+                        {% if user_service.isFileExists('apps/uvdesk/sla') %}
                             {{ include('@UVDeskCoreFramework\\slaSnippet.html.twig') }}
                         {% endif %}
                     </div>

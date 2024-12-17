@@ -45,10 +45,10 @@ class UserService
         $ticket = $this->entityManager->getRepository(Ticket::class)->findOneById($request->attributes->get('id'));
 
         try {
-            if ($this->isfileExists('apps/uvdesk/custom-fields')) {
+            if ($this->isFileExists('apps/uvdesk/custom-fields')) {
                 $customFieldsService = $this->container->get('uvdesk_package_custom_fields.service');
                 $registeredBaseTwigPath = '_uvdesk_extension_uvdesk_custom_fields';
-            } else if ($this->isfileExists('apps/uvdesk/form-component')) {
+            } else if ($this->isFileExists('apps/uvdesk/form-component')) {
                 $customFieldsService = $this->container->get('uvdesk_package_form_component.service');
                 $registeredBaseTwigPath = '_uvdesk_extension_uvdesk_form_component';
             }
@@ -904,7 +904,7 @@ class UserService
         return $timestamp->format($format);
     }
 
-    public function isfileExists($filePath)
+    public function isFileExists($filePath)
     {
         $dir = $this->container->get('kernel')->getProjectDir();
         // $dirSplit = explode('vendor', $dir);

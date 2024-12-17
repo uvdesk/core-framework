@@ -158,9 +158,9 @@ class TicketService
         $ticketTypeCollection = $this->entityManager->getRepository(TicketType::class)->findByIsActive(true);
         
         try {
-            if ($this->userService->isfileExists('apps/uvdesk/custom-fields')) {
+            if ($this->userService->isFileExists('apps/uvdesk/custom-fields')) {
                 $headerCustomFields = $this->container->get('uvdesk_package_custom_fields.service')->getCustomFieldsArray('user');
-            } else if ($this->userService->isfileExists('apps/uvdesk/form-component')) {
+            } else if ($this->userService->isFileExists('apps/uvdesk/form-component')) {
                 $headerCustomFields = $this->container->get('uvdesk_package_form_component.service')->getCustomFieldsArray('user');
             }
         } catch (\Exception $e) {
@@ -176,9 +176,9 @@ class TicketService
     public function getCustomerCreateTicketCustomFieldSnippet()
     {
         try {
-            if ($this->userService->isfileExists('apps/uvdesk/custom-fields')) {
+            if ($this->userService->isFileExists('apps/uvdesk/custom-fields')) {
                 $customFields = $this->container->get('uvdesk_package_custom_fields.service')->getCustomFieldsArray('customer');
-            } else if ($this->userService->isfileExists('apps/uvdesk/form-component')) {
+            } else if ($this->userService->isFileExists('apps/uvdesk/form-component')) {
                 $customFields = $this->container->get('uvdesk_package_form_component.service')->getCustomFieldsArray('customer');
             }
         } catch (\Exception $e) {
@@ -1962,12 +1962,12 @@ class TicketService
         $customFieldsService = null;
         $customFieldsEntityReference = null;
         
-        if ($this->userService->isfileExists('apps/uvdesk/custom-fields')) {
+        if ($this->userService->isFileExists('apps/uvdesk/custom-fields')) {
             $customFieldsService = $this->container->get('uvdesk_package_custom_fields.service');
             $customFieldsEntityReference = UVDeskCommunityPackages\CustomFields\Entity\CustomFields::class;
             $customFieldValuesEntityReference = UVDeskCommunityPackages\CustomFields\Entity\CustomFieldsValues::class;
             $ticketCustomFieldValuesEntityReference = UVDeskCommunityPackages\CustomFields\Entity\TicketCustomFieldsValues::class;
-        } else if ($this->userService->isfileExists('apps/uvdesk/form-component')) {
+        } else if ($this->userService->isFileExists('apps/uvdesk/form-component')) {
             $customFieldsService = $this->container->get('uvdesk_package_form_component.service');
             $customFieldsEntityReference = UVDeskCommunityPackages\FormComponent\Entity\CustomFields::class;
             $customFieldValuesEntityReference = UVDeskCommunityPackages\FormComponent\Entity\CustomFieldsValues::class;
