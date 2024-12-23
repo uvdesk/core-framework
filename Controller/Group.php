@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer;
+
 class Group extends AbstractController
 {
     private $userService;
@@ -27,7 +28,7 @@ class Group extends AbstractController
 
     public function listGroups(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')){
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -36,7 +37,7 @@ class Group extends AbstractController
 
     public function editGroup(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')){
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -45,7 +46,7 @@ class Group extends AbstractController
                 ->findGroupById(['id' => $request->attributes->get('supportGroupId'),
                 ]);
 
-            if (!$group)
+            if (! $group)
                 $this->noResultFound();
         } else
             $group = new Entity\SupportGroup;
@@ -64,7 +65,6 @@ class Group extends AbstractController
             $oldUsers = ($usersList = $group->getUsers()) ? $usersList->toArray() : [];
             $oldTeam  = ($teamList = $group->getSupportTeams()) ? $teamList->toArray() : [];
 
-
             $allDetails = $request->request->all();
 
             $em = $this->getDoctrine()->getManager();
@@ -75,7 +75,7 @@ class Group extends AbstractController
             $usersList = (!empty($allDetails['users']))? $allDetails['users'] : [];
             $userTeam  = (!empty($allDetails['supportTeams']))? $allDetails['supportTeams'] : [];
 
-            if (!empty($usersList)) {
+            if (! empty($usersList)) {
                 $usersList = array_map(function ($user) { return 'user.id = ' . $user; }, $usersList);
 
                 $userList = $em->createQueryBuilder()->select('user')
@@ -84,7 +84,7 @@ class Group extends AbstractController
                     ->getQuery()->getResult();
             }
 
-            if (!empty($userTeam)) {
+            if (! empty($userTeam)) {
                 $userTeam = array_map(function ($team) { return 'team.id = ' . $team; }, $userTeam);
 
                 $userTeam = $em->createQueryBuilder()->select('team')
@@ -92,14 +92,18 @@ class Group extends AbstractController
                     ->where(implode(' OR ', $userTeam))
                     ->getQuery()->getResult();
             }
-            if(!empty($userList)){
+
+            if(! empty($userList)) {
                 // Add Users to Group
                 foreach ($userList as $user) {
                     $userInstance = $user->getAgentInstance();
-                    if(!$oldUsers || !in_array($userInstance, $oldUsers)){
+                    if (
+                        ! $oldUsers 
+                        || !in_array($userInstance, $oldUsers)
+                    ) {
                         $userInstance->addSupportGroup($group);
                         $em->persist($userInstance);
-                    }elseif($oldUsers && ($key = array_search($userInstance, $oldUsers)) !== false)
+                    } elseif ($oldUsers && ($key = array_search($userInstance, $oldUsers)) !== false)
                         unset($oldUsers[$key]);
                 }
                 foreach ($oldUsers as $removeUser) {
@@ -113,7 +117,7 @@ class Group extends AbstractController
                 }
             }
 
-            if (!empty($userTeam)) {
+            if (! empty($userTeam)) {
                 // Add Teams to Group
                 foreach ($userTeam as $supportTeam) {
 
@@ -175,7 +179,7 @@ class Group extends AbstractController
             $usersList = (!empty($allDetails['users']))? $allDetails['users'] : [];
             $userTeam  = (!empty($allDetails['supportTeams']))? $allDetails['supportTeams'] : [];
 
-            if (!empty($usersList)) {
+            if (! empty($usersList)) {
                 $usersList = array_map(function ($user) { return 'user.id = ' . $user; }, $usersList);
 
                 $userList = $em->createQueryBuilder()->select('user')
@@ -184,7 +188,7 @@ class Group extends AbstractController
                     ->getQuery()->getResult();
             }
 
-            if (!empty($userTeam)) {
+            if (! empty($userTeam)) {
                 $userTeam = array_map(function ($team) { return 'team.id = ' . $team; }, $userTeam);
 
                 $userTeam = $em->createQueryBuilder()->select('team')
@@ -193,7 +197,7 @@ class Group extends AbstractController
                     ->getQuery()->getResult();
             }
 
-            if (!empty($userList)) {
+            if (! empty($userList)) {
                 foreach ($userList as $user) {
                     $userInstance = $user->getAgentInstance();
                     $userInstance->addSupportGroup($group);

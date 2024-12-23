@@ -128,7 +128,7 @@ class MicrosoftApps extends AbstractController
         $redirectEndpoint = str_replace('http://', 'https://', $this->generateUrl('uvdesk_member_core_framework_integrations_microsoft_apps_oauth_login', [], UrlGeneratorInterface::ABSOLUTE_URL));
 
         return new RedirectResponse($microsoftIntegration->getAuthorizationUrl($microsoftApp, $redirectEndpoint, [
-            'app' => $microsoftApp->getId(), 
+            'app'    => $microsoftApp->getId(), 
             'origin' => $origin, 
             'action' => 'add_account', 
         ]));
@@ -143,7 +143,7 @@ class MicrosoftApps extends AbstractController
             return new Response("Invalid request.", 404);
         }
 
-        $state = !empty($params['state']) ? json_decode($params['state'], true) : [];
+        $state = ! empty($params['state']) ? json_decode($params['state'], true) : [];
 
         $microsoftApp = $entityManager->getRepository(MicrosoftApp::class)->findOneById($state['app']);
         $redirectEndpoint = str_replace('http://', 'https://', $this->generateUrl('uvdesk_member_core_framework_integrations_microsoft_apps_oauth_login', [], UrlGeneratorInterface::ABSOLUTE_URL));
@@ -178,7 +178,7 @@ class MicrosoftApps extends AbstractController
                 $entityManager->persist($account);
                 $entityManager->flush();
     
-                if (!empty($state['action']) && $state['action'] == 'add_account') {
+                if (! empty($state['action']) && $state['action'] == 'add_account') {
                     $this->addFlash('success', $translator->trans('Microsoft account has been added successfully.'));
                 } else {
                     $this->addFlash('success', $translator->trans('Microsoft app has been integrated successfully.'));
@@ -189,7 +189,7 @@ class MicrosoftApps extends AbstractController
         }
 
         try {
-            if (!empty($state['origin'])) {
+            if (! empty($state['origin'])) {
                 return new RedirectResponse($this->generateUrl($state['origin']));
             }
         } catch (\Exception $e) {

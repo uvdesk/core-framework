@@ -25,6 +25,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\FileSystem\FileSystem;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Filesystem\Filesystem as Fileservice;
+
 class Account extends AbstractController
 {
     private $userService;
@@ -59,7 +60,7 @@ class Account extends AbstractController
 
     public function listAgents(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')){          
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')) {          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -82,7 +83,7 @@ class Account extends AbstractController
             // Profile upload validation
             $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
             if (isset($dataFiles['profileImage'])){
-                if (!in_array($dataFiles['profileImage']->getMimeType(), $validMimeType)) {
+                if (! in_array($dataFiles['profileImage']->getMimeType(), $validMimeType)) {
                     $this->addFlash('warning', $this->translator->trans('Error ! Profile image is not valid, please upload a valid format'));
                     
                     return $this->redirect($this->generateUrl('helpdesk_member_profile'));
@@ -98,7 +99,7 @@ class Account extends AbstractController
                     $errorFlag = 1;
             }
 
-            if (!$errorFlag) {
+            if (! $errorFlag) {
                 $password = $user->getPassword();
 
                 $form = $this->createForm(UserProfile::class, $user);
@@ -113,7 +114,7 @@ class Account extends AbstractController
                         // save previous password if password is blank or null provided
                         $encodedPassword = empty($submittedPassword) ? $password : $encoder->encodePassword($user, $submittedPassword);
 
-                        if (!empty($encodedPassword) ) {
+                        if (! empty($encodedPassword) ) {
                             $user->setPassword($encodedPassword);
                         } else {
                             $this->addFlash('warning', $this->translator->trans('Error! Given current password is incorrect.'));
@@ -164,7 +165,7 @@ class Account extends AbstractController
                         // Recaptcha Setting
                         $recaptchaSetting = $em->getRepository(Recaptcha::class)->findOneBy(['id' => 1]);
 
-                        if($recaptchaSetting) {
+                        if ($recaptchaSetting) {
                             $recaptchaSetting->setSiteKey($data['recaptcha_site_key']);
                             $recaptchaSetting->setSecretKey($data['recaptcha_secret_key']);
                             if (isset($data['recaptcha_status'])) {
@@ -255,7 +256,7 @@ class Account extends AbstractController
                     $errorFlag = 1;
                 }
 
-                if (!$errorFlag) {
+                if (! $errorFlag) {
                     if (
                         isset($data['password']['first']) && !empty(trim($data['password']['first'])) 
                         && isset($data['password']['second'])  && !empty(trim($data['password']['second'])) 

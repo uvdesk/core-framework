@@ -33,9 +33,9 @@ class SupportPrivilegeRepository extends \Doctrine\ORM\EntityRepository
                     $qb->setParameter($key, $value);
                 } else {
                     if ($key == 'search') {
-                        $qb->orwhere('ap.name'.' LIKE :name');
+                        $qb->orWhere('ap.name'.' LIKE :name');
                         $qb->setParameter('name', '%'.urldecode(trim($value)).'%');    
-                        $qb->orwhere('ap.description'.' LIKE :description');
+                        $qb->orWhere('ap.description'.' LIKE :description');
                         $qb->setParameter('description', '%'.urldecode(trim($value)).'%');
                     }
                 }

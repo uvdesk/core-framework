@@ -18,6 +18,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\ReCaptchaService;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
+
 class Authentication extends AbstractController
 {
     private $userService;
@@ -46,7 +47,7 @@ class Authentication extends AbstractController
             $processId = (int) $output[0];
 
             $responseContent = [
-                'alertClass' => 'success',
+                'alertClass'   => 'success',
                 'alertMessage' => $this->translator->trans('Success ! Project cache cleared successfully.')
             ];
 
@@ -54,7 +55,7 @@ class Authentication extends AbstractController
         }
 
         $responseContent = [
-            'alertClass' => 'warning',
+            'alertClass'   => 'warning',
             'alertMessage' => $this->translator->trans('Error! Something went wrong.')
         ];
 
@@ -100,7 +101,7 @@ class Authentication extends AbstractController
                     $repository = $this->getDoctrine()->getRepository(User::class);
                     $user = $entityManager->getRepository(User::class)->findOneByEmail($form->getData()->getEmail());
 
-                    if (!empty($user)) {
+                    if (! empty($user)) {
                         // Trigger agent forgot password event
                         $event = new CoreWorkflowEvents\User\ForgotPassword();
                         $event
@@ -127,7 +128,10 @@ class Authentication extends AbstractController
         $user = $entityManager->getRepository(User::class)->findOneByEmail($email);
         $lastUpdatedInstance = $entityManager->getRepository(User::class)->lastUpdatedRole($user);
         
-        if (empty($user) || $user->getVerificationCode() != $verificationCode) {
+        if (
+            empty($user) 
+            || $user->getVerificationCode() != $verificationCode
+        ) {
             $this->addFlash('success', $this->translator->trans('You have already update password using this link if you wish to change password again click on forget password link here from login page'));
 
             return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));

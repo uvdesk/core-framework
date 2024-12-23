@@ -11,6 +11,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
+
 class TeamXHR extends AbstractController
 {
     private $userService;
@@ -24,7 +25,7 @@ class TeamXHR extends AbstractController
 
     public function listTeamsXHR(Request $request, ContainerInterface $container)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -39,7 +40,7 @@ class TeamXHR extends AbstractController
 
     public function deleteTeamXHR($supportTeamId, TranslatorInterface $translator)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -49,7 +50,7 @@ class TeamXHR extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             $supportTeam = $entityManager->getRepository(SupportTeam::class)->findOneById($supportTeamId);
 
-            if (!empty($supportTeam)) {
+            if (! empty($supportTeam)) {
                 $entityManager->remove($supportTeam);
                 $entityManager->flush();
                 

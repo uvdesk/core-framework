@@ -45,7 +45,7 @@ class SwiftMailerXHR extends AbstractController
         $swiftmailer = $this->swiftMailer;
         $configurations = $swiftmailer->parseSwiftMailerConfigurations();
        
-        if (!empty($configurations)) {
+        if (! empty($configurations)) {
             foreach ($configurations as $index => $configuration) {
                 if ($configuration->getId() == $params['id']) {
                     $swiftmailerConfiguration = $configuration;
@@ -53,7 +53,7 @@ class SwiftMailerXHR extends AbstractController
                 }
             }
 
-            if (!empty($swiftmailerConfiguration)) {
+            if (! empty($swiftmailerConfiguration)) {
                 unset($configurations[$index]);
 
                 // Dispatch swiftmailer configuration removed event
@@ -64,7 +64,7 @@ class SwiftMailerXHR extends AbstractController
                 $swiftmailer->writeSwiftMailerConfigurations($configurations);
                 
                 return new JsonResponse([
-                    'alertClass' => 'success',
+                    'alertClass'   => 'success',
                     'alertMessage' => $this->translator->trans('Swiftmailer configuration removed successfully.'),
                 ]);
             }

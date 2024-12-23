@@ -13,6 +13,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+
 class Email extends AbstractController
 {
     const LIMIT = 10;
@@ -44,7 +45,7 @@ class Email extends AbstractController
 
     public function templates(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -53,7 +54,7 @@ class Email extends AbstractController
 
     public function templateForm(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -63,11 +64,11 @@ class Email extends AbstractController
             $template = new EmailTemplates();
         }
 
-        if (!$template) {
+        if (! $template) {
             $this->noResultFound();
         }
 
-        if (!$template->getMessage()) {
+        if (! $template->getMessage()) {
             $template->setMessage('<p>{%global.companyLogo%}<hr></p><p><br><br><br></p><p><i>' . "Cheers !" . ' </i><br> <i style="color:#397b21">{%global.companyName%}</i><br></p>');
         }
 
@@ -104,7 +105,7 @@ class Email extends AbstractController
 
     public function templatesxhr(Request $request, ContainerInterface $container)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_EMAIL_TEMPLATE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -115,21 +116,21 @@ class Email extends AbstractController
                 $repository = $this->getDoctrine()->getRepository(EmailTemplates::class);
                 $json =  $repository->getEmailTemplates($request->query, $container);
             } else {
-                if ($request->attributes->get('template')){
+                if ($request->attributes->get('template')) {
                     if ($templateBase = $this->getTemplate($request)) {
                         if ($request->getMethod() == 'DELETE' ) {
                             $em = $this->getDoctrine()->getManager();
                             $em->remove($templateBase);
                             $em->flush();
 
-                            $json['alertClass'] = 'success';
+                            $json['alertClass']   = 'success';
                             $json['alertMessage'] = 'Success! Template has been deleted successfully.';
                         } else
                             $error = true;
                     } else {
-                        $json['alertClass'] = 'danger';
+                        $json['alertClass']   = 'danger';
                         $json['alertMessage'] = $this->translator->trans('Warning! resource not found.');
-                        $json['statusCode'] = Response::HTTP_NO_FOUND;
+                        $json['statusCode']   = Response::HTTP_NO_FOUND;
                     }
                 }
             }

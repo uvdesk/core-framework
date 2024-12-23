@@ -9,6 +9,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer;
 use Webkul\UVDesk\MailboxBundle\Services\MailboxService;
+
 class EmailSettings extends AbstractController
 {
     private $userService;
@@ -27,7 +28,7 @@ class EmailSettings extends AbstractController
     {
         $smtpConfiguration = $swiftmailerConfigurations = [];
 
-        if (!$this->userService->isAccessAuthorized('ROLE_ADMIN')) {
+        if (! $this->userService->isAccessAuthorized('ROLE_ADMIN')) {
             throw new AccessDeniedException("Insufficient account privileges");
         }
 
@@ -39,14 +40,17 @@ class EmailSettings extends AbstractController
             $smtpConfig = $mailbox->getSmtpConfiguration();
             $swiftmailerConfig = $mailbox->getSwiftMailerConfiguration();
             
-            if ($smtpConfig && $mailbox->getIsenabled()) {
+            if (
+                $smtpConfig 
+                && $mailbox->getIsenabled()
+            ) {
                 $smtpConfiguration[] = $mailbox->getId();
             }
         }
 
         return $this->render('@UVDeskCoreFramework//Email//emailSettings.html.twig', [
             'swiftmailers' => $swiftmailerConfigurations,
-            'outlooks' => $smtpConfiguration,
+            'outlooks'     => $smtpConfiguration,
             'email_settings' => [
                 'id'          => $this->getParameter('uvdesk.support_email.id'),
                 'name'        => $this->getParameter('uvdesk.support_email.name'),

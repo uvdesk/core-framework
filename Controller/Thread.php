@@ -19,6 +19,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\EmailService;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
+
 class Thread extends AbstractController
 {
     private $userService;
@@ -93,7 +94,7 @@ class Thread extends AbstractController
             'attachments' => $request->files->get('attachments')
         ];
 
-        if (!empty($params['status'])) {
+        if (! empty($params['status'])) {
             $ticketStatus = $entityManager->getRepository(TicketStatus::class)->findOneByCode($params['status']);
             $ticket->setStatus($ticketStatus);
 
@@ -177,10 +178,10 @@ class Thread extends AbstractController
                 try {
                     $messageId = $this->emailService->sendMail($params['subject'] ?? ("Forward: " . $ticket->getSubject()), $message, $thread->getReplyTo(), $headers, $ticket->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
     
-                    if (!empty($messageId)) {
+                    if (! empty($messageId)) {
                         $thread->setMessageId($messageId);
     
-                        $entityManager->persist($createdThread);
+                        $entityManager->persist($thread);
                         $entityManager->flush();
                     }
                 } catch (\Exception $e) {

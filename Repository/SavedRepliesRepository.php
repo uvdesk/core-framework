@@ -21,7 +21,7 @@ class SavedRepliesRepository extends EntityRepository
         $data = $obj->all();
         $data = array_reverse($data);
         foreach ($data as $key => $value) {
-            if (!in_array($key,$this->safeFields)) {
+            if (! in_array($key,$this->safeFields)) {
                 if ($key!='dateUpdated' AND $key!='dateAdded' AND $key!='search') {
                     $qb->andWhere('sr.'.$key.' = :'.$key);
                     $qb->setParameter($key, $value);

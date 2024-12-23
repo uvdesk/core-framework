@@ -68,7 +68,7 @@ class TicketXHR extends AbstractController
             throw new \Exception('Access Denied', 403);
         }
 
-        if (!empty($ticket)) {
+        if (! empty($ticket)) {
             $ticket->setIsStarred(!$ticket->getIsStarred());
 
             $entityManager->persist($ticket);
@@ -100,8 +100,8 @@ class TicketXHR extends AbstractController
                 $json['alertClass'] = 'success';
                 $json['alertMessage'] = $this->translator->trans('Success ! Label created successfully.');
                 $json['label'] = json_encode([
-                    'id' => $label->getId(),
-                    'name' => $label->getName(),
+                    'id'        => $label->getId(),
+                    'name'      => $label->getName(),
                     'colorCode' => $label->getColorCode(),
                     'labelUser' => $label->getUser()->getId(),
                 ]);
@@ -114,22 +114,22 @@ class TicketXHR extends AbstractController
             $label = $em->getRepository(SupportLabel::class)->findOneBy(array('id' => $request->attributes->get('ticketLabelId')));
             if ($label) {
                 $label->setName($data['name']);
-                if (!empty($data['colorCode'])) {
+                if (! empty($data['colorCode'])) {
                     $label->setColorCode($data['colorCode']);
                 }
                 $em->persist($label);
                 $em->flush();
 
                 $json['label'] = json_encode([
-                    'id' => $label->getId(),
-                    'name' => $label->getName(),
+                    'id'        => $label->getId(),
+                    'name'      => $label->getName(),
                     'colorCode' => $label->getColorCode(),
                     'labelUser' => $label->getUser()->getId(),
                 ]);
-                $json['alertClass'] = 'success';
+                $json['alertClass']   = 'success';
                 $json['alertMessage'] = $this->translator->trans('Success ! Label updated successfully.');
             } else {
-                $json['alertClass'] = 'danger';
+                $json['alertClass']   = 'danger';
                 $json['alertMessage'] = $this->translator->trans('Error ! Invalid label id.');
             }
         } elseif ($method == "DELETE") {
@@ -137,10 +137,10 @@ class TicketXHR extends AbstractController
             if ($label) {
                 $em->remove($label);
                 $em->flush();
-                $json['alertClass'] = 'success';
+                $json['alertClass']   = 'success';
                 $json['alertMessage'] = $this->translator->trans('Success ! Label removed successfully.');
             } else {
-                $json['alertClass'] = 'danger';
+                $json['alertClass']   = 'danger';
                 $json['alertMessage'] = $this->translator->trans('Error ! Invalid label id.');
             }
         }
@@ -154,7 +154,7 @@ class TicketXHR extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
         $ticket = $entityManager->getRepository(Ticket::class)->find($ticketId);
 
-        if (!$ticket)
+        if (! $ticket)
             $this->noResultFound();
 
         // Proceed only if user has access to the resource
@@ -172,7 +172,7 @@ class TicketXHR extends AbstractController
             $message = $this->translator->trans('Error! Reply field is mandatory');
         }
 
-        if (!$error) {
+        if (! $error) {
             $ticket->setSubject($request->request->get('subject'));
             $createThread = $this->ticketService->getCreateReply($ticket->getId(), false);
             $createThread = $entityManager->getRepository(Thread::class)->find($createThread['id']);
@@ -501,7 +501,7 @@ class TicketXHR extends AbstractController
                 break;
             case 'label':
                 $label = $entityManager->getRepository(SupportLabel::class)->find($requestContent['labelId']);
-                if($label) {
+                if ($label) {
                     $ticket->removeSupportLabel($label);
                     $entityManager->persist($ticket);
                     $entityManager->flush();
@@ -513,7 +513,10 @@ class TicketXHR extends AbstractController
                 }
                 break;
             case 'country':
-                if (!$ticket->getCountry() || $ticket->getCountry() != $requestContent['value']) {
+                if (
+                    ! $ticket->getCountry() 
+                    || $ticket->getCountry() != $requestContent['value']
+                ) {
                     $customer = $ticket->getCustomer();
                     $customerTickets = $entityManager->getRepository(Ticket::class)->findBy([
                         'customer' => $customer->getId(),
@@ -753,7 +756,7 @@ class TicketXHR extends AbstractController
 
     public function listTicketTypeCollectionXHR(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -768,7 +771,7 @@ class TicketXHR extends AbstractController
 
     public function removeTicketTypeXHR($typeId, Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_TICKET_TYPE')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -798,7 +801,7 @@ class TicketXHR extends AbstractController
 
     public function listTagCollectionXHR(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_TAG')) {
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_TAG')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -863,7 +866,7 @@ class TicketXHR extends AbstractController
             $tag = new CoreFrameworkBundleEntities\Tag();
             if ($content['name'] != "") {
                 $checkTag = $em->getRepository(Tag::class)->findOneBy(array('name' => $content['name']));
-                if (!$checkTag) {
+                if (! $checkTag) {
                     $tag->setName($content['name']);
                     $em->persist($tag);
                     $em->flush();
@@ -929,6 +932,7 @@ class TicketXHR extends AbstractController
 
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');
+
         return $response;
     }
 
@@ -946,14 +950,14 @@ class TicketXHR extends AbstractController
 
         if ($request->getMethod() == "POST") {
             if ($content['email'] == $ticket->getCustomer()->getEmail()) {
-                $json['alertClass'] = 'danger';
+                $json['alertClass']   = 'danger';
                 $json['alertMessage'] = $this->translator->trans('Error ! Customer can not be added as collaborator.');
             } else {
                 $data = array(
-                    'from' => $content['email'],
+                    'from'      => $content['email'],
                     'firstName' => ($firstName = ucfirst(current(explode('@', $content['email'])))),
-                    'lastName' => ' ',
-                    'role' => 4,
+                    'lastName'  => ' ',
+                    'role'      => 4,
                 );
 
                 $supportRole = $em->getRepository(SupportRole::class)->findOneByCode('ROLE_CUSTOMER');
@@ -996,16 +1000,17 @@ class TicketXHR extends AbstractController
                 $em->persist($ticket);
                 $em->flush();
 
-                $json['alertClass'] = 'success';
+                $json['alertClass']   = 'success';
                 $json['alertMessage'] = $this->translator->trans('Success ! Collaborator removed successfully.');
             } else {
-                $json['alertClass'] = 'danger';
+                $json['alertClass']   = 'danger';
                 $json['alertMessage'] = $this->translator->trans('Error ! Invalid Collaborator.');
             }
         }
 
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');
+        
         return $response;
     }
 

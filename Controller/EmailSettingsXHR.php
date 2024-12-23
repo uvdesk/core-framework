@@ -10,6 +10,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer;
 use Symfony\Component\HttpKernel\KernelInterface;
+
 class EmailSettingsXHR extends AbstractController
 {
     private $userService;
@@ -45,14 +46,14 @@ class EmailSettingsXHR extends AbstractController
         $mailer_id = ( $supportEmailConfiguration['mailer_id'] == 'None Selected' ? '~' : $supportEmailConfiguration['mailer_id'] );
 
         $file_content_array = strtr(require __DIR__ . "/../Templates/uvdesk.php", [
-            '{{ SUPPORT_EMAIL_ID }}' => $supportEmailConfiguration['id'],
-            '{{ SUPPORT_EMAIL_NAME }}' => $supportEmailConfiguration['name'],
-            '{{ SUPPORT_EMAIL_MAILER_ID }}' => $mailer_id,
+            '{{ SUPPORT_EMAIL_ID }}'          => $supportEmailConfiguration['id'],
+            '{{ SUPPORT_EMAIL_NAME }}'        => $supportEmailConfiguration['name'],
+            '{{ SUPPORT_EMAIL_MAILER_ID }}'   => $mailer_id,
             '{{ SUPPORT_EMAIL_MAILER_TYPE }}' => $supportEmailConfiguration['smtp[transport]'],
-            '{{ SITE_URL }}' => $request->getHttpHost() . $request->getBasePath(),
-            '{{ APP_LOCALES }}' => $app_locales,
-            '{{ MEMBER_PANEL_PREFIX }}' => $memberPrefix,
-            '{{ CUSTOMER_PANEL_PREFIX }}' => $customerPrefix,
+            '{{ SITE_URL }}'                  => $request->getHttpHost() . $request->getBasePath(),
+            '{{ APP_LOCALES }}'               => $app_locales,
+            '{{ MEMBER_PANEL_PREFIX }}'       => $memberPrefix,
+            '{{ CUSTOMER_PANEL_PREFIX }}'     => $customerPrefix,
         ]);
         
         // update uvdesk.yaml file

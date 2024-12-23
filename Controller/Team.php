@@ -25,7 +25,7 @@ class Team extends AbstractController
 
     public function listTeams(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -34,7 +34,7 @@ class Team extends AbstractController
 
     public function createTeam(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -43,7 +43,6 @@ class Team extends AbstractController
         $errors = [];
 
         if ($request->getMethod() == "POST") {
-
             $request->request->set('users', explode(',', $request->request->get('tempUsers')));
             $request->request->set('groups', explode(',', $request->request->get('tempGroups')));
             $oldUsers = ($usersList = $supportTeam->getUsers()) ? $usersList->toArray() : $usersList;
@@ -60,7 +59,7 @@ class Team extends AbstractController
             $usersList = (!empty($allDetails['users']))? $allDetails['users'] : [];
             $usersGroup  = (!empty($allDetails['groups']))? $allDetails['groups'] : [];
 
-            if (!empty($usersList)) {
+            if (! empty($usersList)) {
                 $usersList = array_map(function ($user) { return 'user.id = ' . $user; }, $usersList);
 
                 $userList = $em->createQueryBuilder()->select('user')
@@ -69,7 +68,7 @@ class Team extends AbstractController
                     ->getQuery()->getResult();
             }
 
-            if (!empty($usersGroup)) {
+            if (! empty($usersGroup)) {
                 $usersGroup = array_map(function ($group) { return 'p.id = ' . $group; }, $usersGroup);
 
                 $userGroup = $em->createQueryBuilder('p')->select('p')
@@ -106,15 +105,15 @@ class Team extends AbstractController
 
     public function editTeam(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
-        if ($request->attributes->get('supportTeamId')){
+        if ($request->attributes->get('supportTeamId')) {
             $supportTeam = $this->getDoctrine()->getRepository(SupportTeam::class)
                 ->findSubGroupById(['id' => $request->attributes->get('supportTeamId')]);
 
-            if(!$supportTeam)
+            if (! $supportTeam)
                 $this->noResultFound();
         }
 
@@ -132,10 +131,10 @@ class Team extends AbstractController
             $supportTeam->setDescription(trim($allDetails['description']));
             $supportTeam->setIsActive((bool) isset($allDetails['isActive']));
 
-            $usersList = (!empty($allDetails['users']))? $allDetails['users'] : [];
-            $usersGroup  = (!empty($allDetails['groups']))? $allDetails['groups'] : [];
+            $usersList = (! empty($allDetails['users'])) ? $allDetails['users'] : [];
+            $usersGroup  = (! empty($allDetails['groups'])) ? $allDetails['groups'] : [];
 
-            if (!empty($usersList)) {
+            if (! empty($usersList)) {
                 $usersList = array_map(function ($user) { return 'p.id = ' . $user; }, $usersList);
                 $userList = $em->createQueryBuilder('p')->select('p')
                     ->from(User::class, 'p')
@@ -143,7 +142,7 @@ class Team extends AbstractController
                     ->getQuery()->getResult();
             }
 
-            if (!empty($usersGroup)) {
+            if (! empty($usersGroup)) {
                 $usersGroup = array_map(function ($group) { return 'p.id = ' . $group; }, $usersGroup);
 
                 $userGroup = $em->createQueryBuilder('p')->select('p')
@@ -154,7 +153,10 @@ class Team extends AbstractController
 
             foreach ($userList as $user) {
                 $userInstance = $user->getAgentInstance();
-                if (!$oldUsers || !in_array($userInstance, $oldUsers)) {
+                if (
+                    ! $oldUsers 
+                    || !in_array($userInstance, $oldUsers)
+                ) {
                     $userInstance->addSupportTeam($supportTeam);
                     $em->persist($userInstance);
                 } elseif ($oldUsers && ($key = array_search($userInstance, $oldUsers)) !== false)
@@ -167,7 +169,10 @@ class Team extends AbstractController
 
             // Add Group to team
             foreach ($userGroup as $supportGroup) {
-                if (!$oldGroups || !in_array($supportGroup, $oldGroups)) {
+                if (
+                    ! $oldGroups 
+                    || ! in_array($supportGroup, $oldGroups)
+                ) {
                     $supportGroup->addSupportTeam($supportTeam);
                     $em->persist($supportGroup);
 

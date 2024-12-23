@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
+
 class ThreadXHR extends AbstractController
 {
     private $ticketService;
@@ -24,7 +25,7 @@ class ThreadXHR extends AbstractController
         if (true === $request->isXmlHttpRequest()) {
             $ticket = $entityManager->getRepository(Ticket::class)->findOneById($ticketId);
 
-            if (!empty($ticket)) {
+            if (! empty($ticket)) {
                 $paginationResponse = $this->ticketService->paginateMembersTicketThreadCollection($ticket, $request);
     
                 return new Response(json_encode($paginationResponse), 200, ['Content-Type' => 'application/json']);

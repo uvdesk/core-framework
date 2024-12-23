@@ -14,6 +14,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+
 class SavedReplies extends AbstractController
 {
     const LIMIT = 10;
@@ -47,7 +48,10 @@ class SavedReplies extends AbstractController
             $groupSupports = count($template->getSupportGroups());
             $teamSupports  = count($template->getSupportTeams());
 
-            if ($template->getUser()->getId() != $this->getUser()->getId() && empty($groupSupports) && empty($teamSupports)) {
+            if (
+                $template->getUser()->getId() != $this->getUser()->getId() 
+                && empty($groupSupports) && empty($teamSupports)
+            ) {
                 throw new \Exception('Access Denied', 403);
             }
         }
@@ -84,7 +88,10 @@ class SavedReplies extends AbstractController
             if ($template->getSupportGroups()) {
                 foreach ($template->getSupportGroups()->toArray() as $key => $group) {
                     $previousGroupIds[] = $group->getId();
-                    if (!in_array($group->getId(), $groups) && $this->getUser()->getAgentInstance()->getSupportRole()->getCode() != "ROLE_AGENT") {
+                    if (
+                        ! in_array($group->getId(), $groups) 
+                        && $this->getUser()->getAgentInstance()->getSupportRole()->getCode() != "ROLE_AGENT"
+                    ) {
                         $template->removeSupportGroups($group);
                         $em->persist($template);
                     }
@@ -95,7 +102,11 @@ class SavedReplies extends AbstractController
                 if ($groupId) {
                     $group = $em->getRepository(SupportGroup::class)->findOneBy([ 'id' => $groupId ]);
 
-                    if ($group && (empty($previousGroupIds) || !in_array($groupId, $previousGroupIds))) {
+                    if (
+                        $group 
+                        && (empty($previousGroupIds) 
+                        || !in_array($groupId, $previousGroupIds))
+                    ) {
                         $template->addSupportGroup($group);
                         $em->persist($template);
                     }
@@ -110,7 +121,10 @@ class SavedReplies extends AbstractController
                 foreach ($template->getSupportTeams()->toArray() as $key => $team) {
                     $previousTeamIds[] = $team->getId();
                    
-                    if (!in_array($team->getId(), $teams) && $this->getUser()->getAgentInstance()->getSupportRole()->getCode() != "ROLE_AGENT") {
+                    if (
+                        ! in_array($team->getId(), $teams) 
+                        && $this->getUser()->getAgentInstance()->getSupportRole()->getCode() != "ROLE_AGENT"
+                    ) {
                         $template->removeSupportTeam($team);
                         $em->persist($template);
                     }
@@ -121,7 +135,11 @@ class SavedReplies extends AbstractController
                 if ($teamId) {
                     $team = $em->getRepository(SupportTeam::class)->findOneBy([ 'id' => $teamId ]);
 
-                    if ($team && (empty($previousTeamIds) || !in_array($teamId, $previousTeamIds))) {
+                    if (
+                        $team 
+                        && (empty($previousTeamIds) 
+                        || !in_array($teamId, $previousTeamIds))
+                    ) {
                         $template->addSupportTeam($team);
                         $em->persist($template);
                     }
@@ -150,7 +168,7 @@ class SavedReplies extends AbstractController
 
     public function savedRepliesXHR(Request $request, ContainerInterface $container)
     {
-        if (!$request->isXmlHttpRequest()) {
+        if (! $request->isXmlHttpRequest()) {
             throw new \Exception(404);
         }
 

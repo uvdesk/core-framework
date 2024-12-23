@@ -20,15 +20,15 @@ class SupportGroupRepository extends \Doctrine\ORM\EntityRepository
         $data = $obj->all();
         $data = array_reverse($data);
         foreach ($data as $key => $value) {
-            if (!in_array($key,$this->safeFields)) {
+            if (! in_array($key,$this->safeFields)) {
                 if ($key!='dateUpdated' AND $key!='dateAdded' AND $key!='search') {
                     $qb->andWhere('a.'.$key.' = :'.$key);
                     $qb->setParameter($key, $value);
                 } else {
                     if($key == 'search') {
-                        $qb->orwhere('a.name'.' LIKE :name');
+                        $qb->orWhere('a.name'.' LIKE :name');
                         $qb->setParameter('name', '%'.urldecode($value).'%');    
-                        $qb->orwhere('a.description'.' LIKE :description');
+                        $qb->orWhere('a.description'.' LIKE :description');
                         $qb->setParameter('description', '%'.urldecode(trim($value)).'%');
                     }
                 }

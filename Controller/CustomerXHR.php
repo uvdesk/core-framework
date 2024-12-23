@@ -12,6 +12,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+
 class CustomerXHR extends AbstractController
 {
     private $userService;
@@ -27,7 +28,7 @@ class CustomerXHR extends AbstractController
 
     public function listCustomersXHR(Request $request, ContainerInterface $container) 
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {          
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
         
@@ -46,7 +47,7 @@ class CustomerXHR extends AbstractController
 
     public function removeCustomerXHR(Request $request) 
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {          
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
         
@@ -66,12 +67,12 @@ class CustomerXHR extends AbstractController
 
                 $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
-                $json['alertClass'] = 'success';
+                $json['alertClass']   = 'success';
                 $json['alertMessage'] = $this->translator->trans('Success ! Customer removed successfully.');
             } else {
-                $json['alertClass'] =  'danger';
+                $json['alertClass']   = 'danger';
                 $json['alertMessage'] = $this->translator->trans('Error ! Invalid customer id.');
-                $json['statusCode'] = Response::HTTP_NOT_FOUND;
+                $json['statusCode']   = Response::HTTP_NOT_FOUND;
             }
         }
 
