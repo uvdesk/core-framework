@@ -21,13 +21,13 @@ class SavedRepliesRepository extends EntityRepository
         $data = $obj->all();
         $data = array_reverse($data);
         foreach ($data as $key => $value) {
-            if(!in_array($key,$this->safeFields)) {
-                if($key!='dateUpdated' AND $key!='dateAdded' AND $key!='search') {
-                    $qb->andwhere('sr.'.$key.' = :'.$key);
+            if (! in_array($key,$this->safeFields)) {
+                if ($key!='dateUpdated' AND $key!='dateAdded' AND $key!='search') {
+                    $qb->andWhere('sr.'.$key.' = :'.$key);
                     $qb->setParameter($key, $value);
                 } else {
-                    if($key == 'search') {
-                        $qb->andwhere('sr.name'.' LIKE :name');
+                    if ($key == 'search') {
+                        $qb->andWhere('sr.name'.' LIKE :name');
                         $qb->setParameter('name', '%'.urldecode(trim($value)).'%');    
                     }
                 }
@@ -54,7 +54,7 @@ class SavedRepliesRepository extends EntityRepository
 
         $paginationData = $results->getPaginationData();
         $queryParameters = $results->getParams();
-        if(isset($queryParameters['template']))
+        if (isset($queryParameters['template']))
             unset($queryParameters['template']);
 
        $paginationData['url'] = '#'.$container->get('uvdesk.service')->buildPaginationQuery($queryParameters);
@@ -75,15 +75,15 @@ class SavedRepliesRepository extends EntityRepository
         $userCondition->add($qb->expr()->eq($entityAlias.'.user', ':userId'));
         $qb->setParameter('userId', $container->get('user.service')->getCurrentUser()->getAgentInstance()->getId());
         
-        if($user->getAgentInstance()->getSupportGroups()) {
-            foreach($user->getAgentInstance()->getSupportGroups() as $key => $grp) {
+        if ($user->getAgentInstance()->getSupportGroups()) {
+            foreach ($user->getAgentInstance()->getSupportGroups() as $key => $grp) {
                 $userCondition->add($qb->expr()->eq('grps.id', ':groupId'.$key));
                 $qb->setParameter('groupId'.$key, $grp->getId());
             }
         }
 
         $subgroupIds = $user->getAgentInstance()->getSupportTeams();
-        foreach($subgroupIds as $key => $teamId) {
+        foreach ($subgroupIds as $key => $teamId) {
             $userCondition->add($qb->expr()->eq('tms.id', ':teamId'.$key ));
             $qb->setParameter('teamId'.$key, $teamId);
         } 

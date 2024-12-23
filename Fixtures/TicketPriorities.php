@@ -11,24 +11,24 @@ class TicketPriorities extends DoctrineFixture
 {
     private static $seeds = [
         [
-            'code' => 'low',
+            'code'        => 'low',
             'description' => 'Low',
-            'colorCode' => '#2DD051',
+            'colorCode'   => '#2DD051',
         ],
         [
-            'code' => 'medium',
+            'code'        => 'medium',
             'description' => 'Medium',
-            'colorCode' => '#F5D02A',
+            'colorCode'   => '#F5D02A',
         ],
         [
-            'code' => 'high',
+            'code'        => 'high',
             'description' => 'High',
-            'colorCode' => '#FA8B3C',
+            'colorCode'   => '#FA8B3C',
         ],
         [
-            'code' => 'urgent',
+            'code'        => 'urgent',
             'description' => 'Urgent',
-            'colorCode' => '#FF6565',
+            'colorCode'   => '#FF6565',
         ],
     ];
 

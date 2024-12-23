@@ -175,7 +175,7 @@ class MailAgent extends WorkflowAction
             } else if((int)$agent) {
                 $qb = $entityManager->createQueryBuilder();
                 $emails = $qb->select('u.email')->from(User::class, 'u')
-                    ->andwhere("u.id = :userId")
+                    ->andWhere("u.id = :userId")
                     ->setParameter('userId', $agent)
                     ->getQuery()->getResult();
                 

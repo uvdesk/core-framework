@@ -28,13 +28,13 @@ class CustomerXHR extends AbstractController
 
     public function listCustomersXHR(Request $request, ContainerInterface $container) 
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {          
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
         
         $json = array();
         
-        if($request->isXmlHttpRequest()) {
+        if ($request->isXmlHttpRequest()) {
             $repository = $this->getDoctrine()->getRepository(User::class);
             $json =  $repository->getAllCustomer($request->query, $container);
         }
@@ -47,18 +47,17 @@ class CustomerXHR extends AbstractController
 
     public function removeCustomerXHR(Request $request) 
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {          
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
         
         $json = array();
-        if($request->getMethod() == "DELETE") {
+        if ($request->getMethod() == "DELETE") {
             $em = $this->getDoctrine()->getManager();
             $id = $request->attributes->get('customerId');
             $user = $em->getRepository(User::class)->findOneBy(['id' => $id]);
 
-            if($user) {
-
+            if ($user) {
                 $this->userService->removeCustomer($user);
                 // Trigger customer created event
                 $event = new CoreWorkflowEvents\Customer\Delete();
@@ -68,18 +67,18 @@ class CustomerXHR extends AbstractController
 
                 $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
-                $json['alertClass'] = 'success';
+                $json['alertClass']   = 'success';
                 $json['alertMessage'] = $this->translator->trans('Success ! Customer removed successfully.');
             } else {
-                $json['alertClass'] =  'danger';
+                $json['alertClass']   = 'danger';
                 $json['alertMessage'] = $this->translator->trans('Error ! Invalid customer id.');
-                $json['statusCode'] = Response::HTTP_NOT_FOUND;
+                $json['statusCode']   = Response::HTTP_NOT_FOUND;
             }
         }
 
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');
-        return $response;
 
+        return $response;
     }
 }

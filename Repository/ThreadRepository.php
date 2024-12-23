@@ -108,9 +108,9 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
             ->leftJoin('th.user', 'u')
             ->leftJoin('th.attachments', 'a')
             ->leftJoin('u.userInstance', 'userInstance')
-            ->andwhere('th.threadType = :threadType')
+            ->andWhere('th.threadType = :threadType')
             ->setParameter('threadType', 'reply')
-            ->andwhere('th.ticket = :ticketId')
+            ->andWhere('th.ticket = :ticketId')
             ->setParameter('ticketId', $ticketId)
             ->orderBy('th.id', 'DESC');
 
@@ -139,19 +139,19 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
         foreach ($results->getItems() as $key => $row) {
             $thread = $row[0];
             $threadResponse = [
-                'id' => $thread['id'],
-                'user' => $row['userId'] ? ['id' => $row['userId']] : null,
-                'fullname' => $row['fullname'],
-                'smallThumbnail'=> $row['smallThumbnail'],
-                'reply' => html_entity_decode($thread['message']),
-                'source' => $thread['source'],
-                'threadType' => $thread['threadType'],
-                'userType' => $thread['createdBy'],
+                'id'                => $thread['id'],
+                'user'              => $row['userId'] ? ['id' => $row['userId']] : null,
+                'fullname'          => $row['fullname'],
+                'smallThumbnail'    => $row['smallThumbnail'],
+                'reply'             => html_entity_decode($thread['message']),
+                'source'            => $thread['source'],
+                'threadType'        => $thread['threadType'],
+                'userType'          => $thread['createdBy'],
                 'formatedCreatedAt' => $userService->getLocalizedFormattedTime($thread['createdAt'], $userService->getSessionUser()),
-                'timestamp' => $userService->convertToDatetimeTimezoneTimestamp($thread['createdAt']),
-                'cc' => $thread['cc'],
-                'bcc' => $thread['bcc'],
-                'attachments' => $thread['attachments'],
+                'timestamp'         => $userService->convertToDatetimeTimezoneTimestamp($thread['createdAt']),
+                'cc'                => $thread['cc'],
+                'bcc'               => $thread['bcc'],
+                'attachments'       => $thread['attachments'],
             ];
 
             if (!empty($threadResponse['attachments'])) {
@@ -175,7 +175,7 @@ class ThreadRepository extends \Doctrine\ORM\EntityRepository
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select('t')
             ->from(Ticket::class, 't')
-            ->where('t.referenceIds = :referenceIds')->setParameter('referenceIds', "%$referenceIds%")
+            ->where('t.referenceIds LIKE :referenceIds')->setParameter('referenceIds', "%$referenceIds%")
             ->orderBy('t.id', 'DESC')
             ->setMaxResults(1)
         ;

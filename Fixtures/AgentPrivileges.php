@@ -11,9 +11,9 @@ class AgentPrivileges extends DoctrineFixture
 {
     private static $seeds = [
         [
-            'name' => 'Default Privileges',
+            'name'        => 'Default Privileges',
             'description' => 'Default Privileges',
-            'privileges' => [
+            'privileges'  => [
                 'ROLE_AGENT_ADD_NOTE'
             ],
         ],

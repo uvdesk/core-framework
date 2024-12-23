@@ -23,6 +23,7 @@ class BundleConfiguration implements ConfigurationInterface
                         ->node('id', 'scalar')->defaultValue('support@localhost')->end()
                         ->node('name', 'scalar')->defaultValue('UVDesk Community')->end()
                         ->node('mailer_id', 'scalar')->defaultValue('default')->end()
+                        ->node('mailer_type', 'scalar')->defaultValue('default')->end()
                     ->end()
                 ->end()
                 ->node('default', 'array')

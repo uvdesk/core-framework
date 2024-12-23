@@ -59,7 +59,7 @@ class UpdateAgent extends WorkflowAction
             }
         }
         
-        if ($value == 'responsePerforming' && is_object($currentUser = $container->get('security.token_storage')->getToken()->getUser())) {
+        if ($value == 'responsePerforming' && is_object($currentUser = $container->get('security.token_storage')->getToken()?->getUser())) {
             if (null != $currentUser->getAgentInstance()) {
                 $agent = $currentUser;
             }

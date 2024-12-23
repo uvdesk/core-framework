@@ -45,7 +45,7 @@ class UVDeskService
 	}
 
     public function updatesLocales($locales)
-    {  
+    {
         $fileTranslation = $this->container->get('kernel')->getProjectDir() . '/config/packages/translation.yaml';
         $fileServices = $this->container->get('kernel')->getProjectDir() . '/config/services.yaml';
 
@@ -68,7 +68,6 @@ class UVDeskService
                 list($helpdesk_services_locales, $helpdesk_services_text) = array($indexs, $contents);
             }
         }
-
 
         // save updated data in a variable ($updatedFileContent)
         $updatedFileContent = $fileTrans;
@@ -104,6 +103,7 @@ class UVDeskService
             'da' => $translator->trans("Danish"),
             'zh' => $translator->trans("Chinese"),
             'pl' => $translator->trans("Polish"),
+            'he' => $translator->trans("Hebrew"),
         ];
     }
 
@@ -170,15 +170,15 @@ class UVDeskService
         
         if (isset($query['new'])) {
             $http_query = str_replace('new/1', 'new', $http_query);
-        } else if (isset($query['unassigned'])) {
+        } elseif (isset($query['unassigned'])) {
             $http_query = str_replace('unassigned/1', 'unassigned', $http_query);
-        } else if (isset($query['notreplied'])) {
+        } elseif (isset($query['notreplied'])) {
             $http_query = str_replace('notreplied/1', 'notreplied', $http_query);
-        } else if (isset($query['mine'])) {
+        } elseif (isset($query['mine'])) {
             $http_query = str_replace('mine/1', 'mine', $http_query);
-        } else if (isset($query['starred'])) {
+        } elseif (isset($query['starred'])) {
             $http_query = str_replace('starred/1', 'starred', $http_query);
-        } else if (isset($query['trashed'])) {
+        } elseif (isset($query['trashed'])) {
             $http_query = str_replace('trashed/1', 'trashed', $http_query);
         }
         
@@ -187,7 +187,7 @@ class UVDeskService
 
     public function getEntityManagerResult($entity, $callFunction, $args = false, $extraPrams = false)
     {
-        if($extraPrams)
+        if ($extraPrams)
             return $this->entityManager->getRepository($entity)
                         ->$callFunction($args, $extraPrams);
         else
@@ -199,16 +199,21 @@ class UVDeskService
     {
         $broadcastMessage = !empty($msg) ? json_decode($msg, true) : false;
 
-        if(!empty($broadcastMessage) && isset($broadcastMessage['isActive']) && $broadcastMessage['isActive']) {
+        if (
+            ! empty($broadcastMessage) 
+            && isset($broadcastMessage['isActive']) 
+            && $broadcastMessage['isActive']
+        ) {
             $timezone = new \DateTimeZone('Asia/Kolkata');
             $nowTimestamp = date('U');
-            if(array_key_exists('from', $broadcastMessage) && ($fromDateTime = \DateTime::createFromFormat($format, $broadcastMessage['from'], $timezone))) {
+            if (array_key_exists('from', $broadcastMessage) && ($fromDateTime = \DateTime::createFromFormat($format, $broadcastMessage['from'], $timezone))) {
                 $fromTimeStamp = $fromDateTime->format('U');
-                if($nowTimestamp < $fromTimeStamp) {
+                if ($nowTimestamp < $fromTimeStamp) {
                     return false;
                 }
             }
-            if(array_key_exists('to', $broadcastMessage) && ($toDateTime = \DateTime::createFromFormat($format, $broadcastMessage['to'], $timezone))) {
+
+            if (array_key_exists('to', $broadcastMessage) && ($toDateTime = \DateTime::createFromFormat($format, $broadcastMessage['to'], $timezone))) {
                 $toTimeStamp = $toDateTime->format('U');;
                 if($nowTimestamp > $toTimeStamp) {
                     return false;
@@ -224,7 +229,10 @@ class UVDeskService
 
     public function getConfigParameter($param)
 	{
-		if($param && $this->container->hasParameter($param)) {
+		if (
+            $param 
+            && $this->container->hasParameter($param)
+        ) {
 			return $this->container->getParameter($param);
 		} else {
 			return false;
@@ -233,7 +241,7 @@ class UVDeskService
     
     public function isDarkSkin($brandColor) {
         $brandColor = str_replace('#', '', $brandColor);
-        if(strlen($brandColor) == 3)
+        if (strlen($brandColor) == 3)
             $brandColor .= $brandColor;
 
         $chars = str_split($brandColor);
@@ -245,7 +253,7 @@ class UVDeskService
             }
         }
 
-        if($a2fCount >= 2)
+        if ($a2fCount >= 2)
             return true;
         else
             return false;
@@ -265,39 +273,40 @@ class UVDeskService
 
         return [
             'ticket' => [
-                'ROLE_AGENT_CREATE_TICKET' => $translator->trans('Can create ticket'),
-                'ROLE_AGENT_EDIT_TICKET' => $translator->trans('Can edit ticket'),
-                'ROLE_AGENT_DELETE_TICKET' => $translator->trans('Can delete ticket'),
-                'ROLE_AGENT_RESTORE_TICKET' => $translator->trans('Can restore trashed ticket'),
-                'ROLE_AGENT_ASSIGN_TICKET' => $translator->trans('Can assign ticket'),
-                'ROLE_AGENT_ASSIGN_TICKET_GROUP' => $translator->trans('Can assign ticket group'),
-                'ROLE_AGENT_UPDATE_TICKET_STATUS' => $translator->trans('Can update ticket status'),
-                'ROLE_AGENT_UPDATE_TICKET_PRIORITY' => $translator->trans('Can update ticket priority'),
-                'ROLE_AGENT_UPDATE_TICKET_TYPE' => $translator->trans('Can update ticket type'),
-                'ROLE_AGENT_ADD_NOTE' => $translator->trans('Can add internal notes to ticket'),
-                'ROLE_AGENT_EDIT_THREAD_NOTE' => $translator->trans('Can edit thread/notes'),
-                'ROLE_AGENT_MANAGE_LOCK_AND_UNLOCK_THREAD' => $translator->trans('Can lock/unlock thread'),
-                'ROLE_AGENT_ADD_COLLABORATOR_TO_TICKET' => $translator->trans('Can add collaborator to ticket'),
+                'ROLE_AGENT_CREATE_TICKET'                   => $translator->trans('Can create ticket'),
+                'ROLE_AGENT_EDIT_TICKET'                     => $translator->trans('Can edit ticket'),
+                'ROLE_AGENT_DELETE_TICKET'                   => $translator->trans('Can delete ticket'),
+                'ROLE_AGENT_RESTORE_TICKET'                  => $translator->trans('Can restore trashed ticket'),
+                'ROLE_AGENT_ASSIGN_TICKET'                   => $translator->trans('Can assign ticket'),
+                'ROLE_AGENT_ASSIGN_TICKET_GROUP'             => $translator->trans('Can assign ticket group'),
+                'ROLE_AGENT_UPDATE_TICKET_STATUS'            => $translator->trans('Can update ticket status'),
+                'ROLE_AGENT_UPDATE_TICKET_PRIORITY'          => $translator->trans('Can update ticket priority'),
+                'ROLE_AGENT_UPDATE_TICKET_TYPE'              => $translator->trans('Can update ticket type'),
+                'ROLE_AGENT_ADD_NOTE'                        => $translator->trans('Can add internal notes to ticket'),
+                'ROLE_AGENT_EDIT_THREAD_NOTE'                => $translator->trans('Can edit thread/notes'),
+                'ROLE_AGENT_MANAGE_LOCK_AND_UNLOCK_THREAD'   => $translator->trans('Can lock/unlock thread'),
+                'ROLE_AGENT_ADD_COLLABORATOR_TO_TICKET'      => $translator->trans('Can add collaborator to ticket'),
                 'ROLE_AGENT_DELETE_COLLABORATOR_FROM_TICKET' => $translator->trans('Can delete collaborator from ticket'),
-                'ROLE_AGENT_DELETE_THREAD_NOTE' => $translator->trans('Can delete thread/notes'),
-                'ROLE_AGENT_APPLY_WORKFLOW' => $translator->trans('Can apply prepared response on ticket'),
-                'ROLE_AGENT_ADD_TAG' => $translator->trans('Can add ticket tags'),
-                'ROLE_AGENT_DELETE_TAG' => $translator->trans('Can delete ticket tags')
+                'ROLE_AGENT_DELETE_THREAD_NOTE'              => $translator->trans('Can delete thread/notes'),
+                'ROLE_AGENT_APPLY_WORKFLOW'                  => $translator->trans('Can apply prepared response on ticket'),
+                'ROLE_AGENT_ADD_TAG'                         => $translator->trans('Can add ticket tags'),
+                'ROLE_AGENT_DELETE_TAG'                      => $translator->trans('Can delete ticket tags')
             ],
             'advanced' => [
-                'ROLE_AGENT_MANAGE_EMAIL_TEMPLATE' => $translator->trans('Can manage email templates'),
-                'ROLE_AGENT_MANAGE_GROUP' => $translator->trans('Can manage groups'),
-                'ROLE_AGENT_MANAGE_SUB_GROUP' => $translator->trans('Can manage Sub-Groups/ Teams'),
-                'ROLE_AGENT_MANAGE_AGENT' => $translator->trans('Can manage agents'),
-                'ROLE_AGENT_MANAGE_AGENT_PRIVILEGE' => $translator->trans('Can manage agent privileges'),
-                'ROLE_AGENT_MANAGE_TICKET_TYPE' => $translator->trans('Can manage ticket types'),
-                'ROLE_AGENT_MANAGE_CUSTOMER' => $translator->trans('Can manage customers'),
-                'ROLE_AGENT_MANAGE_WORKFLOW_MANUAL' => $translator->trans('Can manage Prepared Responses'),
-                'ROLE_AGENT_MANAGE_WORKFLOW_AUTOMATIC' => $translator->trans('Can manage Automatic workflow'),
-                'ROLE_AGENT_MANAGE_TAG' => $translator->trans('Can manage tags'),
-                'ROLE_AGENT_MANAGE_KNOWLEDGEBASE' => $translator->trans('Can manage knowledgebase'),
-                'ROLE_AGENT_MANAGE_AGENT_ACTIVITY'  => $translator->trans("Can manage agent activity"),
+                'ROLE_AGENT_MANAGE_EMAIL_TEMPLATE'         => $translator->trans('Can manage email templates'),
+                'ROLE_AGENT_MANAGE_GROUP'                  => $translator->trans('Can manage groups'),
+                'ROLE_AGENT_MANAGE_SUB_GROUP'              => $translator->trans('Can manage Sub-Groups/ Teams'),
+                'ROLE_AGENT_MANAGE_AGENT'                  => $translator->trans('Can manage agents'),
+                'ROLE_AGENT_MANAGE_AGENT_PRIVILEGE'        => $translator->trans('Can manage agent privileges'),
+                'ROLE_AGENT_MANAGE_TICKET_TYPE'            => $translator->trans('Can manage ticket types'),
+                'ROLE_AGENT_MANAGE_CUSTOMER'               => $translator->trans('Can manage customers'),
+                'ROLE_AGENT_MANAGE_WORKFLOW_MANUAL'        => $translator->trans('Can manage Prepared Responses'),
+                'ROLE_AGENT_MANAGE_WORKFLOW_AUTOMATIC'     => $translator->trans('Can manage Automatic workflow'),
+                'ROLE_AGENT_MANAGE_TAG'                    => $translator->trans('Can manage tags'),
+                'ROLE_AGENT_MANAGE_KNOWLEDGEBASE'          => $translator->trans('Can manage knowledgebase'),
+                'ROLE_AGENT_MANAGE_AGENT_ACTIVITY'         => $translator->trans("Can manage agent activity"),
                 'ROLE_AGENT_MANAGE_MARKETING_ANNOUNCEMENT' => $translator->trans("Can manage marketing announcement"),
+                'ROLE_AGENT_MANAGE_APP'                    => $translator->trans("Can manage apps"),
             ]
         ];
     }
@@ -312,16 +321,17 @@ class UVDeskService
     /**
      * This function will create content text from recived text, which we can use in meta content and as well in searching save like elastic
      * @param  string $text String text
-     * @param  no. $lenght max return lenght string (which will convert to array)
+     * @param  no. $length max return length string (which will convert to array)
      * @param  boolean $returnArray what return type required
      * @return string/ array comma seperated/ []
      */
-    public function createConentToKeywords($text, $lenght = 255, $returnArray = false)
+    public function createConentToKeywords($text, $length = 255, $returnArray = false)
     {
         //to remove all tags from text, if any tags are in encoded form
         $newText = preg_replace('/[\s]+/', ' ', str_replace($this->avoidArray, ' ', strtolower(strip_tags(html_entity_decode(strip_tags($text))))));
-        if($lenght)
-            $newText = substr($newText, 0, $lenght);
+        if ($length)
+            $newText = substr($newText, 0, $length);
+
         return ($returnArray ? explode(' ', $newText) : str_replace(' ', ',', $newText));
     }
 
@@ -353,7 +363,7 @@ class UVDeskService
         $knowledgebasePrefix = substr($customer_panel_text, strpos($customer_panel_text, 'uvdesk_site_path.knowledgebase_customer_prefix') + strlen('uvdesk_site_path.knowledgebase_customer_prefix: '));
 
         return [
-            'memberPrefix' => trim(preg_replace('/\s\s+/', ' ', $memberPrefix)),
+            'memberPrefix'        => trim(preg_replace('/\s\s+/', ' ', $memberPrefix)),
             'knowledgebasePrefix' => trim(preg_replace('/\s\s+/', ' ', $knowledgebasePrefix)),
         ];
     }
@@ -366,7 +376,7 @@ class UVDeskService
         $filePath = $this->container->get('kernel')->getProjectDir() . '/config/packages/uvdesk.yaml';
 
         $website_prefixes = [
-            'member_prefix' => $member_panel_prefix,
+            'member_prefix'   => $member_panel_prefix,
             'customer_prefix' => $knowledgebase_prefix,
         ];
         
@@ -404,7 +414,7 @@ class UVDeskService
         $memberLoginURL = str_replace($oldMemberPrefix, $website_prefixes['member_prefix'], $memberLoginURL);
 
         return $collectionURL = [
-            'memberLogin' => $memberLoginURL,
+            'memberLogin'   => $memberLoginURL,
             'knowledgebase' => $knowledgebaseURL,
         ];
     }
@@ -412,16 +422,16 @@ class UVDeskService
     public static function getTimeFormats()
     {
         return array(
-            'm-d-y G:i' => 'm-d-y G:i (01-15-1991 13:00)',
-            'm-d-y h:ia' => 'm-d-y h:ia (01-15-1991 01:00pm)',
-            'd-m-y G:i' => 'd-m-y G:i (15-01-1991 13:00)',
-            'd-m-y h:ia' => 'd-m-y h:ia (15-01-1991 01:00pm)',
-            'd-m G:i' => 'd-m G:i (15-01 13:00)',
-            'd-m h:ia' => 'd-m h:ia (15-01 01:00pm)',
-            'd-M G:i' => 'd-M G:i (15-Jan 13:00)',
-            'd-M h:ia' => 'd-M h:ia (15-Jan 01:00pm)',
-            'D-m G:i' => 'D-m G:i (Mon-01 13:00)',
-            'D-m h:ia' => 'D-m h:ia (Mon-01 01:00pm)',
+            'm-d-y G:i'    => 'm-d-y G:i (01-15-1991 13:00)',
+            'm-d-y h:ia'   => 'm-d-y h:ia (01-15-1991 01:00pm)',
+            'd-m-y G:i'    => 'd-m-y G:i (15-01-1991 13:00)',
+            'd-m-y h:ia'   => 'd-m-y h:ia (15-01-1991 01:00pm)',
+            'd-m G:i'      => 'd-m G:i (15-01 13:00)',
+            'd-m h:ia'     => 'd-m h:ia (15-01 01:00pm)',
+            'd-M G:i'      => 'd-M G:i (15-Jan 13:00)',
+            'd-M h:ia'     => 'd-M h:ia (15-Jan 01:00pm)',
+            'D-m G:i'      => 'D-m G:i (Mon-01 13:00)',
+            'D-m h:ia'     => 'D-m h:ia (Mon-01 01:00pm)',
             'Y-m-d H:i:sa' => 'Y-m-d H:i:s (1991-01-15 01:00:30pm)',
         );
     }

@@ -31,15 +31,16 @@ class AddNote extends PreparedResponseAction
 
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
-        if($entity instanceof Ticket && $entity->getIsTrashed())
+        if ($entity instanceof Ticket && $entity->getIsTrashed())
             return;
-        if($entity instanceof Ticket) {
+        if ($entity instanceof Ticket) {
             $data = array();
-            $data['ticket'] = $entity;
+            $data['ticket']     = $entity;
             $data['threadType'] = 'note';
-            $data['source'] = 'website';
-            $data['message'] = $value; 
-            $data['createdBy'] = 'System';
+            $data['source']     = 'website';
+            $data['message']    = $value; 
+            $data['createdBy']  = 'System';
+
             $container->get('ticket.service')->createThread($entity, $data);
         }
     }

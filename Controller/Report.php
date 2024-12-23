@@ -41,7 +41,7 @@ class Report extends AbstractController
 
     public function listAgentActivity(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_ACTIVITY')){
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_REPORTS')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -63,7 +63,7 @@ class Report extends AbstractController
 
     public function agentActivityData(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_ACTIVITY')){
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_REPORTS')) {
             throw new \Exception('Access Denied', 403);
         }
         
@@ -74,7 +74,7 @@ class Report extends AbstractController
         $endDate = $reportService->parameters['before'];
 
         $agentIds = [];
-        if(isset($reportService->parameters['agent']))
+        if (isset($reportService->parameters['agent']))
             $agentIds = explode(',', $reportService->parameters['agent']);
 
         $userService = $this->userService;
@@ -111,15 +111,15 @@ class Report extends AbstractController
             $ticketViewURL = $this->get('router')->generate('helpdesk_member_ticket', ['ticketId' => $activity['ticketId']], UrlGeneratorInterface::ABSOLUTE_URL);
 
             $data[] =   [
-                'id' => $activity['id'],
-                'ticketURL' => $ticketViewURL,
-                'ticketId' => $activity['ticketId'],
-                'subject' => $activity['subject'],
-                'color'   => $activity['colorCode'],
-                'customerName'=> $activity['customerName'],
-                'threadType' => $activity['threadType'],
-                'lastReply'  => $lastReply,
-                'agentName'  => $activity['agentName']
+                'id'           => $activity['id'],
+                'ticketURL'    => $ticketViewURL,
+                'ticketId'     => $activity['ticketId'],
+                'subject'      => $activity['subject'],
+                'color'        => $activity['colorCode'],
+                'customerName' => $activity['customerName'],
+                'threadType'   => $activity['threadType'],
+                'lastReply'    => $lastReply,
+                'agentName'    => $activity['agentName']
             ];
 
             array_push($ticketIds, $activity['ticketId']);
@@ -150,9 +150,9 @@ class Report extends AbstractController
         $endDate = $this->userService->convertToTimezone(new \DateTime("now"), 'Y-m-d');
         $this->userService->forceFormat = false;
 
-        return $this->render('@UVDeskCoreFramework/Reports/kudos-insights.html.twig',array(
+        return $this->render('@UVDeskCoreFramework/Reports/kudos-insights.html.twig', array(
                 'startDate' => $startDate,
-                'endDate' => $endDate
+                'endDate'   => $endDate
             )
         );
     }
@@ -160,8 +160,7 @@ class Report extends AbstractController
     public function getAchievementsXhr(Request $request, ContainerInterface $container)
     {
         $json = array();
-
-        if( $request->isXmlHttpRequest()) {
+        if ($request->isXmlHttpRequest()) {
             $repository = $this->getDoctrine()->getRepository(TicketRating::class);
             $json =  $repository->getRatedTicketList($request->query, $container);
 
@@ -169,6 +168,7 @@ class Report extends AbstractController
         }
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');
+        
         return $response;
     }
 

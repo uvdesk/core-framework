@@ -27,14 +27,14 @@
                 width: 8px;
                 height: 20px;
                 display: inline-block;
-                background-image: url(../../../../bundles/uvdeskcoreframework/images/uvdesk-sprite.svg);
+                background-image: url(../../../bundles/uvdeskcoreframework/images/uvdesk-sprite.svg);
                 background-position: 44px -158px;
                 margin: 5px 0 0 10px;
                 float: right;
                 vertical-align: top;
             }
 
-            .uv-xtra-info {
+            .uv-extra-info {
                 font-weight: bold;
                 margin-left: 6px;
                 font-style: normal;
@@ -327,7 +327,7 @@
                             <div class="uv-element-block">
                                 <label class="uv-field-label">{{ 'Ticket View'|trans }}</label>
                                 <span class="uv-field-info">{{ 'User can view tickets based on selected scope.'|trans }}
-                                    <span class="uv-xtra-info" data-toggle="tooltip" data-placement="top" title="{{ 'If individual access then user can View assigned Ticket(s) only, If Team access then user can view all Ticket(s) in team(s) he belongs to and so on'|trans }}">[?]</span>
+                                    <span class="uv-extra-info" data-toggle="tooltip" data-placement="top" title="{{ 'If individual access then user can View assigned Ticket(s) only, If Team access then user can view all Ticket(s) in team(s) he belongs to and so on'|trans }}">[?]</span>
                                 </span>
                                 <div class="uv-element-block" style="margin-top: 10px;">
                                     <label>
@@ -395,18 +395,18 @@
 					'user_form[firstName]': [{
                         required: true,
                         msg: '{{ "This field is mandatory" | trans}}'
-                    },{
-                        pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
-                        msg: '{{ "This field must have characters only" | trans}}'
-                    },{
+                    }, {
+                        pattern: /^[\p{L}]+$/u,
+                        msg: '{{ "This field must have no space and characters only" | trans}}'
+                    }, {
                         maxLength:40,
                         msg: '{{ "Maximum character length is 40" | trans}}'
                     }],
                     'user_form[lastName]': function(value) {
-                        if(value != undefined && value !== '') {
+                        if (value != undefined && value !== '') {
                             [{
-                                pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
-                                msg: '{{ "This field must have characters only" | trans}}'
+                                pattern: /^[\p{L}]+$/u,
+                                msg: '{{ "This field must have no space and characters only" | trans}}'
                             },{
                                 maxLength:40,
                                 msg: '{{ "Maximum character length is 40" | trans}}'
@@ -416,7 +416,7 @@
                     'user_form[email]': [{
                         required: true,
                         msg: '{{ "This field is mandatory"|trans }}'
-                    },{
+                    }, {
                         pattern:  /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
                         msg: '{{ "This is not a valid email address"|trans }}'
                     }],
@@ -453,8 +453,8 @@
                     },
                     'user_form[ticketView]': {
                         fn: function(value) {
-                            if($("#user_form_role").val() == 'ROLE_AGENT') {
-                                if(!value)
+                            if ($("#user_form_role").val() == 'ROLE_AGENT') {
+                                if (!value)
                                     return true;
                             }
 
@@ -468,8 +468,8 @@
 			var UserForm = Backbone.View.extend({
 				events : {
 					'click .uv-btn' : "saveUser",
-					'blur input, textarea': 'formChanegd',
-                    'change input[name="user_form[isActive]"]': 'formChanegd',
+					'blur input, textarea': 'formChanged',
+                    'change input[name="user_form[isActive]"]': 'formChanged',
                     'change #user_form_role': 'roleChanged',
                     'click a.select': 'selectAll',
 		            'click a.deselect': 'deselectAll',
@@ -478,7 +478,7 @@
 					Backbone.Validation.bind(this);
 					var jsonContext = JSON.parse('{{ errors|raw }}');
 		    		for (var field in jsonContext) {
-                        if(field == 'first') {
+                        if (field == 'first') {
                             Backbone.Validation.callbacks.invalid(this, "user_form[password][" + field + "]", jsonContext[field], 'input');
                         } else {
 		    			    Backbone.Validation.callbacks.invalid(this, "user_form[" + field + "]", jsonContext[field], 'input');
@@ -487,23 +487,23 @@
                     {% if not user.id %}
                         /* guess timezone and select that one */
                         var timezone = Intl.DateTimeFormat().resolvedOptions().timeZone == 'Asia/Calcutta' ? 'Asia/Kolkata' : Intl.DateTimeFormat().resolvedOptions().timeZone;
-                        if(timezone) {
+                        if (timezone) {
                             var option = $('select[name="user_form[timezone]"]').find('option[value="'+ timezone +'"]');
-                            if(option.length) {
+                            if (option.length) {
                                 option.prop('selected', true);
                             }
                         }
                     {% endif %}
 				},
-				formChanegd: function(e) {
+				formChanged: function(e) {
 			    	var fieldName = Backbone.$(e.currentTarget).attr('name');
                     $(".uv-tabs li.uv-tab-active").removeClass('uv-tab-error')
-                    if(fieldName == 'user_form[password][second]') {
-                        if($("input[name='user_form[password][first]']").val().length) {
+                    if (fieldName == 'user_form[password][second]') {
+                        if ($("input[name='user_form[password][first]']").val().length) {
                             this.model.set(fieldName, Backbone.$(e.currentTarget).val())
                             this.model.isValid([fieldName])
                         } else {
-                            if($("input[name='user_form[password][second]']").val().length) {
+                            if ($("input[name='user_form[password][second]']").val().length) {
 		    			        this.model.set(fieldName, Backbone.$(e.currentTarget).val())
                                 this.model.isValid([fieldName])
                             } else {
@@ -528,8 +528,8 @@
                     this.model.unset('user_form[groups][]', { silent: true });
                     this.model.unset('user_form[agentPrivilege][]', { silent: true });
 			        this.model.set(this.$el.serializeObject());
-			        if(this.model.isValid(true)) {
-                        if($("#user_form_role").val() == 'ROLE_ADMIN') {
+			        if (this.model.isValid(true)) {
+                        if ($("#user_form_role").val() == 'ROLE_ADMIN') {
                             $('input[name="user_form[agentPrivilege][]"]').remove();
                             this.model.unset('user_form[agentPrivilege][]', { silent: true });
                         }

@@ -136,7 +136,7 @@
 {% endblock %}
 {% block footer %}
 	{{ parent() }}
-	  {{ include("@UVDeskCoreFramework/Templates/tinyMCE.html.twig") }}
+	{{ include("@UVDeskCoreFramework/Templates/tinyMCE.html.twig") }}
     <script>
 		var toolbarOptions = sfTinyMce.options.toolbar;
         sfTinyMce.init({
@@ -173,23 +173,20 @@
 					'name': [{
 						required: true,
 						msg: "{{ 'This field is mandatory'|trans }}"
-					}
-					,{
+					}, {
 						pattern: '^(?!.*[!@#$%^&*()<_+])',
 						msg: "{{ 'Name must have characters only' }}"
-					},
-					{
+					}, {
 						maxLength:100,
 						msg: "{{ 'This field contain maximum 100 characters.'|trans }}"
-					}
-					],
+					}],
 				}
 			});
 
 			var SavedReplyForm = Backbone.View.extend({
 				events : {
 					'click .uv-btn' : "saveSavedReply",
-					'blur input': 'formChanegd',
+					'blur input': 'formChanged',
                     'click .uv-dropdown-list li': 'addEntity',
                     'click .uv-filtered-tags .uv-btn-small': 'removeEntity'
 				},
@@ -202,7 +199,7 @@
 		    			Backbone.Validation.callbacks.invalid(this, field, jsonContext[field], 'input');
 					}
 				},
-				formChanegd: function(e) {
+				formChanged: function(e) {
 			    	this.model.set(Backbone.$(e.currentTarget).attr('name'), Backbone.$(e.currentTarget).val())
 			    	this.model.isValid([Backbone.$(e.currentTarget).attr('name')])
 			    },
@@ -224,7 +221,7 @@
                 },
                 addEntity: function(e) {
                     currentElement = Backbone.$(e.currentTarget);
-                    if(id = currentElement.attr("data-id")) {
+                    if (id = currentElement.attr("data-id")) {
                         parent = currentElement.parents(".uv-field-block");
                         parent.find('input').val('')
                         parent.find("li:not(.uv-no-results)").show();

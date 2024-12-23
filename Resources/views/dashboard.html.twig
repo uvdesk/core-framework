@@ -203,7 +203,7 @@
 		.uv-mob-aside {
 			display: none;
 		}
-		#btndisclaimer {
+		#btn-disclaimer {
   			position: fixed;
   			right: 25px;
   			bottom: 10px;
@@ -222,12 +222,12 @@
         </div>
 
 		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-    		<button type="submit" class="btn btn-primary btn-md" id="btndisclaimer" title={{'clear cache'|trans }}><img src="https://api.iconify.design/mdi:delete-restore.svg?height=24" aria-hidden="true"></button>
+    		<button type="submit" class="btn btn-primary btn-md" id="btn-disclaimer" title={{'clear cache'|trans }}><img src="https://api.iconify.design/mdi:delete-restore.svg?height=24" aria-hidden="true"></button>
   		</div>
     </div>
 
 <script>
-	$('#btndisclaimer').click(function(e){
+	$('#btn-disclaimer').click(function(e){
 
     	$.ajax({
         	url : "{{ path('helpdesk_member_cache_clear') }}",

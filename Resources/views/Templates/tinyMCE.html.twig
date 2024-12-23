@@ -33,7 +33,7 @@
             },
         },
         init : function (options){
-            if(typeof(options.setup) === 'function'){
+            if (typeof(options.setup) === 'function') {
                 let optionsSetup = options.setup;
                 this.options.setup = function(editor){
                     sfTinyMce.initImageUpload(editor);
@@ -41,7 +41,7 @@
                 }
 
                 delete options.setup;
-            }else{
+            } else {
                 this.options.setup = function(editor){
                     sfTinyMce.initImageUpload(editor);
                 }
@@ -77,20 +77,20 @@
         },
         uploadFile : function(input, editor) {
             sendFile(input.get(0).files).done(function(json){
-                    //remove loading image
-                    if(json['error'] != ''){
+                    // remove loading image
+                    if (json['error'] != '') {
                         var response = {
                             'alertClass' : 'danger',
                             'alertMessage' : json['error'],
                         };
                         app.appView.hideLoader();
                         app.appView.renderResponseAlert(response);
-                    }else if(json['fileNames']){
+                    } else if (json['fileNames']) {
                         $.each(json['fileNames'], function(key, path){
                             editor.insertContent('<img class="content-img" src="' + path + '"/>');
                         });
                     }
-                    if(json.location != undefined)
+                    if (json.location != undefined)
                         window.location = json.location;
                 })
                 .fail(function(xhr) {

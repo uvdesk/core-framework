@@ -43,6 +43,19 @@ class SavedReplies extends AbstractController
         $templateId = $request->attributes->get('template');
         $repository = $this->getDoctrine()->getRepository(CoreFrameworkBundleEntities\SavedReplies::class);
 
+        $template = $repository->getSavedReply($templateId, $container);
+        if (! empty($template)) {
+            $groupSupports = count($template->getSupportGroups());
+            $teamSupports  = count($template->getSupportTeams());
+
+            if (
+                $template->getUser()->getId() != $this->getUser()->getId() 
+                && empty($groupSupports) && empty($teamSupports)
+            ) {
+                throw new \Exception('Access Denied', 403);
+            }
+        }
+
         if (empty($templateId)) {
             $template = new CoreFrameworkBundleEntities\SavedReplies();
         } else {
@@ -61,7 +74,7 @@ class SavedReplies extends AbstractController
                 
                 return $this->render('@UVDeskCoreFramework//savedReplyForm.html.twig', [
                     'template' => $template,
-                    'errors' => json_encode($errors)
+                    'errors'   => json_encode($errors)
                 ]);
             }
 
@@ -75,18 +88,25 @@ class SavedReplies extends AbstractController
             if ($template->getSupportGroups()) {
                 foreach ($template->getSupportGroups()->toArray() as $key => $group) {
                     $previousGroupIds[] = $group->getId();
-                    if (!in_array($group->getId(), $groups) && $this->getUser()->getAgentInstance()->getSupportRole()->getCode() != "ROLE_AGENT") {
+                    if (
+                        ! in_array($group->getId(), $groups) 
+                        && $this->getUser()->getAgentInstance()->getSupportRole()->getCode() != "ROLE_AGENT"
+                    ) {
                         $template->removeSupportGroups($group);
                         $em->persist($template);
                     }
                 }
             }
 
-            foreach($groups as $key => $groupId) {
+            foreach ($groups as $key => $groupId) {
                 if ($groupId) {
                     $group = $em->getRepository(SupportGroup::class)->findOneBy([ 'id' => $groupId ]);
 
-                    if ($group && (empty($previousGroupIds) || !in_array($groupId, $previousGroupIds))) {
+                    if (
+                        $group 
+                        && (empty($previousGroupIds) 
+                        || !in_array($groupId, $previousGroupIds))
+                    ) {
                         $template->addSupportGroup($group);
                         $em->persist($template);
                     }
@@ -101,7 +121,10 @@ class SavedReplies extends AbstractController
                 foreach ($template->getSupportTeams()->toArray() as $key => $team) {
                     $previousTeamIds[] = $team->getId();
                    
-                    if (!in_array($team->getId(), $teams) && $this->getUser()->getAgentInstance()->getSupportRole()->getCode() != "ROLE_AGENT") {
+                    if (
+                        ! in_array($team->getId(), $teams) 
+                        && $this->getUser()->getAgentInstance()->getSupportRole()->getCode() != "ROLE_AGENT"
+                    ) {
                         $template->removeSupportTeam($team);
                         $em->persist($template);
                     }
@@ -112,7 +135,11 @@ class SavedReplies extends AbstractController
                 if ($teamId) {
                     $team = $em->getRepository(SupportTeam::class)->findOneBy([ 'id' => $teamId ]);
 
-                    if ($team && (empty($previousTeamIds) || !in_array($teamId, $previousTeamIds))) {
+                    if (
+                        $team 
+                        && (empty($previousTeamIds) 
+                        || !in_array($teamId, $previousTeamIds))
+                    ) {
                         $template->addSupportTeam($team);
                         $em->persist($template);
                     }
@@ -135,13 +162,13 @@ class SavedReplies extends AbstractController
 
         return $this->render('@UVDeskCoreFramework//savedReplyForm.html.twig', array(
             'template' => $template,
-            'errors' => json_encode($errors)
+            'errors'   => json_encode($errors)
         ));
     }
 
     public function savedRepliesXHR(Request $request, ContainerInterface $container)
     {
-        if (!$request->isXmlHttpRequest()) {
+        if (! $request->isXmlHttpRequest()) {
             throw new \Exception(404);
         }
 
@@ -167,7 +194,7 @@ class SavedReplies extends AbstractController
             $entityManager->flush();
 
             $responseContent = [
-                'alertClass' => 'success',
+                'alertClass'   => 'success',
                 'alertMessage' => $this->translator->trans('Success! Saved Reply has been deleted successfully.')
             ];
         }

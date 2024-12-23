@@ -22,13 +22,13 @@ class SwiftMailer extends AbstractController
     public function __construct(UserService $userService, TranslatorInterface $translator,SwiftMailerService $swiftMailer)
     {
         $this->userService = $userService;
-        $this->translator = $translator;
+        $this->translator  = $translator;
         $this->swiftMailer = $swiftMailer;
     }
 
     public function loadMailers()
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_ADMIN')) {
+        if (! $this->userService->isAccessAuthorized('ROLE_ADMIN')) {
             throw new AccessDeniedException("Insufficient account privileges");
         }
 
@@ -44,7 +44,7 @@ class SwiftMailer extends AbstractController
 
             $swiftmailerConfiguration = $swiftmailer->createConfiguration($params['transport'], $params['id']);
             
-            if (!empty($swiftmailerConfiguration)) {
+            if (! empty($swiftmailerConfiguration)) {
                 $swiftmailerConfiguration->initializeParams($params);
                 $configurations = $swiftmailer->parseSwiftMailerConfigurations();
 
@@ -53,6 +53,7 @@ class SwiftMailer extends AbstractController
                 try {
                     $swiftmailer->writeSwiftMailerConfigurations($configurations);
                     $this->addFlash('success', $this->translator->trans('SwiftMailer configuration created successfully.'));
+                    
                     return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_settings'));
                 } catch (\Exception $e) {
                     $this->addFlash('warning', $e->getMessage());
@@ -96,6 +97,7 @@ class SwiftMailer extends AbstractController
             $swiftmailerService->writeSwiftMailerConfigurations($swiftmailerConfigurations);
             
             $this->addFlash('success', $this->translator->trans('SwiftMailer configuration updated successfully.'));
+            
             return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_settings'));
         }
 

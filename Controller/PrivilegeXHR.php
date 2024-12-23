@@ -25,7 +25,7 @@ class PrivilegeXHR extends AbstractController
 
     public function listPrivilegeXHR(Request $request, ContainerInterface $container) 
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')){          
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')) {          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -40,7 +40,7 @@ class PrivilegeXHR extends AbstractController
 
     public function deletePrivilegeXHR($supportPrivilegeId)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')){          
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT_PRIVILEGE')) {          
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
         
@@ -50,13 +50,13 @@ class PrivilegeXHR extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             $supportPrivilege = $entityManager->getRepository(SupportPrivilege::class)->findOneById($supportPrivilegeId);
 
-            if (!empty($supportPrivilege)) {
+            if (! empty($supportPrivilege)) {
                 $entityManager->remove($supportPrivilege);
                 $entityManager->flush();
 
                 return new Response(json_encode([
-                    'alertClass' => 'success',
-                    'alertMessage' => $this->translator->trans('Support Privilege removed successfully'),
+                    'alertClass'         => 'success',
+                    'alertMessage'       => $this->translator->trans('Support Privilege removed successfully'),
                 ]), 200, ['Content-Type' => 'application/json']);
             }
         }

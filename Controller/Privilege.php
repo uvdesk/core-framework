@@ -9,7 +9,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
-
 class Privilege extends AbstractController
 {
     private $userService;
@@ -53,12 +52,13 @@ class Privilege extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', $this->translator->trans('Success ! Privilege information saved successfully.'));
+            
             return $this->redirect($this->generateUrl('helpdesk_member_privilege_collection'));
         }
 
         return $this->render('@UVDeskCoreFramework/Privileges/createSupportPrivelege.html.twig', [
-            'errors' => json_encode($formErrors),
-            'supportPrivilege' => $supportPrivilege,
+            'errors'                    => json_encode($formErrors),
+            'supportPrivilege'          => $supportPrivilege,
             'supportPrivilegeResources' => $supportPrivilegeResources,
         ]);
     }
@@ -97,8 +97,8 @@ class Privilege extends AbstractController
         }
 
         return $this->render('@UVDeskCoreFramework/Privileges/updateSupportPrivelege.html.twig', [
-            'errors' => json_encode($formErrors),
-            'supportPrivilege' => $supportPrivilege,
+            'errors'                    => json_encode($formErrors),
+            'supportPrivilege'          => $supportPrivilege,
             'supportPrivilegeResources' => $supportPrivilegeResources,
         ]);
     }

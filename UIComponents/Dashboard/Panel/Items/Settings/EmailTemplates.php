@@ -21,8 +21,8 @@ class EmailTemplates implements PanelSidebarItemInterface
     {
         return [
             'email_templates_action',
-            'email_templates_addaction',
-            'email_templates_editaction',
+            'email_templates_add_action',
+            'email_templates_edit_action',
         ];
     }
 

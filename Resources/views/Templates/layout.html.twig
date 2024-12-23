@@ -71,6 +71,14 @@
             {% endif %}
         </div>
 
+        <div class="uv-loader-view">
+            <div class="uv-loader">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
         <div class="uv-pop-up-overlay" id="confirm-modal">
             <div class="uv-pop-up-box uv-pop-up-slim">
                 <span class="uv-pop-up-close"></span>
@@ -110,6 +118,20 @@
         {% endblock %}
         
         {% block footer %}
+            <script>
+                // Show loader by default
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Ensure the loader is visible
+                    document.querySelector('.uv-loader-view').style.display = 'block';
+                });
+
+                // Hide loader once the page is fully loaded
+                window.onload = function() {
+                    // Hide the loader
+                    document.querySelector('.uv-loader-view').style.display = 'none';
+                };
+            </script>
+
             <script src="{{ asset('bundles/uvdeskcoreframework/js/_common.js') }}"></script>
             {% include "@UVDeskCoreFramework/Templates/pagination.html.twig" %}
 

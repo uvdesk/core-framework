@@ -121,22 +121,23 @@ class FileSystem
         $request = $this->requestStack->getCurrentRequest();
         
         $assetDetails = [
-            'id' => $attachment->getId(),
-            'name' => $attachment->getName(),
-            'path' => $this->container->get('uvdesk.service')->generateCompleteLocalResourcePathUri($attachment->getPath()), 
-            'relativePath' => $attachment->getPath(),
-            'iconURL' => $this->container->get('uvdesk.service')->generateCompleteLocalResourcePathUri($this->getAssetIconURL($attachment)), 
-            'downloadURL' => null,
+            'id'            => $attachment->getId(),
+            'name'          => $attachment->getName(),
+            'path'          => $this->container->get('uvdesk.service')->generateCompleteLocalResourcePathUri($attachment->getPath()), 
+            'relativePath'  => $attachment->getPath(),
+            'iconURL'       => $this->container->get('uvdesk.service')->generateCompleteLocalResourcePathUri($this->getAssetIconURL($attachment)), 
+            'downloadURL'   => null,
         ];
 
         if ('member' == $firewall) {
             $assetDetails['downloadURL'] = $router->generate('helpdesk_member_ticket_download_attachment', [
                 'attachmendId' => $attachment->getId(),
-            ]);
+            ], UrlGeneratorInterface::ABSOLUTE_URL);
+
         } else {
             $assetDetails['downloadURL'] = $router->generate('helpdesk_customer_download_ticket_attachment', [
                 'attachmendId' => $attachment->getId(),
-            ]);
+            ], UrlGeneratorInterface::ABSOLUTE_URL);
         }
 
         if (!empty($assetDetails['downloadURL'])) {

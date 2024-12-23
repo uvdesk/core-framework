@@ -86,18 +86,25 @@ class Thread extends AbstractController
 	    // $adminReply =  str_replace(['<p>','</p>'],"",$params['reply']);
 
         $threadDetails = [
-            'user' => $this->getUser(),
-            'createdBy' => 'agent',
-            'source' => 'website',
-            'threadType' => strtolower($params['threadType']),
-            'message' => str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', htmlspecialchars($params['reply'])),
+            'user'        => $this->getUser(),
+            'createdBy'   => 'agent',
+            'source'      => 'website',
+            'threadType'  => strtolower($params['threadType']),
+            'message'     => str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', htmlspecialchars($params['reply'])),
             'attachments' => $request->files->get('attachments')
         ];
 
-        if(!empty($params['status'])){
+        if (! empty($params['status'])) {
             $ticketStatus = $entityManager->getRepository(TicketStatus::class)->findOneByCode($params['status']);
             $ticket->setStatus($ticketStatus);
+
+            $event = new CoreWorkflowEvents\Ticket\Status();
+            $event
+                ->setTicket($ticket);
+
+            $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
         }
+
         if (isset($params['to'])) {
             $threadDetails['to'] = $params['to'];
         }
@@ -133,19 +140,21 @@ class Thread extends AbstractController
 
                 $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
-                // @TODO: Render response on the basis of event response (if propogation was stopped or not)
+                // @TODO: Render response on the basis of event response (if propagation was stopped or not)
                 $this->addFlash('success', $this->translator->trans('Note added to ticket successfully.'));
                 break;
             case 'reply':
-                $event = new CoreWorkflowEvents\Ticket\AgentReply();
-                $event
-                    ->setTicket($ticket)
-                    ->setThread($thread)
-                ;
-
-                $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
-
-                // @TODO: Render response on the basis of event response (if propogation was stopped or not)
+                if ($ticket->getIsTrashed() == false) {
+                    $event = new CoreWorkflowEvents\Ticket\AgentReply();
+                    $event
+                        ->setTicket($ticket)
+                        ->setThread($thread)
+                    ;
+    
+                    $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
+                    $this->eventDispatcher->dispatch($event, 'uvdesk.automation.report_app.workflow.execute');
+                }
+                // @TODO: Render response on the basis of event response (if propagation was stopped or not)
                 $this->addFlash('success', $this->translator->trans('Success ! Reply added successfully.'));
                 break;
             case 'forward':
@@ -169,10 +178,10 @@ class Thread extends AbstractController
                 try {
                     $messageId = $this->emailService->sendMail($params['subject'] ?? ("Forward: " . $ticket->getSubject()), $message, $thread->getReplyTo(), $headers, $ticket->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
     
-                    if (!empty($messageId)) {
+                    if (! empty($messageId)) {
                         $thread->setMessageId($messageId);
     
-                        $entityManager->persist($createdThread);
+                        $entityManager->persist($thread);
                         $entityManager->flush();
                     }
                 } catch (\Exception $e) {
@@ -180,27 +189,11 @@ class Thread extends AbstractController
                     // @TODO: Log exception
                 }
 
-                // @TODO: Render response on the basis of event response (if propogation was stopped or not)
+                // @TODO: Render response on the basis of event response (if propagation was stopped or not)
                 $this->addFlash('success', $this->translator->trans('Reply added to the ticket and forwarded successfully.'));
                 break;
             default:
                 break;
-        }
-
-        // Check if ticket status needs to be updated
-        $updateTicketToStatus = !empty($params['status']) ? (trim($params['status']) ?: null) : null;
-
-        if (!empty($updateTicketToStatus) && $this->userService->isAccessAuthorized('ROLE_AGENT_UPDATE_TICKET_STATUS')) {
-            $ticketStatus = $entityManager->getRepository(TicketStatus::class)->findOneById($updateTicketToStatus);
-
-            if (!empty($ticketStatus) && $ticketStatus->getId() === $ticket->getStatus()->getId()) {
-                $ticket->setStatus($ticketStatus);
-
-                $entityManager->persist($ticket);
-                $entityManager->flush();
-
-                // @TODO: Trigger Ticket Status Updated Event
-            }
         }
 
         // Redirect to either Ticket View | Ticket Listings
@@ -221,8 +214,10 @@ class Thread extends AbstractController
         $user = $this->userService->getSessionUser();
 
         // Proceed only if user has access to the resource
-        if ( (!$this->userService->getSessionUser()) || (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) ) 
-        {
+        if (
+            (!$this->userService->getSessionUser())
+            || (false == $this->ticketService->isTicketAccessGranted($ticket, $user))
+        ) {
             throw new \Exception('Access Denied', 403);
         }
 

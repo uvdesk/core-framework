@@ -31,7 +31,7 @@ class MailLastCollaborator extends PreparedResponseAction
 
         $emailTemplateCollection = array_map(function ($emailTemplate) {
             return [
-                'id' => $emailTemplate->getId(),
+                'id'   => $emailTemplate->getId(),
                 'name' => $emailTemplate->getName(),
             ];
         }, $entityManager->getRepository(EmailTemplates::class)->findAll());
@@ -42,20 +42,21 @@ class MailLastCollaborator extends PreparedResponseAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        if($entity instanceof Ticket) {
+        if ($entity instanceof Ticket) {
             $emailTemplate = $entityManager->getRepository(EmailTemplates::class)->findOneById($value);
-            if(count($entity->getCollaborators()) && $emailTemplate) {
+            if (count($entity->getCollaborators()) && $emailTemplate) {
                 $mailData = array();
                 $createThread = $container->get('ticket.service')->getCreateReply($entity->getId(),false);
                 $mailData['references'] = $createThread['messageId'];
                 
-                if(!$entity->lastCollaborator) {
+                if (!$entity->lastCollaborator) {
                     try {
                         $entity->lastCollaborator = $entity->getCollaborators()[ -1 + count($entity->getCollaborators()) ];
                     } catch(\Exception $e) {
                     }
                 }
-                if($entity->lastCollaborator) {
+                
+                if ($entity->lastCollaborator) {
                     $placeHolderValues   = $container->get('email.service')->getTicketPlaceholderValues($entity);
                     $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(),$placeHolderValues);
                     $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(),$placeHolderValues);

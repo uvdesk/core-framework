@@ -135,18 +135,18 @@
 					'customer_form[firstName]': [{
                         required: true,
                         msg: '{{ "This field is mandatory"|trans }}'
-                    },{
-                        pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
-                        msg: '{{ "This field must have characters only"|trans }}'
-                    },{
+                    }, {
+                        pattern: /^[\p{L}]+$/u,
+                        msg: '{{ "This field must have no space and characters only"|trans }}'
+                    }, {
                         maxLength:40,
                         msg: '{{ "Maximum character length is 40"|trans }}'
                     }],
 					'customer_form[lastName]': function(value) {
-                        if(value != undefined && value !== '') {
+                        if (value != undefined && value !== '') {
                             [{
-                                pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
-                                msg: '{{ "This field must have characters only"|trans }}'
+                                pattern: /^[\p{L}]+$/u,
+                                msg: '{{ "This field must have no space and characters only"|trans }}'
                             },{
                                 maxLength:40,
                                 msg: '{{ "Maximum character length is 40"|trans }}'
@@ -156,7 +156,7 @@
                     'customer_form[email]': [{
                         required: true,
                         msg: '{{ "This field is mandatory"|trans }}'
-                    },{
+                    }, {
                         pattern: /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
                         msg: '{{ "Email address is invalid"|trans }}'
                     }],
@@ -167,8 +167,8 @@
                         }
                     },
                     'customer_form[password][first]' : function(value) {
-                        if(value != undefined && value !== '') {
-                            if(value.length < 8)
+                        if (value != undefined && value !== '') {
+                            if (value.length < 8)
                                return '{{ "Password must contains 8 Characters" | trans}}';
                         }
                     },
@@ -182,27 +182,27 @@
 			var CustomerForm = Backbone.View.extend({
 				events : {
 					'click .uv-btn' : "saveCustomer",
-					'blur input, textarea': 'formChanegd'
+					'blur input, textarea': 'formChanged'
 				},
 				initialize : function() {
 					Backbone.Validation.bind(this);
 					var jsonContext = JSON.parse('{{ errors|raw }}');
 		    		for (var field in jsonContext) {
-		    			if(field == 'first') {
+		    			if (field == 'first') {
                             Backbone.Validation.callbacks.invalid(this, "customer_form[password][" + field + "]", jsonContext[field], 'input');
                         } else {
 		    			    Backbone.Validation.callbacks.invalid(this, "customer_form[" + field + "]", jsonContext[field], 'input');
                         }
 					}
 				},
-				formChanegd: function(e) {
+				formChanged: function(e) {
 			    	var fieldName = Backbone.$(e.currentTarget).attr('name');
-                    if(fieldName == 'customer_form[password][second]') {
-                        if($("input[name='customer_form[password][first]']").val().length) {
+                    if (fieldName == 'customer_form[password][second]') {
+                        if ($("input[name='customer_form[password][first]']").val().length) {
                             this.model.set(fieldName, Backbone.$(e.currentTarget).val())
                             this.model.isValid([fieldName])
                         } else {
-                            if($("input[name='customer_form[password][second]']").val().length) {
+                            if ($("input[name='customer_form[password][second]']").val().length) {
 		    			        this.model.set(fieldName, Backbone.$(e.currentTarget).val())
                                 this.model.isValid([fieldName])
                             } else {
@@ -212,7 +212,7 @@
                     } else {
                         this.model.set(fieldName, Backbone.$(e.currentTarget).val())
                         this.model.isValid([fieldName])
-                        if(fieldName == 'customer_form[password][first]' && !$("input[name='customer_form[password][second]']").val().length) {
+                        if (fieldName == 'customer_form[password][first]' && !$("input[name='customer_form[password][second]']").val().length) {
 		    			    Backbone.Validation.callbacks.valid(this, 'customer_form[password][second]', 'input');
                         }
                     }
@@ -220,7 +220,7 @@
 				saveCustomer : function (e) {
 					e.preventDefault();
 			        this.model.set(this.$el.serializeObject());
-			        if(this.model.isValid(true)) {
+			        if (this.model.isValid(true)) {
 						this.$el.find('.uv-btn').attr('disabled', 'disabled');
 			            this.$el.submit();
 			        }

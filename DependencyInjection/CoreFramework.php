@@ -9,7 +9,6 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Webkul\UVDesk\CoreFrameworkBundle\Definition\RouterInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Definition\RoutingResourceInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Framework\ExtendableComponentInterface;
-
 use Webkul\UVDesk\CoreFrameworkBundle\Tickets\WidgetInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Tickets\QuickActionButtonInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\SearchItemInterface;
@@ -21,7 +20,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\PanelSidebarItemInterfa
 
 class CoreFramework extends Extension
 {
-    const VERSION = 'v1.1.4';
+    const VERSION = 'v1.1.6';
 
     public function getAlias()
     {

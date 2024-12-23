@@ -34,8 +34,8 @@
 				<div class="uv-action-bar-col-rt">
 					<input type="text" class="uv-search-inline uv-vertical-align uv-margin-right-15" placeholder="{{ 'Search'|trans }}">
 					<!-- Add Button -->
-					{% if (user_service.isAccessAuthorized('email_templates_addaction')) %}
-						<a href="{{ path('email_templates_addaction') }}" type="button" class="uv-btn-action">
+					{% if (user_service.isAccessAuthorized('email_templates_add_action')) %}
+						<a href="{{ path('email_templates_add_action') }}" type="button" class="uv-btn-action">
 							<span class="uv-icon-add"></span>
 							{{ "New Template"|trans }}
 						</a>
@@ -101,7 +101,7 @@
 	<!-- //Email template list item template -->
 
 	<script type="text/javascript">
-        var path = "{{ path('email_templates_editaction', {'template': 'replaceId' }) }}";
+        var path = "{{ path('email_templates_edit_action', {'template': 'replaceId' }) }}";
 
 		$(function () {
 			var globalMessageResponse = "";
@@ -112,7 +112,7 @@
 
 			var TemplateCollection = AppCollection.extend({
 				model : TemplateModel,
-				url : "{{ path('email_templates_xhraction') }}",
+				url : "{{ path('email_templates_xhr_action') }}",
 				parseRecords: function (resp, options) {
 					return resp.templates;
 				},
@@ -168,7 +168,7 @@
 					app.appView.showLoader();
 					self = this;
 					this.model.destroy({
-						url : "{{ path('email_templates_xhraction') }}/"+this.model.get('id'),
+						url : "{{ path('email_templates_xhr_action') }}/"+this.model.get('id'),
 						success : function (model, response, options) {
 							app.appView.hideLoader();
 							globalMessageResponse = response;

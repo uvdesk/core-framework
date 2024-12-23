@@ -31,7 +31,7 @@ class UpdateStatus extends PreparedResponseAction
 
         return array_map(function ($ticketStatus) {
             return [
-                'id' => $ticketStatus->getId(),
+                'id'   => $ticketStatus->getId(),
                 'name' => $ticketStatus->getDescription(),
             ];
         }, $entityManager->getRepository(TicketStatus::class)->findAll());

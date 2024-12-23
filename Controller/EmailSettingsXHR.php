@@ -37,8 +37,7 @@ class EmailSettingsXHR extends AbstractController
 
         foreach ( file($filePath) as $val) {
             $exploded = explode(":", trim($val));
-            if($exploded[0] == 'app_locales' && ($app_locales != $exploded[1]))
-            {
+            if ($exploded[0] == 'app_locales' && ($app_locales != $exploded[1])) {
                 $app_locales = trim($exploded[1]);
             }
         }
@@ -47,13 +46,14 @@ class EmailSettingsXHR extends AbstractController
         $mailer_id = ( $supportEmailConfiguration['mailer_id'] == 'None Selected' ? '~' : $supportEmailConfiguration['mailer_id'] );
 
         $file_content_array = strtr(require __DIR__ . "/../Templates/uvdesk.php", [
-            '{{ SUPPORT_EMAIL_ID }}' => $supportEmailConfiguration['id'],
-            '{{ SUPPORT_EMAIL_NAME }}' => $supportEmailConfiguration['name'],
-            '{{ SUPPORT_EMAIL_MAILER_ID }}' => $mailer_id,
-            '{{ SITE_URL }}' => $request->getHttpHost() . $request->getBasePath(),
-            '{{ APP_LOCALES }}' => $app_locales,
-            '{{ MEMBER_PANEL_PREFIX }}' => $memberPrefix,
-            '{{ CUSTOMER_PANEL_PREFIX }}' => $customerPrefix,
+            '{{ SUPPORT_EMAIL_ID }}'          => $supportEmailConfiguration['id'],
+            '{{ SUPPORT_EMAIL_NAME }}'        => $supportEmailConfiguration['name'],
+            '{{ SUPPORT_EMAIL_MAILER_ID }}'   => $mailer_id,
+            '{{ SUPPORT_EMAIL_MAILER_TYPE }}' => $supportEmailConfiguration['smtp[transport]'],
+            '{{ SITE_URL }}'                  => $request->getHttpHost() . $request->getBasePath(),
+            '{{ APP_LOCALES }}'               => $app_locales,
+            '{{ MEMBER_PANEL_PREFIX }}'       => $memberPrefix,
+            '{{ CUSTOMER_PANEL_PREFIX }}'     => $customerPrefix,
         ]);
         
         // update uvdesk.yaml file
@@ -62,9 +62,10 @@ class EmailSettingsXHR extends AbstractController
         $result = [
             'alertClass' => "success",
             'email_settings' => [
-                'id' => $supportEmailConfiguration['id'],
-                'name' => $supportEmailConfiguration['name'],
-                'mailer_id' => $supportEmailConfiguration['mailer_id'],
+                'id'          => $supportEmailConfiguration['id'],
+                'name'        => $supportEmailConfiguration['name'],
+                'mailer_id'   => $supportEmailConfiguration['mailer_id'],
+                'mailer_type' => $supportEmailConfiguration['smtp[transport]'],
             ],
             'alertMessage' => $this->translator->trans('Success ! Email settings are updated successfully.'),
         ];

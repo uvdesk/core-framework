@@ -81,31 +81,27 @@
 					'code': [{
 						required: true,
 						msg: "{{ 'This field is mandatory'|trans }}"
-					}
-					,{
+					}, {
 						pattern: '^(?!.*[!@#$%^&*()<_+])',
 						msg: "{{ 'Name must have characters only' }}"
-					},
-					,{
+					}, {
 						maxLength:200,
 						msg: "{{ 'This field contain maximum 100 characters.'|trans }}"
 					}],
 					'description': [{
 						required: true,
 						msg: "{{ 'This field is mandatory'|trans }}"
-					}
-					,{
+					}, {
 						maxLength:200,
 						msg: "{{ 'This field contain maximum 200 characters.'|trans }}"
-					}
-					],
+					}],
 				}
 			});
 
 			var TypeForm = Backbone.View.extend({
 				events : {
 					'click .uv-btn' : "saveType",
-					'blur input, textarea': 'formChanegd'
+					'blur input, textarea': 'formChanged'
 				},
 				initialize : function() {
 					Backbone.Validation.bind(this);
@@ -114,14 +110,14 @@
 		    			Backbone.Validation.callbacks.invalid(this, field, jsonContext[field], 'input');
 					}
 				},
-				formChanegd: function(e) {
+				formChanged: function(e) {
 			    	this.model.set(Backbone.$(e.currentTarget).attr('name'), Backbone.$(e.currentTarget).val())
 			    	this.model.isValid([Backbone.$(e.currentTarget).attr('name')])
 			    },
 				saveType : function (e) {
 					e.preventDefault();
 			        this.model.set(this.$el.serializeObject());
-			        if(this.model.isValid(true)) {
+			        if (this.model.isValid(true)) {
 						this.$el.find('.uv-btn').attr('disabled', 'disabled');
 			            this.$el.submit();
 			        }

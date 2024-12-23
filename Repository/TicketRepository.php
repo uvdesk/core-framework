@@ -58,28 +58,29 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $qb->leftJoin('t.priority', 'pr');
         $qb->leftJoin('t.type', 'tp');
         $qb->addSelect("CONCAT(a.firstName,' ', a.lastName) AS name");
-        $qb->andwhere("t.agent IS NULL OR ad.supportRole != 4");
+        $qb->andWhere("t.agent IS NULL OR ad.supportRole != 4");
         $data = $obj ? $obj->all() : [];
+
         $data = array_reverse($data);
         foreach ($data as $key => $value) {
-            if(!in_array($key,$this->safeFields)) {
-                if(isset($data['search']) && $key == 'search') {
-                    $qb->andwhere("t.subject LIKE :subject OR a.email LIKE :agentName OR t.id LIKE :ticketId");
-                    $qb->setParameter('subject', '%'.urldecode($value).'%');
-                    $qb->setParameter('agentName', '%'.urldecode($value).'%');
-                    $qb->setParameter('ticketId', '%'.urldecode($value).'%');
-                } elseif($key == 'status') {
-                    $qb->andwhere('t.status = '.intval($value));
+            if (!in_array($key,$this->safeFields)) {
+                if (isset($data['search']) && $key == 'search') {
+                    $qb->andWhere("t.subject LIKE :subject OR a.email LIKE :agentName OR t.id LIKE :ticketId");
+                    $qb->setParameter('subject', '%'.urldecode(trim($value)).'%');
+                    $qb->setParameter('agentName', '%'.urldecode(trim($value)).'%');
+                    $qb->setParameter('ticketId', '%'.urldecode(trim($value)).'%');
+                } elseif ($key == 'status') {
+                    $qb->andWhere('t.status = '.intval($value));
                 }
             }
         }
-        $qb->andwhere('t.isTrashed != 1');
+        $qb->andWhere('t.isTrashed != 1');
 
-        if(!isset($data['sort'])) {
+        if (!isset($data['sort'])) {
             $qb->orderBy('t.id',Criteria::DESC);
         }
 
-        if(isset($data['sort']) && $data['sort'] == "t.updatedAt") {
+        if (isset($data['sort']) && $data['sort'] == "t.updatedAt") {
             $qb->orderBy('t.updatedAt',Criteria::DESC);
         }
 
@@ -110,19 +111,19 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             $ticket[0]['status']['description'] = $translatorService->trans($ticket[0]['status']['description']);
 
             $data[] = [
-                'id' => $ticket[0]['id'],
-                'subject' => $ticket[0]['subject'],
-                'isCustomerView' => $ticket[0]['isCustomerViewed'],
-                'status' => $ticket[0]['status'],
-                'source' => $ticket[0]['source'],
-                'isStarred' => $ticket[0]['isStarred'],
-                'group' => $ticket[0]['supportGroup'],
-                'type' => $ticket[0]['type'],
-                'priority' => $ticket[0]['priority'],
+                'id'                => $ticket[0]['id'],
+                'subject'           => $ticket[0]['subject'],
+                'isCustomerView'    => $ticket[0]['isCustomerViewed'],
+                'status'            => $ticket[0]['status'],
+                'source'            => $ticket[0]['source'],
+                'isStarred'         => $ticket[0]['isStarred'],
+                'group'             => $ticket[0]['supportGroup'],
+                'type'              => $ticket[0]['type'],
+                'priority'          => $ticket[0]['priority'],
                 'formatedCreatedAt' => $userService->convertToTimezone($ticket[0]['createdAt']),
-                'totalThreads' => $ticketService->getTicketTotalThreads($ticket[0]['id']),
-                'agent' => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
-                'customer' => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
+                'totalThreads'      => $ticketService->getTicketTotalThreads($ticket[0]['id']),
+                'agent'             => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
+                'customer'          => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
                 // 'hasAttachments' => $ticketService->hasAttachments($ticket[0]['id'])
             ];
         }
@@ -148,27 +149,27 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $qb->leftJoin('t.type', 'tp');
         $qb->leftJoin('t.collaborators', 'tc');
         $qb->addSelect("CONCAT(a.firstName,' ', a.lastName) AS name");
-        $qb->andwhere("t.agent IS NULL OR ad.supportRole != 4");
+        $qb->andWhere("t.agent IS NULL OR ad.supportRole != 4");
 
         $data = $obj->all();
         $data = array_reverse($data);
         foreach ($data as $key => $value) {
-            if(!in_array($key,$this->safeFields)) {
-                if(isset($data['search']) && $key == 'search') {
-                    $qb->andwhere("t.subject LIKE :subject OR a.email LIKE :agentName OR t.id LIKE :ticketId");
-                    $qb->setParameter('subject', '%'.urldecode($value).'%');
-                    $qb->setParameter('agentName', '%'.urldecode($value).'%');
-                    $qb->setParameter('ticketId', '%'.urldecode($value).'%');
-                } elseif($key == 'status') {
-                    $qb->andwhere('t.status = '.intval($value));
+            if (! in_array($key,$this->safeFields)) {
+                if (isset($data['search']) && $key == 'search') {
+                    $qb->andWhere("t.subject LIKE :subject OR a.email LIKE :agentName OR t.id LIKE :ticketId");
+                    $qb->setParameter('subject', '%'.urldecode(trim($value)).'%');
+                    $qb->setParameter('agentName', '%'.urldecode(trim($value)).'%');
+                    $qb->setParameter('ticketId', '%'.urldecode(trim($value)).'%');
+                } elseif ($key == 'status') {
+                    $qb->andWhere('t.status = '.intval($value));
                 }
             }
         }
 
-        $qb->andwhere('t.customer = :customerId OR tc.id =:collaboratorId');
+        $qb->andWhere('t.customer = :customerId OR tc.id =:collaboratorId');
         $qb->setParameter('customerId', $currentUser->getId());
         $qb->setParameter('collaboratorId', $currentUser->getId());
-        $qb->andwhere('t.isTrashed != 1');
+        $qb->andWhere('t.isTrashed != 1');
 
         if(!isset($data['sort'])) {
             $qb->orderBy('t.id',Criteria::DESC);
@@ -201,16 +202,16 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             $ticket[0]['status']['code'] = $translatorService->trans($ticket[0]['status']['code']);
 
             $data[] = [
-                'id' => $ticket[0]['id'],
-                'subject' => $ticket[0]['subject'],
-                'isCustomerView' => $ticket[0]['isCustomerViewed'],
-                'status' => $ticket[0]['status'],
-                'group' => $ticket[0]['supportGroup'],
-                'type' => $ticket[0]['type'],
-                'priority' => $ticket[0]['priority'],
-                'totalThreads' => $ticketService->getTicketTotalThreads($ticket[0]['id']),
-                'agent' => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
-                'customer' => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
+                'id'                => $ticket[0]['id'],
+                'subject'           => $ticket[0]['subject'],
+                'isCustomerView'    => $ticket[0]['isCustomerViewed'],
+                'status'            => $ticket[0]['status'],
+                'group'             => $ticket[0]['supportGroup'],
+                'type'              => $ticket[0]['type'],
+                'priority'          => $ticket[0]['priority'],
+                'totalThreads'      => $ticketService->getTicketTotalThreads($ticket[0]['id']),
+                'agent'             => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
+                'customer'          => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
                 'formatedCreatedAt' => $userService->getLocalizedFormattedTime($ticket[0]['createdAt'],$userService->getSessionUser()),
             ];
         }
@@ -317,11 +318,11 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
             switch ($field) {
                 case 'search':
-                    $queryBuilder->andwhere("ticketType.code LIKE :searchQuery OR ticketType.description LIKE :searchQuery");
+                    $queryBuilder->andWhere("ticketType.code LIKE :searchQuery OR ticketType.description LIKE :searchQuery");
                     $queryBuilder->setParameter('searchQuery', '%' . urldecode(trim($fieldValue)) . '%');
                     break;
                 case 'isActive':
-                    $queryBuilder->andwhere("ticketType.isActive LIKE :searchQuery");
+                    $queryBuilder->andWhere("ticketType.isActive LIKE :searchQuery");
                     $queryBuilder->setParameter('searchQuery', '%' . urldecode(trim($fieldValue)) . '%');
                     break;
                 default:
@@ -355,7 +356,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
             switch ($field) {
                 case 'search':
-                    $queryBuilder->andwhere("supportTag.name LIKE :searchQuery")->setParameter('searchQuery', '%' . urldecode(trim($fieldValue)) . '%');
+                    $queryBuilder->andWhere("supportTag.name LIKE :searchQuery")->setParameter('searchQuery', '%' . urldecode(trim($fieldValue)) . '%');
                     break;
                 default:
                     break;
@@ -406,7 +407,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $queryBuilder = $this->prepareTicketListQueryWithParams($queryBuilder, $params, $user);
         $results = $queryBuilder->getQuery()->getResult();
 
-        foreach($results as $status) {
+        foreach ($results as $status) {
             $data[$status['statusId']] += $status['countTicket'];
         }
 
@@ -436,7 +437,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
         $nextPrevPage = array('next' => 0,'prev' => 0);
         for ($i = 0; $i < count($results); $i++) {
-            if($results[$i]['id'] == $ticket->getId()) {
+            if ($results[$i]['id'] == $ticket->getId()) {
                 $nextPrevPage['next'] = isset($results[$i + 1]) ? $results[$i + 1]['id'] : 0;
                 $nextPrevPage['prev'] = isset($results[$i - 1]) ? $results[$i - 1]['id'] : 0;
             }
@@ -462,7 +463,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
             ->andWhere('ticket.customer = :customerId')
             ->andWhere('ticket.isTrashed != 1')
             ->setParameter('customerId', $user->getId())
-            ->andwhere("a IS NULL OR ad.supportRole != 4")
+            ->andWhere("a IS NULL OR ad.supportRole != 4")
             ->orderBy('ticket.id', Criteria::DESC);
 
         $agent = $userService->getCurrentUser();
@@ -479,8 +480,8 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->select('COUNT(t.id) as ticketCount')->from(Ticket::class, 't')
                 ->leftJoin('t.supportLabels','tl')
-                ->andwhere('tl.id = :labelId')
-                ->andwhere('t.id = :ticketId')
+                ->andWhere('tl.id = :labelId')
+                ->andWhere('t.id = :ticketId')
                 ->setParameter('labelId',$label->getId())
                 ->setParameter('ticketId',$ticket->getId());
 
@@ -519,31 +520,31 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 ->leftJoin('a.userInstance', 'ad')
                 ->leftJoin('t.supportTags', 'tg')
                 ->leftJoin('t.supportLabels', 'tl')
-                ->andwhere('t.id = :ticketId')
+                ->andWhere('t.id = :ticketId')
                 ->setParameter('ticketId', $data['ticketId']);
 
         $results = $qb->getQuery()->getArrayResult();
         $ticket = array_shift($results);
         
         return [
-            'id' => $ticket[0]['id'],
-            'subject' => $ticket[0]['subject'],
-            'isStarred' => $ticket[0]['isStarred'],
-            'isAgentView' => $ticket[0]['isAgentViewed'],
-            'isTrashed' => $ticket[0]['isTrashed'],
-            'status' => $ticket[0]['status'],
-            'groupName' => $ticket['groupName'],
-            'subGroupName' => $ticket['supportTeamName'],
-            'typeName' => $ticket['typeName'],
-            'priority' => $ticket[0]['priority'],
-            'formatedCreatedAt' => $ticketService->timeZoneConverter($ticket[0]['createdAt']),      
-            'ticketLabels' => $ticketService->getTicketLabels($ticket[0]['id']),
-            'totalThreads' => $ticketService->getTicketTotalThreads($ticket[0]['id']),
-            'agent' => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
-            'customer' => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
+            'id'                 => $ticket[0]['id'],
+            'subject'            => $ticket[0]['subject'],
+            'isStarred'          => $ticket[0]['isStarred'],
+            'isAgentView'        => $ticket[0]['isAgentViewed'],
+            'isTrashed'          => $ticket[0]['isTrashed'],
+            'status'             => $ticket[0]['status'],
+            'groupName'          => $ticket['groupName'],
+            'subGroupName'       => $ticket['supportTeamName'],
+            'typeName'           => $ticket['typeName'],
+            'priority'           => $ticket[0]['priority'],
+            'formatedCreatedAt'  => $ticketService->timeZoneConverter($ticket[0]['createdAt']),      
+            'ticketLabels'       => $ticketService->getTicketLabels($ticket[0]['id']),
+            'totalThreads'       => $ticketService->getTicketTotalThreads($ticket[0]['id']),
+            'agent'              => $ticket['agentId'] ? $userService->getAgentDetailById($ticket['agentId']) : null,
+            'customer'           => $ticket['customerId'] ? $userService->getCustomerPartialDetailById($ticket['customerId']) : null,
             'lastReplyAgentName' => $ticketService->getlastReplyAgentName($ticket[0]['id']),
-            'createThread' => $ticketService->getCreateReply($ticket[0]['id']),
-            'lastReply' => $ticketService->getLastReply($ticket[0]['id']),
+            'createThread'       => $ticketService->getCreateReply($ticket[0]['id']),
+            'lastReply'          => $ticketService->getLastReply($ticket[0]['id']),
         ];
     }
 
@@ -565,7 +566,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 ->andWhere('ticket.customer = :customerId')
                 ->andWhere('ticket.isTrashed != 1')
                 ->setParameter('customerId', $customerId)
-                ->andwhere("a IS NULL OR ad.supportRole != 4")
+                ->andWhere("a IS NULL OR ad.supportRole != 4")
                 ->orderBy('ticket.id', Criteria::DESC);
 
         $user = $userService->getCurrentUser();
@@ -603,7 +604,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                 continue;
             }
 
-            if($actAsUser != null ) {
+            if ($actAsUser != null ) {
                 $userInstance = $actAsUser->getAgentInstance();
                 if (!empty($userInstance) && ('ROLE_AGENT' == $userInstance->getSupportRole()->getCode() && $field == 'mine') || ('ROLE_ADMIN' == $userInstance->getSupportRole()->getCode()) && $field == 'mine') {
                     $fieldValue = $actAsUser->getId();
@@ -612,7 +613,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
             switch ($field) {
                 case 'label':
-                    $queryBuilder->andwhere('supportLabel.id = :labelIds');
+                    $queryBuilder->andWhere('supportLabel.id = :labelIds');
                     $queryBuilder->setParameter('labelIds', $fieldValue);
                     break;
                 case 'starred':
@@ -620,7 +621,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                     break;
                 case 'search':
                     $value = trim($fieldValue);
-                    $queryBuilder->andwhere("ticket.subject LIKE :search OR ticket.id  LIKE :search OR customer.email LIKE :search OR CONCAT(customer.firstName,' ', customer.lastName) LIKE :search OR agent.email LIKE :search OR CONCAT(agent.firstName,' ', agent.lastName) LIKE :search");
+                    $queryBuilder->andWhere("ticket.subject LIKE :search OR ticket.id  LIKE :search OR customer.email LIKE :search OR CONCAT(customer.firstName,' ', customer.lastName) LIKE :search OR agent.email LIKE :search OR CONCAT(agent.firstName,' ', agent.lastName) LIKE :search");
                     $queryBuilder->setParameter('search', '%'.urldecode($value).'%');
                     break;
                 case 'unassigned':
@@ -633,41 +634,41 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                     $queryBuilder->andWhere('agent = :agentId')->setParameter('agentId', $fieldValue);
                     break;
                 case 'new':
-                    $queryBuilder->andwhere('ticket.isNew = 1');
+                    $queryBuilder->andWhere('ticket.isNew = 1');
                     break;
                 case 'priority':
-                    $queryBuilder->andwhere('priority.id = :priority')->setParameter('priority', $fieldValue);
+                    $queryBuilder->andWhere('priority.id = :priority')->setParameter('priority', $fieldValue);
                     break;
                 case 'type':
-                    $queryBuilder->andwhere('type.id IN (:typeCollection)')->setParameter('typeCollection', explode(',', $fieldValue));
+                    $queryBuilder->andWhere('type.id IN (:typeCollection)')->setParameter('typeCollection', explode(',', $fieldValue));
                     break;
                 case 'agent':
-                    $queryBuilder->andwhere('agent.id IN (:agentCollection)')->setParameter('agentCollection', explode(',', $fieldValue));
+                    $queryBuilder->andWhere('agent.id IN (:agentCollection)')->setParameter('agentCollection', explode(',', $fieldValue));
                     break;
                 case 'customer':
-                    $queryBuilder->andwhere('customer.id IN (:customerCollection)')->setParameter('customerCollection', explode(',', $fieldValue));
+                    $queryBuilder->andWhere('customer.id IN (:customerCollection)')->setParameter('customerCollection', explode(',', $fieldValue));
                     break;
                 case 'group':
-                    $queryBuilder->andwhere('supportGroup.id IN (:groupIds)');
+                    $queryBuilder->andWhere('supportGroup.id IN (:groupIds)');
                     $queryBuilder->setParameter('groupIds', explode(',', $fieldValue));
                     break;
                 case 'team':
-                    $queryBuilder->andwhere("supportTeam.id In(:subGrpKeys)");
+                    $queryBuilder->andWhere("supportTeam.id In(:subGrpKeys)");
                     $queryBuilder->setParameter('subGrpKeys', explode(',', $fieldValue));
                     break;
                 case 'tag':
-                    $queryBuilder->andwhere("supportTags.id In(:tagIds)");
+                    $queryBuilder->andWhere("supportTags.id In(:tagIds)");
                     $queryBuilder->setParameter('tagIds', explode(',', $fieldValue));
                     break;
                 case 'source':
-                    $queryBuilder->andwhere('ticket.source IN (:sources)');
+                    $queryBuilder->andWhere('ticket.source IN (:sources)');
                     $queryBuilder->setParameter('sources', explode(',', $fieldValue));
                     break;
                 case 'after':
                     $date = \DateTime::createFromFormat('d-m-Y H:i', $fieldValue.' 23:59');
                     if ($date) {
                        // $date = \DateTime::createFromFormat('d-m-Y H:i', $this->userService->convertTimezoneToServer($date, 'd-m-Y H:i'));
-                        $queryBuilder->andwhere('ticket.createdAt > :afterDate');
+                        $queryBuilder->andWhere('ticket.createdAt > :afterDate');
                         $queryBuilder->setParameter('afterDate', $date);
                     }
                     break;
@@ -675,7 +676,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                     $date = \DateTime::createFromFormat('d-m-Y H:i', $fieldValue.' 00:00');
                     if ($date) {
                         //$date = \DateTime::createFromFormat('d-m-Y H:i', $container->get('user.service')->convertTimezoneToServer($date, 'd-m-Y H:i'));
-                        $queryBuilder->andwhere('ticket.createdAt < :beforeDate');
+                        $queryBuilder->andWhere('ticket.createdAt < :beforeDate');
                         $queryBuilder->setParameter('beforeDate', $date);
                     }
                     break;
@@ -690,7 +691,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                         ->andHaving('count(threads.id) > :threadValueGreater')->setParameter('threadValueGreater', intval($params['repliesMore']));
                     break;
                 case 'mailbox':
-                        $queryBuilder->andwhere('ticket.mailboxEmail IN (:mailboxEmails)');
+                        $queryBuilder->andWhere('ticket.mailboxEmail IN (:mailboxEmails)');
                         $queryBuilder->setParameter('mailboxEmails', explode(',', $fieldValue));
                     break;
                 default:
@@ -705,7 +706,7 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->select('t')->from(Ticket::class, 't');
 
-        $qb->andwhere('t.agent = :agentId');
+        $qb->andWhere('t.agent = :agentId');
         $qb->setParameter('agentId',$agentId);
 
         return $qb->getQuery()->getResult();

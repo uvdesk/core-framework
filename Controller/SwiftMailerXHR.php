@@ -26,10 +26,10 @@ class SwiftMailerXHR extends AbstractController
         if (true === $request->isXmlHttpRequest()) {
             $collection = array_map(function ($configuartion) {
                 return [
-                    'id' => $configuartion->getId(),
-                    'email' => $configuartion->getUsername(),
+                    'id'        => $configuartion->getId(),
+                    'email'     => $configuartion->getUsername(),
                     'transport' => $configuartion->getTransportName(),
-                    'isActive' => $configuartion->getDeliveryStatus(),
+                    'isActive'  => $configuartion->getDeliveryStatus(),
                 ];
             }, $this->swiftMailer->parseSwiftMailerConfigurations());
 
@@ -45,7 +45,7 @@ class SwiftMailerXHR extends AbstractController
         $swiftmailer = $this->swiftMailer;
         $configurations = $swiftmailer->parseSwiftMailerConfigurations();
        
-        if (!empty($configurations)) {
+        if (! empty($configurations)) {
             foreach ($configurations as $index => $configuration) {
                 if ($configuration->getId() == $params['id']) {
                     $swiftmailerConfiguration = $configuration;
@@ -53,7 +53,7 @@ class SwiftMailerXHR extends AbstractController
                 }
             }
 
-            if (!empty($swiftmailerConfiguration)) {
+            if (! empty($swiftmailerConfiguration)) {
                 unset($configurations[$index]);
 
                 // Dispatch swiftmailer configuration removed event
@@ -64,14 +64,14 @@ class SwiftMailerXHR extends AbstractController
                 $swiftmailer->writeSwiftMailerConfigurations($configurations);
                 
                 return new JsonResponse([
-                    'alertClass' => 'success',
+                    'alertClass'   => 'success',
                     'alertMessage' => $this->translator->trans('Swiftmailer configuration removed successfully.'),
                 ]);
             }
         }
 
         return new JsonResponse([
-            'alertClass' => 'error',
+            'alertClass'   => 'error',
             'alertMessage' => $this->translator->trans('No swiftmailer configurations found for mailer id:') . $params['id'],
         ], 404);
     }

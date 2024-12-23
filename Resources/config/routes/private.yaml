@@ -281,16 +281,16 @@ email_templates_action:
     path:     /templates
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Email::templates
 
-email_templates_xhraction:
+email_templates_xhr_action:
     path:     /template-ajax/{template}
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Email::templatesxhr
     defaults: { template: 0 }
 
-email_templates_addaction:
+email_templates_add_action:
     path:     /template/add
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Email::templateForm
 
-email_templates_editaction:
+email_templates_edit_action:
     path:     /template/edit/{template}
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Email::templateForm
     defaults: { template: 0 }
@@ -420,3 +420,39 @@ helpdesk_report_achievements_data_xhr:
 helpdesk_member_cache_clear:
     path:     /cache-clear
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Authentication::clearProjectCache
+
+# Microsoft Apps
+uvdesk_member_core_framework_microsoft_apps_settings:
+    path:     /settings/microsoft-apps
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Microsoft\MicrosoftApps::loadSettings
+
+uvdesk_member_core_framework_microsoft_apps_settings_load_configurations_xhr:
+    path:     /settings/microsoft-apps/xhr
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Microsoft\MicrosoftAppsXHR::loadSettingsXHR
+
+uvdesk_member_core_framework_microsoft_apps_settings_create_configuration:
+    path:     /settings/microsoft-apps/create
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Microsoft\MicrosoftApps::createConfiguration
+
+uvdesk_member_core_framework_microsoft_apps_settings_update_configuration:
+    path:     /settings/microsoft-apps/update/{id}
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Microsoft\MicrosoftApps::updateConfiguration
+    defaults: { id: '' }
+
+uvdesk_member_core_framework_microsoft_apps_settings_toggle_configuration_status:
+    path:     /settings/microsoft-apps/xhr/status/{id}
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Microsoft\MicrosoftAppsXHR::toggleConfigurationStatus
+    defaults: { id: '' }
+
+uvdesk_member_core_framework_microsoft_apps_settings_remove_configuration:
+    path:     /settings/microsoft-apps/xhr/remove/{id}
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Microsoft\MicrosoftAppsXHR::removeConfiguration
+    defaults: { id: '' }
+
+uvdesk_member_core_framework_integrations_microsoft_apps_add_account:
+    path:     /integrations/microsoft-apps/add-account/{appId}/{origin}
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Microsoft\MicrosoftApps::addMicrosoftAccount
+
+uvdesk_member_core_framework_integrations_microsoft_apps_oauth_login:
+    path:     /integrations/microsoft-apps/oauth/login
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Microsoft\MicrosoftApps::handleOAuthCallback

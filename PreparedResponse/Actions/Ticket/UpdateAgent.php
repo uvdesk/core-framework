@@ -29,13 +29,13 @@ class UpdateAgent extends PreparedResponseAction
     {
         $agentCollection = array_map(function ($agent) {
             return [
-                'id' => $agent['id'],
+                'id'   => $agent['id'],
                 'name' => $agent['name'],
             ];
         }, $container->get('user.service')->getAgentPartialDataCollection());
 
         array_unshift($agentCollection, [
-            'id' => 'responsePerforming',
+            'id'   => 'responsePerforming',
             'name' => 'Response Performing Agent',
         ]);
 
@@ -45,7 +45,7 @@ class UpdateAgent extends PreparedResponseAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        if($entity instanceof Ticket) {
+        if ($entity instanceof Ticket) {
             if ($value == 'responsePerforming' && is_object($currentUser = $container->get('security.token_storage')->getToken()->getUser())) {
                 $agent = $currentUser;
             } else {
