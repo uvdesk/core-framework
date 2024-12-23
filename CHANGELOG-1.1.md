@@ -3,7 +3,7 @@ CHANGELOG for 1.1.x
 
 This changelog references any relevant changes introduced in 1.1 minor versions.
 
-* 1.1.6 
+* 1.1.6 (2024-12-23)
     * Issue #508 #549 - Filter issue resolved for customer filtering.
     * Issue #552 - In agent activity option: date filter should be select correct date format.
     * Issue #524 - ticket is in trashed folder and we will reply from the admin then it should not send mail to the customer.
@@ -31,7 +31,7 @@ This changelog references any relevant changes introduced in 1.1 minor versions.
     * Added option for select and save country for a ticket.
     * Round Robin Ticket assignment option added.
     * Showing customer email along with name in side filters ticket list.
-    * Issue #56 - In case of multiple attachments now added cross button for each attachment,
+    * In case of multiple attachments now added cross button for each attachment,
     So that user can remove a particular attachment.
     * Attachments renaming true for security purpose.
 
