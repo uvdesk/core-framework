@@ -166,10 +166,12 @@ class MicrosoftApps extends AbstractController
                 if (empty($account)) {
                     $account = new MicrosoftAccount();
                 }
+
+                $email = $accountDetails['mail'] ?? $accountDetails['userPrincipalName'];
     
                 $account
                     ->setName($accountDetails['displayName'])
-                    ->setEmail($accountDetails['mail'])
+                    ->setEmail($email)
                     ->setCredentials(json_encode($accessTokenResponse))
                     ->setMicrosoftApp($microsoftApp)
                 ;
