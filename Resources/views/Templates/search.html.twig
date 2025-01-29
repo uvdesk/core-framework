@@ -1,3 +1,16 @@
+{% set websiteDetails = user_service.getWebsiteDetails('helpdesk') %}
+<style>
+    {% if websiteDetails and websiteDetails.themeColor %}
+        .uv-search-bar:focus {
+            border: 1px solid {{ websiteDetails.themeColor }} !important;
+			box-shadow: none !important;
+        }
+		.uv-search-bar {
+			border: 1px solid #9E9E9E !important;
+			background-color: transparent !important;
+		}
+    {% endif %}
+</style>
 <div class="uv-search-wrapper uv-no-error-success-icon">
 	<input placeholder="{{ 'Search'|trans }}" class="uv-search-bar" type="text" name="">
 	<div class="uv-search-result-wrapper" id="beauty-scroll">

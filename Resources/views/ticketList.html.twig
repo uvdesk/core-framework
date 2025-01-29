@@ -76,10 +76,97 @@
         .uv-table table tbody tr.not-assigned td {
             border-bottom: 1px solid #ffcacc;
         }
+        .clear-search-icon {
+            cursor: pointer;
+            color: #B1B1AE;;
+            font-size: 14px;
+            top: 80px;
+            position: absolute;
+            left: 10;
+            right: 152px;
+        }
+        #error-message {
+            position: absolute;
+            font-size: 13.2px;
+            color: #FF5656;
+            margin-top: 41px;
+            margin-left: -291px;
+            font-style: italic;
+        }
+        .search-by {
+            border-top-right-radius: 0px  !important;
+            border-bottom-right-radius: 0px  !important;
+            border-right: none !important;
+        }
+        .uv-search-inline {
+            border-top-left-radius: 0px;
+            border-bottom-left-radius: 0px;
+            padding: 7px 22px 9px 33px;
+            position: relative;
+        }
+        .uv-action-bar {
+            padding-bottom: 15px !important;
+        }
         @media screen and (max-width: 500px) {
             .uv-action-bar label {
                 display: inline-block;
             }
+        }
+
+        @media screen and (max-width: 400px) {
+            .clear-search-icon {
+                top: 215px;
+                right: 30px;
+            }
+            #error-message {
+                margin-top: 43px;
+                margin-left: 8px;
+                font-size: 11.4px;
+            }
+        }
+
+        @media screen and (max-width: 500px) and (min-width: 400px) {
+            .clear-search-icon {
+                top: 215px;
+                right: 30px;
+            }
+            #error-message {
+                margin-top: 43px;
+                margin-left: 8px;
+                font-size: 13.5px;
+            }
+        }
+
+        @media screen and (max-width: 600px) {
+            .uv-inner-section .uv-action-bar .uv-dropdown .uv-dropdown-btn {
+                width: 100%;
+            }
+        }
+        @media screen and (min-width: 1100px) and (max-width: 1250px)  {
+            .clear-search-icon {
+                top: 125px;
+            }
+        }
+        @media screen and (max-width: 1024px) {
+            .clear-search-icon {
+                right: 25px;
+            }
+        }
+
+        @media screen and (max-width: 500px) {
+            .uv-inner-section .uv-action-bar .uv-action-bar-col-lt {
+                width: 100% !important;
+            }
+            .uv-inner-section .uv-action-bar .uv-action-bar-col-rt {
+                width: 100% !important;
+            }
+        }
+
+        .uv-action-bar-col-lt {
+            width: 40% !important;
+        }
+        .uv-action-bar-col-rt {
+            width: 60% !important;
         }
     </style>
 {% endblock %}
@@ -491,7 +578,21 @@
                     {# Ticket Search | Filter Extras #}
                     <div class="uv-action-bar-col-rt">
                         <!-- Search Tickets -->
+                        <div class="uv-dropdown uv-dropdown-navigations-support" style="margin-right:-5px;">
+                            <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5 search-by">
+                                {{ 'Search By:'|trans }} <span id="new-data"></span>
+                            </div>
+                            <div class="uv-dropdown-list uv-bottom-left" style="width: unset;">
+                                <div class="uv-dropdown-container" style="text-align: left;padding: 10px;">
+                                    <label>{{ 'Search By'|trans }}</label>
+                                    <ul class="uv-dropdown-container-list">
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                         <input type="text" class="uv-search-inline" placeholder="{{ 'Search'|trans }}">
+                        <span id="clear-search" class="clear-search-icon" style="display: none;">&#10006;</span> <!-- Clear icon -->
+                        <span id="error-message"></span>
 
                         <!-- Extra Filters -->
                         <div class="uv-btn-stroke uv-margin-left-15 filter-view-trigger" data-target="uv-filter-view"><span class="uv-icon-filter"></span>{{ 'Filter View'|trans }}</div>
@@ -1038,6 +1139,27 @@
         </div>
     </script>
 
+    <!-- // Search type option Template -->
+    <script id="search_type_option_list" type="text/template">
+        <li tabindex="0" data-id="ID">
+            {% trans %}ID{% endtrans %}
+        </li>
+
+        <li tabindex="0" data-id="Subject">
+            {% trans %}Subject{% endtrans %}
+        </li>
+
+        <li tabindex="0" data-id="Email">
+            {% trans %}Email{% endtrans %}
+        </li>
+
+        {% if helpdesk is defined and helpdesk is not empty and helpdesk.id == '266' %}
+            <li tabindex="0" data-id="Skills">
+                {% trans %}Skills{% endtrans %}
+            </li>
+        {% endif %}
+    </script>
+
     {# Add|Edit Saved Ticket Filter View Template #}
     <script id="add_edit_saved_filter_tmp" type="text/template">
         <form>
@@ -1552,6 +1674,7 @@
                     label: "",
                     status: "",
                     search: "",
+                    searchType: "",
                     agent: "",
                     customer: "",
                     priority: "",
@@ -1679,11 +1802,16 @@
                 sortText: "{% trans %}Sort By:{% endtrans %} ",
                 defaultSortText: "{% trans %}Sort By:{% endtrans %} {% trans %}Last Replied{% endtrans %}",
                 template : _.template($("#ticket_list_sorting_tmp").html()),
+                searchTypeTemplate : _.template($("#search_type_option_list").html()),
                 events : {
-                    'keyup .uv-search-inline' : 'search',
+                    'keyup .uv-search-inline' : 'searchKeyword',
+                    'click .clear-search-icon': 'clearSearch',
+                    'click .uv-dropdown-container-list li' : 'getOptionValue',
                     'change .asset-visibility input[type="checkbox"]': 'filterAssetsVisibility'
                 },
                 filterAssetsVisibilityOnLoad: function() {
+                    this.$el.find('.uv-dropdown-container-list').html(this.searchTypeTemplate(ticketCollection.filterParameters));
+
                     if(localStorage.getItem('assets-visibility')) {
                         var assets = JSON.parse(localStorage.getItem('assets-visibility'));
                         $.each(assets, function(asset, assetVal) {
@@ -1712,13 +1840,81 @@
 
                     localStorage.setItem('assets-visibility', JSON.stringify(assets));
                 },
-                search : _.debounce(function(e) {
+                searchKeyword: _.debounce(function(e) {
+                    const self = this;
+
+                    // Get search value and sanitize it
+                    const newstr = self.htmlspecialchars($(e.target).val());
+                    const search_type = this.$('#new-data').text();
+                    const clearButton = document.getElementById('clear-search');
+
+                    // Handle empty search state
+                    if (newstr.length === 0 && search_type.length === 0) {
+                        this.$('#error-message').html('');
+                        clearButton.style.display = 'none';
+                    } else {
+                        this.$('#error-message').text('Please select at least one parameter for searching.');
+                        clearButton.style.display = 'inline';
+                    }
+
+                    if (search_type.length > 1) {
+                        this.$('#error-message').html('');
+
+                        // Reset collection and update parameters
+                        this.collection.reset();
+                        this.collection.state.currentPage = null;
+                        this.collection.filterParameters.search = newstr;
+                        this.collection.filterParameters.searchType = search_type.toLowerCase().trim();
+
+                        const validParams = this.collection.getValidParameters();
+                        const queryString = app.appView.buildQuery($.param(validParams));
+
+                        router.navigate(queryString, { trigger: true });
+                    }
+                }, 1000),
+                htmlspecialchars(str) {
+                    var map = {
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#039;'
+                    };
+
+                    return str.replace(/[&<>"']/g, function(m) { return map[m]; });
+                },
+                clearSearch: function (e) {
+                    var searchInput = document.querySelector('.uv-search-inline');
+                    var clearButton = document.getElementById("clear-search");
+
+                    searchInput.value = '';
+                    clearButton.style.display = "none";
+                    searchInput.focus();
+
                     this.collection.reset();
                     this.collection.state.currentPage = null;
-                    this.collection.filterParameters.search = Backbone.$(e.target).val();
+                    this.collection.filterParameters.search = null;
+                    this.collection.filterParameters.searchType = null;
+                    this.$('#error-message').html('');
                     var queryString = app.appView.buildQuery($.param(this.collection.getValidParameters()));
-                    router.navigate(queryString,{trigger: true});
-                }, 1000)
+
+                    router.navigate(queryString, {trigger: true});
+                },
+                getOptionValue: function(e){
+                    currentElement = Backbone.$(e.currentTarget);
+
+                    var optionValue = currentElement.attr("data-id");
+
+                    if (optionValue.length) {
+                        this.$('#error-message').html('');
+                    }
+
+                    if (this.$("#new-data").text().length > 0) {
+                        this.$("#new-data").html('');
+                    }
+
+                    this.$("#new-data").append(optionValue);
+                }
             });
 
             // Side Filter View
@@ -2817,8 +3013,11 @@
             Router = Backbone.Router.extend({
                 routes: {
                     'page/:number(/sort/:sortField)(/direction/:order)' : 'paginate',
-                    'status/:status(/search/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByStatus',
-                    'search/:query(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByQuery',
+
+                    'status/:status(/search/:query)(/searchType/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByStatus',
+
+                    'search/:query(/searchType/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByQuery',
+
                     'agent/:agent(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByAgent',
                     'customer/:customer(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByCustomer',
                     'priority/:priority(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByPriority',
@@ -2833,13 +3032,20 @@
                     'repliesLess/:repliesLess(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByRepliesLesserCount',
                     'repliesMore/:repliesMore(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByRepliesGreaterCount',
                     'custom/:custom(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByCustom',
-                    'label/:labelId(/status/:status)(/search/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByLabel',
-                    'new(/status/:status)(/search/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterNew',
-                    'unassigned(/status/:status)(/search/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterUnassigned',
-                    'notreplied(/status/:status)(/search/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterNotReplied',
-                    'mine(/status/:status)(/search/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterMine',
-                    'starred(/status/:status)(/search/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterstarred',
-                    'trashed(/status/:status)(/search/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterTrashed',
+
+                    'label/:labelId(/status/:status)(/search/:query)(/searchType/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByLabel',
+
+                    'new(/status/:status)(/search/:query)(/searchType/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterNew',
+
+                    'unassigned(/status/:status)(/search/:query)(/searchType/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterUnassigned',
+
+                    'notreplied(/status/:status)(/search/:query)(/searchType/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterNotReplied',
+
+                    'mine(/status/:status)(/search/:query)(/searchType/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterMine',
+
+                    'starred(/status/:status)(/search/:query)(/searchType/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterstarred',
+
+                    'trashed(/status/:status)(/search/:query)(/searchType/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterTrashed',
                     '': 'initializeList'
                 },
                 initializeList : function() {
@@ -2851,85 +3057,85 @@
                     this.resetParams('','','','','','','','','','','','','','','','','','','','','', '');
                     this.fetch(number,sortField,order);
                 },
-                filterByLabel : function(labelId,status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams(labelId,'','','','','','',status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                filterByLabel : function(labelId,searchType,status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
+                    this.resetParams(labelId,'','','','','','',status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
-                filterNew : function(status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('',1,'','','','','',status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                filterNew : function(status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
+                    this.resetParams('',1,'','','','','',status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
-                filterUnassigned : function(status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','',1,'','','','',status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                filterUnassigned : function(status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
+                    this.resetParams('','',1,'','','','',status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
-                filterNotReplied: function(status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','',1,'','','',status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                filterNotReplied: function(status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
+                    this.resetParams('','','',1,'','','',status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
 
                 },
-                filterMine : function(status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','',1,'','',status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                filterMine : function(status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
+                    this.resetParams('','','','',1,'','',status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
-                filterstarred : function(status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','',1,'',status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                filterstarred : function(status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
+                    this.resetParams('','','','','',1,'',status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
-                filterTrashed : function(status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','',1,status,query,agent,customer,priority,type,group,team,tag,mailbox,source,custom);
+                filterTrashed : function(status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
+                    this.resetParams('','','','','','',1,status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,custom);
                     this.fetch(number,sortField,order);
                 },
-                filterByStatus : function(status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','',status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                filterByStatus : function(status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
+                    this.resetParams('','','','','','','',status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
-                filterByQuery : function(query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','',query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                filterByQuery : function(query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
+                    this.resetParams('','','','','','','','',query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByAgent : function(agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','',agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','',agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByCustomer : function(customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','',customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','',customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByPriority : function(priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','','',priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','',priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByType : function(type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','','','',type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','','',type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByGroup : function(group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','','','','',group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','','','',group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterBySubGroup : function(team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','','','','','',team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','','','','',team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByTags : function(tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','','','','','','',tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','','','','','',tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByMailbox : function(mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','','','','','','','',mailbox,source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','','','','','','',mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterBySource: function(source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','','','','','','','','',source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','','','','','','','',source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByAfter: function(after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','','','','','','','','','',after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','','','','','','','','',after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByBefore: function(before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','','','','','','','','','','',before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','','','','','','','','','',before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByRepliesLesserCount: function(repliesLess, repliesMore, custom, number, sortField, order) {
@@ -2937,11 +3143,11 @@
                     this.fetch(number,sortField,order);
                 },
                 filterByRepliesGreaterCount: function(repliesMore, custom, number, sortField, order) {
-                    this.resetParams('','','','','','','','','','','','','','','','','','','','','',repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','','','','','','','','','','','',repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByCustom : function(custom, number, sortField, order) {
-                    this.resetParams('','','','','','','','','','','','','','','','','','','','','','',custom);
+                    this.resetParams('','','','','','','','','','','','','','','','','','','','','','','',custom);
                     this.fetch(number,sortField,order);
                 },
                 fetch: function(number, sortField, order) {
@@ -2949,7 +3155,7 @@
                     filter.sortCollection(sortField, order);
                     ticketCollection.syncData();
                 },
-                resetParams : function(labelId,newLabel,unassigned,notreplied,mine,starred,trashed,status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom) {
+                resetParams : function(labelId,newLabel,unassigned,notreplied,mine,starred,trashed,status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom) {
                     _.each(userFilters, function(filter, index) {
                         if(Backbone.history.getFragment() == filter['route']) {
                             $("#saved-filter").val(index);
@@ -2968,6 +3174,7 @@
                     ticketCollection.filterParameters.starred = starred;
                     ticketCollection.filterParameters.trashed = trashed;
                     ticketCollection.filterParameters.search = query;
+                    ticketCollection.filterParameters.searchType = searchType;
                     $(".uv-search-inline").val(query);
                     ticketCollection.filterParameters.status = status;
                     ticketCollection.filterParameters.agent = agent;

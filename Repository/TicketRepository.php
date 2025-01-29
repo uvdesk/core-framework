@@ -599,6 +599,39 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
 
     public function prepareTicketListQueryWithParams($queryBuilder, $params, $actAsUser = null)
     {
+        if (!empty($params['search']) && !empty($params['searchType'])) {
+            $sanitizedSearchContent = trim(urldecode($params['search']));
+            $sanitizedSearchTicketIncrementId = str_replace('#', '', $sanitizedSearchContent);
+        
+            // Initialize search query
+            switch ($params['searchType']) {
+                case 'email':
+                    $whereTicketSearchQuery = "customer.email LIKE :search";
+                    break;
+        
+                case 'subject':
+                    $whereTicketSearchQuery = "ticket.subject LIKE :search";
+                    break;
+        
+                case 'id':
+                    $whereTicketSearchQuery = "ticket.id = :searchExact";
+                    break;
+        
+                default:
+                    break;
+            }
+
+            // Apply condition
+            $queryBuilder->andWhere($whereTicketSearchQuery);
+        
+            // Set parameters based on search type
+            if ($params['searchType'] === 'id') {
+                $queryBuilder->setParameter('searchExact', $sanitizedSearchTicketIncrementId);
+            } else {
+                $queryBuilder->setParameter('search', '%' . $sanitizedSearchContent . '%');
+            }
+        }
+
         foreach ($params as $field => $fieldValue) {
             if (in_array($field, $this->safeFields)) {
                 continue;
@@ -618,11 +651,6 @@ class TicketRepository extends \Doctrine\ORM\EntityRepository
                     break;
                 case 'starred':
                     $queryBuilder->andWhere('ticket.isStarred = 1');
-                    break;
-                case 'search':
-                    $value = trim($fieldValue);
-                    $queryBuilder->andWhere("ticket.subject LIKE :search OR ticket.id  LIKE :search OR customer.email LIKE :search OR CONCAT(customer.firstName,' ', customer.lastName) LIKE :search OR agent.email LIKE :search OR CONCAT(agent.firstName,' ', agent.lastName) LIKE :search");
-                    $queryBuilder->setParameter('search', '%'.urldecode($value).'%');
                     break;
                 case 'unassigned':
                     $queryBuilder->andWhere("agent.id is NULL");
