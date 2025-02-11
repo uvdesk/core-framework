@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\EmailTemplates;
 use Webkul\UVDesk\AutomationBundle\Workflow\Event;
-use Webkul\UVDesk\AutomationBundle\Workflow\Events\AgentActivity;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\AutomationBundle\Workflow\Events\TicketActivity;
 
 class MailAgent extends WorkflowAction
@@ -47,7 +47,7 @@ class MailAgent extends WorkflowAction
 
         switch (true) {
             // Agent created
-            case $event instanceof AgentActivity:
+            case $event instanceof CoreWorkflowEvents\Agent\Create:
                 $user = $event->getUser();
                 $emailTemplate = $entityManager->getRepository(EmailTemplates::class)->findOneById($value);
 
