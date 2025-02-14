@@ -93,17 +93,18 @@ class UVDeskService
     {
         $translator = $this->container->get('translator');
         return  [
-            'en' => $translator->trans("English"),
-            'fr' => $translator->trans("French"),
-            'it' => $translator->trans("Italian"),
-            'ar' => $translator->trans("Arabic"),
-            'de' => $translator->trans("German"),
-            'es' => $translator->trans("Spanish"),
-            'tr' => $translator->trans("Turkish"),
-            'da' => $translator->trans("Danish"),
-            'zh' => $translator->trans("Chinese"),
-            'pl' => $translator->trans("Polish"),
-            'he' => $translator->trans("Hebrew"),
+            'en'    => $translator->trans("English"),
+            'fr'    => $translator->trans("French"),
+            'it'    => $translator->trans("Italian"),
+            'ar'    => $translator->trans("Arabic"),
+            'de'    => $translator->trans("German"),
+            'es'    => $translator->trans("Spanish"),
+            'tr'    => $translator->trans("Turkish"),
+            'da'    => $translator->trans("Danish"),
+            'zh'    => $translator->trans("Chinese"),
+            'pl'    => $translator->trans("Polish"),
+            'he'    => $translator->trans("Hebrew"),
+            'pt_BR' => $translator->trans("Portuguese"),
         ];
     }
 
