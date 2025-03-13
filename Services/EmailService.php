@@ -357,12 +357,16 @@ class EmailService
         if (!empty($helpdeskKnowledgebaseWebsite) && null != $helpdeskKnowledgebaseWebsite->getLogo()) {
             $companyLogoURL = sprintf('http://%s%s', $this->container->getParameter('uvdesk.site_url'), $helpdeskKnowledgebaseWebsite->getLogo());
         }
-        
+
         // Link to update account login credentials
-        $updateCredentialsURL = $router->generate( 'helpdesk_update_account_credentials', [
-            'email' => $user->getEmail(),
-            'verificationCode' => $user->getVerificationCode(),
-        ], UrlGeneratorInterface::ABSOLUTE_URL);
+        $updateCredentialsURL = str_replace(
+            'http://',
+            'https://',
+            $router->generate('helpdesk_update_account_credentials', [
+                'email' => $user->getEmail(),
+                'verificationCode' => $user->getVerificationCode(),
+            ], UrlGeneratorInterface::ABSOLUTE_URL)
+        );
 
         $placeholderParams = [
             'user.userName'              => $user->getFullName(),
@@ -371,10 +375,10 @@ class EmailService
             'user.forgotPasswordLink'    => "<a href='$updateCredentialsURL'>$updateCredentialsURL</a>",
             'user.accountValidationLink' => "<a href='$updateCredentialsURL'>$updateCredentialsURL</a>",
             'global.companyName'         => $helpdeskWebsite->getName(),
-            'global.companyLogo'         => "<img style='max-height:60px' src='$companyLogoURL'/>",
+            'global.companyLogo'         => "<img style='max-height:60px' src='cid:companyLogo'/>",
             'global.companyUrl'          => "<a href='$companyURL'>$companyURL</a>",
         ];
-        
+
         return $placeholderParams;
     }
 
@@ -383,10 +387,10 @@ class EmailService
         $supportTeam = $ticket->getSupportTeam();
         $supportGroup = $ticket->getSupportGroup();
         $supportTags = array_map(function ($supportTag) { return $supportTag->getName(); }, $ticket->getSupportTags()->toArray());
-        
+
         $router = $this->container->get('router');
         $helpdeskWebsite = $this->entityManager->getRepository(Website::class)->findOneByCode('helpdesk');
-        
+
         // Resolve path to helpdesk brand image
         $companyLogoURL = sprintf('http://%s%s', $this->container->getParameter('uvdesk.site_url'), '/bundles/uvdeskcoreframework/images/uv-avatar-uvdesk.png');
         $helpdeskKnowledgebaseWebsite = $this->entityManager->getRepository(Website::class)->findOneByCode('knowledgebase');
@@ -394,7 +398,7 @@ class EmailService
         if (!empty($helpdeskKnowledgebaseWebsite) && null != $helpdeskKnowledgebaseWebsite->getLogo()) {
             $companyLogoURL = sprintf('http://%s%s', $this->container->getParameter('uvdesk.site_url'), $helpdeskKnowledgebaseWebsite->getLogo());
         }
-        
+
         // Link to company knowledgebase
         if (false == array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
             $companyURL = $this->container->getParameter('uvdesk.site_url');
@@ -415,7 +419,7 @@ class EmailService
                 $viewTicketURL = $router->generate('helpdesk_customer_ticket', [
                     'id' => $ticket->getId(),
                 ], UrlGeneratorInterface::ABSOLUTE_URL);
-    
+
                 $generateTicketURLCustomer = $router->generate('helpdesk_customer_create_ticket', [], UrlGeneratorInterface::ABSOLUTE_URL);
         } else {
             $viewTicketURL = '';
@@ -445,7 +449,7 @@ class EmailService
             'ticket.customerLink'              => sprintf("<a href='%s'>#%s</a>", $viewTicketURL, $ticket->getId()),
             'ticket.ticketGenerateUrlCustomer' => sprintf("<a href='%s'>click here</a>", $generateTicketURLCustomer),
             'global.companyName'               => $helpdeskWebsite->getName(),
-            'global.companyLogo'               => "<img style='max-height:60px' src='$companyLogoURL'/>",
+            'global.companyLogo'               => "<img style='max-height:60px' src='cid:companyLogo'/>",
             'global.companyUrl'                => "<a href='$companyURL'>$companyURL</a>",
         ];
 
@@ -461,7 +465,7 @@ class EmailService
             return  preg_replace("/<img[^>]+\>/i", "", $ticket->currentThread->getMessage());
         } else {
             $messages = $ticket->getThreads();
-            for ($i = count($messages) - 1 ; $i >= 0  ; $i--) { 
+            for ($i = count($messages) - 1 ; $i >= 0  ; $i--) {
                 if (isset($messages[$i]) && $messages[$i]->getThreadType() != "note") {
                     return preg_replace("/<img[^>]+\>/i", "", $messages[$i]->getMessage());
                 }
@@ -477,7 +481,7 @@ class EmailService
         foreach ($emailPlaceholders as $var => $value) {
             $subject = strtr($subject, ["{%$var%}" => $value, "{% $var %}" => $value]);
         }
-        
+
         return $subject;
     }
 
@@ -491,12 +495,13 @@ class EmailService
         }
 
         $content = $isSavedReply ? stripslashes($content) : htmlspecialchars_decode(preg_replace(['#&lt;script&gt;#', '#&lt;/script&gt;#'], ['&amp;lt;script&amp;gt;', '&amp;lt;/script&amp;gt;'], $content));
-        
+
         return $twigTemplatingEngine->render($baseEmailTemplate, ['message' => $content]);
     }
 
     public function sendMail($subject, $content, $recipient, array $headers = [], $mailboxEmail = null, array $attachments = [], $cc = [], $bcc = [])
     {
+        // dd($content);
         $mailer_type = $this->container->getParameter('uvdesk.support_email.mailer_type');
 
         if (empty($mailboxEmail)) {
@@ -536,7 +541,7 @@ class EmailService
         // Send emails only if any mailer configuration is available
         $mailer = null;
         $mailboxConfigurations = $this->mailboxService->parseMailboxConfigurations();
-        
+
         if ($mailer_type != 'swiftmailer_id') {
             $mailbox = $mailboxConfigurations->getMailboxById($mailerID);
 
@@ -616,7 +621,7 @@ class EmailService
                 if (is_array($headerValue) || empty($headerValue)) {
                     continue; // Skip arrays that don't have a 'messageId'.
                 }
-            
+
                 $messageHeaders->addTextHeader($headerName, $headerValue);
             }
 
@@ -658,9 +663,9 @@ class EmailService
             foreach ($attachments as $attachment) {
                 if (!empty($attachment['path']) && !empty($attachment['name'])) {
                     $email->attachFromPath($attachment['path'], $attachment['name']);
-                    
+
                     continue;
-                } 
+                }
 
                 $email->attachFromPath($attachment);
             }
@@ -672,11 +677,11 @@ class EmailService
                 if (is_array($value) && ! empty($value['messageId'])) {
                     $value = $value['messageId'];
                 }
-            
+
                 if (is_array($value) || empty($value)) {
                     continue; // Skip arrays that don't have a 'messageId'.
                 }
-            
+
                 $emailHeaders->addTextHeader($name, $value);
             }
 
@@ -690,36 +695,70 @@ class EmailService
                     if (empty($microsoftApp)) {
                         $this->session->getFlashBag()->add('warning', $this->trans('An unexpected error occurred while trying to send email. Please try again later.'));
                         $this->session->getFlashBag()->add('warning', $this->trans('No associated microsoft apps were found for configured mailbox.'));
-    
+
                         return null;
                     }
 
                     $microsoftAccount = $this->entityManager->getRepository(MicrosoftAccount::class)->findOneBy([
-                        'email'        => $mailboxSmtpConfiguration->getUsername(), 
-                        'microsoftApp' => $microsoftApp, 
+                        'email'        => $mailboxSmtpConfiguration->getUsername(),
+                        'microsoftApp' => $microsoftApp,
                     ]);
-    
+
                     if (empty($microsoftAccount)) {
                         $this->session->getFlashBag()->add('warning', $this->trans('An unexpected error occurred while trying to send email. Please try again later.'));
                         $this->session->getFlashBag()->add('warning', $this->trans('No associated microsoft account was found for configured mailbox.'));
-    
+
                         return null;
                     }
 
                     $credentials = json_decode($microsoftAccount->getCredentials(), true);
                     $emailParams = [
-                        'subject' => $subject, 
+                        'subject' => $subject,
                         'body' => [
-                            'contentType' => 'HTML', 
-                            'content'     => $content, 
-                        ], 
+                            'contentType' => 'HTML',
+                            'content'     => $content,
+                        ],
                         'toRecipients' => [
                             [
                                 'emailAddress' => [
-                                    'address' => $recipient, 
-                                ], 
-                            ], 
-                        ], 
+                                    'address' => $recipient,
+                                ],
+                            ],
+                        ],
+                    ];
+
+                    $helpdeskKnowledgebaseWebsite = $this->entityManager->getRepository(Website::class)->findOneByCode('knowledgebase');
+
+                    if (!empty($helpdeskKnowledgebaseWebsite) && null != $helpdeskKnowledgebaseWebsite->getLogo()) {
+                        $companyLogoURL = sprintf('https://%s%s', $this->container->getParameter('uvdesk.site_url'), $helpdeskKnowledgebaseWebsite->getLogo());
+                    }
+
+                    // Download the company logo image
+                    $imageContent = file_get_contents($companyLogoURL);
+                    // Convert the image to base64
+                    $imageBase64 = base64_encode($imageContent);
+
+                    $emailParams = [
+                        'subject' => $subject,
+                        'body' => [
+                            'contentType' => 'HTML',
+                            'content' => $content, // This now has <img src='cid:companyLogo'/>
+                        ],
+                        'toRecipients' => [
+                            [
+                                'emailAddress' => [
+                                    'address' => $recipient,
+                                ],
+                            ],
+                        ],
+                        'attachments' => [
+                            [
+                                '@odata.type' => '#microsoft.graph.fileAttachment',
+                                'name' => 'logo.png',
+                                'contentId' => 'companyLogo',
+                                'contentBytes' => $imageBase64,
+                            ],
+                        ],
                     ];
 
                     foreach ($headers as $name => $value) {
@@ -732,8 +771,8 @@ class EmailService
                         }
 
                         $emailParams['internetMessageHeaders'][] = [
-                            'name' => "x-$name", 
-                            'value' => $value, 
+                            'name' => "x-$name",
+                            'value' => $value,
                         ];
                     }
 
@@ -748,10 +787,10 @@ class EmailService
                                 $microsoftAccount
                                     ->setCredentials(json_encode($tokenResponse))
                                 ;
-                                
+
                                 $this->entityManager->persist($microsoftAccount);
                                 $this->entityManager->flush();
-                                
+
                                 $credentials = json_decode($microsoftAccount->getCredentials(), true);
 
                                 $graphResponse = MicrosoftGraph\Me::sendMail($credentials['access_token'], $emailParams);
@@ -760,10 +799,10 @@ class EmailService
                     }
                 } else {
                     $dsn = strtr("smtp://{email}:{password}@{host}:{port}", [
-                        "{email}"    => $mailboxSmtpConfiguration->getUsername(), 
-                        "{password}" => $mailboxSmtpConfiguration->getPassword(), 
-                        "{host}"     => $mailboxSmtpConfiguration->getHost(), 
-                        "{port}"     => $mailboxSmtpConfiguration->getPort(), 
+                        "{email}"    => $mailboxSmtpConfiguration->getUsername(),
+                        "{password}" => $mailboxSmtpConfiguration->getPassword(),
+                        "{host}"     => $mailboxSmtpConfiguration->getHost(),
+                        "{port}"     => $mailboxSmtpConfiguration->getPort(),
                     ]);
 
                     if (false == $mailbox->getIsStrictModeEnabled()) {
@@ -785,7 +824,7 @@ class EmailService
 
                 return null;
             }
-    
+
             return !empty($messageId) ? "<$messageId>" : null;
         }
     }
@@ -805,7 +844,7 @@ class EmailService
         if ($ticket->lastCollaborator != null) {
             $name =  $ticket->lastCollaborator->getFirstName()." ".$ticket->lastCollaborator->getLastName();
         }
-        
+
         return $name != null ? $name : '';
     }
 
@@ -824,7 +863,7 @@ class EmailService
         if ($ticket->lastCollaborator != null) {
             $email = $ticket->lastCollaborator->getEmail();
         }
-        
+
         return $email != null ? $email : '';;
     }
 }

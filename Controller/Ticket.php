@@ -4,6 +4,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Webkul\UVDesk\CoreFrameworkBundle\Form as CoreFrameworkBundleForms;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
@@ -32,6 +33,8 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketPriority;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class Ticket extends AbstractController
 {
@@ -492,43 +495,54 @@ class Ticket extends AbstractController
         $threadId = $request->attributes->get('threadId');
         $attachmentRepository = $this->getDoctrine()->getManager()->getRepository(Attachment::class);
         $threadRepository = $this->getDoctrine()->getManager()->getRepository(Thread::class);
-
+        
         $thread = $threadRepository->findOneById($threadId);
-
-        $attachment = $attachmentRepository->findByThread($threadId);
-
-        if (! $attachment) {
+        if (!$thread) {
             $this->noResultFound();
         }
-
+        
+        $attachments = $attachmentRepository->findByThread($threadId);
+        if (empty($attachments)) {
+            $this->noResultFound();
+        }
+        
         $ticket = $thread->getTicket();
         $user = $this->userService->getSessionUser();
-        
         // Proceed only if user has access to the resource
         if (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) {
             throw new \Exception('Access Denied', 403);
         }
 
-        $zipName = 'attachments/' .$threadId.'.zip';
-        $zip = new \ZipArchive;
-
-        $zip->open($zipName, \ZipArchive::CREATE);
-        if (count($attachment)) {
-            foreach ($attachment as $attach) {
-                $zip->addFile(ltrim($attach->getPath(), '/'));
+        // Create temp file in system temp directory
+        $projectDir = $this->kernel->getProjectDir();
+        $zipPath = sys_get_temp_dir() . '/' . uniqid('zip_') . '_attachments_' . $threadId . '.zip';
+        
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath, \ZipArchive::CREATE) !== true) {
+            throw new \Exception('Cannot create zip file', 500);
+        }
+        
+        if (count($attachments) > 0) {
+            foreach ($attachments as $attach) {
+                $filePath = $projectDir . '/public/' . ltrim($attach->getPath(), '/');
+                if (file_exists($filePath)) {
+                    // Use original filename as the name in the ZIP
+                    $zip->addFile($filePath, $attach->getName());
+                }
             }
         }
 
         $zip->close();
-
-        $response = new Response();
-        $response->setStatusCode(200);
-        $response->headers->set('Content-type', 'application/zip');
-        $response->headers->set('Content-Disposition', 'attachment; filename=' . $threadId . '.zip');
-        $response->headers->set('Content-length', filesize($zipName));
-        $response->sendHeaders();
-        $response->setContent(readfile($zipName));
-
+        
+        // Use BinaryFileResponse for better handling of binary files
+        $response = new BinaryFileResponse($zipPath);
+        $response->setContentDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            'attachments_' . $threadId . '.zip'
+        );
+        $response->headers->set('Content-Type', 'application/zip');
+        $response->deleteFileAfterSend(true); // Delete the temp file after sending
+        
         return $response;
     }
 
@@ -557,14 +571,17 @@ class Ticket extends AbstractController
 
         $path = $this->kernel->getProjectDir() . "/public/". $attachment->getPath();
 
-        $response = new Response();
-        $response->setStatusCode(200);
-        $response->headers->set('Content-type', $attachment->getContentType());
-        $response->headers->set('Content-Disposition', 'attachment; filename='. $attachment->getName());
-        $response->headers->set('Content-Length', $attachment->getSize());
-
-        $response->sendHeaders();
-        $response->setContent(readfile($path));
+        $response = new StreamedResponse(function () use ($path) {
+            // Output the file content
+            $stream = fopen($path, 'rb');
+            fpassthru($stream);
+            fclose($stream);
+        });
+    
+        // Set headers
+        $response->headers->set('Content-Type', $attachment->getContentType());
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $attachment->getName() . '"');
+        $response->headers->set('Content-Length', filesize($path));
 
         return $response;
     }
