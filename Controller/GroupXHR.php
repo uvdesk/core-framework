@@ -1,4 +1,5 @@
 <?php
+
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +23,7 @@ class GroupXHR extends AbstractController
 
     public function listGroupsXHR(Request $request, ContainerInterface $container)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')) {
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -37,7 +38,7 @@ class GroupXHR extends AbstractController
 
     public function deleteGroupXHR($supportGroupId)
     {
-        if(!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')) {          
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_GROUP')) {         
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -46,12 +47,12 @@ class GroupXHR extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             $supportGroup = $entityManager->getRepository(SupportGroup::class)->findOneById($supportGroupId);
 
-            if (!empty($supportGroup)) {
+            if (! empty($supportGroup)) {
                 $entityManager->remove($supportGroup);
                 $entityManager->flush();
                 
                 return new Response(json_encode([
-                    'alertClass' => 'success',
+                    'alertClass'   => 'success',
                     'alertMessage' => 'Support Group removed successfully.',
                 ]), 200, ['Content-Type' => 'application/json']);
             }

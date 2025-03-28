@@ -56,7 +56,7 @@ class Me
         return $jsonResponse;
     }
 
-    public static function messages($accessToken, $mailFolderId = null, array $filters = [])
+    public static function messages($accessToken, $mailFolderId = null, array $filters = [], $top = 100)
     {
         $resolvedFilters = [];
 
@@ -64,7 +64,6 @@ class Me
             switch ($details['operation']) {
                 case '>':
                     $resolvedFilters[] = sprintf("%s ge %s", $filter, $details['value']);
-
                     break;
                 default:
                     break;
@@ -72,9 +71,9 @@ class Me
         }
 
         if (empty($mailFolderId)) {
-            $endpoint = self::BASE_ENDPOINT . '/messages?$count=true';
+            $endpoint = self::BASE_ENDPOINT . "/messages?\$count=true&\$top=$top";
         } else {
-            $endpoint = self::BASE_ENDPOINT . '/mailFolders/' . $mailFolderId . '/messages?$count=true';
+            $endpoint = self::BASE_ENDPOINT . "/mailFolders/$mailFolderId/messages?\$count=true&\$top=$top";
         }
 
         if (!empty($resolvedFilters)) {
@@ -102,9 +101,58 @@ class Me
         return $jsonResponse;
     }
 
+    public static function getMessagesWithNextLink($nextLink, $accessToken)
+    {
+        $curlHandler = curl_init();
+
+        curl_setopt($curlHandler, CURLOPT_HEADER, 0);
+        curl_setopt($curlHandler, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $accessToken,
+        ]);
+        curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curlHandler, CURLOPT_URL, $nextLink);
+
+        $curlResponse = curl_exec($curlHandler);
+        $jsonResponse = json_decode($curlResponse, true);
+
+        if (curl_errno($curlHandler)) {
+            $error_msg = curl_error($curlHandler);
+        }
+
+        curl_close($curlHandler);
+
+        return $jsonResponse;
+    }
+
     public static function message($id, $accessToken)
     {
-    	$endpoint = self::BASE_ENDPOINT . "/messages/$id";
+    	$endpoint = self::BASE_ENDPOINT . "/messages/".$id."?\$expand=attachments";
+    
+        $curlHandler = curl_init();
+
+        curl_setopt($curlHandler, CURLOPT_HEADER, 0);
+        curl_setopt($curlHandler, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $accessToken, 
+        ]);
+        curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curlHandler, CURLOPT_URL, $endpoint);
+
+        $curlResponse = curl_exec($curlHandler);
+        $jsonResponse = json_decode($curlResponse, true);
+
+        if (curl_errno($curlHandler)) {
+            $error_msg = curl_error($curlHandler);
+        }
+
+        curl_close($curlHandler);
+
+        return $jsonResponse;
+    }
+
+
+    public static function attachment($id, $attachmentId, $accessToken)
+    {
+    	$endpoint = self::BASE_ENDPOINT . "/messages/$id/attachment/$attachmentId";
 
         $curlHandler = curl_init();
 

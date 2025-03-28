@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>{% block title %}HelpDesk{% endblock %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="{{ asset('favicon.ico') }}" />
 
         <!-- Stylesheets -->
@@ -37,7 +38,14 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     </head>
 
-    <body>
+    {% set bodyClass = '' %}
+    {% set bodySkinClass = '' %}
+
+    {% if app.request.locale == "ar" %}
+        {% set bodyClass = 'uv-rtl' %}
+    {% endif %}
+    
+    <body class="{{ bodySkinClass ~ ' ' ~ bodyClass }}">
         <div class="uv-notifications-wrapper">
             <noscript>
                 <div class="uv-notification page-load uv-error">
@@ -61,6 +69,14 @@
                     </div>
                 {% endfor %}
             {% endif %}
+        </div>
+
+        <div class="uv-loader-view">
+            <div class="uv-loader">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </div>
 
         <div class="uv-pop-up-overlay" id="confirm-modal">
@@ -102,6 +118,20 @@
         {% endblock %}
         
         {% block footer %}
+            <script>
+                // Show loader by default
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Ensure the loader is visible
+                    document.querySelector('.uv-loader-view').style.display = 'block';
+                });
+
+                // Hide loader once the page is fully loaded
+                window.onload = function() {
+                    // Hide the loader
+                    document.querySelector('.uv-loader-view').style.display = 'none';
+                };
+            </script>
+
             <script src="{{ asset('bundles/uvdeskcoreframework/js/_common.js') }}"></script>
             {% include "@UVDeskCoreFramework/Templates/pagination.html.twig" %}
 

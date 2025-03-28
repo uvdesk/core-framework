@@ -33,9 +33,9 @@ class UpdateTeam extends PreparedResponseAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        if($entity instanceof Ticket) {
+        if ($entity instanceof Ticket) {
             $subGroup = $entityManager->getRepository(SupportTeam::class)->find($value);
-            if($subGroup) {
+            if ($subGroup) {
                 $entity->setSupportTeam($subGroup);
                 $entityManager->persist($entity);
                 $entityManager->flush();

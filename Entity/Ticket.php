@@ -50,12 +50,6 @@ class Ticket
     private $referenceIds;
 
     /**
-     * @var string
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private $outlookConversationId;
-
-    /**
      * @var boolean
      * @ORM\Column(type="boolean", options={"default": true})
      */
@@ -108,6 +102,12 @@ class Ticket
      * @ORM\Column(type="datetime")
      */
     private $updatedAt;
+    
+    /**
+     * @var \DateTime
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $customerRepliedAt;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
@@ -144,6 +144,12 @@ class Ticket
      * @ORM\JoinColumn(name="priority_id", referencedColumnName="id")
      */
     private $priority;
+
+    /**
+     * @var string
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $outlookConversationId;
 
     /**
      * @var \Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketType
@@ -201,6 +207,23 @@ class Ticket
     private $supportLabels;
 
     /**
+     * @var integer
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $responseSlaLevel;
+    
+    /**
+     * @var integer
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $resolveSlaLevel;
+
+    /**
+     * @var string
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $country;
+    /**
      * Constructor
      */
     public function __construct()
@@ -212,6 +235,30 @@ class Ticket
     }
 
     /**
+     * Set outlookConversationId
+     *
+     * @param string $outlookConversationId
+     *
+     * @return Ticket
+     */
+    public function setOutlookConversationId($outlookConversationId)
+    {
+        $this->outlookConversationId = $outlookConversationId;
+
+        return $this;
+    }
+
+    /**
+     * Get outlookConversationId
+     *
+     * @return string
+     */
+    public function getOutlookConversationId()
+    {
+        return $this->outlookConversationId;
+    }
+
+    /**
      * Get id
      *
      * @return integer
@@ -219,6 +266,26 @@ class Ticket
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set country
+     * 
+     * @param string $country
+     * 
+     * @return Ticket
+     */
+    public function setCountry($country) {
+        $this->country = $country;
+
+        return $this;
+    }
+
+    /**
+     * Get country
+     */
+    public function getCountry() {
+        return $this->country;
     }
 
     /**
@@ -315,30 +382,6 @@ class Ticket
     public function getReferenceIds()
     {
         return $this->referenceIds;
-    }
-
-    /**
-     * Set outlookConversationId
-     *
-     * @param string $outlookConversationId
-     *
-     * @return Ticket
-     */
-    public function setOutlookConversationId($outlookConversationId)
-    {
-        $this->outlookConversationId = $outlookConversationId;
-
-        return $this;
-    }
-
-    /**
-     * Get outlookConversationId
-     *
-     * @return string
-     */
-    public function getOutlookConversationId()
-    {
-        return $this->outlookConversationId;
     }
 
     /**
@@ -555,6 +598,77 @@ class Ticket
     public function getUpdatedAt()
     {
         return $this->updatedAt;
+    }
+
+    /**
+     * Set customerRepliedAt
+     *
+     * @param \DateTime $customerRepliedAt
+     *
+     * @return Ticket
+     */
+    public function setCustomerRepliedAt($customerRepliedAt)
+    {
+        $this->customerRepliedAt = $customerRepliedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get customerRepliedAt
+     *
+     * @return \DateTime
+     */
+    public function getCustomerRepliedAt()
+    {
+        return $this->customerRepliedAt;
+    }
+
+    /**
+     * Set resolveSlaLevel
+     *
+     * @param \integer $resolveSlaLevel
+     *
+     * @return Ticket
+     */
+    public function setResolveSlaLevel($resolveSlaLevel)
+    {
+        $this->resolveSlaLevel = $resolveSlaLevel;
+
+        return $this;
+    }
+
+    /**
+     * Get resolveSlaLevel
+     *
+     * @return \integer
+     */
+    public function getResolveSlaLevel()
+    {
+        return $this->resolveSlaLevel;
+    }
+    /**
+     * Set responseSlaLevel
+     *
+     * @param \integer $responseSlaLevel
+     *
+     * @return Ticket
+     */
+    public function setResponseSlaLevel($responseSlaLevel)
+    {
+        $this->responseSlaLevel = $responseSlaLevel;
+
+        return $this;
+    }
+
+    /**
+     * Get responseSlaLevel
+     *
+     * @return \integer
+     */
+    public function getResponseSlaLevel()
+    {
+        return $this->responseSlaLevel;
     }
 
     /**

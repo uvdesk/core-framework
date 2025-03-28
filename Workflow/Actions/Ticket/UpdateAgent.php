@@ -7,6 +7,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\AutomationBundle\Workflow\Event;
+use Webkul\UVDesk\AutomationBundle\Workflow\Events\AgentActivity;
+use Webkul\UVDesk\AutomationBundle\Workflow\Events\TicketActivity;
 
 class UpdateAgent extends WorkflowAction
 {
@@ -42,32 +45,43 @@ class UpdateAgent extends WorkflowAction
         return $agentCollection;
     }
 
-    public static function applyAction(ContainerInterface $container, $entity, $value = null)
+    public static function applyAction(ContainerInterface $container, Event $event, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
+
+        if (!$event instanceof TicketActivity) {
+            return;
+        } else {
+            $ticket = $event->getTicket();
+            
+            if (empty($ticket)) {
+                return;
+            }
+        }
         
-        if ($entity instanceof Ticket) {
-            if ($value == 'responsePerforming' && is_object($currentUser = $container->get('security.token_storage')->getToken()->getUser())) {
-                if (null != $currentUser->getAgentInstance()) {
-                    $agent = $currentUser;
-                }
-            } else {
-                $agent = $entityManager->getRepository(User::class)->find($value);
-
-                if ($agent) {
-                    $agent = $entityManager->getRepository(User::class)->findOneBy(array('email' => $agent->getEmail()));
-                }
+        if ($value == 'responsePerforming' && is_object($currentUser = $container->get('security.token_storage')->getToken()?->getUser())) {
+            if (null != $currentUser->getAgentInstance()) {
+                $agent = $currentUser;
             }
+        } else {
+            $agent = $entityManager->getRepository(User::class)->find($value);
 
-            if (!empty($agent)) {
-                if ($entityManager->getRepository(User::class)->findOneBy(array('id' => $agent->getId()))) {
-                    $entity->setAgent($agent);
-                    $entityManager->persist($entity);
-                    $entityManager->flush();
-                }
-            } else {
-                // Agent Not Found. Disable Workflow/Prepared Response
+            if ($agent) {
+                $agent = $entityManager->getRepository(User::class)->findOneBy(array('email' => $agent->getEmail()));
             }
+        }
+
+        if (!empty($agent)) {
+            if ($entityManager->getRepository(User::class)->findOneById($agent->getId())) {
+                $ticket
+                    ->setAgent($agent)
+                ;
+
+                $entityManager->persist($ticket);
+                $entityManager->flush();
+            }
+        } else {
+            // Agent Not Found. Disable Workflow/Prepared Response
         }
     }
 }

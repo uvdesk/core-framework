@@ -9,25 +9,25 @@
 {% block templateCSS %}
     <style>
         span.uv-app-list-flag-active {
-        font-size: 15px;
-        color: #FFFFFF;
-        background-color: #2ED04C;
-        display: inline-block;
-        padding: 0px 7px 1px 7px;
-        margin-bottom: 2px;
-        border-radius: 3px;
+            font-size: 15px;
+            color: #FFFFFF;
+            background-color: #2ED04C;
+            display: inline-block;
+            padding: 0px 7px 1px 7px;
+            margin-bottom: 2px;
+            border-radius: 3px;
         }
         .uv-tab-error {
             border-bottom: 3px solid #FF5656 !important;
         }
         span.uv-app-list-flag-inactive {
-        font-size: 15px;
-        color: #FFFFFF;
-        background-color: #FF5656;
-        display: inline-block;
-        padding: 0px 7px 1px 7px;
-        margin-bottom: 2px;
-        border-radius: 3px;
+            font-size: 15px;
+            color: #FFFFFF;
+            background-color: #FF5656;
+            display: inline-block;
+            padding: 0px 7px 1px 7px;
+            margin-bottom: 2px;
+            border-radius: 3px;
         }
         .token-list {
             padding-left: 20px;
@@ -260,11 +260,11 @@
                         msg: '{{ "This field is mandatory"|trans }}'
                     },
                     'user_form[lastName]': function(value) {
-                        if(value != undefined && value !== '') {
+                        if (value != undefined && value !== '') {
                             [{
-                                pattern: /^[A-Za-z][A-Za-z]*[\sA-Za-z]*$/,
-                                msg: '{{ "This field must have characters only"|trans }}'
-                            },{
+                                pattern: /^[\p{L}]+$/u,
+                                msg: '{{ "This field must have no space and characters only"|trans }}'
+                            }, {
                                 maxLength:40,
                                 msg: '{{ "Maximum character length is 40"|trans }}'
                             }]
@@ -273,21 +273,21 @@
                     'user_form[email]': [{
                         required: true,
                         msg: '{{ "This field is mandatory"|trans }}'
-                    },{
+                    }, {
                         pattern: 'email',
                         msg: '{{ "Email address is invalid"|trans }}'
                     }],
                     'user_form[contactNumber]': function(value) {
-                        if(value != undefined && value !== '') {
-                            if(!value.match('^\\s*(?:\\+?(\\d{1,3}))?[-. (]*(\\d{3})[-. )]*(\\d{3})[-. ]*(\\d{4})(?: *x(\\d+))?\\s*$'))
+                        if (value != undefined && value !== '') {
+                            if (! value.match('^\\s*(?:\\+?(\\d{1,3}))?[-. (]*(\\d{3})[-. )]*(\\d{3})[-. ]*(\\d{4})(?: *x(\\d+))?\\s*$'))
                                 return '{{ "Contact number is invalid"|trans }}';
                         }
                     },
                     'user_form[password][first]': [{
                         required: true,
                         msg: '{{ "This field is mandatory"|trans }}'
-                        },{
-                        pattern: /^(?=(.*[a-zA-Z].*){2,})(?=.*\d.*)(?=.*\W.*)[a-zA-Z0-9\S]{8,}$/,
+                        }, {
+                        pattern: /^(?=(.*[a-zA-Z].*){2,})(?=.*\d)(?=.*[^\w\s]|.*_)[^\s]{8,}$/,
                         msg: '{{ "passwords must contain maximum 8 character length, at least two letters (not case sensitive), one number, one special character(space is not allowed.)"|trans }}'
                     }],
                     'user_form[password][second]': {
@@ -326,7 +326,7 @@
                     var target = $('#confirm-password input[name="user_form[oldPassword]"]');
                     var oldPass = target.val();
                     var that = this;
-                    if(oldPass && oldPass.length > 7) {
+                    if (oldPass && oldPass.length > 7) {
                         $('#confirm-password .uv-pop-up-close,#uv-save-profile').trigger('click');
                         target.next('.uv-field-message').remove();
                     } else {                    
@@ -339,12 +339,12 @@
 				formChanged: function(e) {
                     var fieldName = Backbone.$(e.currentTarget).attr('name');
                     $(".uv-tabs li.uv-tab-active").removeClass('uv-tab-error')
-                    if(fieldName == 'user_form[password][second]') {
-                        if($("input[name='user_form[password][first]']").val().length) {
+                    if (fieldName == 'user_form[password][second]') {
+                        if ($("input[name='user_form[password][first]']").val().length) {
                             this.model.set(fieldName, Backbone.$(e.currentTarget).val())
                             this.model.isValid([fieldName])
                         } else {
-                            if($("input[name='user_form[password][second]']").val().length) {
+                            if ($("input[name='user_form[password][second]']").val().length) {
 		    			        this.model.set(fieldName, Backbone.$(e.currentTarget).val())
                                 this.model.isValid([fieldName])
                             } else {
@@ -354,7 +354,7 @@
                     } else {
                         this.model.set(fieldName, Backbone.$(e.currentTarget).val())
                         this.model.isValid([fieldName])
-                        if(fieldName == 'user_form[password][first]' && !$("input[name='user_form[password][second]']").val().length) {
+                        if (fieldName == 'user_form[password][first]' && !$("input[name='user_form[password][second]']").val().length) {
 		    			    Backbone.Validation.callbacks.valid(this, 'user_form[password][second]', 'input');
                         }
                     }

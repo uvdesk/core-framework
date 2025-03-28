@@ -28,6 +28,10 @@
         font-size: 15px;
         font-weight: 500;
     }
+    .uv-text-left .uv-dropdown-container {
+        overflow:  unset !important;
+        max-height: unset !important;
+    }
     .uv-navbar .uv-icon-load-more {
         margin-right: 5px;
     }
@@ -287,6 +291,14 @@
         margin: 10px 0 10px -19px;
         width: 195px;
     }
+
+    .uv-paper .uv-navbar .uv-action-new {
+        width: 50px !important;
+        height: 50px !important;
+        padding: 15px !important;
+        border-radius: 60px !important;
+        margin-right: -8px !important;
+    }
 </style>
 
 <!-- Navigation -->
@@ -320,6 +332,31 @@
             <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async="async"></script>
         <!-- Google Translation  -->
 
+        <span class="new">
+            <div class="uv-action-new uv-dropdown-other">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20px" height="20px">
+                    <path fill-rule="evenodd"  fill="rgb(255, 255, 255)" d="M20.000,12.000 L12.000,12.000 L12.000,20.000 L8.000,20.000 L8.000,12.000 L0.000,12.000 L0.000,8.000 L8.000,8.000 L8.000,-0.000 L12.000,-0.000 L12.000,8.000 L20.000,8.000 L20.000,12.000 Z"></path>
+                </svg>
+            </div>
+
+            <div class="uv-dropdown-list uv-bottom-right uv-text-left">
+                <div class="uv-dropdown-container">
+                    <label>{{ 'Create New'|trans }}</label>
+                    <ul>
+                        {% if user_service.isAccessAuthorized('ROLE_AGENT_CREATE_TICKET') %}
+                            <li data-action="create" class="uv-open-popup" data-target="create-ticket-modal">{{ 'Create Ticket'|trans }}</li>
+                        {% endif %}
+						{% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT') %}
+                            <li><a href="{{ path('helpdesk_member_create_account') }}">{{ 'Create Agent'|trans }}</a></li>
+                        {% endif %}
+						{% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER') %}
+                            <li><a href="{{ path('helpdesk_member_create_customer_account') }}">{{ 'Create Customer'|trans }}</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </span>
+
         <!-- Profile Navigations -->
         <span style="position: relative" class="">
             <div class="uv-profile uv-dropdown-other">
@@ -340,19 +377,11 @@
                     <ul>
                         <li><a href="{{ path('edit_profile') }}" class='profiler'>{{ 'Your Profile'|trans }}</a></li>
                     </ul>
-                    
                     <ul>
-                        {% if user_service.isAccessAuthorized('ROLE_AGENT_CREATE_TICKET') %}
-                            <li data-action="create" class="uv-open-popup" data-target="create-ticket-modal">{{ 'Create Ticket'|trans }}</li>
-                        {% endif %}
-						{% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT') %}
-                            <li><a href="{{ path('helpdesk_member_create_account') }}">{{ 'Create Agent'|trans }}</a></li>
-                        {% endif %}
-						{% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER') %}
-                            <li><a href="{{ path('helpdesk_member_create_customer_account') }}">{{ 'Create Customer'|trans }}</a></li>
-                        {% endif %}
+                        <li><a href="{{ path('helpdesk_knowledgebase') }}" class='profiler'>{{ 'Support'|trans }}</a></li>
+                    </ul>
 
-                        <div role="none" class="dropdown-divider"></div>
+                    <ul>
                         <li><a class="uv-text-danger" href="{{ path('helpdesk_member_handle_logout') }}">{{ 'Sign Out'|trans }}</a></li>
                     </ul>
                 </div>

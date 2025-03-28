@@ -5,7 +5,6 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,6 +15,7 @@ use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity;
 use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity as CommunityPackageEntities;
 use Webkul\UVDesk\AutomationBundle\Entity\PreparedResponses;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\AgentActivity;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread;
@@ -40,6 +40,8 @@ use Webkul\UVDesk\MailboxBundle\Utils\IMAP\Configuration as ImapConfiguration;
 use Webkul\UVDesk\SupportCenterBundle\Entity\Article;
 use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
 use Webkul\UVDesk\MailboxBundle\Services\MailboxService;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use UVDesk\CommunityPackages\UVDesk as UVDeskCommunityPackages;
 
 class TicketService
 {
@@ -52,12 +54,13 @@ class TicketService
     protected $userService;
     
     public function __construct(
-        ContainerInterface $container, 
-        RequestStack $requestStack, 
-        EntityManagerInterface $entityManager, 
+        ContainerInterface $container,
+        RequestStack $requestStack,
+        EntityManagerInterface $entityManager,
         FileUploadService $fileUploadService,
-        UserService $userService, 
-        MailboxService $mailboxService
+        UserService $userService,
+        MailboxService $mailboxService,
+        TranslatorInterface $translator
     ) {
         $this->container = $container;
 		$this->requestStack = $requestStack;
@@ -65,11 +68,25 @@ class TicketService
         $this->fileUploadService = $fileUploadService;
         $this->userService = $userService;
         $this->mailboxService = $mailboxService;
+        $this->translator = $translator;
     }
 
-    public function getPathToConfigurationFile()
+    public function getAllMailboxes()
     {
-        return $this->container->get('kernel')->getProjectDir() . self::PATH_TO_CONFIG;
+        $mailboxConfiguration = $this->mailboxService->parseMailboxConfigurations();
+
+        $defaultMailbox = $mailboxConfiguration->getDefaultMailbox();
+
+        $collection = array_map(function ($mailbox) use ($defaultMailbox) {
+            return [
+                'id'        => $mailbox->getId(),
+                'name'      => $mailbox->getName(),
+                'isEnabled' => $mailbox->getIsEnabled(),
+                'email'     => $mailbox->getImapConfiguration()->getUsername(),
+            ];
+        }, array_values($mailboxConfiguration->getMailboxes()));
+
+        return ($collection ?? []);
     }
 
     public function generateRandomEmailReferenceId()
@@ -141,31 +158,31 @@ class TicketService
         $ticketTypeCollection = $this->entityManager->getRepository(TicketType::class)->findByIsActive(true);
         
         try {
-            if ($this->userService->isfileExists('apps/uvdesk/custom-fields')) {
+            if ($this->userService->isFileExists('apps/uvdesk/custom-fields')) {
                 $headerCustomFields = $this->container->get('uvdesk_package_custom_fields.service')->getCustomFieldsArray('user');
-            } else if ($this->userService->isfileExists('apps/uvdesk/form-component')) {
+            } else if ($this->userService->isFileExists('apps/uvdesk/form-component')) {
                 $headerCustomFields = $this->container->get('uvdesk_package_form_component.service')->getCustomFieldsArray('user');
             }
         } catch (\Exception $e) {
-            // @TODO: Log execption message
+            // @TODO: Log exception message
         }
 
         return $twigTemplatingEngine->render('@UVDeskCoreFramework/Snippets/createMemberTicket.html.twig', [
             'ticketTypeCollection' => $ticketTypeCollection,
-            'headerCustomFields' => $headerCustomFields ?? null,
+            'headerCustomFields'   => $headerCustomFields ?? null,
         ]);
     }
 
     public function getCustomerCreateTicketCustomFieldSnippet()
     {
         try {
-            if ($this->userService->isfileExists('apps/uvdesk/custom-fields')) {
+            if ($this->userService->isFileExists('apps/uvdesk/custom-fields')) {
                 $customFields = $this->container->get('uvdesk_package_custom_fields.service')->getCustomFieldsArray('customer');
-            } else if ($this->userService->isfileExists('apps/uvdesk/form-component')) {
+            } else if ($this->userService->isFileExists('apps/uvdesk/form-component')) {
                 $customFields = $this->container->get('uvdesk_package_form_component.service')->getCustomFieldsArray('customer');
             }
         } catch (\Exception $e) {
-            // @TODO: Log execption message
+            // @TODO: Log exception message
         }
 
         return $customFields ?? null;
@@ -201,12 +218,64 @@ class TicketService
         return;
     }
 
+    public function getDemanedFilterOptions($filterType,$ids) {
+        $qb = $this->entityManager->createQueryBuilder();
+        switch ($filterType) {
+            case 'agent':
+                $qb->select("u.id,u.email,CONCAT(u.firstName,' ', u.lastName) AS name")->from(User::class, 'u')
+                        ->leftJoin(UserInstance::class, 'ud', 'WITH', 'u.id = ud.user')
+                        ->where('ud.supportRole != :roles')
+                        ->andwhere('ud.isActive = 1')
+                        ->andwhere('u.id IN (:ids)')
+                        ->setParameter('roles', 4)
+                        ->setParameter('ids', $ids)
+                        ->orderBy('name','ASC');
+
+                return $qb->getQuery()->getArrayResult();
+            case 'customer':
+                $qb->select("c.id,c.email,CONCAT(c.firstName,' ', c.lastName) AS name")->from(User::class, 'c')
+                        ->leftJoin(UserInstance::class, 'ud', 'WITH', 'c.id = ud.user')
+                        ->where('ud.supportRole = :roles')
+                        ->andwhere('ud.isActive = 1')
+                        ->andwhere('c.id IN (:ids)')
+                        ->setParameter('roles', 4)
+                        ->setParameter('ids', $ids)
+                        ->orderBy('name','ASC');
+
+                return $qb->getQuery()->getArrayResult();
+            case 'group':
+                $qb->select("ug.id,ug.description")->from(SupportGroup::class, 'ug')
+                        ->andwhere('ug.isEnabled = 1')
+                        ->andwhere('ug.id IN (:ids)')
+                        ->setParameter('ids', $ids)
+                        ->orderBy('ug.description','ASC');
+
+                return $qb->getQuery()->getArrayResult();
+            case 'team':
+                $qb->select("usg.id,usg.description")->from(SupportTeam::class, 'usg')
+                        ->andwhere('usg.isActive = 1')
+                        ->andwhere('usg.id IN (:ids)')
+                        ->setParameter('ids', $ids)
+                        ->orderBy('usg.description','ASC');
+
+                return $qb->getQuery()->getArrayResult();
+            case 'tag':
+                $qb->select("t.id,t.name")->from(Tag::class, 't')
+                        ->andwhere('t.id IN (:ids)')
+                        ->setParameter('ids', $ids)
+                        ->orderBy('t.name','ASC');
+
+                return $qb->getQuery()->getArrayResult();
+        }
+    }
+
     public function createTicketBase(array $ticketData = [])
     {
         if ('email' == $ticketData['source']) {
             try {
                 if (array_key_exists('UVDeskMailboxBundle', $this->container->getParameter('kernel.bundles'))) {
                     $mailbox = $this->mailboxService->getMailboxByEmail($ticketData['mailboxEmail']);
+                    $ticketData['mailboxEmail'] = $mailbox['email'];
                 }
             } catch (\Exception $e) {
                 // No mailbox found for this email. Skip ticket creation.
@@ -232,7 +301,6 @@ class TicketService
         $ticketData['isTrashed'] = false;
 
         $ticket = new Ticket();
-
         foreach ($ticketData as $property => $value) {
             $callable = 'set' . ucwords($property);
 
@@ -255,12 +323,29 @@ class TicketService
             $threadData['replyTo'] = $threadData['to'];
         }
 
-        $collaboratorEmails = array_merge(!empty($threadData['cccol']) ? $threadData['cccol'] : [], !empty($threadData['cc']) ? $threadData['cc'] : []);
-        
-        if (!empty($collaboratorEmails)) {
+        $collaboratorEmails = [];
+        // check if $threadData['cc'] is not empty then merge it with $collaboratorEmails
+        if (! empty($threadData['cc'])) {
+            if (! is_array($threadData['cc'])) {
+                $threadData['cc'] = [$threadData['cc']];
+            }
+
+            $collaboratorEmails = array_merge($collaboratorEmails, $threadData['cc']);
+        }
+
+        // check if $threadData['cccol'] is not empty
+        if (! empty($threadData['cccol'])) {
+            if (! is_array($threadData['cccol'])) {
+                $threadData['cccol'] = [$threadData['cccol']];
+            }
+
+            $collaboratorEmails = array_merge($collaboratorEmails, $threadData['cccol']);
+        }
+
+        if (! empty($collaboratorEmails)) {
             $threadData['cc'] = $collaboratorEmails;
         }
-   
+
         $thread = new Thread();
         $thread->setTicket($ticket);
         $thread->setCreatedAt(new \DateTime());
@@ -335,10 +420,13 @@ class TicketService
         
         $ticket->createdThread = $thread;
 
-        // Uploading Attachments
-        if (!empty($threadData['attachments'])) {
+        // Uploading Attachments.
+        if (
+            (isset($threadData['attachments']) && ! empty($threadData['attachments'])) || (isset($threadData['attachmentContent']) && ! empty($threadData['attachmentContent']))
+        ) {
             if ('email' == $threadData['source']) {
-                $this->saveThreadEmailAttachments($thread, $threadData['attachments']);
+                // Saving Email attachments in case of outlook with $threadData['attachmentContent']
+                $this->saveThreadEmailAttachments($thread, $threadData['attachments'], $threadData['attachmentContent'] ?? []);
             } else if (!empty($threadData['attachments'])) {
                 $this->saveThreadAttachment($thread, $threadData['attachments']);
             }
@@ -397,7 +485,7 @@ class TicketService
         $this->entityManager->flush();
     }
 
-    public function saveThreadEmailAttachments($thread, array $attachments)
+    public function saveThreadEmailAttachments($thread, array $attachments, array $attachmentContents)
     {
         $prefix = 'threads/' . $thread->getId();
         $uploadManager = $this->container->get('uvdesk.core.file_system.service')->getUploadManager();
@@ -418,6 +506,41 @@ class TicketService
             }
         }
 
+        // Microsoft 365 Attachments.
+        $basePublicPath = realpath(__DIR__ . '/../../../../public') . '/';
+        $prefixOutlook = $basePublicPath . 'assets/threads/' . $thread->getId() . '/';
+
+        foreach ($attachmentContents as $attachmentContent) {
+            $decodedData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $attachmentContent['content']));
+   
+            $filePath = $prefixOutlook . $attachmentContent['name'];
+
+            if (!is_dir($prefixOutlook) && !is_dir($prefixOutlook)) {
+                mkdir($prefixOutlook, 0755, true);
+            }
+
+            $relativePath = str_replace($basePublicPath, '', $filePath);
+
+            try {
+                $result = file_put_contents($filePath, $decodedData);
+                if ($result === false) {
+                    throw new \Exception("Failed to write file to $filePath");
+                }
+            } catch (\Exception $e) {
+            }
+
+            if (!empty($filePath)) {
+                $threadAttachment = (new Attachment())
+                    ->setThread($thread)
+                    ->setName($attachmentContent['name'])
+                    ->setPath($relativePath)
+                    ->setSize(strlen($decodedData)) // Use actual file size
+                    ->setContentType($attachmentContent['mimeType']);
+
+                $this->entityManager->persist($threadAttachment);
+            }
+        }
+
         $this->entityManager->flush();
     }
 
@@ -429,7 +552,7 @@ class TicketService
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('tp.id','tp.code As name')->from(TicketType::class, 'tp')
-                ->andwhere('tp.isActive = 1')
+                ->andWhere('tp.isActive = 1')
                 ->orderBy('tp.code', 'ASC');
 
         return $types = $qb->getQuery()->getArrayResult();
@@ -474,9 +597,9 @@ class TicketService
         $qb->select('tg')->from(Tag::class, 'tg');
 
         if($request) {
-            $qb->andwhere("tg.name LIKE :tagName");
-            $qb->setParameter('tagName', '%'.urldecode($request->query->get('query')).'%');
-            $qb->andwhere("tg.id NOT IN (:ids)");
+            $qb->andWhere("tg.name LIKE :tagName");
+            $qb->setParameter('tagName', '%'.urldecode(trim($request->query->get('query'))).'%');
+            $qb->andWhere("tg.id NOT IN (:ids)");
             $qb->setParameter('ids', explode(',',urldecode($request->query->get('not'))));
         }
 
@@ -550,7 +673,7 @@ class TicketService
             $formattedTime= $this->fomatTimeByPreference($dbTime,$timeZone,$timeFormat,$agentTimeZone,$agentTimeFormat);
 
             $currentDateTime  = new \DateTime('now');
-            if($this->getLastReply($ticket['id'])) {
+            if ($this->getLastReply($ticket['id'])) {
                 $lastRepliedTime = 
                 $this->time2string($currentDateTime->getTimeStamp() - $this->getLastReply($ticket['id'])['createdAt']->getTimeStamp());
             } else {
@@ -559,23 +682,23 @@ class TicketService
             }
 
             $ticketResponse = [
-                'id' => $ticket['id'],
-                'subject' => $ticket['subject'],
-                'isStarred' => $ticket['isStarred'],
-                'isAgentView' => $ticket['isAgentViewed'],
-                'isTrashed' => $ticket['isTrashed'],
-                'source' => $ticket['source'],
-                'group' => $ticketDetails['groupName'],
-                'team' => $ticketDetails['teamName'],
-                'priority' => $ticket['priority'],
-                'type' => $ticketDetails['typeName'],
-                'timestamp' => $formattedTime['dateTimeZone'],
+                'id'                => $ticket['id'],
+                'subject'           => $ticket['subject'],
+                'isStarred'         => $ticket['isStarred'],
+                'isAgentView'       => $ticket['isAgentViewed'],
+                'isTrashed'         => $ticket['isTrashed'],
+                'source'            => $ticket['source'],
+                'group'             => $ticketDetails['groupName'],
+                'team'              => $ticketDetails['teamName'],
+                'priority'          => $ticket['priority'],
+                'type'              => $ticketDetails['typeName'],
+                'timestamp'         => $formattedTime['dateTimeZone'],
                 'formatedCreatedAt' => $formattedTime['dateTimeZone']->format($formattedTime['timeFormatString']),
-                'totalThreads' => $totalTicketReplies,
-                'agent' => null,
-                'customer' => null,
-                'hasAttachments' => $ticketHasAttachments,
-                'lastReplyTime' => $lastRepliedTime
+                'totalThreads'      => $totalTicketReplies,
+                'agent'             => null,
+                'customer'          => null,
+                'hasAttachments'    => $ticketHasAttachments,
+                'lastReplyTime'     => $lastRepliedTime
             ];
            
             if (!empty($ticketDetails['agentId'])) {
@@ -588,9 +711,9 @@ class TicketService
 
             if (!empty($ticketDetails['customerId'])) {
                 $ticketResponse['customer'] = [
-                    'id' => $ticketDetails['customerId'],
-                    'name' => $ticketDetails['customerName'],
-                    'email' => $ticketDetails['customerEmail'],
+                    'id'             => $ticketDetails['customerId'],
+                    'name'           => $ticketDetails['customerName'],
+                    'email'          => $ticketDetails['customerEmail'],
                     'smallThumbnail' => $ticketDetails['customersmallThumbnail'],
                 ];
             }
@@ -599,12 +722,12 @@ class TicketService
         }
          
         return [
-            'tickets' => $ticketCollection,
+            'tickets'    => $ticketCollection,
             'pagination' => $paginationData,
-            'tabs' => $ticketTabs,
+            'tabs'       => $ticketTabs,
             'labels' => [
                 'predefind' => $this->getPredefindLabelDetails($activeUser, $supportGroupReference, $supportTeamReference, $params),
-                'custom' => $this->getCustomLabelDetails($this->container),
+                'custom'    => $this->getCustomLabelDetails($this->container),
             ],
           
         ];
@@ -625,11 +748,11 @@ class TicketService
         $_s = ($s < 10 ? '0' : '').$s;
 
         $time_str = "0 minutes";
-        if($_d != 00)
+        if ($_d != 00)
             $time_str = $_d." ".'days';
-        elseif($_h != 00)
+        elseif ($_h != 00)
             $time_str = $_h." ".'hours';
-        elseif($_m != 00)
+        elseif ($_m != 00)
             $time_str = $_m." ".'minutes';
 
         return $time_str." "."ago";
@@ -652,7 +775,7 @@ class TicketService
             $supportTeamIds = implode(',', $supportTeamIds);
 
             if ($userInstance->getTicketAccesslevel() == 4) {
-                $queryBuilder->andwhere('ticket.agent = ' . $currentUser->getId());
+                $queryBuilder->andWhere('ticket.agent = ' . $currentUser->getId());
             } elseif ($userInstance->getTicketAccesslevel() == 2) {
                 $query = '';
                 if ($supportGroupIds){
@@ -663,7 +786,7 @@ class TicketService
                 }
                 $queryBuilder->leftJoin('ticket.supportGroup', 'supportGroup')
                             ->leftJoin('ticket.supportTeam', 'supportTeam')
-                            ->andwhere('( ticket.agent = ' . $currentUser->getId().$query.')');
+                            ->andWhere('( ticket.agent = ' . $currentUser->getId().$query.')');
                     
             } elseif ($userInstance->getTicketAccesslevel() == 3) {
                 $query = '';
@@ -672,7 +795,7 @@ class TicketService
                 }
                 $queryBuilder->leftJoin('ticket.supportGroup', 'supportGroup')
                             ->leftJoin('ticket.supportTeam', 'supportTeam')
-                            ->andwhere('( ticket.agent = ' . $currentUser->getId().$query. ')');
+                            ->andWhere('( ticket.agent = ' . $currentUser->getId().$query. ')');
             }
         }
 
@@ -681,17 +804,17 @@ class TicketService
 
         // for new tickets count
         $newQb = clone $queryBuilder;
-        $newQb->andwhere('ticket.isNew = 1');
+        $newQb->andWhere('ticket.isNew = 1');
         $data['new'] = $newQb->getQuery()->getSingleScalarResult();
 
         // for unassigned tickets count
         $unassignedQb = clone $queryBuilder;
-        $unassignedQb->andwhere("ticket.agent is NULL");
+        $unassignedQb->andWhere("ticket.agent is NULL");
         $data['unassigned'] = $unassignedQb->getQuery()->getSingleScalarResult();
 
         // for unanswered ticket count
         $unansweredQb = clone $queryBuilder;
-        $unansweredQb->andwhere('ticket.isReplied = 0');
+        $unansweredQb->andWhere('ticket.isReplied = 0');
         $data['notreplied'] = $unansweredQb->getQuery()->getSingleScalarResult();
 
         // for my tickets count
@@ -702,14 +825,14 @@ class TicketService
 
         // for starred tickets count
         $starredQb = clone $queryBuilder;
-        $starredQb->andwhere('ticket.isStarred = 1');
+        $starredQb->andWhere('ticket.isStarred = 1');
         $data['starred'] = $starredQb->getQuery()->getSingleScalarResult();
 
         // for trashed tickets count
         $trashedQb = clone $queryBuilder;
         $trashedQb->where('ticket.isTrashed = 1');
         if ($currentUser->getRoles()[0] != 'ROLE_SUPER_ADMIN' && $userInstance->getTicketAccesslevel() != 1) {
-            $trashedQb->andwhere('ticket.agent = ' . $currentUser->getId());
+            $trashedQb->andWhere('ticket.agent = ' . $currentUser->getId());
         }
         $data['trashed'] = $trashedQb->getQuery()->getSingleScalarResult();
 
@@ -776,21 +899,21 @@ class TicketService
             $formattedTime = $this->fomatTimeByPreference($dbTime,$timeZone,$timeFormat,$agentTimeZone,$agentTimeFormat);
 
             $threadResponse = [
-                'id' => $threadDetails['id'],
-                'user' => null,
-                'fullname' => null,
-				'reply' => html_entity_decode($threadDetails['message']),
-				'source' => $threadDetails['source'],
-                'threadType' => $threadDetails['threadType'],
-                'userType' => $threadDetails['createdBy'],
-                'timestamp' => $formattedTime['dateTimeZone'],
+                'id'                => $threadDetails['id'],
+                'user'              => null,
+                'fullname'          => null,
+				'reply'             => html_entity_decode($threadDetails['message']),
+				'source'            => $threadDetails['source'],
+                'threadType'        => $threadDetails['threadType'],
+                'userType'          => $threadDetails['createdBy'],
+                'timestamp'         => $formattedTime['dateTimeZone'],
                 'formatedCreatedAt' => $formattedTime['dateTimeZone']->format($formattedTime['timeFormatString']),
-                'bookmark' => $threadDetails['isBookmarked'],
-                'isLocked' => $threadDetails['isLocked'],
-                'replyTo' => $threadDetails['replyTo'],
-                'cc' => $threadDetails['cc'],
-                'bcc' => $threadDetails['bcc'],
-                'attachments' => $threadDetails['attachments'],
+                'bookmark'          => $threadDetails['isBookmarked'],
+                'isLocked'          => $threadDetails['isLocked'],
+                'replyTo'           => $threadDetails['replyTo'],
+                'cc'                => $threadDetails['cc'],
+                'bcc'               => $threadDetails['bcc'],
+                'attachments'       => $threadDetails['attachments'],
             ];
   
             if (!empty($threadDetails['user'])) {
@@ -813,7 +936,7 @@ class TicketService
         }
 
         return [
-            'threads' => $threadCollection,
+            'threads'    => $threadCollection,
             'pagination' => $paginationData,
         ];
     }
@@ -833,7 +956,6 @@ class TicketService
                 continue;
             }
 
-
             switch ($params['actionType']) {
                 case 'trashed':
                     if (false == $ticket->getIsTrashed()) {
@@ -843,17 +965,18 @@ class TicketService
                     }
 
                     // Trigger ticket delete event
-                    $event = new GenericEvent(CoreWorkflowEvents\Ticket\Delete::getId(), [
-                        'entity' => $ticket,
-                    ]);
+                    $event = new CoreWorkflowEvents\Ticket\Delete();
+                    $event
+                        ->setTicket($ticket)
+                    ;
 
                     $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                     break;
                 case 'delete':
-
                     $threads = $ticket->getThreads();
                     $fileService = new Filesystem();
+
                     if (count($threads) > 0) {
                         foreach($threads as $thread) {
                             if (!empty($thread)) {
@@ -864,7 +987,6 @@ class TicketService
 
                     $this->entityManager->remove($ticket);
                     
-
                     break;
                 case 'restored':
                     if (true == $ticket->getIsTrashed()) {
@@ -872,6 +994,7 @@ class TicketService
 
                         $this->entityManager->persist($ticket);
                     }
+
                     break;
                 case 'agent':
                     if ($ticket->getAgent() == null || $ticket->getAgent() && $ticket->getAgent()->getId() != $params['targetId']) {
@@ -882,12 +1005,14 @@ class TicketService
                         $this->entityManager->persist($ticket);
     
                         // Trigger Agent Assign event
-                        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Agent::getId(), [
-                            'entity' => $ticket,
-                        ]);
+                        $event = new CoreWorkflowEvents\Ticket\Agent();
+                        $event
+                            ->setTicket($ticket)
+                        ;
     
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
+
                     break;
                 case 'status':
                     if ($ticket->getStatus() == null || $ticket->getStatus() && $ticket->getStatus()->getId() != $params['targetId']) {
@@ -898,9 +1023,10 @@ class TicketService
                         $this->entityManager->persist($ticket);
 
                         // Trigger ticket status event
-                        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Status::getId(), [
-                            'entity' => $ticket,
-                        ]);
+                        $event = new CoreWorkflowEvents\Ticket\Status();
+                        $event
+                            ->setTicket($ticket)
+                        ;
                         
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
@@ -915,9 +1041,10 @@ class TicketService
                         $this->entityManager->persist($ticket);
     
                         // Trigger ticket type event
-                        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Type::getId(), [
-                            'entity' => $ticket,
-                        ]);
+                        $event = new CoreWorkflowEvents\Ticket\Type();
+                        $event
+                            ->setTicket($ticket)
+                        ;
     
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
@@ -932,9 +1059,10 @@ class TicketService
                         $this->entityManager->persist($ticket);
     
                         // Trigger Support group event
-                        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Group::getId(), [
-                            'entity' => $ticket,
-                        ]);
+                        $event = new CoreWorkflowEvents\Ticket\Group();
+                        $event
+                            ->setTicket($ticket)
+                        ;
     
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
@@ -949,9 +1077,10 @@ class TicketService
                         $this->entityManager->persist($ticket);
         
                         // Trigger team event
-                        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Team::getId(), [
-                            'entity' => $ticket,
-                        ]);
+                        $event = new CoreWorkflowEvents\Ticket\Team();
+                        $event
+                            ->setTicket($ticket)
+                        ;
         
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
@@ -966,9 +1095,10 @@ class TicketService
                         $this->entityManager->persist($ticket);
     
                         // Trigger ticket Priority event
-                        $event = new GenericEvent(CoreWorkflowEvents\Ticket\Priority::getId(), [
-                            'entity' => $ticket,
-                        ]);
+                        $event = new CoreWorkflowEvents\Ticket\Priority();
+                        $event
+                            ->setTicket($ticket)
+                        ;
     
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
@@ -991,9 +1121,33 @@ class TicketService
 
         $this->entityManager->flush();
 
+        if ($params['actionType'] == 'trashed') {
+            $message = 'Success ! Tickets moved to trashed successfully.';
+        } elseif ($params['actionType'] == 'restored') {
+            $message = 'Success ! Tickets restored successfully.';
+        } elseif ($params['actionType'] == 'delete') {
+            $message = 'Success ! Tickets removed successfully.';
+        } elseif ($params['actionType'] == 'agent'){
+            $message = 'Success ! Agent assigned successfully.';
+        } elseif ($params['actionType'] == 'status'){
+            $message = 'Success ! Tickets status updated successfully.';
+        } elseif ($params['actionType'] == 'type'){
+            $message = 'Success ! Tickets type updated successfully.';
+        } elseif ($params['actionType'] == 'group'){
+            $message = 'Success ! Tickets group updated successfully.';
+        } elseif ($params['actionType'] == 'team') {
+            $message = 'Success ! Tickets team updated successfully.';
+        } elseif ($params['actionType'] == 'priority') {
+            $message = 'Success ! Tickets priority updated successfully.';
+        } elseif ($params['actionType'] == 'label') {
+            $message = 'Success ! Tickets added to label successfully.';  
+        } else {
+            $message = 'Success ! Tickets have been updated successfully';
+        }
+
         return [
             'alertClass' => 'success',
-            'alertMessage' => $this->trans('Tickets have been updated successfully'),
+            'alertMessage' => $this->trans($message),
         ];
     }
     
@@ -1015,7 +1169,7 @@ class TicketService
         $customer = $this->container->get('user.service')->getCustomerPartialDetailById($ticket->getCustomer()->getId());
         $variables['ticket.customerName'] = $customer['name'];
         $userService = $this->container->get('user.service');
-      
+
         $variables['ticket.agentName'] = '';
         $variables['ticket.agentEmail'] = '';
         if ($ticket->getAgent()) {
@@ -1108,9 +1262,9 @@ class TicketService
             return [
                 'tags' => array_map(function ($supportTag) use ($articleRepository) {
                     return [
-                        'id' => $supportTag['id'],
-                        'name' => $supportTag['name'],
-                        'ticketCount' => $supportTag['totalTickets'],
+                        'id'           => $supportTag['id'],
+                        'name'         => $supportTag['name'],
+                        'ticketCount'  => $supportTag['totalTickets'],
                         'articleCount' => $articleRepository->getTotalArticlesBySupportTag($supportTag['id']),
                     ];
                 }, $pagination->getItems()),
@@ -1120,8 +1274,8 @@ class TicketService
             return [
                 'tags' => array_map(function ($supportTag) {
                     return [
-                        'id' => $supportTag['id'],
-                        'name' => $supportTag['name'],
+                        'id'          => $supportTag['id'],
+                        'name'        => $supportTag['name'],
                         'ticketCount' => $supportTag['totalTickets'],
                     ];
                 }, $pagination->getItems()),
@@ -1133,26 +1287,26 @@ class TicketService
     public function getTicketInitialThreadDetails(Ticket $ticket)
     {
         $initialThread = $this->entityManager->getRepository(Thread::class)->findOneBy([
-            'ticket' => $ticket,
+            'ticket'     => $ticket,
             'threadType' => 'create',
         ]);
 
         if (!empty($initialThread)) {
             $author = $initialThread->getUser();
             $authorInstance = 'agent' == $initialThread->getCreatedBy() ? $author->getAgentInstance() : $author->getCustomerInstance();
-        
+
             $threadDetails = [
-                'id' => $initialThread->getId(),
-                'source' => $initialThread->getSource(),
-                'messageId' => $initialThread->getMessageId(),
-                'threadType' => $initialThread->getThreadType(),
-                'createdBy' => $initialThread->getCreatedBy(),
-                'message' => html_entity_decode($initialThread->getMessage()),
+                'id'          => $initialThread->getId(),
+                'source'      => $initialThread->getSource(),
+                'messageId'   => $initialThread->getMessageId(),
+                'threadType'  => $initialThread->getThreadType(),
+                'createdBy'   => $initialThread->getCreatedBy(),
+                'message'     => html_entity_decode($initialThread->getMessage()),
                 'attachments' => $initialThread->getAttachments(),
-                'timestamp' => $initialThread->getCreatedAt()->getTimestamp(),
-                'createdAt' => $initialThread->getCreatedAt()->format('d-m-Y h:ia'),
-                'user' => $authorInstance->getPartialDetails(),
-                'cc' => is_array($initialThread->getCc()) ? implode(', ', $initialThread->getCc()) : '',
+                'timestamp'   => $initialThread->getCreatedAt()->getTimestamp(),
+                'createdAt'   => $initialThread->getCreatedAt()->format('d-m-Y h:ia'),
+                'user'        => $authorInstance->getPartialDetails(),
+                'cc'          => is_array($initialThread->getCc()) ? implode(', ', $initialThread->getCc()) : '',
             ];
 
             $attachments = $threadDetails['attachments']->getValues();
@@ -1185,20 +1339,20 @@ class TicketService
 
         $threadResponse = $qb->getQuery()->getArrayResult();
 
-        if((!empty($threadResponse[0][0]))) {
+        if ((!empty($threadResponse[0][0]))) {
             $threadDetails = $threadResponse[0][0];
             $userService = $this->container->get('user.service');
-            
+
             if ($threadDetails['createdBy'] == 'agent') {
                 $threadDetails['user'] = $userService->getAgentDetailById($threadResponse[0]['userId']);
             } else {
                 $threadDetails['user'] = $userService->getCustomerPartialDetailById($threadResponse[0]['userId']);
             }
-            
+
             $threadDetails['reply'] = html_entity_decode($threadDetails['message']);
-            $threadDetails['formatedCreatedAt'] = $this->timeZoneConverter($threadDetails['createdAt']);	
+            $threadDetails['formatedCreatedAt'] = $this->timeZoneConverter($threadDetails['createdAt']);
             $threadDetails['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($threadDetails['createdAt']);
-        
+
             if (!empty($threadDetails['attachments'])) {
                 $entityManager = $this->entityManager;
                 $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
@@ -1209,7 +1363,7 @@ class TicketService
                 }, $threadDetails['attachments']);
             }
         }
-        
+
         return $threadDetails ?? null;
     }
 
@@ -1227,7 +1381,7 @@ class TicketService
     public function getAgentDraftReply()
     {
 	    $signature = $this->getUser()->getAgentInstance()->getSignature();
-        
+
         return str_replace( "\n", '<br/>', $signature);
     }
 
@@ -1239,6 +1393,7 @@ class TicketService
     public function getAllSources()
     {
         $sources = ['email' => 'Email', 'website' => 'Website'];
+
         return $sources;
     }
 
@@ -1249,7 +1404,7 @@ class TicketService
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('COUNT(DISTINCT t) as ticketCount,sl.id')->from(Ticket::class, 't')
                 ->leftJoin('t.supportLabels','sl')
-                ->andwhere('sl.user = :userId')
+                ->andWhere('sl.user = :userId')
                 ->setParameter('userId', $currentUser->getId())
                 ->groupBy('sl.id');
 
@@ -1258,7 +1413,7 @@ class TicketService
         $data = array();
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('sl.id,sl.name,sl.colorCode')->from(SupportLabel::class, 'sl')
-                ->andwhere('sl.user = :userId')
+                ->andWhere('sl.user = :userId')
                 ->setParameter('userId', $currentUser->getId());
 
         $labels = $qb->getQuery()->getResult();
@@ -1266,7 +1421,7 @@ class TicketService
         foreach ($labels as $key => $label) {
             $labels[$key]['count'] = 0;
             foreach ($ticketCountResult as $ticketCount) {
-                if(($label['id'] == $ticketCount['id']))
+                if (($label['id'] == $ticketCount['id']))
                     $labels[$key]['count'] = $ticketCount['ticketCount'] ?: 0;
             }
         }
@@ -1282,12 +1437,12 @@ class TicketService
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('sl')->from(SupportLabel::class, 'sl')
-            ->andwhere('sl.user = :userId')
+            ->andWhere('sl.user = :userId')
             ->setParameter('userId', $this->getUser()->getId());
 
-        if($request) {
-            $qb->andwhere("sl.name LIKE :labelName");
-            $qb->setParameter('labelName', '%'.urldecode($request->query->get('query')).'%');
+        if ($request) {
+            $qb->andWhere("sl.name LIKE :labelName");
+            $qb->setParameter('labelName', '%'.urldecode(trim($request->query->get('query'))).'%');
         }
 
         return $labels = $qb->getQuery()->getArrayResult();
@@ -1299,8 +1454,8 @@ class TicketService
         $qb->select("DISTINCT c.id, c.email, CONCAT(c.firstName,' ', c.lastName) AS name, userInstance.profileImagePath, userInstance.profileImagePath as smallThumbnail")->from(Ticket::class, 't')
                 ->leftJoin('t.collaborators', 'c')
                 ->leftJoin('c.userInstance', 'userInstance')
-                ->andwhere('t.id = :ticketId')
-                ->andwhere('userInstance.supportRole = :roles')
+                ->andWhere('t.id = :ticketId')
+                ->andWhere('userInstance.supportRole = :roles')
                 ->setParameter('ticketId', $ticketId)
                 ->setParameter('roles', 4)
                 ->orderBy('name','ASC');
@@ -1313,7 +1468,7 @@ class TicketService
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('tg')->from(Tag::class, 'tg')
                 ->leftJoin('tg.tickets' ,'t')
-                ->andwhere('t.id = :ticketId')
+                ->andWhere('t.id = :ticketId')
                 ->setParameter('ticketId', $ticketId);
 
         return $qb->getQuery()->getArrayResult();
@@ -1331,7 +1486,7 @@ class TicketService
                 ->setParameter('ticketId', $ticketId);
 
         $result = $qb->getQuery()->getResult();
-        
+
         return $result ? $result : [];
     }
 
@@ -1344,7 +1499,7 @@ class TicketService
                 ->setParameter('userId', $this->getUser()->getId());
 
         $result = $qb->getQuery()->getResult();
-        
+
         return $result ? $result : [];
     }
 
@@ -1357,16 +1512,15 @@ class TicketService
                 ->setParameter('ticketId', $ticketId);
 
         $result = $qb->getQuery()->getResult();
-        
+
         return $result ? $result : [];
     }
 
     public function getManualWorkflow()
     {
-
         $preparedResponseIds = [];
         $groupIds = [];
-        $teamIds = []; 
+        $teamIds = [];
         $userId = $this->container->get('user.service')->getCurrentUser()->getAgentInstance()->getId();
 
         $preparedResponseRepo = $this->entityManager->getRepository(PreparedResponses::class)->findAll();
@@ -1431,15 +1585,15 @@ class TicketService
             ->where('mw.status = 1')
             ->andWhere('mw.id IN (:ids)')
             ->setParameter('ids', $preparedResponseIds);
-        
+
         return $qb->getQuery()->getResult();
     }
 
     public function getSavedReplies()
-    {   
+    {
         $savedReplyIds = [];
         $groupIds = [];
-        $teamIds = []; 
+        $teamIds = [];
         $userId = $this->container->get('user.service')->getCurrentUser()->getAgentInstance()->getId();
 
         $savedReplyRepo = $this->entityManager->getRepository(SavedReplies::class)->findAll();
@@ -1481,7 +1635,7 @@ class TicketService
         $stmt->execute();
         $result = $stmt->fetchAll();
 
-        foreach($result as $row) {
+        foreach ($result as $row) {
             if ($row['userInstanceId'] == $userId) {
                 array_push($teamIds, $row['supportTeamId']);
             }
@@ -1503,7 +1657,7 @@ class TicketService
         ->from(SavedReplies::class, 'sr')
         ->Where('sr.id IN (:ids)')
         ->setParameter('ids', $savedReplyIds);
-        
+
         return $qb->getQuery()->getResult();
     }
 
@@ -1538,7 +1692,7 @@ class TicketService
                 ->leftJoin('th.ticket','t')
                 ->leftJoin('th.user', 'u')
                 ->leftJoin('u.userInstance', 'userInstance')
-                ->andwhere('userInstance.supportRole != :roles')
+                ->andWhere('userInstance.supportRole != :roles')
                 ->andWhere('t.id = :ticketId')
                 ->andWhere('th.threadType = :threadType')
                 ->setParameter('threadType','reply')
@@ -1549,10 +1703,11 @@ class TicketService
                 ->orderBy('th.id', 'DESC');
 
         $result = $qb->getQuery()->setMaxResults(1)->getResult();
+
         return $result ? $result[0] : null;
     }
 
-    public function getLastReply($ticketId, $userType = null) 
+    public function getLastReply($ticketId, $userType = null)
     {
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $queryBuilder->select("th, a, u.id as userId")
@@ -1570,19 +1725,19 @@ class TicketService
         if (!empty($userType)) {
             $queryBuilder->andWhere('th.createdBy = :createdBy')->setParameter('createdBy', $userType);
         }
-        
+
         $threadResponse = $queryBuilder->getQuery()->getArrayResult();
-        
+
         if (!empty($threadResponse[0][0])) {
             $threadDetails = $threadResponse[0][0];
             $userService = $this->container->get('user.service');
-            
+
             if ($threadDetails['createdBy'] == 'agent') {
                 $threadDetails['user'] = $userService->getAgentDetailById($threadResponse[0]['userId']);
             } else {
                 $threadDetails['user'] = $userService->getCustomerPartialDetailById($threadResponse[0]['userId']);
             }
-            
+
             $threadDetails['reply'] = html_entity_decode($threadDetails['message']);
             $threadDetails['formatedCreatedAt'] = $this->timeZoneConverter($threadDetails['createdAt']);
             $threadDetails['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($threadDetails['createdAt']);
@@ -1618,7 +1773,7 @@ class TicketService
 
         $variables['ticket.status'] = $ticket->getStatus()->getCode();
         $variables['ticket.priority'] = $ticket->getPriority()->getCode();
-        if($ticket->getSupportGroup())
+        if ($ticket->getSupportGroup())
             $variables['ticket.group'] = $ticket->getSupportGroup()->getName();
         else
             $variables['ticket.group'] = '';
@@ -1629,17 +1784,17 @@ class TicketService
         $variables['ticket.customerName'] = $customer['name'];
         $variables['ticket.customerEmail'] = $customer['email'];
         $userService = $this->container->get('user.service');
-      
+
         $variables['ticket.agentName'] = '';
         $variables['ticket.agentEmail'] = '';
         if ($ticket->getAgent()) {
             $agent = $this->container->get('user.service')->getAgentDetailById($ticket->getAgent()->getId());
-            if($agent) {
+            if ($agent) {
                 $variables['ticket.agentName'] = $agent['name'];
                 $variables['ticket.agentEmail'] = $agent['email'];
             }
         }
-        
+
         $router = $this->container->get('router');
 
         if ($type == 'customer') {
@@ -1657,7 +1812,7 @@ class TicketService
         return $variables;
     }
 
-    public function isEmailBlocked($email, $website) 
+    public function isEmailBlocked($email, $website)
     {
         $flag = false;
         $email = strtolower($email);
@@ -1707,24 +1862,27 @@ class TicketService
         $agentTimeFormat = !empty($activeUser) ? $activeUser->getTimeformat() : null;
 
         $parameterType = gettype($dateFlag);
-        if($parameterType == 'string'){
-            if(is_null($agentTimeZone) && is_null($agentTimeFormat)){
+        if ($parameterType == 'string') {
+            if (is_null($agentTimeZone) && is_null($agentTimeFormat)) {
                 if(is_null($timeZone) && is_null($timeFormat)){
                     $datePattern = date_create($dateFlag);
+
                     return date_format($datePattern,'d-m-Y h:ia');
                 } else {
                     $dateFlag = new \DateTime($dateFlag);
                     $datePattern = $dateFlag->setTimezone(new \DateTimeZone($timeZone));
+
                     return date_format($datePattern, $timeFormat);
                 }
             } else {
                 $dateFlag = new \DateTime($dateFlag);
                 $datePattern = $dateFlag->setTimezone(new \DateTimeZone($agentTimeZone));
+
                 return date_format($datePattern, $agentTimeFormat);
-            }          
+            }
         } else {
-            if(is_null($agentTimeZone) && is_null($agentTimeFormat)){
-                if(is_null($timeZone) && is_null($timeFormat)){
+            if (is_null($agentTimeZone) && is_null($agentTimeFormat)){
+                if (is_null($timeZone) && is_null($timeFormat)) {
                     return date_format($dateFlag,'d-m-Y h:ia');
                 } else {
                     $datePattern = $dateFlag->setTimezone(new \DateTimeZone($timeZone));
@@ -1732,15 +1890,16 @@ class TicketService
                 }
             } else {
                 $datePattern = $dateFlag->setTimezone(new \DateTimeZone($agentTimeZone));
+
                 return date_format($datePattern, $agentTimeFormat);
-            }    
-        }         
+            }
+        }
     }
 
     public function fomatTimeByPreference($dbTime,$timeZone,$timeFormat,$agentTimeZone,$agentTimeFormat)
     {
-        if(is_null($agentTimeZone) && is_null($agentTimeFormat)) {
-            if(is_null($timeZone) && is_null($timeFormat)){
+        if (is_null($agentTimeZone) && is_null($agentTimeFormat)) {
+            if (is_null($timeZone) && is_null($timeFormat)) {
                 $dateTimeZone = $dbTime;
                 $timeFormatString = 'd-m-Y h:ia';
             } else {
@@ -1751,11 +1910,13 @@ class TicketService
             $dateTimeZone = $dbTime->setTimezone(new \DateTimeZone($agentTimeZone));
             $timeFormatString = $agentTimeFormat;
         }
+
         $time['dateTimeZone'] = $dateTimeZone;
         $time['timeFormatString'] = $timeFormatString;
+
         return $time;
     }
-    
+
     public function isTicketAccessGranted(Ticket $ticket, User $user = null, $firewall = 'members')
     {
         // @TODO: Take current firewall into consideration (access check on behalf of agent/customer)
@@ -1767,7 +1928,7 @@ class TicketService
             return false;
         } else {
             $agentInstance = $user->getAgentInstance();
-    
+
             if (empty($agentInstance)) {
                 return false;
             }
@@ -1780,11 +1941,11 @@ class TicketService
             if ($ticket->getAgent() != null && $ticket->getAgent()->getId() == $user->getId()) {
                 return true;
             }
-            
+
             if ($accessLevel == 2 || $accessLevel == 3) {
                 // Check if user belongs to a support team assigned to ticket
                 $teamReferenceIds = array_map(function ($team) { return $team->getId(); }, $agentInstance->getSupportTeams()->toArray());
-                
+
                 if ($ticket->getSupportTeam() != null && in_array($ticket->getSupportTeam()->getId(), $teamReferenceIds)) {
                     return true;
                 } else if ($accessLevel == 2) {
@@ -1803,70 +1964,112 @@ class TicketService
         return true;
     }
 
-    public function addTicketCustomFields($thread, $requestCustomFields = [], $filesCustomFields = [])
+    public function addTicketCustomFields($thread, $submittedCustomFields = [], $uploadedFilesCollection = [])
     {
+        $customFieldsService = null;
+        $customFieldsEntityReference = null;
+
+        if ($this->userService->isFileExists('apps/uvdesk/custom-fields')) {
+            $customFieldsService = $this->container->get('uvdesk_package_custom_fields.service');
+            $customFieldsEntityReference = UVDeskCommunityPackages\CustomFields\Entity\CustomFields::class;
+            $customFieldValuesEntityReference = UVDeskCommunityPackages\CustomFields\Entity\CustomFieldsValues::class;
+            $ticketCustomFieldValuesEntityReference = UVDeskCommunityPackages\CustomFields\Entity\TicketCustomFieldsValues::class;
+        } else if ($this->userService->isFileExists('apps/uvdesk/form-component')) {
+            $customFieldsService = $this->container->get('uvdesk_package_form_component.service');
+            $customFieldsEntityReference = UVDeskCommunityPackages\FormComponent\Entity\CustomFields::class;
+            $customFieldValuesEntityReference = UVDeskCommunityPackages\FormComponent\Entity\CustomFieldsValues::class;
+            $ticketCustomFieldValuesEntityReference = UVDeskCommunityPackages\FormComponent\Entity\TicketCustomFieldsValues::class;
+        } else {
+            return;
+        }
+
         $ticket = $thread->getTicket();
-        $skipFileUpload = false;
-        $customFieldsCollection = $this->entityManager->getRepository(CommunityPackageEntities\CustomFields::class)->findAll();
+        $customFieldsCollection = $this->entityManager->getRepository($customFieldsEntityReference)->findAll();
+        $customFieldValuesEntityRepository = $this->entityManager->getRepository($customFieldValuesEntityReference);
+
         foreach ($customFieldsCollection as $customFields) {
-            if(in_array($customFields->getFieldType(), ['select', 'checkbox', 'radio']) && !count($customFields->getCustomFieldValues()))
+            if (in_array($customFields->getFieldType(), ['select', 'checkbox', 'radio']) && !count($customFields->getCustomFieldValues())) {
                 continue;
-            elseif('file' != $customFields->getFieldType() && $requestCustomFields && array_key_exists($customFields->getId(), $requestCustomFields) && $requestCustomFields[$customFields->getId()]) {
+            }
 
-                if(count($customFields->getCustomFieldsDependency()) && !in_array($ticket->getType(), $customFields->getCustomFieldsDependency()->toArray()))
+            if (
+                !empty($submittedCustomFields)
+                && $customFields->getFieldType() != 'file'
+                && isset($submittedCustomFields[$customFields->getId()])
+            ) {
+                // Check if custom field dependency criterias are fullfilled
+                if (
+                    count($customFields->getCustomFieldsDependency())
+                    && !in_array($ticket->getType(), $customFields->getCustomFieldsDependency()->toArray())
+                ) {
                     continue;
+                }
 
-                $ticketCustomField = new CommunityPackageEntities\TicketCustomFieldsValues();
-                $ticketCustomField->setTicket($ticket);
-                //custom field
-                $ticketCustomField->setTicketCustomFieldsValues($customFields);
-                $ticketCustomField->setValue(json_encode($requestCustomFields[$customFields->getId()]));
+                // Save ticket custom fields
+                $ticketCustomField = new $ticketCustomFieldValuesEntityReference();
+                $ticketCustomField
+                    ->setTicket($ticket)
+                    ->setTicketCustomFieldsValues($customFields)
+                    ->setValue(json_encode($submittedCustomFields[$customFields->getId()]))
+                ;
 
-                if(in_array($customFields->getFieldType(), ['select', 'checkbox', 'radio'])) {
-                    //add custom field values mapping too
-                    if(is_array($requestCustomFields[$customFields->getId()])) {
-                        foreach ($requestCustomFields[$customFields->getId()] as $value) {
-                            if($ticketCustomFieldValues = $this->entityManager->getRepository(CommunityPackageEntities\CustomFieldsValues::class)
-                                ->findOneBy(['customFields' => $customFields, 'id' => $value]))
-                                $ticketCustomField->setTicketCustomFieldValueValues($ticketCustomFieldValues);
+                if (in_array($customFields->getFieldType(), ['select', 'checkbox', 'radio'])) {
+                    // Add custom field values mapping too
+                    if (is_array($submittedCustomFields[$customFields->getId()])) {
+                        foreach ($submittedCustomFields[$customFields->getId()] as $value) {
+                            $ticketCustomFieldValues = $customFieldValuesEntityRepository->findOneBy([
+                                'id'           => $value,
+                                'customFields' => $customFields,
+                            ]);
+
+                            if (!empty($ticketCustomFieldValues)) {
+                                $ticketCustomField
+                                    ->setTicketCustomFieldValueValues($ticketCustomFieldValues)
+                                ;
+                            }
                         }
-                    } elseif($ticketCustomFieldValues = $this->entityManager->getRepository(CommunityPackageEntities\CustomFieldsValues::class)
-                            ->findOneBy(['customFields' => $customFields, 'id' => $requestCustomFields[$customFields->getId()]]))                                                        
-                        $ticketCustomField->setTicketCustomFieldValueValues($ticketCustomFieldValues);
+                    } else {
+                        $ticketCustomFieldValues = $customFieldValuesEntityRepository->findOneBy([
+                            'id'           => $submittedCustomFields[$customFields->getId()],
+                            'customFields' => $customFields,
+                        ]);
+
+                        if (!empty($ticketCustomFieldValues)) {
+                            $ticketCustomField
+                                ->setTicketCustomFieldValueValues($ticketCustomFieldValues)
+                            ;
+                        }
+                    }
                 }
 
                 $this->entityManager->persist($ticketCustomField);
                 $this->entityManager->flush();
-            } elseif($filesCustomFields && array_key_exists($customFields->getId(), $filesCustomFields) && $filesCustomFields[$customFields->getId()] && !$skipFileUpload) {
-                $skipFileUpload = true;
-                //upload files
-            
+            } else if (
+                !empty($uploadedFilesCollection)
+                && isset($uploadedFilesCollection[$customFields->getId()])
+            ) {
+                // Upload files
                 $path = '/custom-fields/ticket/' . $ticket->getId() . '/';
-                $fileNames = $this->fileUploadService->uploadFile($filesCustomFields[$customFields->getid()], $path, true);
+                $fileNames = $this->fileUploadService->uploadFile($uploadedFilesCollection[$customFields->getid()], $path, true);
 
-                if(!empty($fileNames)) {
-                    //save files entry to attachment table
+                if (!empty($fileNames)) {
+                    // Save files entry to attachment table
                     try {
-                        $customFieldsService = null;
-
-                        try {
-                            if ($this->userService->isfileExists('apps/uvdesk/custom-fields')) {
-                                $customFieldsService = $this->get('uvdesk_package_custom_fields.service');
-                            } else if ($this->userService->isfileExists('apps/uvdesk/form-component')) {
-                                $customFieldsService = $this->get('uvdesk_package_form_component.service');
-                            }
-                        } catch (\Exception $e) {
-                            // @TODO: Log execption message
-                        }
-
-                        $newFilesNames = !empty($customFieldsService) ? $customFieldsService->addFilesEntryToAttachmentTable([$fileNames], $thread) : [];
+                        $newFilesNames = $customFieldsService->addFilesEntryToAttachmentTable([$fileNames], $thread);
 
                         foreach ($newFilesNames as $value) {
-                            $ticketCustomField = new CommunityPackageEntities\TicketCustomFieldsValues();
-                            $ticketCustomField->setTicket($ticket);
-                            //custom field
-                            $ticketCustomField->setTicketCustomFieldsValues($customFields);
-                            $ticketCustomField->setValue(json_encode(['name' => $value['name'], 'path' => $value['path'], 'id' => $value['id']]));
+                            // Save ticket custom fields
+                            $ticketCustomField = new $ticketCustomFieldValuesEntityReference();
+                            $ticketCustomField
+                                ->setTicket($ticket)
+                                ->setTicketCustomFieldsValues($customFields)
+                                ->setValue(json_encode([
+                                    'name' => $value['name'],
+                                    'path' => $value['path'],
+                                    'id'   => $value['id'],
+                                ]))
+                            ;
+
                             $this->entityManager->persist($ticketCustomField);
                             $this->entityManager->flush();
                         }
@@ -1883,11 +2086,551 @@ class TicketService
     {
         $firstThread = null;
         $intialThread = $this->entityManager->getRepository(Thread::class)->findBy(['ticket'=>$ticketId]);
+
         foreach ($intialThread as $key => $value) {
-            if($value->getThreadType() == "create"){
+            if ($value->getThreadType() == "create"){
                 $firstThread = $value;
             }
         }
+
         return $firstThread;
+    }
+
+    public function getTicketConditions()
+    {
+        $conditions = array(
+            'ticket' => [
+                ('mail') => array(
+                    [
+                        'lable' => ('from_mail'),
+                        'value' => 'from_mail',
+                        'match' => 'email'
+                    ],
+                    [
+                        'lable' => ('to_mail'),
+                        'value' => 'to_mail',
+                        'match' => 'email'
+                    ],
+                ),
+                ('API') => array(
+                    [
+                        'lable' => ('Domain'),
+                        'value' => 'domain',
+                        'match' => 'api'
+                    ],
+                    [
+                        'lable' => ('Locale'),
+                        'value' => 'locale',
+                        'match' => 'api'
+                    ],
+                ),
+                ('ticket') => array(
+                    [
+                        'lable' => ('subject'),
+                        'value' => 'subject',
+                        'match' => 'string'
+                    ],
+                    [
+                        'lable' => ('description'),
+                        'value' => 'description',
+                        'match' => 'string'
+                    ],
+                    [
+                        'lable' => ('subject_or_description'),
+                        'value' => 'subject_or_description',
+                        'match' => 'string'
+                    ],
+                    [
+                        'lable' => ('priority'),
+                        'value' => 'priority',
+                        'match' => 'select'
+                    ],
+                    [
+                        'lable' => ('type'),
+                        'value' => 'type',
+                        'match' => 'select'
+                    ],
+                    [
+                        'lable' => ('status'),
+                        'value' => 'status',
+                        'match' => 'select'
+                    ],
+                    [
+                        'lable' => ('source'),
+                        'value' => 'source',
+                        'match' => 'select'
+                    ],
+                    [
+                        'lable' => ('created'),
+                        'value' => 'created',
+                        'match' => 'date'
+                    ],
+                    [
+                        'lable' => ('agent'),
+                        'value' => 'agent',
+                        'match' => 'select'
+                    ],
+                    [
+                        'lable' => ('group'),
+                        'value' => 'group',
+                        'match' => 'select'
+                    ],
+                    [
+                        'lable' => ('team'),
+                        'value' => 'team',
+                        'match' => 'select'
+                    ],
+                ),
+                ('customer') => array(
+                    [
+                        'lable' => ('customer_name'),
+                        'value' => 'customer_name',
+                        'match' => 'string'
+                    ],
+                    [
+                        'lable' => ('customer_email'),
+                        'value' => 'customer_email',
+                        'match' => 'email'
+                    ],
+                ),
+            ],
+            'task' => [
+                ('task') => array(
+                    [
+                        'lable' => ('subject'),
+                        'value' => 'subject',
+                        'match' => 'string'
+                    ],
+                    [
+                        'lable' => ('description'),
+                        'value' => 'description',
+                        'match' => 'string'
+                    ],
+                    [
+                        'lable' => ('subject_or_description'),
+                        'value' => 'subject_or_description',
+                        'match' => 'string'
+                    ],
+                    [
+                        'lable' => ('priority'),
+                        'value' => 'priority',
+                        'match' => 'select'
+                    ],
+                    [
+                        'lable' => ('stage'),
+                        'value' => 'stage',
+                        'match' => 'select'
+                    ],
+                    [
+                        'lable' => ('created'),
+                        'value' => 'created',
+                        'match' => 'date'
+                    ],
+                    [
+                        'lable' => ('agent_name'),
+                        'value' => 'agent_name',
+                        'match' => 'select'
+                    ],
+                    [
+                        'lable' => ('agent_email'),
+                        'value' => 'agent_email',
+                        'match' => 'select'
+                    ],
+                ),
+            ]
+        );
+
+
+        return $conditions;
+    }
+
+    public function getAgentMatchConditions()
+    {
+        return [
+            'email' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+                [
+                    'lable' => ('isNot'),
+                    'value' => 'isNot'
+                ],
+                [
+                    'lable' => ('contains'),
+                    'value' => 'contains'
+                ],
+                [
+                    'lable' => ('notContains'),
+                    'value' => 'notContains'
+                ],
+            ),
+            'api' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+                [
+                    'lable' => ('contains'),
+                    'value' => 'contains'
+                ],
+            ),
+            'string' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+                [
+                    'lable' => ('isNot'),
+                    'value' => 'isNot'
+                ],
+                [
+                    'lable' => ('contains'),
+                    'value' => 'contains'
+                ],
+                [
+                    'lable' => ('notContains'),
+                    'value' => 'notContains'
+                ],
+                [
+                    'lable' => ('startWith'),
+                    'value' => 'startWith'
+                ],
+                [
+                    'lable' => ('endWith'),
+                    'value' => 'endWith'
+                ],
+            ),
+            'select' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+            ),
+            'date' => array(
+                [
+                    'lable' => ('before'),
+                    'value' => 'before'
+                ],
+                [
+                    'lable' => ('beforeOn'),
+                    'value' => 'beforeOn'
+                ],
+                [
+                    'lable' => ('after'),
+                    'value' => 'after'
+                ],
+                [
+                    'lable' => ('afterOn'),
+                    'value' => 'afterOn'
+                ],
+            ),
+            'datetime' => array(
+                [
+                    'lable' => ('before'),
+                    'value' => 'beforeDateTime'
+                ],
+                [
+                    'lable' => ('beforeOn'),
+                    'value' => 'beforeDateTimeOn'
+                ],
+                [
+                    'lable' => ('after'),
+                    'value' => 'afterDateTime'
+                ],
+                [
+                    'lable' => ('afterOn'),
+                    'value' => 'afterDateTimeOn'
+                ],
+            ),
+            'time' => array(
+                [
+                    'lable' => ('before'),
+                    'value' => 'beforeTime'
+                ],
+                [
+                    'lable' => ('beforeOn'),
+                    'value' => 'beforeTimeOn'
+                ],
+                [
+                    'lable' => ('after'),
+                    'value' => 'afterTime'
+                ],
+                [
+                    'lable' => ('afterOn'),
+                    'value' => 'afterTimeOn'
+                ],
+            ),
+            'number' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+                [
+                    'lable' => ('isNot'),
+                    'value' => 'isNot'
+                ],
+                [
+                    'lable' => ('contains'),
+                    'value' => 'contains'
+                ],
+                [
+                    'lable' => ('greaterThan'),
+                    'value' => 'greaterThan'
+                ],
+                [
+                    'lable' => ('lessThan'),
+                    'value' => 'lessThan'
+                ],
+            ),
+        ];
+    }
+
+    public function getTicketMatchConditions()
+    {
+        return [
+            'email' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+                [
+                    'lable' => ('isNot'),
+                    'value' => 'isNot'
+                ],
+                [
+                    'lable' => ('contains'),
+                    'value' => 'contains'
+                ],
+                [
+                    'lable' => ('notContains'),
+                    'value' => 'notContains'
+                ],
+            ),
+            'api' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+                [
+                    'lable' => ('contains'),
+                    'value' => 'contains'
+                ],
+            ),
+            'string' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+                [
+                    'lable' => ('isNot'),
+                    'value' => 'isNot'
+                ],
+                [
+                    'lable' => ('contains'),
+                    'value' => 'contains'
+                ],
+                [
+                    'lable' => ('notContains'),
+                    'value' => 'notContains'
+                ],
+                [
+                    'lable' => ('startWith'),
+                    'value' => 'startWith'
+                ],
+                [
+                    'lable' => ('endWith'),
+                    'value' => 'endWith'
+                ],
+            ),
+            'select' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+                [
+                    'lable' => ('isNot'),
+                    'value' => 'isNot'
+                ],
+            ),
+            'date' => array(
+                [
+                    'lable' => ('before'),
+                    'value' => 'before'
+                ],
+                [
+                    'lable' => ('beforeOn'),
+                    'value' => 'beforeOn'
+                ],
+                [
+                    'lable' => ('after'),
+                    'value' => 'after'
+                ],
+                [
+                    'lable' => ('afterOn'),
+                    'value' => 'afterOn'
+                ],
+            ),
+            'datetime' => array(
+                [
+                    'lable' => ('before'),
+                    'value' => 'beforeDateTime'
+                ],
+                [
+                    'lable' => ('beforeOn'),
+                    'value' => 'beforeDateTimeOn'
+                ],
+                [
+                    'lable' => ('after'),
+                    'value' => 'afterDateTime'
+                ],
+                [
+                    'lable' => ('afterOn'),
+                    'value' => 'afterDateTimeOn'
+                ],
+            ),
+            'time' => array(
+                [
+                    'lable' => ('before'),
+                    'value' => 'beforeTime'
+                ],
+                [
+                    'lable' => ('beforeOn'),
+                    'value' => 'beforeTimeOn'
+                ],
+                [
+                    'lable' => ('after'),
+                    'value' => 'afterTime'
+                ],
+                [
+                    'lable' => ('afterOn'),
+                    'value' => 'afterTimeOn'
+                ],
+            ),
+            'number' => array(
+                [
+                    'lable' => ('is'),
+                    'value' => 'is'
+                ],
+                [
+                    'lable' => ('isNot'),
+                    'value' => 'isNot'
+                ],
+                [
+                    'lable' => ('contains'),
+                    'value' => 'contains'
+                ],
+                [
+                    'lable' => ('greaterThan'),
+                    'value' => 'greaterThan'
+                ],
+                [
+                    'lable' => ('lessThan'),
+                    'value' => 'lessThan'
+                ],
+            ),
+        ];
+    }
+
+    public function getTargetAction() {
+       return [
+            '4' => ['response' => ['time' => '2', 'unit' => 'hours'], 'resolve' => ['time' => '8', 'unit' => 'hours'], 'operational' => 'calendarHours', 'isActive' => 'on'],
+            '3' => ['response' => ['time' => '4', 'unit' => 'hours'], 'resolve' => ['time' => '1', 'unit' => 'days'], 'operational' => 'calendarHours', 'isActive' => 'on'],
+            '2' => ['response' => ['time' => '8', 'unit' => 'hours'], 'resolve' => ['time' => '3', 'unit' => 'days'], 'operational' => 'calendarHours', 'isActive' => 'on'],
+            '1' => ['response' => ['time' => '16', 'unit' => 'hours'], 'resolve' => ['time' => '5', 'unit' => 'days'], 'operational' => 'calendarHours', 'isActive' => 'on'],
+       ];
+    }
+
+    public function getTicketActions($force = false)
+    {
+        $actionArray =  array(
+            'ticket' => [
+                'priority'               => ('action.priority'),
+                'type'                   => ('action.type'),
+                'status'                 => ('action.status'),
+                'tag'                    => ('action.tag'),
+                'note'                   => ('action.note'),
+                'label'                  => ('action.label'),
+                'assign_agent'           => ('action.assign_agent'),
+                'assign_group'           => ('action.assign_group'),
+                'assign_team'            => ('action.assign_team'),
+                'mail_agent'             => ('action.mail_agent'),
+                'mail_group'             => ('action.mail_group'),
+                'mail_team'              => ('action.mail_team'),
+                'mail_customer'          => ('action.mail_customer'),
+                'mail_last_collaborator' => ('action.mail_last_collaborator'),
+                'mail_all_collaborators' => ('action.mail_all_collaborators'),
+                'delete_ticket'          => ('action.delete_ticket'),
+                'mark_spam'              => ('action.mark_spam'),
+            ],
+            'task' => [
+                'reply'            => ('action.reply'),
+                'mail_agent'       => ('action.mail_agent'),
+                'mail_members'     => ('action.mail_members'),
+                'mail_last_member' => ('action.mail_last_member'),
+            ],
+            'customer' => [
+                'mail_customer' => ('action.mail_customer'),
+            ],
+            'agent' => [
+                'mail_agent'    => ('action.mail_agent'),
+                'task_transfer' => ('action.task_transfer'),
+                'assign_agent'  => ('action.assign_agent'),
+                'assign_group'  => ('action.assign_group'),
+                'assign_team'   => ('action.assign_team'),
+            ],
+        );
+
+        $actionRoleArray = [
+            'ticket->priority'               => 'ROLE_AGENT_UPDATE_TICKET_PRIORITY',
+            'ticket->type'                   => 'ROLE_AGENT_UPDATE_TICKET_TYPE',
+            'ticket->status'                 => 'ROLE_AGENT_UPDATE_TICKET_STATUS',
+            'ticket->tag'                    => 'ROLE_AGENT_ADD_TAG',
+            'ticket->note'                   => 'ROLE_AGENT_ADD_NOTE',
+            'ticket->assign_agent'           => 'ROLE_AGENT_ASSIGN_TICKET',
+            'ticket->assign_group'           => 'ROLE_AGENT_ASSIGN_TICKET_GROUP',
+            'ticket->assign_team'            => 'ROLE_AGENT_ASSIGN_TICKET_GROUP',
+            'ticket->mail_agent'             => 'ROLE_AGENT',
+            'ticket->mail_group'             => 'ROLE_AGENT_MANAGE_GROUP',
+            'ticket->mail_team'              => 'ROLE_AGENT_MANAGE_SUB_GROUP',
+            'ticket->mail_customer'          => 'ROLE_AGENT',
+            'ticket->mail_last_collaborator' => 'ROLE_AGENT',
+            'ticket->mail_all_collaborators' => 'ROLE_AGENT',
+            'ticket->delete_ticket'          => 'ROLE_AGENT_DELETE_TICKET',
+            'ticket->mark_spam'              => 'ROLE_AGENT_UPDATE_TICKET_STATUS',
+            'ticket->label'                  => 'ROLE_ADMIN',
+            'task->reply'                    => 'ROLE_AGENT',
+            'task->mail_agent'               => 'ROLE_AGENT',
+            'task->mail_members'             => 'ROLE_AGENT',
+            'task->mail_last_member'         => 'ROLE_AGENT',
+            'customer->mail_customer'        => 'ROLE_AGENT',
+            'agent->mail_agent'              => 'ROLE_AGENT',
+            'agent->task_transfer'           => 'ROLE_AGENT_EDIT_TASK',
+            'agent->assign_agent'            => 'ROLE_AGENT_ASSIGN_TICKET',
+            'agent->assign_group'            => 'ROLE_AGENT_ASSIGN_TICKET_GROUP',
+            'agent->assign_team'             => 'ROLE_AGENT_ASSIGN_TICKET_GROUP',
+        ];
+
+        $resultArray = [];
+
+        foreach ($actionRoleArray as $action => $role) {
+            if ($role == 'ROLE_AGENT' || $this->container->get('user.service')->checkPermission($role) || $force) {
+                $actionPath = explode('->', $action);
+                $resultArray[$actionPath[0]][$actionPath[1]] = $actionArray[$actionPath[0]][$actionPath[1]];
+            }
+        }
+
+        $repo = $this->container->get('doctrine.orm.entity_manager')->getRepository('WebkulAppBundle:ECommerceChannel');
+
+        $ecomArray= [];
+        $ecomChannels = $repo->getActiveChannelsByCompany($this->container->get('user.service')->getCurrentCompany());
+
+        foreach ($ecomChannels as $channel) {
+            $ecomArray['add_order_to_' . $channel['id']] = ('Add order to: ') . $channel['title'];
+        }
+
+        $resultArray['ticket'] = array_merge($resultArray['ticket'], $ecomArray);
+
+        return $resultArray;
     }
 }

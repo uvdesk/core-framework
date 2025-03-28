@@ -31,7 +31,7 @@ class UpdateTag extends PreparedResponseAction
 
         return array_map(function ($tag) {
             return [
-                'id' => $tag->getId(),
+                'id'   => $tag->getId(),
                 'name' => $tag->getName(),
             ];
         }, $entityManager->getRepository(Tag::class)->findAll());
@@ -40,18 +40,19 @@ class UpdateTag extends PreparedResponseAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        if($entity instanceof Ticket) {
+        if ($entity instanceof Ticket) {
             $isAlreadyAdded = 0;
             $tags = $container->get('ticket.service')->getTicketTagsById($entity->getId());
-            if(is_array($tags)) {
+            if (is_array($tags)) {
                 foreach ($tags as $tag) {
-                    if($tag['id'] == $value)
+                    if ($tag['id'] == $value)
                         $isAlreadyAdded = 1;
                 }
             }
-            if(!$isAlreadyAdded) {
+
+            if (!$isAlreadyAdded) {
                 $tag = $entityManager->getRepository(Tag::class)->find($value);
-                if($tag) {
+                if ($tag) {
                     $entity->addSupportTag($tag);
                     $entityManager->persist($entity);
                     $entityManager->flush();

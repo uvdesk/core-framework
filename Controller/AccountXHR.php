@@ -16,7 +16,6 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedFilters;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
-
 class AccountXHR extends AbstractController
 {
     private $eventDispatcher;
@@ -41,6 +40,7 @@ class AccountXHR extends AbstractController
             $agentCollection = $userRepository->getAllAgents($request->query, $container);
             return new Response(json_encode($agentCollection), 200, ['Content-Type' => 'application/json']);
         }
+
         return new Response(json_encode([]), 404);
     }
 
@@ -75,9 +75,10 @@ class AccountXHR extends AbstractController
         if ($user) {
             if ($user->getAgentInstance()->getSupportRole() != "ROLE_SUPER_ADMIN") {
                 // Trigger agent delete event
-                $event = new GenericEvent(CoreWorkflowEvents\Agent\Delete::getId(), [
-                    'entity' => $user,
-                ]);
+                $event = new CoreWorkflowEvents\Agent\Delete();
+                $event
+                    ->setUser($user)
+                ;
 
                 $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
@@ -112,7 +113,7 @@ class AccountXHR extends AbstractController
         $user = $this->userService->getCurrentUser();
         $userData = $user->getAgentInstance();
 
-        if($request->getMethod() == 'POST') {
+        if ($request->getMethod() == 'POST') {
             $content = $request->request->all();
             $filter = new SavedFilters();
             $filter->setName($content['name']);
@@ -121,7 +122,7 @@ class AccountXHR extends AbstractController
             $em->persist($filter);
             $em->flush();
 
-            if(isset($content['is_default'])) {
+            if (isset($content['is_default'])) {
                 $userData->setDefaultFiltering($filter->getId());
                 $em->persist($userData);
                 $em->flush();
@@ -137,9 +138,9 @@ class AccountXHR extends AbstractController
             $filter->setRoute($content['route']);
             $em->flush();
 
-            if(isset($content['is_default']))
+            if (isset($content['is_default']))
                 $userData->setDefaultFiltering($filter->getId());
-            elseif($filter->getId() == $userData->getDefaultFiltering())
+            elseif ($filter->getId() == $userData->getDefaultFiltering())
                 $userData->setDefaultFiltering(0);
 
             $em->persist($userData);
@@ -148,7 +149,7 @@ class AccountXHR extends AbstractController
             $json['filter'] = ['id' => $filter->getId(), 'name' => $filter->getName(), 'route' => $filter->getRoute(), 'is_default' => isset($content['is_default']) ? 1 : 0 ];
             $json['alertClass'] = 'success';
             $json['alertMessage'] = $this->translator->trans('Success ! Filter has been updated successfully.');
-        } elseif($request->getMethod() == 'DELETE') {
+        } elseif ($request->getMethod() == 'DELETE') {
 
             $id = $request->attributes->get('filterId');
             $filter = $em->getRepository(SavedFilters::class)->find($id);

@@ -31,26 +31,26 @@ class MailTeam extends PreparedResponseAction
 
         $emailTemplateCollection = array_map(function ($emailTemplate) {
             return [
-                'id' => $emailTemplate->getId(),
+                'id'   => $emailTemplate->getId(),
                 'name' => $emailTemplate->getName(),
             ];
         }, $entityManager->getRepository(EmailTemplates::class)->findAll());
 
         $supportTeamCollection = array_map(function ($supportTeam) {
             return [
-                'id' => $supportTeam['id'],
+                'id'   => $supportTeam['id'],
                 'name' => $supportTeam['name'],
             ];
         }, $container->get('user.service')->getSupportTeams());
 
         array_unshift($supportTeamCollection, [
-            'id' => 'assignedTeam',
+            'id'   => 'assignedTeam',
             'name' => 'Assigned Team',
         ]);
 
         return [
             'partResults' => $supportTeamCollection,
-            'templates' => $emailTemplateCollection,
+            'templates'   => $emailTemplateCollection,
         ];
     }
 
@@ -58,9 +58,9 @@ class MailTeam extends PreparedResponseAction
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         $emailTemplate = $entityManager->getRepository(EmailTemplates::class)->findOneById($value['value']);
-        if($entity instanceof Ticket && $emailTemplate) {
+        if ($entity instanceof Ticket && $emailTemplate) {
             $mailData = array();
-            if($entity instanceof Ticket) {
+            if ($entity instanceof Ticket) {
                 $createThread = $container->get('ticket.service')->getCreateReply($entity->getId(), false);
                 $mailData['references'] = $createThread['messageId'];
             }
@@ -70,7 +70,7 @@ class MailTeam extends PreparedResponseAction
                     $to[] = $agent['email'];
                 }
             }
-            if(count($to)) {
+            if (count($to)) {
                 $mailData['email'] = $to;
                 $placeHolderValues   = $container->get('email.service')->getTicketPlaceholderValues($entity);
                 $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(),$placeHolderValues);

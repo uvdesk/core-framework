@@ -1,8 +1,8 @@
 <?php
 
-namespace Webkul\UVDesk\CoreFrameworkBundle\Repository;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Repository\Microsoft;
 
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\MicrosoftApp;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Microsoft\MicrosoftApp;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

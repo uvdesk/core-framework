@@ -33,7 +33,7 @@ class UpdateType extends PreparedResponseAction
 
         return array_map(function ($ticketType) {
             return [
-                'id' => $ticketType->getId(),
+                'id'   => $ticketType->getId(),
                 'name' => $ticketType->getCode(),
             ];
         }, $collection);
@@ -42,9 +42,9 @@ class UpdateType extends PreparedResponseAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        if($entity instanceof Ticket && $value) {
+        if ($entity instanceof Ticket && $value) {
             $type = $entityManager->getRepository(TicketType::class)->find($value);
-            if($type) {
+            if ($type) {
                 $entity->setType($type);
                 $entityManager->persist($entity);
                 $entityManager->flush();

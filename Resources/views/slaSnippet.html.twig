@@ -1,0 +1,58 @@
+<style>
+    .uv-icon-resolve {
+        background-position: -38px 18px;
+    }
+    .uv-icon-resolve-pending {
+        background-position: -19px 18px;
+    }
+</style>
+
+<script type="text/template" id="sla-aside-temp">
+    <% if (typeof(responseTime) != 'undefined' && responseTime != '') { %>
+        <div class="uv-aside-ticket-brick">
+            <h3>{{ 'Response Due'|trans }}</h3>
+            <span class="uv-channel uv-icon-resolve <% if('undefined' != typeof(responseTimePassed) && responseTimePassed) print('uv-icon-resolve-pending') %>"></span>
+            <span><%- responseTime %></span>
+        </div>
+    <% } %>
+
+    <% if (typeof(resolveTime) != 'undefined' && resolveTime != '') { %>
+        <div class="uv-aside-ticket-brick">
+            <h3>{{ 'Resolution Due'|trans }}</h3>
+            <span class="uv-channel uv-icon-resolve <% if('undefined' != typeof(resolveTimePassed) && resolveTimePassed) print('uv-icon-resolve-pending') %>"></span>
+            <span><%- resolveTime %></span>
+        </div>
+    <% } %>
+</script>
+
+<script>
+    var SLA = Backbone.View.extend({
+        el: '.uv-aside .uv-aside-ticket-block',
+        template: _.template($('#sla-aside-temp').html()),
+        syncData: function() {
+            var url = '{{ path("helpdesk_sla_esclation_data_xhr") }}'
+            var self = this;
+
+            $.ajax({
+                'url': url,
+                success: function(response) {
+                    self.render(response);
+                },
+                error: function(xhr) {
+                    console.log('error: sla ajax not responded');
+                },
+            });
+        },
+        render: function(response) {
+            this.$el.append(this.template(response));
+        },
+    });
+
+    $(function() {
+        var sla = new SLA();
+
+        setTimeout(function() {
+            sla.syncData();
+        }, 1000);        
+    });
+</script>

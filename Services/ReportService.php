@@ -1,4 +1,5 @@
 <?php
+
 namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 
 use Doctrine\ORM\EntityManagerInterface;
@@ -9,7 +10,6 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread;
 
 class ReportService {
-
     const LIMIT = 15;
     const TICKET_GLOBAL_ACCESS = 1;
     const TICKET_GROUP_ACCESS = 2;
@@ -56,7 +56,7 @@ class ReportService {
                         ->leftJoin('AgentActivity.agent', 'agent')
                         ->leftJoin('t.priority', 'priority')
                         ->andWhere('AgentActivity.createdAt BETWEEN :startDate AND :endDate');
-                        if(!empty($agentClause))
+                        if (!empty($agentClause))
                             $activityQuery->andWhere(implode(' OR ', $agentClause));
 
                     $this->addPermissionFilter($activityQuery, $this->container);
@@ -112,7 +112,7 @@ class ReportService {
             $qb = $this->em->createQueryBuilder()
                     ->select("Count(thread.id) as ticketCount, IDENTITY (thread.ticket) AS ticketId")
                     ->from(Thread::class, 'thread')
-                    ->andwhere('thread.ticket IN (:ticket)')
+                    ->andWhere('thread.ticket IN (:ticket)')
                     ->andWhere('thread.threadType =:threadType')
                     ->andWhere('thread.createdAt BETWEEN :startDate AND :endDate');
                     if(!empty($agentClause))
@@ -125,6 +125,7 @@ class ReportService {
                     ->groupBy('thread.ticket');
 
         $threadDetails = $qb->getQuery()->getScalarResult();
+
         return $threadDetails;
     }
 
@@ -143,13 +144,12 @@ class ReportService {
         $_s = ($s < 10 ? '0' : '').$s;
 
         $time_str = "0 minutes";
-        if($_d != 00)
+        if ($_d != 00)
             $time_str = $_d." ".'days';
-        elseif($_h != 00)
+        elseif ($_h != 00)
             $time_str = $_h." ".'hours';
-        elseif($_m != 00)
+        elseif ($_m != 00)
             $time_str = $_m." ".'minutes';
-
 
         return $time_str." "."ago";
     }
@@ -162,9 +162,10 @@ class ReportService {
     public function symfony_http_build_query(array $query) {
         $query['page'] = "replacePage";
         $params = array();
-        if(isset($query['_locale']))
+
+        if (isset($query['_locale']))
             unset($query['_locale']);
-        if(isset($query['domain']))
+        if (isset($query['domain']))
             unset($query['domain']);
         foreach ($query as $key => $value) {
             if (!isset($value)) {
@@ -173,19 +174,21 @@ class ReportService {
                 $params[] = $key . '/' . str_replace('%2F', '/', rawurlencode($value));
             }
         }
+
         $str = implode('/', $params);
-        if(isset($query['new']))
-            $str = str_replace("new/1","new",$str);
-        elseif(isset($query['unassigned']))
-            $str = str_replace("unassigned/1","unassigned",$str);
-        elseif(isset($query['notreplied']))
-            $str = str_replace("notreplied/1","notreplied",$str);
-        elseif(isset($query['mine']))
-            $str = str_replace("mine/1","mine",$str);
-        elseif(isset($query['starred']))
-            $str = str_replace("starred/1","starred",$str);
-        elseif(isset($query['trashed']))
-            $str = str_replace("trashed/1","trashed",$str);
+        if (isset($query['new']))
+            $str = str_replace("new/1","new", $str);
+        elseif (isset($query['unassigned']))
+            $str = str_replace("unassigned/1","unassigned", $str);
+        elseif (isset($query['notreplied']))
+            $str = str_replace("notreplied/1","notreplied", $str);
+        elseif (isset($query['mine']))
+            $str = str_replace("mine/1","mine", $str);
+        elseif (isset($query['starred']))
+            $str = str_replace("starred/1","starred", $str);
+        elseif (isset($query['trashed']))
+            $str = str_replace("trashed/1","trashed", $str);
+
         return $str;
     }
 }

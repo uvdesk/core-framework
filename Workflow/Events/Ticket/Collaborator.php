@@ -2,11 +2,9 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events\Ticket;
 
-use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\AutomationBundle\Workflow\Event as WorkflowEvent;
+use Webkul\UVDesk\AutomationBundle\Workflow\Events\TicketActivity;
 
-class Collaborator extends WorkflowEvent
+class Collaborator extends TicketActivity
 {
     public static function getId()
     {
@@ -16,10 +14,5 @@ class Collaborator extends WorkflowEvent
     public static function getDescription()
     {
         return "Collaborator Added";
-    }
-
-    public static function getFunctionalGroup()
-    {
-        return FunctionalGroup::TICKET;
     }
 }

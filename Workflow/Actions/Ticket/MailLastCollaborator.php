@@ -7,6 +7,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\EmailTemplates;
+use Webkul\UVDesk\AutomationBundle\Workflow\Event;
+use Webkul\UVDesk\AutomationBundle\Workflow\Events\AgentActivity;
+use Webkul\UVDesk\AutomationBundle\Workflow\Events\TicketActivity;
 
 class MailLastCollaborator extends WorkflowAction
 {
@@ -39,29 +42,42 @@ class MailLastCollaborator extends WorkflowAction
         return $emailTemplateCollection;
     }
 
-    public static function applyAction(ContainerInterface $container, $entity, $value = null)
+    public static function applyAction(ContainerInterface $container, Event $event, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        if($entity instanceof Ticket) {
-            $emailTemplate = $entityManager->getRepository(EmailTemplates::class)->findOneById($value);
-            if(count($entity->getCollaborators()) && $emailTemplate) {
-                $mailData = array();
-                $createThread = $container->get('ticket.service')->getCreateReply($entity->getId(),false);
-                $mailData['references'] = $createThread['messageId'];
+
+        if (!$event instanceof TicketActivity) {
+            return;
+        } else {
+            $ticket = $event->getTicket();
+            
+            if (empty($ticket)) {
+                return;
+            }
+        }
+        
+        $emailTemplate = $entityManager->getRepository(EmailTemplates::class)->findOneById($value);
+
+        if (count($ticket->getCollaborators()) && $emailTemplate) {
+            $mailData = array();
+            $createThread = $container->get('ticket.service')->getCreateReply($ticket->getId(),false);
+            $mailData['references'] = $createThread['messageId'];
+            
+            if (!isset($ticket->lastCollaborator)) {
+                try {
+                    $ticket->lastCollaborator = $ticket->getCollaborators()[ -1 + count($ticket->getCollaborators()) ];
+                } catch(\Exception $e) {
+                    // Do nothing...
+                }
+            }
+
+            if ($ticket->lastCollaborator) {
+                $placeHolderValues   = $container->get('email.service')->getTicketPlaceholderValues($ticket);
+                $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(),$placeHolderValues);
+                $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(),$placeHolderValues);
                 
-                if(!isset($entity->lastCollaborator)) {
-                    try {
-                        $entity->lastCollaborator = $entity->getCollaborators()[ -1 + count($entity->getCollaborators()) ];
-                    } catch(\Exception $e) {
-                    }
-                }
-                if($entity->lastCollaborator) {
-                    $placeHolderValues   = $container->get('email.service')->getTicketPlaceholderValues($entity);
-                    $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(),$placeHolderValues);
-                    $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(),$placeHolderValues);
-                    $email   = $entity->lastCollaborator->getEmail();
-                    $messageId = $container->get('email.service')->sendMail($subject, $message, $email, $mailData);
-                }
+                $email = $ticket->lastCollaborator->getEmail();
+                $messageId = $container->get('email.service')->sendMail($subject, $message, $email, $mailData);
             }
         }
     }

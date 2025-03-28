@@ -826,13 +826,13 @@ class UserInstance
     public function getPartialDetails()
     {
         return [
-            'id' => $this->getUser()->getId(),
-            'email' => $this->getUser()->getEmail(),
-            'name' => $this->getUser()->getFullName(),
-            'firstName' => $this->getUser()->getFirstName(),
-            'lastName' => $this->getUser()->getLastName(),
+            'id'            => $this->getUser()->getId(),
+            'email'         => $this->getUser()->getEmail(),
+            'name'          => $this->getUser()->getFullName(),
+            'firstName'     => $this->getUser()->getFirstName(),
+            'lastName'      => $this->getUser()->getLastName(),
             'contactNumber' => $this->getContactNumber(),
-            'thumbnail' => $this->getProfileImagePath(),
+            'thumbnail'     => $this->getProfileImagePath(),
         ];
     }
 }

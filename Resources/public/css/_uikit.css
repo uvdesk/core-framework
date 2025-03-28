@@ -2505,12 +2505,11 @@ kbd {
   transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .uv-paper .uv-wrapper .uv-copyright {
-  font-size: 12px;
+  font-size: 15px;
   color: #6F6F6F;
 }
 .uv-paper .uv-wrapper .uv-copyright a {
   color: #2750C4;
-  text-decoration: underline;
 }
 .uv-paper .uv-container .uv-area {
   padding: 25px;

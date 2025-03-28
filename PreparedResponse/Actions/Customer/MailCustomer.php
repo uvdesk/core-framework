@@ -31,7 +31,7 @@ class MailCustomer extends PreparedResponseAction
 
         return array_map(function ($emailTemplate) {
             return [
-                'id' => $emailTemplate->getId(),
+                'id'   => $emailTemplate->getId(),
                 'name' => $emailTemplate->getName(),
             ];
         }, $entityManager->getRepository(EmailTemplates::class)->findAll());

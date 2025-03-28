@@ -6,11 +6,10 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Webkul\UVDesk\CoreFrameworkBundle\DependencyInjection\Passes;
 use Webkul\UVDesk\CoreFrameworkBundle\DependencyInjection\CoreFramework;
-use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 
 class UVDeskCoreFrameworkBundle extends Bundle
 {
-    public function getContainerExtension(): ?ExtensionInterface
+    public function getContainerExtension()
     {
         return new CoreFramework();
     }

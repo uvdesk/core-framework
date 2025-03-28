@@ -39,6 +39,7 @@ class ReCaptchaService {
     public function getSecretKeyRecaptcha()
     {   
         $recaptchaDetail = $this->getRecaptchaDetails();
+        
         return $recaptchaDetail->getSecretKey();
     }
 

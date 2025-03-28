@@ -12,7 +12,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
-
 class Team extends AbstractController
 {
     private $userService;
@@ -26,7 +25,7 @@ class Team extends AbstractController
 
     public function listTeams(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -35,7 +34,7 @@ class Team extends AbstractController
 
     public function createTeam(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -43,8 +42,7 @@ class Team extends AbstractController
 
         $errors = [];
 
-        if($request->getMethod() == "POST") {
-
+        if ($request->getMethod() == "POST") {
             $request->request->set('users', explode(',', $request->request->get('tempUsers')));
             $request->request->set('groups', explode(',', $request->request->get('tempGroups')));
             $oldUsers = ($usersList = $supportTeam->getUsers()) ? $usersList->toArray() : $usersList;
@@ -53,15 +51,15 @@ class Team extends AbstractController
             $allDetails = $request->request->all();
 
             $em = $this->getDoctrine()->getManager();
-            $supportTeam->setName($allDetails['name']);
-            $supportTeam->setDescription($allDetails['description']);
+            $supportTeam->setName(trim($allDetails['name']));
+            $supportTeam->setDescription(trim($allDetails['description']));
             $supportTeam->setIsActive((bool) isset($allDetails['isActive']));
             $em->persist($supportTeam);
 
             $usersList = (!empty($allDetails['users']))? $allDetails['users'] : [];
             $usersGroup  = (!empty($allDetails['groups']))? $allDetails['groups'] : [];
 
-            if (!empty($usersList)) {
+            if (! empty($usersList)) {
                 $usersList = array_map(function ($user) { return 'user.id = ' . $user; }, $usersList);
 
                 $userList = $em->createQueryBuilder()->select('user')
@@ -70,7 +68,7 @@ class Team extends AbstractController
                     ->getQuery()->getResult();
             }
 
-            if (!empty($usersGroup)) {
+            if (! empty($usersGroup)) {
                 $usersGroup = array_map(function ($group) { return 'p.id = ' . $group; }, $usersGroup);
 
                 $userGroup = $em->createQueryBuilder('p')->select('p')
@@ -100,27 +98,27 @@ class Team extends AbstractController
         }
 
         return $this->render('@UVDeskCoreFramework/Teams/createSupportTeam.html.twig', [
-            'team' => $supportTeam,
+            'team'   => $supportTeam,
             'errors' => json_encode($errors)
         ]);
     }
 
     public function editTeam(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')){
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_SUB_GROUP')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
-        if($request->attributes->get('supportTeamId')){
+        if ($request->attributes->get('supportTeamId')) {
             $supportTeam = $this->getDoctrine()->getRepository(SupportTeam::class)
                 ->findSubGroupById(['id' => $request->attributes->get('supportTeamId')]);
 
-            if(!$supportTeam)
+            if (! $supportTeam)
                 $this->noResultFound();
         }
 
         $errors = [];
-        if($request->getMethod() == "POST") {
+        if ($request->getMethod() == "POST") {
             $request->request->set('users', explode(',', $request->request->get('tempUsers')));
             $request->request->set('groups', explode(',', $request->request->get('tempGroups')));
             $oldUsers = ($usersList = $supportTeam->getUsers()) ? $usersList->toArray() : $usersList;
@@ -129,14 +127,14 @@ class Team extends AbstractController
             $allDetails = $request->request->all();
 
             $em = $this->getDoctrine()->getManager();
-            $supportTeam->setName($allDetails['name']);
-            $supportTeam->setDescription($allDetails['description']);
+            $supportTeam->setName(trim($allDetails['name']));
+            $supportTeam->setDescription(trim($allDetails['description']));
             $supportTeam->setIsActive((bool) isset($allDetails['isActive']));
 
-            $usersList = (!empty($allDetails['users']))? $allDetails['users'] : [];
-            $usersGroup  = (!empty($allDetails['groups']))? $allDetails['groups'] : [];
+            $usersList = (! empty($allDetails['users'])) ? $allDetails['users'] : [];
+            $usersGroup  = (! empty($allDetails['groups'])) ? $allDetails['groups'] : [];
 
-            if (!empty($usersList)) {
+            if (! empty($usersList)) {
                 $usersList = array_map(function ($user) { return 'p.id = ' . $user; }, $usersList);
                 $userList = $em->createQueryBuilder('p')->select('p')
                     ->from(User::class, 'p')
@@ -144,7 +142,7 @@ class Team extends AbstractController
                     ->getQuery()->getResult();
             }
 
-            if (!empty($usersGroup)) {
+            if (! empty($usersGroup)) {
                 $usersGroup = array_map(function ($group) { return 'p.id = ' . $group; }, $usersGroup);
 
                 $userGroup = $em->createQueryBuilder('p')->select('p')
@@ -155,10 +153,13 @@ class Team extends AbstractController
 
             foreach ($userList as $user) {
                 $userInstance = $user->getAgentInstance();
-                if(!$oldUsers || !in_array($userInstance, $oldUsers)){
+                if (
+                    ! $oldUsers 
+                    || !in_array($userInstance, $oldUsers)
+                ) {
                     $userInstance->addSupportTeam($supportTeam);
                     $em->persist($userInstance);
-                }elseif($oldUsers && ($key = array_search($userInstance, $oldUsers)) !== false)
+                } elseif ($oldUsers && ($key = array_search($userInstance, $oldUsers)) !== false)
                     unset($oldUsers[$key]);
             }
             foreach ($oldUsers as $removeUser) {
@@ -168,11 +169,14 @@ class Team extends AbstractController
 
             // Add Group to team
             foreach ($userGroup as $supportGroup) {
-                if(!$oldGroups || !in_array($supportGroup, $oldGroups)){
+                if (
+                    ! $oldGroups 
+                    || ! in_array($supportGroup, $oldGroups)
+                ) {
                     $supportGroup->addSupportTeam($supportTeam);
                     $em->persist($supportGroup);
 
-                }elseif($oldGroups && ($key = array_search($supportGroup, $oldGroups)) !== false)
+                } elseif ($oldGroups && ($key = array_search($supportGroup, $oldGroups)) !== false)
                     unset($oldGroups[$key]);
             }
 
@@ -185,10 +189,12 @@ class Team extends AbstractController
             $em->flush();
 
             $this->addFlash('success', $this->translator->trans('Success ! Team information updated successfully.'));
+            
             return $this->redirect($this->generateUrl('helpdesk_member_support_team_collection'));
         }
+
         return $this->render('@UVDeskCoreFramework/Teams/updateSupportTeam.html.twig', [
-            'team' => $supportTeam,
+            'team'   => $supportTeam,
             'errors' => json_encode($errors)
         ]);
     }

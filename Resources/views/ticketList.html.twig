@@ -76,10 +76,97 @@
         .uv-table table tbody tr.not-assigned td {
             border-bottom: 1px solid #ffcacc;
         }
+        .clear-search-icon {
+            cursor: pointer;
+            color: #B1B1AE;;
+            font-size: 14px;
+            top: 80px;
+            position: absolute;
+            left: 10;
+            right: 152px;
+        }
+        #error-message {
+            position: absolute;
+            font-size: 13.2px;
+            color: #FF5656;
+            margin-top: 41px;
+            margin-left: -291px;
+            font-style: italic;
+        }
+        .search-by {
+            border-top-right-radius: 0px  !important;
+            border-bottom-right-radius: 0px  !important;
+            border-right: none !important;
+        }
+        .uv-search-inline {
+            border-top-left-radius: 0px;
+            border-bottom-left-radius: 0px;
+            padding: 7px 22px 9px 33px;
+            position: relative;
+        }
+        .uv-action-bar {
+            padding-bottom: 15px !important;
+        }
         @media screen and (max-width: 500px) {
             .uv-action-bar label {
                 display: inline-block;
             }
+        }
+
+        @media screen and (max-width: 400px) {
+            .clear-search-icon {
+                top: 215px;
+                right: 30px;
+            }
+            #error-message {
+                margin-top: 43px;
+                margin-left: 8px;
+                font-size: 11.4px;
+            }
+        }
+
+        @media screen and (max-width: 500px) and (min-width: 400px) {
+            .clear-search-icon {
+                top: 215px;
+                right: 30px;
+            }
+            #error-message {
+                margin-top: 43px;
+                margin-left: 8px;
+                font-size: 13.5px;
+            }
+        }
+
+        @media screen and (max-width: 600px) {
+            .uv-inner-section .uv-action-bar .uv-dropdown .uv-dropdown-btn {
+                width: 100%;
+            }
+        }
+        @media screen and (min-width: 1100px) and (max-width: 1250px)  {
+            .clear-search-icon {
+                top: 125px;
+            }
+        }
+        @media screen and (max-width: 1024px) {
+            .clear-search-icon {
+                right: 25px;
+            }
+        }
+
+        @media screen and (max-width: 500px) {
+            .uv-inner-section .uv-action-bar .uv-action-bar-col-lt {
+                width: 100% !important;
+            }
+            .uv-inner-section .uv-action-bar .uv-action-bar-col-rt {
+                width: 100% !important;
+            }
+        }
+
+        .uv-action-bar-col-lt {
+            width: 40% !important;
+        }
+        .uv-action-bar-col-rt {
+            width: 60% !important;
         }
     </style>
 {% endblock %}
@@ -491,7 +578,21 @@
                     {# Ticket Search | Filter Extras #}
                     <div class="uv-action-bar-col-rt">
                         <!-- Search Tickets -->
+                        <div class="uv-dropdown uv-dropdown-navigations-support" style="margin-right:-5px;">
+                            <div class="uv-dropdown-btn uv-vertical-align uv-margin-right-5 search-by">
+                                {{ 'Search By:'|trans }} <span id="new-data"></span>
+                            </div>
+                            <div class="uv-dropdown-list uv-bottom-left" style="width: unset;">
+                                <div class="uv-dropdown-container" style="text-align: left;padding: 10px;">
+                                    <label>{{ 'Search By'|trans }}</label>
+                                    <ul class="uv-dropdown-container-list">
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                         <input type="text" class="uv-search-inline" placeholder="{{ 'Search'|trans }}">
+                        <span id="clear-search" class="clear-search-icon" style="display: none;">&#10006;</span> <!-- Clear icon -->
+                        <span id="error-message"></span>
 
                         <!-- Extra Filters -->
                         <div class="uv-btn-stroke uv-margin-left-15 filter-view-trigger" data-target="uv-filter-view"><span class="uv-icon-filter"></span>{{ 'Filter View'|trans }}</div>
@@ -788,18 +889,15 @@
                                     <label>{{ 'Filter With'|trans }}</label>
                                     <ul class="">
                                         {% set options = [] %}
-                                        {% for mailbox in mailboxCollection %}
+                                        {% for mailbox in ticket_service.getAllMailboxes() %}
                                             {% set options = options|merge([{'id': mailbox.email, 'name': mailbox.name}]) %}
-
                                             <li data-id="{{mailbox.email}}">
                                                 {{ mailbox.name|trans }}
                                             </li>
                                         {% endfor %}
-
                                         <li class="uv-no-results" style="display: none;">
                                             {{ 'No result found'|trans }}
                                         </li>
-                                        
                                         {% set filterContext = filterContext|merge({'mailbox': options}) %}
                                     </ul>
                                 </div>
@@ -1039,6 +1137,27 @@
             <a class="uv-btn-remove"><span class="uv-icon-discard"></span>{{ 'Remove Label'|trans }}</a>
             <% } %>
         </div>
+    </script>
+
+    <!-- // Search type option Template -->
+    <script id="search_type_option_list" type="text/template">
+        <li tabindex="0" data-id="ID">
+            {% trans %}ID{% endtrans %}
+        </li>
+
+        <li tabindex="0" data-id="Subject">
+            {% trans %}Subject{% endtrans %}
+        </li>
+
+        <li tabindex="0" data-id="Email">
+            {% trans %}Email{% endtrans %}
+        </li>
+
+        {% if helpdesk is defined and helpdesk is not empty and helpdesk.id == '266' %}
+            <li tabindex="0" data-id="Skills">
+                {% trans %}Skills{% endtrans %}
+            </li>
+        {% endif %}
     </script>
 
     {# Add|Edit Saved Ticket Filter View Template #}
@@ -1555,6 +1674,7 @@
                     label: "",
                     status: "",
                     search: "",
+                    searchType: "",
                     agent: "",
                     customer: "",
                     priority: "",
@@ -1682,11 +1802,16 @@
                 sortText: "{% trans %}Sort By:{% endtrans %} ",
                 defaultSortText: "{% trans %}Sort By:{% endtrans %} {% trans %}Last Replied{% endtrans %}",
                 template : _.template($("#ticket_list_sorting_tmp").html()),
+                searchTypeTemplate : _.template($("#search_type_option_list").html()),
                 events : {
-                    'keyup .uv-search-inline' : 'search',
+                    'keyup .uv-search-inline' : 'searchKeyword',
+                    'click .clear-search-icon': 'clearSearch',
+                    'click .uv-dropdown-container-list li' : 'getOptionValue',
                     'change .asset-visibility input[type="checkbox"]': 'filterAssetsVisibility'
                 },
                 filterAssetsVisibilityOnLoad: function() {
+                    this.$el.find('.uv-dropdown-container-list').html(this.searchTypeTemplate(ticketCollection.filterParameters));
+
                     if(localStorage.getItem('assets-visibility')) {
                         var assets = JSON.parse(localStorage.getItem('assets-visibility'));
                         $.each(assets, function(asset, assetVal) {
@@ -1715,13 +1840,81 @@
 
                     localStorage.setItem('assets-visibility', JSON.stringify(assets));
                 },
-                search : _.debounce(function(e) {
+                searchKeyword: _.debounce(function(e) {
+                    const self = this;
+
+                    // Get search value and sanitize it
+                    const newstr = self.htmlspecialchars($(e.target).val());
+                    const search_type = this.$('#new-data').text();
+                    const clearButton = document.getElementById('clear-search');
+
+                    // Handle empty search state
+                    if (newstr.length === 0 && search_type.length === 0) {
+                        this.$('#error-message').html('');
+                        clearButton.style.display = 'none';
+                    } else {
+                        this.$('#error-message').text('Please select at least one parameter for searching.');
+                        clearButton.style.display = 'inline';
+                    }
+
+                    if (search_type.length > 1) {
+                        this.$('#error-message').html('');
+
+                        // Reset collection and update parameters
+                        this.collection.reset();
+                        this.collection.state.currentPage = null;
+                        this.collection.filterParameters.search = newstr;
+                        this.collection.filterParameters.searchType = search_type.toLowerCase().trim();
+
+                        const validParams = this.collection.getValidParameters();
+                        const queryString = app.appView.buildQuery($.param(validParams));
+
+                        router.navigate(queryString, { trigger: true });
+                    }
+                }, 1000),
+                htmlspecialchars(str) {
+                    var map = {
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#039;'
+                    };
+
+                    return str.replace(/[&<>"']/g, function(m) { return map[m]; });
+                },
+                clearSearch: function (e) {
+                    var searchInput = document.querySelector('.uv-search-inline');
+                    var clearButton = document.getElementById("clear-search");
+
+                    searchInput.value = '';
+                    clearButton.style.display = "none";
+                    searchInput.focus();
+
                     this.collection.reset();
                     this.collection.state.currentPage = null;
-                    this.collection.filterParameters.search = Backbone.$(e.target).val();
+                    this.collection.filterParameters.search = null;
+                    this.collection.filterParameters.searchType = null;
+                    this.$('#error-message').html('');
                     var queryString = app.appView.buildQuery($.param(this.collection.getValidParameters()));
-                    router.navigate(queryString,{trigger: true});
-                }, 1000)
+
+                    router.navigate(queryString, {trigger: true});
+                },
+                getOptionValue: function(e){
+                    currentElement = Backbone.$(e.currentTarget);
+
+                    var optionValue = currentElement.attr("data-id");
+
+                    if (optionValue.length) {
+                        this.$('#error-message').html('');
+                    }
+
+                    if (this.$("#new-data").text().length > 0) {
+                        this.$("#new-data").html('');
+                    }
+
+                    this.$("#new-data").append(optionValue);
+                }
             });
 
             // Side Filter View
@@ -1784,7 +1977,7 @@
                 render: function() {
                     fetchOptions = this.checkOptionAvailable();
 
-                    if(this.isReadyFlag && !this.isRecurrsiveCalls) {
+                    if (this.isReadyFlag && !this.isRecurrsiveCalls) {
                         this.isReadyFlag = 0;
                         this.isRecurrsiveCalls = 1;
                         sideFilterModel.loadFilterOptions(fetchOptions)
@@ -1794,8 +1987,8 @@
                         var self = this;
                         var displayFlag = 0;
                         _.each(ticketCollection.filterParameters, function (filter, key) {
-                            if(jQuery.inArray(key, ['customer', 'agent', 'priority', 'type', 'group', 'team', 'tag', 'mailbox', 'source', 'after', 'before', 'repliesLess', 'repliesMore']) !== -1) {
-                                if(filter != null && filter != '') {
+                            if (jQuery.inArray(key, ['customer', 'agent', 'priority', 'type', 'group', 'team', 'tag', 'mailbox', 'source', 'after', 'before', 'repliesLess', 'repliesMore']) !== -1) {
+                                if (filter != null && filter != '') {
                                     displayFlag = 1;
                                     filter = filter.split(',');
 
@@ -1803,13 +1996,13 @@
                                     appliedFilterOptions[key]['options'] = [];
 
                                     _.each(filter, function (value) {
-                                        if(key == 'after' || key == 'before' || key == 'repliesLess' || key == 'repliesMore') {
+                                        if (key == 'after' || key == 'before' || key == 'repliesLess' || key == 'repliesMore') {
                                             $("#" + key + "-filter-input").val(filter)
                                             appliedFilterOptions[key]['options'].push({'id': filter, 'name': filter});
                                         } else {
                                             savedOptions = sideFilterModel.get(key)
                                             _.each(savedOptions, function (item) {
-                                                if(item.id == value) {
+                                                if (item.id == value) {
                                                     appliedFilterOptions[key]['options'].push({'id': item.id, 'name': item.name});
 
                                                     parent = $('#'+key+'-filter')
@@ -1820,27 +2013,27 @@
                                         }
                                     });
                                 }
-                            } else if(jQuery.inArray(key, ['new','unassigned','notreplied','mine','starred','trashed']) !== -1) {
-                                if(filter != null && filter != '') {
+                            } else if (jQuery.inArray(key, ['new','unassigned','notreplied','mine','starred','trashed']) !== -1) {
+                                if (filter != null && filter != '') {
                                     displayFlag = 1;
                                     appliedFilterOptions[key] = {'name': "{{ 'Label'|trans }}"};
                                     appliedFilterOptions[key]['options'] = [];
                                     var optionName = (key == 'mine') ? "{% trans %}Assigned to me{% endtrans %}" : key.charAt(0).toUpperCase() + key.slice(1);
                                     appliedFilterOptions[key]['options'].push({'id': key, 'name': optionName});
                                 } else {
-                                    if(!ticketCollection.filterParameters.new && !ticketCollection.filterParameters.unassigned && !ticketCollection.filterParameters.notreplied && !ticketCollection.filterParameters.mine && !ticketCollection.filterParameters.starred && !ticketCollection.filterParameters.trashed &&! ticketCollection.filterParameters.label) {
+                                    if (!ticketCollection.filterParameters.new && !ticketCollection.filterParameters.unassigned && !ticketCollection.filterParameters.notreplied && !ticketCollection.filterParameters.mine && !ticketCollection.filterParameters.starred && !ticketCollection.filterParameters.trashed &&! ticketCollection.filterParameters.label) {
                                         appliedFilterOptions['all'] = {'name': "{{ 'Label'|trans }}"};
                                         appliedFilterOptions['all']['options'] = [];
                                         appliedFilterOptions['all']['options'].push({'id': 1, 'name': "{{ 'All'|trans }}"});
                                     }
                                 }
-                            } else if(key == 'label') {
-                                if(filter != null && filter != '') {
+                            } else if (key == 'label') {
+                                if (filter != null && filter != '') {
                                     displayFlag = 1;
                                     var labelModel = labelCollection.get(filter);
                                     appliedFilterOptions[key] = {'name': "{{ 'Label'|trans }}"};
                                     appliedFilterOptions[key]['options'] = [];
-                                    if(labelModel) {
+                                    if (labelModel) {
                                         appliedFilterOptions[key]['options'] = [];
                                         appliedFilterOptions[key]['options'].push({'id': labelModel.attributes.id, 'name': labelModel.attributes.name});
                                     } else {
@@ -1852,16 +2045,16 @@
                                         });
                                     }
                                 } else {
-                                    if(!ticketCollection.filterParameters.new && !ticketCollection.filterParameters.unassigned && !ticketCollection.filterParameters.notreplied && !ticketCollection.filterParameters.mine && !ticketCollection.filterParameters.starred && !ticketCollection.filterParameters.trashed &&! ticketCollection.filterParameters.label) {
+                                    if (!ticketCollection.filterParameters.new && !ticketCollection.filterParameters.unassigned && !ticketCollection.filterParameters.notreplied && !ticketCollection.filterParameters.mine && !ticketCollection.filterParameters.starred && !ticketCollection.filterParameters.trashed &&! ticketCollection.filterParameters.label) {
                                         appliedFilterOptions['all'] = {'name': "{{ 'Label'|trans }}"};
                                         appliedFilterOptions['all']['options'] = [];
                                         appliedFilterOptions['all']['options'].push({'id': 1, 'name': "{{ 'All'|trans }}"});
                                     }
                                 }
-                            } else if(key == 'status') {
+                            } else if (key == 'status') {
                                 appliedFilterOptions[key] = {'name': "{{ 'Status'|trans }}"};
                                 appliedFilterOptions[key]['options'] = []
-                                if(filter != null && filter != '' && filter != 1) {
+                                if (filter != null && filter != '' && filter != 1) {
                                     displayFlag = 1;
                                     appliedFilterOptions[key]['options'].push({'id': filter, 'name': $(".status-list li a[data-id='" + filter + "'] .name").text().trim()});
                                 } else {
@@ -1869,15 +2062,15 @@
                                 }
 
 
-                            } else if(key == 'search') {
-                                if(filter != null && filter != '') {
+                            } else if (key == 'search') {
+                                if (filter != null && filter != '') {
                                     displayFlag = 1;
                                     appliedFilterOptions[key] = {'name': "{{ 'Search Query'|trans }}"};
                                     appliedFilterOptions[key]['options'] = [];
                                     appliedFilterOptions[key]['options'].push({'id': filter, 'name': filter});
                                 }
                             } else if(key == 'custom') {
-                                if(filter != null && filter != '') {
+                                if (filter != null && filter != '') {
                                     self.$el.find('[data-filter="custom"]').remove();
 
                                     displayFlag = 1;
@@ -1901,7 +2094,7 @@
                                         eleSelector = '[data-value="' + multiKeyValue[0] + '"]';
                                         ele = $(eleSelector);
 
-                                        if(ele[0].type == 'radio') {
+                                        if (ele[0].type == 'radio') {
                                             var dataValue = multiKeyValue[0];
                                             name = ele.parents('.uv-element-block:not(.radio)').find('label:first').text().trim()
                                             value =  $(eleSelector + '[value="' + multiKeyValue[1] + '"]').parent().next().text();
@@ -1909,7 +2102,7 @@
                                             appliedFilterOptions['z-'+dataValue] = {'name': name, 'type': 'radio'};
                                             appliedFilterOptions['z-'+dataValue]['options'] = [];
                                             appliedFilterOptions['z-'+dataValue]['options'].push({'id': multiKeyValue[1], 'name': value});
-                                        } else if(ele[0].type == 'checkbox') {
+                                        } else if (ele[0].type == 'checkbox') {
 
                                             var dataValue = multiKeyValue[0];
                                             if($.inArray(dataValue, checkBoxStore) >= 0)
@@ -1929,7 +2122,7 @@
                                                     appliedFilterOptions['z-'+dataValue]['options'].push({'id': value, 'name': optionName});
                                                 }
                                             });
-                                        } else if(ele[0].type == 'select-multiple') {
+                                        } else if (ele[0].type == 'select-multiple') {
                                             var dataValue = multiKeyValue[0];
                                             filter = multiKeyValueValue;
                                             key = ele.attr('id');
@@ -1945,9 +2138,9 @@
                                                 }
                                             });
 
-                                        } else if(ele[0].type == 'text' || ele[0].type == 'number') {
+                                        } else if (ele[0].type == 'text' || ele[0].type == 'number') {
                                             filter = multiKeyValue[1];
-                                            if(filter != null && filter != '') {
+                                            if (filter != null && filter != '') {
                                                 filter = filter.replace(/\+/g,' ');
                                                 displayFlag = 1;
                                                 var dataValue = ele.attr('data-value');
@@ -1967,14 +2160,15 @@
                                 $('#'+ key +'-filter-input').val(filter);
                             }
                         })
-                        if(displayFlag) {
+
+                        if (displayFlag) {
                             self.$el.find('.uv-filter-options .uv-action-buttons').html("")
-                            if($("#saved-filter").val() != null && $("#saved-filter").val() != '' && Backbone.history.getFragment() == userFilters[$("#saved-filter").val()]['route']) {
+                            if ($("#saved-filter").val() != null && $("#saved-filter").val() != '' && Backbone.history.getFragment() == userFilters[$("#saved-filter").val()]['route']) {
                                 self.$el.find('.uv-filter-options .uv-action-buttons').append("<a class='uv-btn edit-saved-reply' href='#'>{{ 'Edit'|trans }}</a>").show();
                                 $('.uv-filter-paper .uv-customize').show()
                             } else {
                                 self.$el.find('.uv-filter-options .uv-action-buttons').append("<a class='uv-btn new-saved-reply' href='#'>{{ 'New'|trans }}</a>").show();
-                                if($("#saved-filter").val() != null && $("#saved-filter").val() != '') {
+                                if ($("#saved-filter").val() != null && $("#saved-filter").val() != '') {
                                     self.$el.find('.uv-filter-options .uv-action-buttons').append("<a class='uv-btn edit-saved-reply' href='#'>{{ 'Update'|trans }}</a>").show();
                                     $('.uv-filter-paper .uv-customize').show()
                                 } else {
@@ -1994,21 +2188,21 @@
                     currentElement = Backbone.$(e.currentTarget);
                     dropdown = currentElement.siblings('.uv-dropdown-list');
                     var filterType =  currentElement.attr('data-filter-type');
-                    if(jQuery.inArray(filterType, ['customer', 'tag']) !== -1) {
+                    if (jQuery.inArray(filterType, ['customer', 'tag']) !== -1) {
                         self.searchFilterXhr(currentElement);
                     }
                 },
                 searchFilterXhr: _.debounce(function(currentElement) {
                     var parent = currentElement.parent();
-                    if($('.uv-dropdown-other.uv-dropdown-btn-active').parent().attr('id') != parent.attr('id'))
+                    if ($('.uv-dropdown-other.uv-dropdown-btn-active').parent().attr('id') != parent.attr('id'))
                         return;
 
                     parent.find("li:not(.uv-no-results, .uv-filter-info)").remove();
                     parent.find(".uv-filter-info").show()
-                    if(currentElement.val().length > 1) {
+                    if (currentElement.val().length > 1) {
                         parent.append(this.loaderTemplate())
                         parent.find('.uv-filter-info').text("{% trans %}Searching{% endtrans %} ...")
-                        if(self.xhrReq)
+                        if (self.xhrReq)
                             self.xhrReq.abort();
 
                         self.xhrReq = $.ajax({
@@ -2020,14 +2214,14 @@
                                 self.xhrReq = 0;
                                 parent.find('.uv-loader').remove()
                                 parent.find('.uv-filter-info').text("{{ 'Type atleast 2 letters'|trans }}").hide();
-                                if(response.length == 0) {
+                                if (response.length == 0) {
                                     parent.find('.uv-no-results').show()
                                 } else {
                                     parent.find('.uv-no-results').hide();
                                     _.each(response, function(item) {
-                                        if(currentElement.attr('data-filter-type') == 'customer') {
+                                        if (currentElement.attr('data-filter-type') == 'customer') {
                                             var img = item.smallThumbnail ? "{{ app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') }}"+item.smallThumbnail : "{{ asset(default_customer_image_path)}}";
-                                            parent.find('.uv-dropdown-list ul').append("<li data-id='" + item.id + "'><img src='" + img + "'/>" + item.name + "</li>")
+                                            parent.find('.uv-dropdown-list ul').append("<li data-id='" + item.id + "' name='" + item.name + "' class='uv-dropdown-navigations-support-el' tabindex='0' style='display: flex; gap: 10px;'><div><img src='" + img + "' style='margin: unset;'/></div><div style='font-size: 14px;'><div style='width: 100%;'>" +  item.name + "</div><div style='width: 100%; max-width: 168px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;'>" + item.email + "</div></div></li>")
                                         } else
                                             parent.find('.uv-dropdown-list ul').append("<li data-id='" + item.id + "'>" + item.name + "</li>")
                                     });
@@ -2038,17 +2232,18 @@
                                 parent.find('.uv-loader').remove()
                                 parent.find('.uv-no-results').hide();
                                 parent.find('.uv-filter-info').text("{{ 'Type atleast 2 letters'|trans }}").show();
-                                if(url = xhr.getResponseHeader('Location'))
+                                if (url = xhr.getResponseHeader('Location'))
                                     window.location = url;
                             }
                         });
                     } else {
                         parent.find('.uv-no-results').hide();
                     }
-                },1000),
+                }, 1000),
+
                 applySavedFilter: function(e) {
                     var element = Backbone.$(e.currentTarget);
-                    if(element.val() != "") {
+                    if (element.val() != "") {
                         var element = Backbone.$(e.currentTarget);
                         router.navigate(userFilters[element.val()]['route'], {trigger: true});
                     } else {
@@ -2057,30 +2252,31 @@
                 },
                 applyFilter: function(e) {
                     currentElement = Backbone.$(e.currentTarget);
-                    if(currentElement.attr("data-id")) {
+
+                    if (currentElement.attr("data-id")) {
                         var flag = 1;
                         parent = currentElement.parents(".uv-field-block");
                         filterType = parent.find('input').attr('data-filter-type');
 
-                        if(filterType == "customer" || filterType == 'tag') {
-                            sideFilterModel.updateModel(filterType, {'id': currentElement.attr('data-id'), 'name': currentElement.text()})
+                        if (filterType == "customer" || filterType == 'tag') {
+                            sideFilterModel.updateModel(filterType, {'id': currentElement.attr('data-id'), 'name': currentElement.attr('name')})
                             parent.find(".uv-no-results").hide()
                             parent.find(".uv-filter-info").show().text("{{ 'Type atleast 2 letters'|trans }}")
                             parent.find("li:not(.uv-no-results, .uv-filter-info)").remove();
                         } else {
-                            if(ticketCollection.filterParameters[filterType]) {
+                            if (ticketCollection.filterParameters[filterType]) {
                                 ids = ticketCollection.filterParameters[filterType].split(',')
-                                if(jQuery.inArray(currentElement.attr('data-id'), ids) !== -1)
+                                if (jQuery.inArray(currentElement.attr('data-id'), ids) !== -1)
                                     flag = 0;
                             }
                         }
 
                         parent.find('input').val('')
-                        if(jQuery.inArray(filterType, ['agent', 'priority', 'type', 'group', 'team', 'mailbox', 'source']) !== -1) {
+                        if (jQuery.inArray(filterType, ['agent', 'priority', 'type', 'group', 'team', 'mailbox', 'source']) !== -1) {
                             parent.find("li:not(.uv-no-results)").show()
                         }
-                        if(flag) {
-                            parent.find('.uv-filtered-tags').append("<a class='uv-btn-tag' href='#' data-id='" + currentElement.attr('data-id') + "'>"+currentElement.text()+"<span class='uv-icon-remove-dark'></span></a>")
+                        if (flag) {
+                            parent.find('.uv-filtered-tags').append("<a class='uv-btn-tag' href='#' data-id='" + currentElement.attr('data-id') + "'>"+currentElement.attr('name')+"<span class='uv-icon-remove-dark'></span></a>")
                             ticketCollection.state.order = null;
                             ticketCollection.state.sortKey = null;
                             ticketCollection.state.currentPage = null;
@@ -2090,7 +2286,7 @@
                         }
                     } else {
                         filterType = currentElement.attr('data-filter-type');
-                        if(filterType == 'before' || filterType == "after") {
+                        if (filterType == 'before' || filterType == "after") {
                             ticketCollection.state.order = null;
                             ticketCollection.state.sortKey = null;
                             ticketCollection.state.currentPage = null;
@@ -2123,6 +2319,7 @@
                     parent.find('.uv-btn-tag').each(function() {
                         ids.push($(this).attr('data-id'))
                     });
+
                     return ids.join();
                 },
                 filterByRepliesMoreThan: _.debounce(function(e) {
@@ -2147,26 +2344,26 @@
                     var indexValueSeperator = '_';
                     var columnSeperator = '|';
 
-                    Backbone.$('.custom-filter').each(function(){
-                        if($(this).context.type == 'radio' && $(this).is(':checked')) {
+                    Backbone.$('.custom-filter').each(function() {
+                        if ($(this).context.type == 'radio' && $(this).is(':checked')) {
                             custom += $(this).attr('data-value') + indexValueSeperator + $(this).val() + columnSeperator;
-                        } else if($(this).context.type == 'checkbox' && $(this).is(':checked')) {
+                        } else if ($(this).context.type == 'checkbox' && $(this).is(':checked')) {
                             var checkboxValue = Array();
                             var dataValue = $(this).attr('data-value');
-                            if($.inArray(dataValue, checkBoxStore) >= 0)
+                            if ($.inArray(dataValue, checkBoxStore) >= 0)
                                 return;
                             $.each($('[data-value="'+ dataValue +'"]:checked'), function() {
                                 checkboxValue.push($(this).val());
                             });
                             checkBoxStore.push(dataValue);
                             custom += dataValue + indexValueSeperator + checkboxValue.join() + columnSeperator;
-                        } else if($(this).context.type == 'select-multiple' && $(this).val()) {
+                        } else if ($(this).context.type == 'select-multiple' && $(this).val()) {
                             custom += $(this).attr('data-value') + indexValueSeperator + $(this).val().join() + columnSeperator;
                         }
                     })
 
                     Backbone.$('.search-custom').each(function(){
-                        if($(this).val()){
+                        if ($(this).val()) {
                             custom += $(this).attr('data-value') + indexValueSeperator + $(this).val() + columnSeperator;
                         }
                     })
@@ -2181,7 +2378,7 @@
                     router.navigate(queryString,{trigger: true});
                 }, 1000),
                 backToFilter: function(e) {
-                    if(e)
+                    if (e)
                         e.preventDefault()
                     this.$el.find('.uv-filter-options').show()
                     this.$el.find('.uv-filter-edit').hide()
@@ -2191,7 +2388,7 @@
 
                     var context = {};
                     this.tempAppliedFilterOptions = jQuery.extend(true, {}, this.appliedFilterOptions);
-                    if(Backbone.$(e.currentTarget).is('.new-saved-reply')) {
+                    if (Backbone.$(e.currentTarget).is('.new-saved-reply')) {
                         context = {'id': 0, 'name': '', 'is_default': 0, 'filters': this.tempAppliedFilterOptions};
                     } else {
                         context = userFilters[$("#saved-filter").val()];
@@ -2212,18 +2409,18 @@
 
                     delete this.tempAppliedFilterOptions[filterType]['options'][elementIndex]
                     Backbone.$(e.currentTarget).remove()
-                    if(!parent.find('.uv-btn-tag').length) {
+                    if (!parent.find('.uv-btn-tag').length) {
                         parent.remove()
                         delete this.tempAppliedFilterOptions[filterType];
                     }
-                    if(this.getSavedFilterRoute() == '') {
+                    if (this.getSavedFilterRoute() == '') {
                         this.backToFilter();
                     }
                 },
                 saveSavedFilter: function(e) {
                     e.preventDefault()
 
-                    if(Backbone.$(e.currentTarget).hasClass('save-filter'))
+                    if (Backbone.$(e.currentTarget).hasClass('save-filter'))
                         this.saveFilterAjax('POST')
                     else {
                         this.saveFilterAjax('PUT')
@@ -2234,7 +2431,7 @@
                     inputElement.removeClass('uv-field-error');
                     $('.uv-field-message').remove()
 
-                    if(inputElement.val() != undefined && inputElement.val() == '') {
+                    if (inputElement.val() != undefined && inputElement.val() == '') {
                         inputElement.addClass('uv-field-error');
                         inputElement.parent().after("<span class='uv-field-message'>{{ 'This field is mandatory'|trans }}</span>");
                     } else {
@@ -2252,11 +2449,11 @@
                                 userFilters[response.filter.id] = response.filter;
                                 $("#saved-filter").html("<option value=''>-- {{ 'Saved Filter'|trans }} --</option>")
                                 _.each(userFilters, function(filter, key) {
-                                    if(response.filter.is_default && filter.id != response.filter.id)
+                                    if (response.filter.is_default && filter.id != response.filter.id)
                                         userFilters[key]['is_default'] = 0;
 
                                     var selected = '';
-                                    if(response.filter.id == filter.id)
+                                    if (response.filter.id == filter.id)
                                         selected = "selected";
                                     $("#saved-filter").append("<option value='" + filter.id + "' selected='" + selected + "''>" + filter.name + "</option>")
                                 })
@@ -2268,7 +2465,7 @@
                             },
                             error: function (xhr) {
                                 app.appView.hideLoader();
-                                if(url = xhr.getResponseHeader('Location'))
+                                if (url = xhr.getResponseHeader('Location'))
                                     window.location = url;
                             }
                         });
@@ -2278,32 +2475,32 @@
                     var filterParameters = {};
                     temp = [];
                     _.each(this.tempAppliedFilterOptions, function (filter, key) {
-                        if(jQuery.inArray(key, ['customer', 'agent', 'priority', 'type', 'group', 'team', 'tag', 'mailbox', 'source', 'after', 'before', 'repliesLess', 'repliesMore']) !== -1) {
+                        if (jQuery.inArray(key, ['customer', 'agent', 'priority', 'type', 'group', 'team', 'tag', 'mailbox', 'source', 'after', 'before', 'repliesLess', 'repliesMore']) !== -1) {
                             var ids = [];
                             _.each(filter['options'], function (item) {
                                 ids.push(item.id)
                             });
                             filterParameters[key] = ids.join(',')
-                        } else if(jQuery.inArray(key, ['new','unassigned','notreplied','mine','starred','trashed']) !== -1) {
+                        } else if (jQuery.inArray(key, ['new','unassigned','notreplied','mine','starred','trashed']) !== -1) {
                             filterParameters[key] = 1;
-                        } else if(jQuery.inArray(key, ['label', 'status', 'search']) !== -1) {
+                        } else if (jQuery.inArray(key, ['label', 'status', 'search']) !== -1) {
                             _.each(filter['options'], function (item) {
                                 filterParameters[key] = item.id;
                             });
                         } else {
                             custom = key.split("z-")
                             tempKey = custom[1];
-                            if(filter.type == 'text' || filter.type == 'number') {
+                            if (filter.type == 'text' || filter.type == 'number') {
                                 _.each(filter['options'], function (item) {
                                     temp.push(tempKey + '_' + item.name)
                                 });
-                            } else if(filter.type == 'radio') {
+                            } else if (filter.type == 'radio') {
                                 var ids = [];
                                 _.each(filter['options'], function (item) {
                                     ids.push(item.id)
                                 });
                                 temp.push(tempKey + '_' + ids.join(','))
-                            } else if(filter.type == 'checkbox' || filter.type == 'select-multiple') {
+                            } else if (filter.type == 'checkbox' || filter.type == 'select-multiple') {
                                 var ids = [];
                                 _.each(filter['options'], function (item) {
                                     ids.push(item.id)
@@ -2312,7 +2509,7 @@
                             }
                         }
                     })
-                    if(temp.length)
+                    if (temp.length)
                         filterParameters['custom'] = temp.join('|');
 
                     return app.appView.buildQuery($.param(filterParameters));
@@ -2341,7 +2538,7 @@
                         },
                         error: function (xhr) {
                             app.appView.hideLoader();
-                            if(url = xhr.getResponseHeader('Location'))
+                            if (url = xhr.getResponseHeader('Location'))
                                 window.location = url;
                         }
                     });
@@ -2522,7 +2719,7 @@
                 updateMassLabelList: function() {
                     this.$el.find('.uv-aside-custom').html('');
                     var labelOptionHtml = "";
-                    if(labelCollection.length) {
+                    if (labelCollection.length) {
                         _.each(labelCollection.models, function (item) {
                             this.renderLabelItem(item);
                             labelOptionHtml = labelOptionHtml + "<li data-index='" + item.id + "'><a href='#'>" + item.attributes.name + "</a></li>";
@@ -2539,7 +2736,7 @@
                     this.$el.find('.uv-aside-custom').append(labelItem.render().el);
                 },
                 renderStatus : function() {
-                    if(typeof ticketCollection.filterParameters.status == "undefined" || ticketCollection.filterParameters.status == null)
+                    if (typeof ticketCollection.filterParameters.status == "undefined" || ticketCollection.filterParameters.status == null)
                         var active = 0;
                     else
                         var active = ticketCollection.filterParameters.status;
@@ -2561,7 +2758,7 @@
                 addEditLabel: function(e) {
                     e.preventDefault()
                     currentElement = Backbone.$(e.currentTarget);
-                    if(currentElement.hasClass('add-new-label'))
+                    if (currentElement.hasClass('add-new-label'))
                         $('.uv-add-edit-label').html(this.addEditLabelTemplate({id : 0, name : '', colorCode: ''}))
                     else
                         $('.uv-add-edit-label').html(this.addEditLabelTemplate(labelCollection.get(currentElement.siblings('a').attr('data-id')).toJSON()))
@@ -2570,7 +2767,7 @@
                     $('.uv-add-edit-label').show()
                 },
                 backToLabels: function(e) {
-                    if(e)
+                    if (e)
                         e.preventDefault()
                     $('.uv-aside-default').show()
                     $('.uv-add-edit-label').hide()
@@ -2586,7 +2783,7 @@
                     $('.uv-field-message').remove()
 
                     var labelName = app.appView.stripHTML(inputElement.val());
-                    if(labelName == "") {
+                    if (labelName == "") {
                         inputElement.addClass('uv-field-error');
                         inputElement.parent().after("<span class='uv-field-message'>{{ 'This field is mandatory'|trans }}</span>");
                     } else {
@@ -2596,13 +2793,13 @@
                         model.set({name: labelName, colorCode: $('.uv-color-block.uv-color-active').attr('data-color')});
                         self = this;
                         var flag = labelCollection.isLabelExist(labelName, labelId);
-                        if(flag) {
+                        if (flag) {
                             app.appView.showLoader();
                             model.save({}, {
                                 success: function (model, response, options) {
                                     app.appView.hideLoader();
-                                    if(response.alertClass == "success") {
-                                        if(!labelId) {
+                                    if (response.alertClass == "success") {
+                                        if (!labelId) {
                                             labelCollection.add(model);
                                         }
                                         self.updateMassLabelList()
@@ -2639,7 +2836,7 @@
                             self.backToLabels();
                         },
                         error: function (model, xhr, options) {
-                            if(url = xhr.getResponseHeader('Location'))
+                            if (url = xhr.getResponseHeader('Location'))
                                 window.location = url;
                             app.appView.hideLoader();
                             app.appView.renderResponseAlert(warningResponse);
@@ -2659,7 +2856,7 @@
                 },
                 massAction: function(e) {
                     e.preventDefault();
-                    if(!parseInt(Backbone.$(e.currentTarget).attr('data-index')))
+                    if (!parseInt(Backbone.$(e.currentTarget).attr('data-index')))
                         return;
 
                     var data = {};
@@ -2672,9 +2869,9 @@
                 removeItem: function(e) {
                     var data = {};
 
-                    if(Backbone.$(this.currentEvent.currentTarget).is("#mass-delete"))
+                    if (Backbone.$(this.currentEvent.currentTarget).is("#mass-delete"))
                         data['actionType'] = "trashed";
-                    else if(Backbone.$(this.currentEvent.currentTarget).is("#mass-delete-forever"))
+                    else if (Backbone.$(this.currentEvent.currentTarget).is("#mass-delete-forever"))
                         data['actionType'] = "delete";
 
                     data['ids'] = this.getCheckedTicketIds();
@@ -2692,7 +2889,7 @@
                 getCheckedTicketIds: function() {
                     var ids = new Array();
                     $('.mass-action-checkbox').each(function() {
-                        if($(this).is(':checked')) {
+                        if ($(this).is(':checked')) {
                             ids.push($(this).val());
                         }
                     });
@@ -2727,22 +2924,22 @@
                     //$("#quick-view-modal .uv-loader").hide()
                     var currentElement = Backbone.$(e.currentTarget);
                     ticketId = currentElement.attr('data-id');
-                    if(ticketId) {
+                    if (ticketId) {
                         if(model = ticketQuickViewCollection.isModelSynced(ticketId)) {
                             this.renderQuickView(model.toJSON())
                         } else {
                             var self = this;
-                            if(currentElement.hasClass("uv-quick-view-trigger"))
+                            if (currentElement.hasClass("uv-quick-view-trigger"))
                                 app.appView.showLoader();
 
-                            if(ticketQuickViewCollection.get(ticketId)) {
+                            if (ticketQuickViewCollection.get(ticketId)) {
                                 navData = ticketQuickViewCollection.getNextPrev(ticketId);
                                 requiredNext = (!navData.next && app.pager.paginationData.next) ? 1 : 0;
                                 requiredPrev = (!navData.previous && app.pager.paginationData.previous) ? 1 : 0;
                             } else
                                 requiredNext = requiredPrev = 1;
 
-                            if(self.xhrReq)
+                            if (self.xhrReq)
                                 self.xhrReq.abort();
 
                             $("#quick-view-modal .uv-loader").show()
@@ -2753,18 +2950,18 @@
                                 dataType : 'json',
                                 success : function(response) {
                                     self.xhrReq = 0;
-                                    if(currentElement.hasClass("uv-quick-view-trigger"))
+                                    if (currentElement.hasClass("uv-quick-view-trigger"))
                                         app.appView.hideLoader();
 
-                                    if(response.next == undefined)
+                                    if (response.next == undefined)
                                         response.next = navData.next
-                                    if(response.previous == undefined)
+                                    if (response.previous == undefined)
                                         response.previous = navData.previous
 
                                     response.isSynced = 1
                                     response.path = pathToTicket.replace('replaceId', response.incrementId);
 
-                                    if(ticketQuickViewCollection.get(ticketId))
+                                    if (ticketQuickViewCollection.get(ticketId))
                                         ticketQuickViewCollection.set(response,{remove: false})
                                     else
                                         ticketQuickViewCollection.add(new TicketQuickViewModel(response))
@@ -2773,7 +2970,7 @@
                                 },
                                 error: function (xhr) {
                                     self.xhrReq = 0;
-                                    if(url = xhr.getResponseHeader('Location'))
+                                    if (url = xhr.getResponseHeader('Location'))
                                         window.location = url;
                                     app.appView.hideLoader();
                                 }
@@ -2802,7 +2999,7 @@
                             if($(this).is(':checked'))
                                 count++;
                         });
-                        if(count == $('.mass-action-checkbox').length) {
+                        if (count == $('.mass-action-checkbox').length) {
                             $('.mass-action-checkbox').prop('checked', false);
                             $('.uv-action-bar .filter').parent().show();
                             $('.uv-action-bar .mass-action').parent().removeClass("uv-width-100").hide();
@@ -2816,8 +3013,11 @@
             Router = Backbone.Router.extend({
                 routes: {
                     'page/:number(/sort/:sortField)(/direction/:order)' : 'paginate',
-                    'status/:status(/search/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByStatus',
-                    'search/:query(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByQuery',
+
+                    'status/:status(/search/:query)(/searchType/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByStatus',
+
+                    'search/:query(/searchType/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByQuery',
+
                     'agent/:agent(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByAgent',
                     'customer/:customer(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByCustomer',
                     'priority/:priority(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByPriority',
@@ -2832,13 +3032,20 @@
                     'repliesLess/:repliesLess(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByRepliesLesserCount',
                     'repliesMore/:repliesMore(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByRepliesGreaterCount',
                     'custom/:custom(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByCustom',
-                    'label/:labelId(/status/:status)(/search/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByLabel',
-                    'new(/status/:status)(/search/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterNew',
-                    'unassigned(/status/:status)(/search/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterUnassigned',
-                    'notreplied(/status/:status)(/search/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterNotReplied',
-                    'mine(/status/:status)(/search/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterMine',
-                    'starred(/status/:status)(/search/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterstarred',
-                    'trashed(/status/:status)(/search/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterTrashed',
+
+                    'label/:labelId(/status/:status)(/search/:query)(/searchType/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterByLabel',
+
+                    'new(/status/:status)(/search/:query)(/searchType/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterNew',
+
+                    'unassigned(/status/:status)(/search/:query)(/searchType/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterUnassigned',
+
+                    'notreplied(/status/:status)(/search/:query)(/searchType/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterNotReplied',
+
+                    'mine(/status/:status)(/search/:query)(/searchType/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterMine',
+
+                    'starred(/status/:status)(/search/:query)(/searchType/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterstarred',
+
+                    'trashed(/status/:status)(/search/:query)(/searchType/:query)(/agent/:agent)(/customer/:customer)(/priority/:priority)(/type/:type)(/group/:group)(/team/:team)(/tag/:tag)(/mailbox/:mailbox)(/source/:source)(/after/:after)(/before/:before)(/repliesLess/:repliesLess)(/repliesMore/:repliesMore)(/custom/:custom)(/page/:number)(/sort/:sortField)(/direction/:order)': 'filterTrashed',
                     '': 'initializeList'
                 },
                 initializeList : function() {
@@ -2850,85 +3057,85 @@
                     this.resetParams('','','','','','','','','','','','','','','','','','','','','', '');
                     this.fetch(number,sortField,order);
                 },
-                filterByLabel : function(labelId,status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams(labelId,'','','','','','',status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                filterByLabel : function(labelId,searchType,status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
+                    this.resetParams(labelId,'','','','','','',status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
-                filterNew : function(status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('',1,'','','','','',status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                filterNew : function(status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
+                    this.resetParams('',1,'','','','','',status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
-                filterUnassigned : function(status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','',1,'','','','',status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                filterUnassigned : function(status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
+                    this.resetParams('','',1,'','','','',status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
-                filterNotReplied: function(status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','',1,'','','',status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                filterNotReplied: function(status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
+                    this.resetParams('','','',1,'','','',status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
 
                 },
-                filterMine : function(status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','',1,'','',status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                filterMine : function(status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
+                    this.resetParams('','','','',1,'','',status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
-                filterstarred : function(status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','',1,'',status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                filterstarred : function(status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
+                    this.resetParams('','','','','',1,'',status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
-                filterTrashed : function(status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','',1,status,query,agent,customer,priority,type,group,team,tag,mailbox,source,custom);
+                filterTrashed : function(status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
+                    this.resetParams('','','','','','',1,status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,custom);
                     this.fetch(number,sortField,order);
                 },
-                filterByStatus : function(status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','',status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                filterByStatus : function(status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
+                    this.resetParams('','','','','','','',status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
-                filterByQuery : function(query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','',query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                filterByQuery : function(query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
+                    this.resetParams('','','','','','','','',query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByAgent : function(agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','',agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','',agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByCustomer : function(customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','',customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','',customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByPriority : function(priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','','',priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','',priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByType : function(type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','','','',type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','','',type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByGroup : function(group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','','','','',group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','','','',group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterBySubGroup : function(team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','','','','','',team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','','','','',team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByTags : function(tag,mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','','','','','','',tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','','','','','',tag,mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByMailbox : function(mailbox,source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','','','','','','','',mailbox,source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','','','','','','',mailbox,source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterBySource: function(source,after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','','','','','','','','',source,after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','','','','','','','',source,after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByAfter: function(after,before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','','','','','','','','','',after,before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','','','','','','','','',after,before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByBefore: function(before,repliesLess,repliesMore,custom,number,sortField,order) {
-                    this.resetParams('','','','','','','','','','','','','','','','','','','',before,repliesLess,repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','','','','','','','','','',before,repliesLess,repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByRepliesLesserCount: function(repliesLess, repliesMore, custom, number, sortField, order) {
@@ -2936,11 +3143,11 @@
                     this.fetch(number,sortField,order);
                 },
                 filterByRepliesGreaterCount: function(repliesMore, custom, number, sortField, order) {
-                    this.resetParams('','','','','','','','','','','','','','','','','','','','','',repliesMore,custom);
+                    this.resetParams('','','','','','','','','','','','','','','','','','','','','','',repliesMore,custom);
                     this.fetch(number,sortField,order);
                 },
                 filterByCustom : function(custom, number, sortField, order) {
-                    this.resetParams('','','','','','','','','','','','','','','','','','','','','','',custom);
+                    this.resetParams('','','','','','','','','','','','','','','','','','','','','','','',custom);
                     this.fetch(number,sortField,order);
                 },
                 fetch: function(number, sortField, order) {
@@ -2948,7 +3155,7 @@
                     filter.sortCollection(sortField, order);
                     ticketCollection.syncData();
                 },
-                resetParams : function(labelId,newLabel,unassigned,notreplied,mine,starred,trashed,status,query,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom) {
+                resetParams : function(labelId,newLabel,unassigned,notreplied,mine,starred,trashed,status,query,searchType,agent,customer,priority,type,group,team,tag,mailbox,source,after,before,repliesLess,repliesMore,custom) {
                     _.each(userFilters, function(filter, index) {
                         if(Backbone.history.getFragment() == filter['route']) {
                             $("#saved-filter").val(index);
@@ -2956,7 +3163,7 @@
                     });
 
                     isPageJustLoaded = false;
-                    if(query != null)
+                    if (query != null)
                         query = query.replace(/\+/g,' ');
                     bulkAction.hideBulkOptions();
                     ticketCollection.filterParameters.label = labelId;
@@ -2967,6 +3174,7 @@
                     ticketCollection.filterParameters.starred = starred;
                     ticketCollection.filterParameters.trashed = trashed;
                     ticketCollection.filterParameters.search = query;
+                    ticketCollection.filterParameters.searchType = searchType;
                     $(".uv-search-inline").val(query);
                     ticketCollection.filterParameters.status = status;
                     ticketCollection.filterParameters.agent = agent;
@@ -2989,7 +3197,7 @@
                     $('.custom-fields').find('input[type="radio"]').prop('checked', false);
                     $('.custom-fields').find('input[type="checkbox"]').prop('checked', false);
 
-                    if(custom) {
+                    if (custom) {
                         custom = custom.replace(/\+/g,' ');
 
                         var indexValueSeperator = '_';
@@ -2999,7 +3207,7 @@
                         var multiKeyValue, multiKeyValueValue, ele;
 
                         _.each(multiOptions, function(valueData, indexData) {
-                            if(!valueData)
+                            if (!valueData)
                                 return;
 
                             multiKeyValue = valueData.split(indexValueSeperator);
@@ -3008,27 +3216,27 @@
 
                             ele = $('[data-value="' + multiKeyValue[0] + '"]');
 
-                            if(ele[0].type == 'radio') {
+                            if (ele[0].type == 'radio') {
                                 $('[data-value="' + multiKeyValue[0] + '"][value="' + multiKeyValue[1] + '"]').prop('checked', true);
 
-                            } else if(ele[0].type == 'checkbox') {
+                            } else if (ele[0].type == 'checkbox') {
                                 _.each(ele, function(eleElements) {
-                                    if(multiKeyValueValue.indexOf(eleElements.value) > -1) {
+                                    if (multiKeyValueValue.indexOf(eleElements.value) > -1) {
                                         $(eleElements).prop('checked', true);
                                     }
                                 });
 
-                            } else if(ele[0].type == 'select-multiple') {
+                            } else if (ele[0].type == 'select-multiple') {
                                 ele.val(multiKeyValueValue);
 
-                            } else if(ele[0].type == 'text') {
+                            } else if (ele[0].type == 'text') {
                                 ele.val(multiKeyValue[1]);
                             }
                         })
 
                     }
 
-                    if(trashed) {
+                    if (trashed) {
                         $('.property-block').hide();
                         $('.trashed-block').show();
                     } else {

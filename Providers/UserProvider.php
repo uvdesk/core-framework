@@ -86,7 +86,10 @@ class UserProvider implements UserProviderInterface
             $response = $queryBuilder->getQuery()->getResult();
 
             try {
-                if (!empty($response) && is_array($response)) {
+                if (
+                    ! empty($response) 
+                    && is_array($response)
+                ) {
                     list($user, $userInstance) = $response;
 
                     // Set currently active instance

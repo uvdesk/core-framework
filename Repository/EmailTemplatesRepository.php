@@ -20,20 +20,20 @@ class EmailTemplatesRepository extends EntityRepository
         $data = $obj->all();
         $data = array_reverse($data);
         foreach ($data as $key => $value) {
-            if(!in_array($key,$this->safeFields)) {
-                if($key!='dateUpdated' AND $key!='dateAdded' AND $key!='search') {
-                    $qb->andwhere('sr.'.$key.' = :'.$key);
+            if (! in_array($key,$this->safeFields)) {
+                if ($key!='dateUpdated' AND $key!='dateAdded' AND $key!='search') {
+                    $qb->andWhere('sr.'.$key.' = :'.$key);
                     $qb->setParameter($key, $value);
                 } else {
                     if($key == 'search') {
-                        $qb->andwhere('sr.name'.' LIKE :name');
+                        $qb->andWhere('sr.name'.' LIKE :name');
                         $qb->setParameter('name', '%'.urldecode(trim($value)).'%');    
                     }
                 }
             }
         }   
         
-        if(!isset($data['sort']))
+        if (! isset($data['sort']))
             $qb->orderBy('sr.id', Criteria::DESC);
 
         $paginator  = $container->get('knp_paginator');
@@ -50,7 +50,7 @@ class EmailTemplatesRepository extends EntityRepository
 
         $paginationData = $results->getPaginationData();
         $queryParameters = $results->getParams();
-        if(isset($queryParameters['template']))
+        if (isset($queryParameters['template']))
             unset($queryParameters['template']);
 
         $paginationData['url'] = '#'.$container->get('uvdesk.service')->buildPaginationQuery($queryParameters);

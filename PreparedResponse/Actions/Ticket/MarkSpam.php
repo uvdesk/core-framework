@@ -33,7 +33,7 @@ class MarkSpam extends PreparedResponseAction
     public static function applyAction(ContainerInterface $container, $entity, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        if($entity instanceof Ticket) {
+        if ($entity instanceof Ticket) {
             $status = $entityManager->getRepository(TicketStatus::class)->find(6);
             $entity->setStatus($status);
             $entityManager->persist($entity);

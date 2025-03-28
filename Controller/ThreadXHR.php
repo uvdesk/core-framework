@@ -25,7 +25,7 @@ class ThreadXHR extends AbstractController
         if (true === $request->isXmlHttpRequest()) {
             $ticket = $entityManager->getRepository(Ticket::class)->findOneById($ticketId);
 
-            if (!empty($ticket)) {
+            if (! empty($ticket)) {
                 $paginationResponse = $this->ticketService->paginateMembersTicketThreadCollection($ticket, $request);
     
                 return new Response(json_encode($paginationResponse), 200, ['Content-Type' => 'application/json']);
@@ -34,5 +34,4 @@ class ThreadXHR extends AbstractController
         
         return new Response(json_encode([]), 404, ['Content-Type' => 'application/json']);
     }
-    
 }

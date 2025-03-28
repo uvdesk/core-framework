@@ -32,6 +32,9 @@ services:
     uvdesk.core.file_system.service:
         alias: Webkul\UVDesk\CoreFrameworkBundle\FileSystem\FileSystem
     
+    swiftmailer.service:
+        alias: Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer
+    
     uvdesk.core.event_dispatcher:
         alias: Webkul\UVDesk\CoreFrameworkBundle\Framework\EventDispatcher
     

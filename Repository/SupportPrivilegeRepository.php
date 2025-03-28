@@ -27,22 +27,22 @@ class SupportPrivilegeRepository extends \Doctrine\ORM\EntityRepository
 
         $data = array_reverse($data);
         foreach ($data as $key => $value) {
-            if(!in_array($key,$this->safeFields)) {
-                if($key!='dateUpdated' AND $key!='dateAdded' AND $key!='search') {
-                    $qb->Andwhere('ap.'.$key.' = :'.$key);
+            if (!in_array($key,$this->safeFields)) {
+                if ($key!='dateUpdated' AND $key!='dateAdded' AND $key!='search') {
+                    $qb->andWhere('ap.'.$key.' = :'.$key);
                     $qb->setParameter($key, $value);
                 } else {
-                    if($key == 'search') {
-                        $qb->orwhere('ap.name'.' LIKE :name');
-                        $qb->setParameter('name', '%'.urldecode($value).'%');    
-                        $qb->orwhere('ap.description'.' LIKE :description');
+                    if ($key == 'search') {
+                        $qb->orWhere('ap.name'.' LIKE :name');
+                        $qb->setParameter('name', '%'.urldecode(trim($value)).'%');    
+                        $qb->orWhere('ap.description'.' LIKE :description');
                         $qb->setParameter('description', '%'.urldecode(trim($value)).'%');
                     }
                 }
             }
         }   
 
-        if(!isset($data['sort'])){
+        if (!isset($data['sort'])){
             $qb->orderBy('ap.createdAt',Criteria::DESC);
         }
 
@@ -62,15 +62,14 @@ class SupportPrivilegeRepository extends \Doctrine\ORM\EntityRepository
 
         $parsedCollection = array_map(function($privilege) {
             return [
-                'id' => $privilege->getId(),
-                'name' => $privilege->getName(),
+                'id'          => $privilege->getId(),
+                'name'        => $privilege->getName(),
                 'description' => $privilege->getDescription(),
             ];
         }, $results->getItems()); 
 
-       
-        $json['privileges']         = $parsedCollection;
-        $json['pagination_data']    = $paginationData;
+        $json['privileges']      = $parsedCollection;
+        $json['pagination_data'] = $paginationData;
       
         return $json;
     }

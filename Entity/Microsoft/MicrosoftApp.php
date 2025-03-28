@@ -1,9 +1,9 @@
 <?php
 
-namespace Webkul\UVDesk\CoreFrameworkBundle\Entity;
+namespace Webkul\UVDesk\CoreFrameworkBundle\Entity\Microsoft;
 
 use Doctrine\ORM\Mapping as ORM;
-use Webkul\UVDesk\CoreFrameworkBundle\Repository\MicrosoftAppRepository;
+use Webkul\UVDesk\CoreFrameworkBundle\Repository\Microsoft\MicrosoftAppRepository;
 
 /**
  * @ORM\Entity(repositoryClass=MicrosoftAppRepository::class)

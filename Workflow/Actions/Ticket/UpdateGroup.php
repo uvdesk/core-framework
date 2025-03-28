@@ -7,6 +7,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\AutomationBundle\Workflow\Event;
+use Webkul\UVDesk\AutomationBundle\Workflow\Events\AgentActivity;
+use Webkul\UVDesk\AutomationBundle\Workflow\Events\TicketActivity;
 
 class UpdateGroup extends WorkflowAction
 {
@@ -30,19 +33,32 @@ class UpdateGroup extends WorkflowAction
         return $container->get('user.service')->getSupportGroups();
     }
 
-    public static function applyAction(ContainerInterface $container, $entity, $value = null)
+    public static function applyAction(ContainerInterface $container, Event $event, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        if($entity instanceof Ticket) {
-            $group = $entityManager->getRepository(SupportGroup::class)->find($value);
-            if($group) {
-                $entity->setSupportGroup($group);
-                $entityManager->persist($entity);
-                $entityManager->flush();
-            } else {
-                // User Group Not Found. Disable Workflow/Prepared Response
-               // $this->disableEvent($event, $entity);
+
+        if (!$event instanceof TicketActivity) {
+            return;
+        } else {
+            $ticket = $event->getTicket();
+            
+            if (empty($ticket)) {
+                return;
             }
+        }
+        
+        $group = $entityManager->getRepository(SupportGroup::class)->find($value);
+
+        if ($group) {
+            $ticket
+                ->setSupportGroup($group)
+            ;
+            
+            $entityManager->persist($ticket);
+            $entityManager->flush();
+        } else {
+            // User Group Not Found. Disable Workflow/Prepared Response
+           // $this->disableEvent($event, $entity);
         }
     }
 }

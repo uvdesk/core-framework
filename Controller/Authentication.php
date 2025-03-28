@@ -47,14 +47,15 @@ class Authentication extends AbstractController
             $processId = (int) $output[0];
 
             $responseContent = [
-                'alertClass' => 'success',
+                'alertClass'   => 'success',
                 'alertMessage' => $this->translator->trans('Success ! Project cache cleared successfully.')
             ];
+
             return new Response(json_encode($responseContent), 200, ['Content-Type' => 'application/json']);
         }
 
         $responseContent = [
-            'alertClass' => 'warning',
+            'alertClass'   => 'warning',
             'alertMessage' => $this->translator->trans('Error! Something went wrong.')
         ];
 
@@ -82,15 +83,16 @@ class Authentication extends AbstractController
     {   
         $entityManager = $this->getDoctrine()->getManager();
         $recaptchaDetails = $this->recaptchaService->getRecaptchaDetails();
+
         if ($request->getMethod() == 'POST') {
-            if ($recaptchaDetails && $recaptchaDetails->getIsActive() == true  && $this->recaptchaService->getReCaptchaResponse($request->request->get('g-recaptcha-response'))
-            ) {
+            if ($recaptchaDetails && $recaptchaDetails->getIsActive() == true  && $this->recaptchaService->getReCaptchaResponse($request->request->get('g-recaptcha-response'))) {
                 $this->addFlash('warning', $this->translator->trans("Warning ! Please select correct CAPTCHA !"));
             } else {
                 $user = new User();
                 $form = $this->createFormBuilder($user,['csrf_protection' => false])
-                        ->add('email',EmailType::class)
-                        ->getForm();
+                    ->add('email',EmailType::class)
+                    ->getForm()
+                ;
 
                 $form->submit(['email' => $request->request->get('forgot_password_form')['email']]);
                 $form->handleRequest($request);
@@ -99,17 +101,17 @@ class Authentication extends AbstractController
                     $repository = $this->getDoctrine()->getRepository(User::class);
                     $user = $entityManager->getRepository(User::class)->findOneByEmail($form->getData()->getEmail());
 
-                    if (!empty($user)) {
+                    if (! empty($user)) {
                         // Trigger agent forgot password event
-                        $event = new GenericEvent(CoreWorkflowEvents\UserForgotPassword::getId(), [
-                            'entity' => $user,
-                        ]);
+                        $event = new CoreWorkflowEvents\User\ForgotPassword();
+                        $event
+                            ->setUser($user)
+                        ;
                             
                         $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
                         $this->addFlash('success', $this->translator->trans('Please check your mail for password update'));
 
                         return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
-
                     } else {
                         $this->addFlash('warning', $this->translator->trans('This email address is not registered with us'));
                     }
@@ -124,9 +126,12 @@ class Authentication extends AbstractController
     {
         $entityManager = $this->getDoctrine()->getManager();
         $user = $entityManager->getRepository(User::class)->findOneByEmail($email);
-        $lastupdatedInstance = $entityManager->getRepository(User::class)->LastupdatedRole($user);
+        $lastUpdatedInstance = $entityManager->getRepository(User::class)->lastUpdatedRole($user);
         
-        if (empty($user) || $user->getVerificationCode() != $verificationCode) {
+        if (
+            empty($user) 
+            || $user->getVerificationCode() != $verificationCode
+        ) {
             $this->addFlash('success', $this->translator->trans('You have already update password using this link if you wish to change password again click on forget password link here from login page'));
 
             return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
@@ -144,9 +149,9 @@ class Authentication extends AbstractController
 
                 $this->addFlash('success', $this->translator->trans('Your password has been successfully updated. Login using updated password'));
               
-                if($lastupdatedInstance[0]->getSupportRole()->getId() != 4){
+                if ($lastUpdatedInstance[0]->getSupportRole()->getId() != 4) {
                     return $this->redirect($this->generateUrl('helpdesk_member_handle_login'));
-                }else{
+                } else {
                     return $this->redirect($this->generateUrl('helpdesk_knowledgebase'));
                 }
             } else {

@@ -7,6 +7,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
 use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\AutomationBundle\Workflow\Event;
+use Webkul\UVDesk\AutomationBundle\Workflow\Events\AgentActivity;
+use Webkul\UVDesk\AutomationBundle\Workflow\Events\TicketActivity;
 
 class UpdateTeam extends WorkflowAction
 {
@@ -30,19 +33,32 @@ class UpdateTeam extends WorkflowAction
         return $container->get('user.service')->getSupportTeams();
     }
 
-    public static function applyAction(ContainerInterface $container, $entity, $value = null)
+    public static function applyAction(ContainerInterface $container, Event $event, $value = null)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
-        if($entity instanceof Ticket) {
-            $subGroup = $entityManager->getRepository(SupportTeam::class)->find($value);
-            if($subGroup) {
-                $entity->setSupportTeam($subGroup);
-                $entityManager->persist($entity);
-                $entityManager->flush();
-            } else {
-                // User Sub Group Not Found. Disable Workflow/Prepared Response
-                //$this->disableEvent($event, $entity);
+
+        if (!$event instanceof TicketActivity) {
+            return;
+        } else {
+            $ticket = $event->getTicket();
+            
+            if (empty($ticket)) {
+                return;
             }
+        }
+        
+        $subGroup = $entityManager->getRepository(SupportTeam::class)->find($value);
+
+        if ($subGroup) {
+            $ticket
+                ->setSupportTeam($subGroup)
+            ;
+            
+            $entityManager->persist($ticket);
+            $entityManager->flush();
+        } else {
+            // User Sub Group Not Found. Disable Workflow/Prepared Response
+            //$this->disableEvent($event, $entity);
         }
     }
 }

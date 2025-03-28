@@ -203,14 +203,11 @@
 		.uv-mob-aside {
 			display: none;
 		}
-		#helpdeskClearCachePta {
-			position: fixed;
-			right: 25px;
-			bottom: 25px;
-			font-size: 13px;
-			font-weight: bold;
-			background-color: #cd1f1f;
-			padding: 4px 7px;
+		#btn-disclaimer {
+  			position: fixed;
+  			right: 25px;
+  			bottom: 10px;
+			background: url("");
 		}
 	</style>
 {% endblock %}
@@ -219,31 +216,32 @@
     <div class="uv-area">
         {{ uvdesk_extensibles.getRegisteredComponent('Webkul\\UVDesk\\CoreFrameworkBundle\\Dashboard\\Dashboard').getHomepageTemplate().render()|raw }}
 
-		{# @TODO: Version number should be loaded dynamically #}
         <div class="uv-copyright">
-            <span class="uv-credit-text">{{ 'Powered by'|trans }} <a href="https://www.uvdesk.com" target="_blank">Uvdesk</a> v1.2.0</span>
+            <p style="margin: unset; font-size: 14px; line-height: 1.4em;">{{ 'Powered by'|trans }} <a href="https://www.uvdesk.com" target="_blank">Uvdesk</a></p>
+			<p style="color: #5a5a5a; margin: unset; font-size: 12px; line-height: 1.4em;">Version {{ uvdesk_version }}; Core Version {{ uvdesk_core_version }}</p>
         </div>
 
 		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-    		<button type="submit" class="btn btn-primary btn-md" id="helpdeskClearCachePta" title={{'Clear Cache'|trans }}>Clear Cache</button>
+    		<button type="submit" class="btn btn-primary btn-md" id="btn-disclaimer" title={{'clear cache'|trans }}><img src="https://api.iconify.design/mdi:delete-restore.svg?height=24" aria-hidden="true"></button>
   		</div>
     </div>
-	
-	<script>
-		$('#helpdeskClearCachePta').click(function(e) {
-			$.ajax({
-				url : "{{ path('helpdesk_member_cache_clear') }}",
-				method: 'POST',
-				data: "",
-				success : function(response) {
-					app.appView.renderResponseAlert(response);
-				},
-				error: function (xhr) {
-					app.appView.renderResponseAlert(xhr);
-				}
-			});
-		});
-	</script>
+
+<script>
+	$('#btn-disclaimer').click(function(e){
+
+    	$.ajax({
+        	url : "{{ path('helpdesk_member_cache_clear') }}",
+        	method: 'POST',
+        	data: "",
+        	success : function(response) {
+				app.appView.renderResponseAlert(response);
+        	},
+        	error: function (xhr) {
+            	app.appView.renderResponseAlert(xhr);
+        	}
+    	});
+    });
+</script>
 {% endblock %}
 
 {% block footer %}
