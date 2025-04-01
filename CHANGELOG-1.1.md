@@ -2,6 +2,13 @@ CHANGELOG for 1.1.x
 ===================
 
 This changelog references any relevant changes introduced in 1.1 minor versions.
+* 1.1.7
+    * Added conditional operator for getting email in case not getting email in mail parameter for microsoft app.
+   
+    Features:
+        - Updated UI - Added plus icon for ticket create, agent create etc.
+        - Added portuguese trans in service.
+        - Updates for search by filter for ticket list, added dropdown to select and element before search.
 
 * 1.1.6 (2024-12-23)
     * Issue #508 #549 - Filter issue resolved for customer filtering.
