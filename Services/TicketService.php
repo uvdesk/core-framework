@@ -916,16 +916,18 @@ class TicketService
                 'attachments'       => $threadDetails['attachments'],
             ];
   
-            if (!empty($threadDetails['user'])) {
+            if (! empty($threadDetails['user'])) {
                 $threadResponse['fullname'] = trim($threadDetails['user']['firstName'] . ' ' . $threadDetails['user']['lastName']);
                 $threadResponse['user'] = [
                     'id' => $threadDetails['user']['id'],
                     'smallThumbnail' => $threadDetails['user']['userInstance'][0]['profileImagePath'],
                     'name' => $threadResponse['fullname'],
                 ];
+            } else {
+                $threadResponse['fullname'] = 'System';
             }
 
-            if (!empty($threadResponse['attachments'])) {
+            if (! empty($threadResponse['attachments'])) {
                 $threadResponse['attachments'] = array_map(function ($attachment) use ($entityManager, $uvdeskFileSystemService) {
                     $attachmentReferenceObject = $entityManager->getReference(Attachment::class, $attachment['id']);
                     return $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject);
@@ -1146,7 +1148,7 @@ class TicketService
         }
 
         return [
-            'alertClass' => 'success',
+            'alertClass'   => 'success',
             'alertMessage' => $this->trans($message),
         ];
     }
@@ -1159,7 +1161,8 @@ class TicketService
 
         $variables['ticket.status'] = $ticket->getStatus()->getCode();
         $variables['ticket.priority'] = $ticket->getPriority()->getCode();
-        if($ticket->getSupportGroup())
+
+        if ($ticket->getSupportGroup())
             $variables['ticket.group'] = $ticket->getSupportGroup()->getName();
         else
             $variables['ticket.group'] = '';
@@ -1172,6 +1175,7 @@ class TicketService
 
         $variables['ticket.agentName'] = '';
         $variables['ticket.agentEmail'] = '';
+
         if ($ticket->getAgent()) {
             $agent = $this->container->get('user.service')->getAgentDetailById($ticket->getAgent()->getId());
             if($agent) {
@@ -1221,10 +1225,10 @@ class TicketService
         return [
             'types' => array_map(function ($ticketType) {
                 return [
-                    'id' => $ticketType->getId(),
-                    'code' => strtoupper($ticketType->getCode()),
+                    'id'          => $ticketType->getId(),
+                    'code'        => strtoupper($ticketType->getCode()),
                     'description' => $ticketType->getDescription(),
-                    'isActive' => $ticketType->getIsActive(),
+                    'isActive'    => $ticketType->getIsActive(),
                 ];
             }, $pagination->getItems()),
             'pagination_data' => $paginationData,
@@ -1816,8 +1820,8 @@ class TicketService
     {
         $flag = false;
         $email = strtolower($email);
-        $knowlegeBaseWebsite = $this->entityManager->getRepository(KnowledgebaseWebsite::class)->findOneBy(['website' => $website->getId(), 'isActive' => 1]);
-        $list = $this->container->get('user.service')->getWebsiteSpamDetails($knowlegeBaseWebsite);
+        $knowledgeBaseWebsite = $this->entityManager->getRepository(KnowledgebaseWebsite::class)->findOneBy(['website' => $website->getId(), 'isActive' => 1]);
+        $list = $this->container->get('user.service')->getWebsiteSpamDetails($knowledgeBaseWebsite);
 
         // Blacklist
         if (!empty($list['blackList']['email']) && in_array($email, $list['blackList']['email'])) {

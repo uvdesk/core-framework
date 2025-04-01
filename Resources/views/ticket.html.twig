@@ -4,6 +4,43 @@
 
 {% block templateCSS %}
     <style>
+
+            .uv-inner-section .uv-view .uv-ticket-note-agent .uv-ticket-main-rt {
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #E3F2FD;
+            border: 1px solid #42a5f5;
+            position: relative;
+        }
+
+        .uv-inner-section .uv-view .uv-ticket-note-agent .uv-ticket-main-rt::before,
+        .uv-inner-section .uv-view .uv-ticket-note-agent .uv-ticket-main-rt::after { 
+            border-bottom: solid 1px #42a5f5;
+            border-right: solid 1px #42a5f5;
+            border-left: solid 1px #42a5f5;
+        }
+
+        .uv-inner-section .uv-view .uv-ticket-note-agent .uv-ticket-main-rt::before {
+            content: "";
+            position: absolute;
+            top: 0px;
+            bottom: -4px;
+            left: 2px;
+            right: 2px;
+            z-index: -1;
+            background-color: #FFFFFF;
+        }
+
+        .uv-inner-section .uv-view .uv-ticket-note-agent .uv-ticket-main-rt::after {
+            content: "";
+            position: absolute;
+            top: 0px;
+            bottom: -7px;
+            left: 6px;
+            right: 6px;
+            z-index: -2;
+        }
+
         .uv-aside-ticket-labels.label-list-block .uv-btn-label {
             cursor: pointer;
         }
@@ -1353,7 +1390,7 @@
                 </span>
             - <%- fullname %>
             <span class="uv-ticket-strip-label">
-                <% if(threadType == 'reply') { %>
+                <% if (threadType == 'reply') { %>
                     {{ 'replied'|trans }}
                 <% } else if(threadType == 'note') { %>
                     {{ 'added note'|trans }}
@@ -1364,13 +1401,13 @@
                 </span>
             </span>
 
-            <% if((replyTo && threadType ==  'forward') || cc || bcc) { %>
+            <% if ((replyTo && threadType ==  'forward') || cc || bcc) { %>
                 <div class="uv-ticket-strip">
-                    <% if(replyTo && threadType ==  'forward') { %>
+                    <% if (replyTo && threadType ==  'forward') { %>
                     <span><span class="uv-ticket-strip-label">{{ 'TO'|trans }} -</span> <%- replyTo %></span>
-                    <% } if(cc) { %>
+                    <% } if (cc) { %>
                     <span><span class="uv-ticket-strip-label">{{ 'CC'|trans }} -</span> <%- cc %></span>
-                    <% } if(bcc) { %>
+                    <% } if (bcc) { %>
                     <span><span class="uv-ticket-strip-label">{{ 'BCC'|trans }} -</span> <%- bcc %></span>
                     <% } %>
                 </div>
@@ -2213,8 +2250,12 @@
                     this.$el.html(this.template(this.model.toJSON()));
 
                     this.$el.addClass("thread-" + this.model.id)
-                    if (this.model.attributes.threadType == 'note')
-                        this.$el.addClass('uv-ticket-note')
+                    if (this.model.attributes.threadType == 'note' && this.model.attributes.userType == 'System') {
+                        this.$el.addClass('uv-ticket-note') 
+                    } else if (this.model.attributes.threadType == 'note' && this.model.attributes.userType != 'System') {
+                        this.$el.addClass('uv-ticket-note-agent') 
+                    }
+
                     return this;
                 },
                 unrender : function(response) {
