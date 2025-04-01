@@ -9,6 +9,7 @@ This changelog references any relevant changes introduced in 1.1 minor versions.
         - Updated UI - Added plus icon for ticket create, agent create etc.
         - Added portuguese trans in service.
         - Updates for search by filter for ticket list, added dropdown to select and element before search.
+        - User created notes with different color on ticket view.
 
 * 1.1.6 (2024-12-23)
     * Issue #508 #549 - Filter issue resolved for customer filtering.
