@@ -372,6 +372,12 @@ helpdesk_member_ticket_prepared_response_xhr:
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\TicketXHR::applyTicketPreparedResponseXHR
     defaults: { ticketId: 0, id: 0 }
 
+# Agent permission deatils on quick view 
+helpdesk_member_ticket_user_permission_quick_view_xhr:
+    path:     /agent/permissions/quick-view/agent-details/{id}
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\TicketXHR::getAgentAcessQuickViewDetailsXhr
+    defaults: { id: 0 }
+
 # Support Customer Resources
 helpdesk_member_manage_customer_account_collection:
     path:     /customers

@@ -4,8 +4,7 @@
 
 {% block templateCSS %}
     <style>
-
-            .uv-inner-section .uv-view .uv-ticket-note-agent .uv-ticket-main-rt {
+        .uv-inner-section .uv-view .uv-ticket-note-agent .uv-ticket-main-rt {
             padding: 15px;
             margin-bottom: 10px;
             background-color: #E3F2FD;
@@ -394,10 +393,188 @@
            padding: 7px 10px 9px 33px;
            width: 100%;
         }
+
+        {# Agent access details css start #}
+        .uv-pop-up-body {
+            padding: 15px 0 0 0 !important;
+        }
+
+        .uv-quick-view-trigger {
+            width: 18px !important;
+            background-position: -14px 210px !important;
+        }
+        #quick-view-modal .uv-view {
+            padding: 0;
+            overflow-y: visible;
+            display: inline-block;
+            position: relative;
+        }
+        #quick-view-modal .uv-view .uv-ticket-section {
+            margin-top: 0;
+        }
+        #quick-view-modal .uv-ticket-head {
+            padding: 5px 0px 0px 0px;
+        }
+        #quick-view-modal .uv-ticket-strip {
+            padding-bottom: 0;
+        }
+        #quick-view-modal .uv-ticket-strip .uv-btn-tag {
+            margin-bottom: 0;
+        }
+        #quick-view-modal .quick-view-navigation {
+            position: absolute;
+            right: 50px;
+            top: 9px;
+        }
+        #quick-view-modal .quick-view-navigation ~ a {
+            width: calc(100% - 100px);
+            display: inline-block;
+        }
+        #quick-view-modal .uv-btn-tag[disabled="disabled"] {
+            opacity: .4;
+            cursor: not-allowed;
+            border-color: #B1B1AE !important;
+        }
+        #quick-view-modal .uv-loader {
+            transform: scale(0.5);
+            top: 14px;
+            right: 60px;
+        }
+
+        .uv-grid-item h3 {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .uv-grid-item {
+            margin-bottom: 8px;
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+
+        .uv-inner-section .uv-view p:first-of-type {
+            margin-top: 0 !important;
+        }
+
+        .uv-grid-item h3 {
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .uv-agent-details-section {
+            display: none;
+        }
+        .uv-agent-details {
+            display: grid;
+            list-style-type: none;
+            padding-left: 10px;
+            margin: 0;
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .uv-accordian-sec {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .uv-agent-details li, .uv-agent-details p {
+            margin: 2px 0;
+            padding-left: 15px;
+            position: relative;
+            text-transform: uppercase;
+            font-size: 15px !important;
+        }
+
+        .uv-grid-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .uv-agent-details li::before {
+            content: "•";
+            font-size: 1rem;
+            position: absolute;
+            left: 0;
+            top: -2px;
+        }
+
+        .uv-rt-accordian {
+            display: flex;
+            align-items: center;
+        }
+
+        .uv-accordian-icon {
+            width: 12px;
+            height: 12px;
+            display: inline-block;
+            background-color: transparent;
+            position: relative;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .uv-accordian-icon::before {
+            content: '';
+            border: solid #B1B1AE;
+            border-width: 0 2px 2px 0;
+            display: inline-block;
+            padding: 4px;
+            transform: rotate(45deg);
+            transition: transform 0.3s ease;
+        }
+        .uv-accordian-icon.up::before {
+            transform: rotate(-135deg); /* Up arrow */
+        }
+
+        .uv-ticket-head {
+            font-family: 'Source Sans Pro', sans-serif;
+        }
+
+        @media (max-width: 768px) {
+            .uv-grid-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        .uv-pop-up-box h2 {
+            font-size: 20px !important;
+        }
+
+        .uv-pop-up-box .uv-pop-up-close {
+            top : 30px !important;
+            right: 28px !important;
+        }
+
+        .uv-pop-up-wide {
+            background: #f4f6f9 !important;
+            margin-left: -17% !important;
+            border-radius: 10px;
+            /* width: 700px; */
+            max-width: 50% !important;
+        }
+
+        .uv-grid-item-count h4 {
+            background: #f4f6f9;
+            color: #333333;
+            font-weight: 500;
+            font-size: 15px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-right: 15px;
+        }
+        {# Agent details css end #}
         
     </style>
 {% endblock %}
 {% block pageContent %}
+
+    <!-- Quick View popup -->
+    <div class="uv-pop-up-overlay" id="quick-view-modal">
+        <div class="uv-pop-up-box uv-pop-up-wide">
+        </div>
+    </div>
+    <!-- //Quick View popup -->
 
     <div class="uv-inner-section">
         {# Ticket Sidebar #}
@@ -514,6 +691,7 @@
                 </div>
             {% endif %}
 
+            
             {# Edit Ticket #}
             <div class="uv-aside-brick">
                 <div class="uv-aside-ticket-actions">
@@ -891,6 +1069,9 @@
                     <span class="agent-info" style="{{ ticketAgent ? '' : 'display: none' }}">
                         <span class="uv-ticket-strip-label">{{ 'Agent'|trans }} - </span>
                         <span class="name">{{ ticketAgent ? ticketAgent.name : '' }}</span>
+                        {% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT') and ticketAgent is defined and ticketAgent is not empty %}
+                            <span class="uv-quick-view-trigger" title="Agent access details" data-placement="bottom" data-id="<%= id %>"></span>
+                        {% endif %}
                     </span>
                 </div>
 
@@ -1882,6 +2063,8 @@
                     'click .uv-header-fix': 'fixheader',
                     'click .uv-ticket-action .uv-dropdown-list li[data-action="print"]': 'printTicket',
                     'blur .uv-manual-enter': 'enterManualAdd',
+                    'click .uv-quick-view-trigger, .quick-view-navigation .uv-btn-tag': 'navigateQuickView',
+                    'click .uv-grid-item': 'toggleAccordian',
                 },
                 ticketNavigationTemplate : _.template($("#ticket_quick_navigation_tmp").html()),
                 loaderTemplate : _.template($("#loader-tmp").html()),
@@ -2180,6 +2363,96 @@
                 showReplyQuote: function(e) {
                     Backbone.$(e.currentTarget).next().toggle();
                 },
+
+                // Agent roles and permissions quick view
+                quickViewTemplate: _.template($("#agent_access_details_quick_view_tmp").html()),
+                navigateQuickView : function(e) {
+                    e.preventDefault();
+
+                    var currentElement = Backbone.$(e.currentTarget);
+                    var self = this;
+
+                    if(currentElement.hasClass("uv-quick-view-trigger"))
+                        app.appView.showLoader();
+
+                    if(self.xhrReq)
+                        self.xhrReq.abort();
+
+                    $("#quick-view-modal .uv-loader").show()
+
+                    self.xhrReq = $.ajax({
+                        url: "{{ path('helpdesk_member_ticket_user_permission_quick_view_xhr') }}", // Make sure this route is correct
+                        type: 'GET',
+                        data: { 'ticketId': ticketModel.attributes.id }, // Sending the ticket ID
+                        dataType: 'json',
+                        success: function(response) {
+                            console.log(response);
+                            self.xhrReq = 0;
+                            if(currentElement.hasClass("uv-quick-view-trigger"))
+                                app.appView.hideLoader();
+
+                            self.renderQuickView(response)
+                        },
+                        error: function(xhr) {
+                            self.xhrReq = 0;
+                            if(url = xhr.getResponseHeader('Location'))
+                                window.location = url;
+                            app.appView.hideLoader();
+                        }
+                    });
+                },
+
+                renderQuickView: function(response) {
+                    $('#quick-view-modal .uv-pop-up-box').html(this.quickViewTemplate(response));
+                    app.appView.openModal('quick-view-modal')
+                    $('#quick-view-modal .message').find('img').removeAttr('crossorigin');
+
+                    $('#quick-view-modal .message').find('.uv-icon-ellipsis').remove();
+                    $('#quick-view-modal .message').find('.helpdesk_blockquote').eq(0).before("<span class='uv-icon-ellipsis uv-ellipsis-mirror'></span>").hide();
+                    app.appView.relativeTime();
+                },
+                toggleAccordian: function(e) {
+                    const arrowElement = Backbone.$(e.currentTarget);
+
+                    // Map of section configurations
+                    const sectionMap = {
+                        'uv-group-section': {
+                            block: '.uv-agent-details-section',
+                            arrow: '.uv-accordian-icon',
+                        },
+                        'uv-team-section': {
+                            block: '.uv-agent-details-section',
+                            arrow: '.uv-accordian-icon',
+                        },
+                        'uv-privilage-section': {
+                            block: '.uv-agent-details-section',
+                            arrow: '.uv-accordian-icon'
+                        },
+                        'uv-ticketView-section': {
+                            block: '.uv-agent-details-section',
+                            arrow: '.uv-accordian-icon'
+                        }
+                    };
+
+                    // Find which section was clicked
+                    const sectionKey = Object.keys(sectionMap).find(key =>
+                        arrowElement.closest(`.${key}`).length
+                    );
+
+                    if (sectionKey) {
+                        const section = sectionMap[sectionKey];
+                        const filterSection = this.$(`.${sectionKey} ${section.block}`);
+                        const arrowToggle = this.$(`.${sectionKey} ${section.arrow}`);
+
+                        // Toggle section visibility and update UI
+                        const isVisible = filterSection.is(':visible');
+
+                        filterSection[isVisible ? 'hide' : 'show']();
+
+                        // Update arrow direction using CSS class
+                        arrowToggle.toggleClass('up', !isVisible);
+                    }
+                },
                 searchFilterXhr: _.debounce(function(e) {
                     currentElement = Backbone.$(e.currentTarget);
                     var parent = currentElement.parent();
@@ -2225,7 +2498,7 @@
                     } else {
                         parent.find('.uv-no-results').hide();
                     }
-                },1000)
+                }, 1000)
             });
 
             // Ticket Thread View
@@ -3100,5 +3373,144 @@
                 }
             };
         }
+    </script>
+    <script id="agent_access_details_quick_view_tmp" type="text/template">
+        <div class="uv-pull-right quick-view-navigation">
+            <div class="uv-loader" style="display: none">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        <span class="uv-pop-up-close"></span>
+        <h2>{{ 'Agent Access Details'|trans }}</h2>
+        <div class="uv-pop-up-body uv-inner-section">
+            <div class="uv-view">
+                <div class="uv-ticket-head uv-grid-container">
+
+                    <!-- Agent Groups -->
+                    <div class="uv-grid-item uv-group-section">
+                        <span class="uv-accordian-sec">
+                            <h3>{{ 'Groups'|trans }}</h3>
+
+                            <span class="uv-rt-accordian">
+                                <% if (typeof agentGroups !== 'undefined' && agentGroups.length > 0) { %>
+                                        <span class="uv-grid-item-count">
+                                          <h4> <%= agentGroups.length %> Access </h4>
+                                        </span>
+                                <% } else { %>
+                                        <span class="uv-grid-item-count">
+                                          <h4> 0 Access </h4>
+                                        </span>
+                                <% } %>
+                                <span class="uv-accordian-icon"></span>
+                            </span>
+                        </span>
+                        <span class="uv-agent-details-section">
+                            <ul class="uv-agent-details">
+                                <% if (typeof agentGroups !== 'undefined' && agentGroups.length > 0) { %>
+                                    <% agentGroups.forEach(function(group) { %>
+                                        <li><%- group %></li>
+                                    <% }) %>
+                                <% } else { %>
+                                    <p>{{ 'No Groups found'|trans }}</p>
+                                <% } %>
+                            </ul>
+                        </span>
+                    </div>
+
+                    <!-- Agent Team -->
+                    <div class="uv-grid-item uv-team-section" id="uv-team-access">
+                        <span class="uv-accordian-sec">
+                            <h3>{{ 'Teams'|trans }}</h3>
+
+                            <span class="uv-rt-accordian">
+                                <% if (typeof agentTeam !== 'undefined' && agentTeam.length > 0) { %>
+                                        <span class="uv-grid-item-count">
+                                          <h4> <%= agentTeam.length %> Access </h4>
+                                        </span>
+                                <% } else { %>
+                                        <span class="uv-grid-item-count">
+                                          <h4> 0 Access </h4>
+                                        </span>
+                                <% } %>
+                                <span class="uv-accordian-icon"></span>
+                            </span>
+                        </span>
+                        <span class="uv-agent-details-section">
+                            <ul class="uv-agent-details">
+                                <% if (typeof agentTeam !== 'undefined' && agentTeam.length > 0) { %>
+                                    <% agentTeam.forEach(function(team) { %>
+                                        <li><%- team %></li>
+                                    <% }) %>
+                                <% } else { %>
+                                    <p>{{ 'No Teams found'|trans }}</p>
+                                <% } %>
+                            </ul>
+                        </span>
+                    </div>
+
+                    <!-- Agent Privileges -->
+                    <div class="uv-grid-item uv-privilage-section">
+                        <span class="uv-accordian-sec">
+                            <h3>{{ 'Privileges'|trans }}</h3>
+
+                            <span class="uv-rt-accordian">
+                                <% if (typeof agentPrivileges !== 'undefined' && agentPrivileges.length > 0) { %>
+                                        <span class="uv-grid-item-count">
+                                          <h4> <%= agentPrivileges.length %> Access </h4>
+                                        </span>
+                                <% } else { %>
+                                        <span class="uv-grid-item-count">
+                                          <h4> 0 Access </h4>
+                                        </span>
+                                <% } %>
+                                <span class="uv-accordian-icon"></span>
+                            </span>
+                        </span>
+                        <span class="uv-agent-details-section">
+                            <ul class="uv-agent-details">
+                                <% if (typeof agentPrivileges !== 'undefined' && agentPrivileges.length > 0) { %>
+                                    <% agentPrivileges.forEach(function(privilege) { %>
+                                        <li><%- privilege %></li>
+                                    <% }) %>
+                                <% } else { %>
+                                    <p>{{ 'No Privileges found'|trans }}</p>
+                                <% } %>
+                            </ul>
+                        </span>
+                    </div>
+
+                    <!-- Ticket View -->
+                    <div class="uv-grid-item uv-ticketView-section">
+                        <span class="uv-accordian-sec">
+                            <h3>{{ 'Ticket View'|trans }}</h3>
+
+                            <span class="uv-rt-accordian">
+                                <% if (typeof ticketView !== 'undefined' && ticketView.length > 0) { %>
+                                        <span class="uv-grid-item-count">
+                                          <h4> 1 Access </h4>
+                                        </span>
+                                <% } else { %>
+                                        <span class="uv-grid-item-count">
+                                          <h4> 0 Access </h4>
+                                        </span>
+                                <% } %>
+                                <span class="uv-accordian-icon"></span>
+                            </span>
+                        </span>
+                        <span class="uv-agent-details-section">
+                            <ul class="uv-agent-details">
+                                <% if (typeof ticketView !== 'undefined' && ticketView.length > 0) { %>
+                                    <li><%- ticketView %></li>
+                                <% } else { %>
+                                    <p>{{ 'No Ticket View Access found'|trans }}</p>
+                                <% } %>
+                            </ul>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </script>
 {% endblock %}

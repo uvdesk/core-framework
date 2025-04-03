@@ -11,7 +11,9 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Tag;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketType;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportRole;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportPrivilege;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketPriority;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup;
@@ -34,6 +36,13 @@ use Webkul\UVDesk\SupportCenterBundle\Entity\ArticleTags;
 
 class TicketXHR extends AbstractController
 {
+    const TICKET_ACCESS_LEVEL = [
+        1 => 'GLOBAL ACCESS',
+        2 => 'GROUP ACCESS',
+        3 => 'TEAM ACCESS',
+        4 => 'INDIVIDUAL ACCESS',
+    ];
+
     private $userService;
     private $translator;
     private $eventDispatcher;
@@ -1067,6 +1076,64 @@ class TicketXHR extends AbstractController
         }
 
         $response = new Response(json_encode($json));
+        $response->headers->set('Content-Type', 'application/json');
+        
+        return $response;
+    }
+
+    public function getAgentAcessQuickViewDetailsXhr(Request $request)
+    {
+        $agentAccessData = [];
+        $ticketId = $request->query->get('ticketId');
+        $entityManager = $this->getDoctrine()->getManager();
+       
+        $supportGroupRepository = $entityManager->getRepository(SupportGroup::class);
+        $supportTeamRepository = $entityManager->getRepository(SupportTeam::class);
+        $supportPrivilegeRepository = $entityManager->getRepository(SupportPrivilege::class);
+
+        $ticket = $entityManager->getRepository(Ticket::class)->findOneById($ticketId);
+
+        $userInstance =  $entityManager->getRepository(UserInstance::class)->findOneBy([
+            'user'         => $ticket->getAgent()->getId(),
+            'supportRole'  => 3,
+        ]);   
+
+        if ($userInstance) {
+
+            $assignedUserPrivilegeIds = (is_object($userInstance->getSupportPrivileges()) && method_exists($userInstance->getSupportPrivileges(), 'toArray')) 
+            ? $userInstance->getSupportPrivileges()->toArray() 
+            : [];
+
+            $assignedUserGroupReferenceIds = (is_object($userInstance->getSupportGroups()) && method_exists($userInstance->getSupportGroups(), 'toArray')) 
+            ? $userInstance->getSupportGroups()->toArray() 
+            : [];
+        
+            $assignedUserTeamReferenceIds = (is_object($userInstance->getSupportTeams()) && method_exists($userInstance->getSupportTeams(), 'toArray')) 
+            ? $userInstance->getSupportTeams()->toArray() 
+            : [];
+
+            if ($assignedUserGroupReferenceIds) {
+                foreach ($assignedUserGroupReferenceIds as $groupId) {
+                    $agentAccessData['agentGroups'][] = $supportGroupRepository->findOneBy(['id' => $groupId])->getName();
+                }
+            }
+
+            if ($assignedUserTeamReferenceIds) {
+                foreach ($assignedUserTeamReferenceIds as $teamId) {
+                    $agentAccessData['agentTeam'][] = $supportTeamRepository->findOneBy(['id' => $teamId])->getName();
+                }
+            }
+
+            if ($assignedUserPrivilegeIds) {
+                foreach ($assignedUserPrivilegeIds as $previlegeId) {
+                    $agentAccessData['agentPrivileges'][] = $supportPrivilegeRepository->findOneBy(['id' => $previlegeId])->getName();
+                }
+            }
+
+            $agentAccessData['ticketView'] = self::TICKET_ACCESS_LEVEL[$userInstance->getTicketAccessLevel()];
+        }
+
+        $response = new Response(json_encode($agentAccessData));
         $response->headers->set('Content-Type', 'application/json');
         
         return $response;
