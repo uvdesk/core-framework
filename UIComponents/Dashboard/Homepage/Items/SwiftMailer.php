@@ -8,8 +8,9 @@ use Webkul\UVDesk\CoreFrameworkBundle\UIComponents\Dashboard\Homepage\Sections\S
 class SwiftMailer extends HomepageSectionItem
 {
     CONST SVG = <<<SVG
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="60px" height="60px" viewBox="0 0 60 60">
-    <path fill-rule="evenodd" d="M30,33L6,18V12L30,27,54,12v6ZM5.9,5.992A5.589,5.589,0,0,0,1.745,7.817,5.882,5.882,0,0,0-.016,12.027v35.93a5.875,5.875,0,0,0,1.761,4.211A5.581,5.581,0,0,0,5.9,53.992H54.069a5.588,5.588,0,0,0,4.155-1.825A5.8,5.8,0,0,0,60,48V12a5.847,5.847,0,0,0-1.776-4.183,5.6,5.6,0,0,0-4.155-1.825H5.9Z"></path>
+<svg fill="#000000" height="60px" width="60px" version="1.1" id="Icons" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> 
+    <path d="M31.5,8.9C30.7,7.2,29,6,27,6H15c-2,0-3.7,1.2-4.5,2.9L21,16.8L31.5,8.9z"></path> <path d="M21.6,18.8C21.4,18.9,21.2,19,21,19s-0.4-0.1-0.6-0.2l-8.5-6.4L10,11l0,0c0,0,0,0,0,0H4c-0.6,0-1,0.4-1,1s0.4,1,1,1h5 c0.6,0,1,0.4,1,1v0c0,0.6-0.4,1-1,1H1c-0.6,0-1,0.4-1,1s0.4,1,1,1h8c0.6,0,1,0.4,1,1v0c0,0.6-0.4,1-1,1H4c-0.6,0-1,0.4-1,1 s0.4,1,1,1h6c0,2.8,2.2,5,5,5h12c2.8,0,5-2.2,5-5V11c0,0,0,0,0,0L21.6,18.8z">
+    </path> </g> </g>
 </svg>
 SVG;
 
