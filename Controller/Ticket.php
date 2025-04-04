@@ -155,6 +155,7 @@ class Ticket extends AbstractController
                 throw new NotFoundHttpException('Page not found!');
         }
 
+        $ratings = $ticket->getRatings()->toArray();
         $quickActionButtonCollection->prepareAssets();
 
         return $this->render('@UVDeskCoreFramework//ticket.html.twig', [
@@ -172,6 +173,7 @@ class Ticket extends AbstractController
             'ticketPriorityCollection'  => $entityManager->getRepository(TicketPriority::class)->findAll(),
             'ticketNavigationIteration' => $ticketRepository->getTicketNavigationIteration($ticket, $container),
             'ticketLabelCollection'     => $ticketRepository->getTicketLabelCollection($ticket, $user),
+            'ticketRating'              => ! empty($ratings) && isset($ratings[0]) ? $ratings[0]->getStars() : [],
         ]);
     }
 
@@ -508,6 +510,7 @@ class Ticket extends AbstractController
         
         $ticket = $thread->getTicket();
         $user = $this->userService->getSessionUser();
+        
         // Proceed only if user has access to the resource
         if (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) {
             throw new \Exception('Access Denied', 403);

@@ -564,6 +564,58 @@
             margin-right: 15px;
         }
         {# Agent details css end #}
+
+        {% if ticketRating %}
+            {# Kudos Rating related CSS #}
+            .uv-icon-kudos-rating {
+                background-image: url("{{ asset('bundles/uvdeskcoreframework/images/ticket-rating-white-star.svg') }}");
+                width: 14px;
+                height: 13px;
+                margin-left: 1px;
+                background-size: contain;
+                background-repeat: no-repeat;
+            }
+
+            .ticket-rating-common {
+                display: flex !important;
+                padding: 3px 5px 3px 5px;
+                border-radius: 4px;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .ticket-rating-1 {
+                background: #FF5656;
+            }
+            
+            .ticket-rating-2 {
+                    background: #FF5656;
+                }
+
+            .ticket-rating-3 {
+                    background: #FFA500;
+                }
+
+            .ticket-rating-4 {
+                    background: #68CB47;
+                }
+
+            .ticket-rating-5 {
+                    background: #68CB47;
+                }
+
+            .uv-icon-kudos-rating-label {
+                    color: white !important;
+                    font-family: 'Source Sans Pro';
+                    font-size: 15px !important;
+                    font-weight: 600;
+                    line-height: 18.34px;
+                    text-align: center;
+                    margin-left: -8px;
+                    margin-right: 1px !important;
+            }
+            {# Kudos Rating related CSS end #}
+        {% endif %}
         
     </style>
 {% endblock %}
@@ -1071,6 +1123,50 @@
                         <span class="name">{{ ticketAgent ? ticketAgent.name : '' }}</span>
                         {% if user_service.isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT') and ticketAgent is defined and ticketAgent is not empty %}
                             <span class="uv-quick-view-trigger" title="Agent access details" data-placement="bottom" data-id="<%= id %>"></span>
+                        {% endif %}
+                    </span>
+
+                    {# Ticket Kudos Rating By customer #}
+                    <span>
+                        {% if ticketRating %}
+                            <span class="kudos-rating">
+                                {% if ticketRating == 1 %}
+                                    <span class='ticket-rating-common ticket-rating-1'>
+                                        <span class="uv-icon-kudos-rating"></span>
+                                        <span class="uv-icon-kudos-rating-label"  title="Client is very sad">
+                                            {{ 'Very Sad'|trans }}
+                                        </span>
+                                    </span>
+                                {% elseif ticketRating == 2 %}
+                                    <span class='ticket-rating-common ticket-rating-2'>
+                                        <span class="uv-icon-kudos-rating"></span>
+                                        <span class="uv-icon-kudos-rating-label" title="Client is sad">
+                                            {{ 'Sad'|trans }}
+                                        </span>
+                                    </span>
+                                {% elseif ticketRating == 3 %}
+                                    <span class='ticket-rating-common ticket-rating-3'>
+                                        <span class="uv-icon-kudos-rating"></span>
+                                        <span class="uv-icon-kudos-rating-label" title="Client is neutral">
+                                            {{ 'Neutral'|trans }}
+                                        </span>
+                                    </span>
+                                {% elseif ticketRating == 4 %}
+                                    <span class='ticket-rating-common ticket-rating-4'>
+                                        <span class="uv-icon-kudos-rating"></span>
+                                        <span class="uv-icon-kudos-rating-label" title="Client is happy">
+                                            {{ 'Happy'|trans }}
+                                        </span>
+                                    </span>
+                                {% else %}
+                                    <span class='ticket-rating-common ticket-rating-5'>
+                                        <span class="uv-icon-kudos-rating"></span>
+                                        <span class="uv-icon-kudos-rating-label" title="Client is very happy">
+                                            {{ 'Very Happy'|trans }}
+                                        </span>
+                                    </span>
+                                {% endif %}
+                            </span>
                         {% endif %}
                     </span>
                 </div>

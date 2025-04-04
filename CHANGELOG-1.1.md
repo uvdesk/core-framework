@@ -6,12 +6,13 @@ This changelog references any relevant changes introduced in 1.1 minor versions.
     * Added conditional operator for getting email in case not getting email in mail parameter for microsoft app.
    
     Features:
+        - Added rating on ticket view provided by customer based on support provided.
         - Updated UI - Added plus icon for ticket create, agent create etc.
         - Added portuguese trans in service.
         - Updates for search by filter for ticket list, added dropdown to select and element before search (Id, email, subject).
         - User created notes with different color on ticket view.
         - Added assigned agent access details on ticket view, admin can all the access provided to that agent.
-        - Updated some icons on dashboard.
+        - Updated some icons on dashboard for microsoft apps etc.
 
 * 1.1.6 (2024-12-23)
     * Issue #508 #549 - Filter issue resolved for customer filtering.
