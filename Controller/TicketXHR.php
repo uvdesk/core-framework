@@ -4,6 +4,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportLabel;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread;
@@ -33,6 +34,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\EmailService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\SupportCenterBundle\Entity\ArticleTags;
+use Webkul\Uvdesk\CoreFrameworkBundle\Utils\TokenGenerator;
 
 class TicketXHR extends AbstractController
 {
@@ -1081,6 +1083,7 @@ class TicketXHR extends AbstractController
         return $response;
     }
 
+    // Agent Access Quick view check.
     public function getAgentAcessQuickViewDetailsXhr(Request $request)
     {
         $agentAccessData = [];
@@ -1137,5 +1140,75 @@ class TicketXHR extends AbstractController
         $response->headers->set('Content-Type', 'application/json');
         
         return $response;
+    }
+
+    // Public Link URL For Ticket
+    public function generateCustomerPublicTicketResourceAccessLink($id, Request $request, ContainerInterface $container)
+    {
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $ticket = $entityManager->getRepository(Ticket::class)->findOneBy([
+            'id'      => $id
+        ]);
+
+        $originatingUrl = $request->headers->get('referer');
+        $expectedUrl = $this->generateUrl('helpdesk_member_ticket', ['ticketId' => $ticket->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        if (empty($originatingUrl) || $originatingUrl != $expectedUrl) {
+            return new JsonResponse([
+                'status'  => false, 
+                'message' => "Invalid request. Please try again later.", 
+            ], 404);
+        }
+
+        if (empty($ticket)) {
+            return new JsonResponse([
+                'status'  => false, 
+                'message' => "No tickets were found for the provided details.", 
+            ], 404);
+        }
+
+        $resourceUrl = $container->get('ticket.service')->generateTicketCustomerReadOnlyResourceAccessLink($ticket);
+
+        return new JsonResponse([
+            'status'      => true, 
+            'message'     => "Public resource access link generated successfully!", 
+            'resourceUrl' => $resourceUrl, 
+        ]);
+    }
+
+    // Public Link URL For Ticket
+    public function ticketIntermediateAccessAction(Request $request)
+    {
+        $security = $this->get('uvdesk.security');
+        $user = $security->getCurrentUserInSession();
+        
+        if (!empty($user)) {
+            $assignedRoles = $user->getRoles();
+            $urid = $request->query->get('urid');
+
+            if (in_array('ROLE_CUSTOMER_READ_ONLY', $assignedRoles)) {
+                $entityManager = $this->getDoctrine()->getManager();
+                $resource = $entityManager->getRepository(PublicResourceAccessLink::class)->findOneBy([
+                    'uniqueResourceAccessId' => $urid, 
+                ]);
+
+                if (!empty($resource) && $resource->getResourceType() == Ticket::class) {
+                    $ticket = $entityManager->getRepository(Ticket::class)->findOneBy([
+                        'incrementId' => $resource->getResourceId(), 
+                    ]);
+
+                    if (!empty($ticket)) {
+                        return $this->redirect($this->generateUrl('webkul_support_center_front_ticket_view', [
+                            'id' => $ticket->getIncrementId(), 
+                        ]));
+                    }
+                }
+            }
+        }
+
+        $this->addFlash('warning', $this->get('translator')->trans("Please login to continue."));
+        
+        return $this->redirect($this->generateUrl('webkul_support_center_front_solutions'));
     }
 }

@@ -378,6 +378,16 @@ helpdesk_member_ticket_user_permission_quick_view_xhr:
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\TicketXHR::getAgentAcessQuickViewDetailsXhr
     defaults: { id: 0 }
 
+# Agent generate public link URL for ticket
+uvdesk_member_generate_ticket_public_resource_access_link:
+    path:     /ticket/{id}/generate-public-resource-access-link
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\TicketXHR::generateCustomerPublicTicketResourceAccessLink
+    defaults: { id: 0 }
+
+uvdesk_member_public_resource_access_intermediate:
+    path:     /customer/ticket/intermediate/public-access/read-only
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\TicketXHR::ticketIntermediateAccess
+
 # Support Customer Resources
 helpdesk_member_manage_customer_account_collection:
     path:     /customers

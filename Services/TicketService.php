@@ -30,6 +30,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportLabel;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedReplies;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\PublicResourceAccessLink;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
@@ -917,7 +918,11 @@ class TicketService
             ];
   
             if (! empty($threadDetails['user'])) {
-                $threadResponse['fullname'] = trim($threadDetails['user']['firstName'] . ' ' . $threadDetails['user']['lastName']);
+        
+                if (!empty(trim($threadDetails['user']['firstName'])) ) {
+                    $threadResponse['fullname'] = trim($threadDetails['user']['firstName'] . ' ' . $threadDetails['user']['lastName']);
+                }
+                
                 $threadResponse['user'] = [
                     'id' => $threadDetails['user']['id'],
                     'smallThumbnail' => $threadDetails['user']['userInstance'][0]['profileImagePath'],
@@ -927,7 +932,7 @@ class TicketService
                 $threadResponse['fullname'] = 'System';
             }
 
-            if (! empty($threadResponse['attachments'])) {
+            if (!empty($threadResponse['attachments'])) {
                 $threadResponse['attachments'] = array_map(function ($attachment) use ($entityManager, $uvdeskFileSystemService) {
                     $attachmentReferenceObject = $entityManager->getReference(Attachment::class, $attachment['id']);
                     return $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject);
@@ -1148,7 +1153,7 @@ class TicketService
         }
 
         return [
-            'alertClass'   => 'success',
+            'alertClass' => 'success',
             'alertMessage' => $this->trans($message),
         ];
     }
@@ -1161,7 +1166,6 @@ class TicketService
 
         $variables['ticket.status'] = $ticket->getStatus()->getCode();
         $variables['ticket.priority'] = $ticket->getPriority()->getCode();
-
         if ($ticket->getSupportGroup())
             $variables['ticket.group'] = $ticket->getSupportGroup()->getName();
         else
@@ -1172,10 +1176,9 @@ class TicketService
         $customer = $this->container->get('user.service')->getCustomerPartialDetailById($ticket->getCustomer()->getId());
         $variables['ticket.customerName'] = $customer['name'];
         $userService = $this->container->get('user.service');
-
+      
         $variables['ticket.agentName'] = '';
         $variables['ticket.agentEmail'] = '';
-
         if ($ticket->getAgent()) {
             $agent = $this->container->get('user.service')->getAgentDetailById($ticket->getAgent()->getId());
             if($agent) {
@@ -1298,7 +1301,7 @@ class TicketService
         if (!empty($initialThread)) {
             $author = $initialThread->getUser();
             $authorInstance = 'agent' == $initialThread->getCreatedBy() ? $author->getAgentInstance() : $author->getCustomerInstance();
-
+        
             $threadDetails = [
                 'id'          => $initialThread->getId(),
                 'source'      => $initialThread->getSource(),
@@ -1346,17 +1349,17 @@ class TicketService
         if ((!empty($threadResponse[0][0]))) {
             $threadDetails = $threadResponse[0][0];
             $userService = $this->container->get('user.service');
-
+            
             if ($threadDetails['createdBy'] == 'agent') {
                 $threadDetails['user'] = $userService->getAgentDetailById($threadResponse[0]['userId']);
             } else {
                 $threadDetails['user'] = $userService->getCustomerPartialDetailById($threadResponse[0]['userId']);
             }
-
+            
             $threadDetails['reply'] = html_entity_decode($threadDetails['message']);
             $threadDetails['formatedCreatedAt'] = $this->timeZoneConverter($threadDetails['createdAt']);
             $threadDetails['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($threadDetails['createdAt']);
-
+        
             if (!empty($threadDetails['attachments'])) {
                 $entityManager = $this->entityManager;
                 $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
@@ -1367,7 +1370,7 @@ class TicketService
                 }, $threadDetails['attachments']);
             }
         }
-
+        
         return $threadDetails ?? null;
     }
 
@@ -1385,7 +1388,7 @@ class TicketService
     public function getAgentDraftReply()
     {
 	    $signature = $this->getUser()->getAgentInstance()->getSignature();
-
+        
         return str_replace( "\n", '<br/>', $signature);
     }
 
@@ -1490,7 +1493,7 @@ class TicketService
                 ->setParameter('ticketId', $ticketId);
 
         $result = $qb->getQuery()->getResult();
-
+        
         return $result ? $result : [];
     }
 
@@ -1503,7 +1506,7 @@ class TicketService
                 ->setParameter('userId', $this->getUser()->getId());
 
         $result = $qb->getQuery()->getResult();
-
+        
         return $result ? $result : [];
     }
 
@@ -1516,7 +1519,7 @@ class TicketService
                 ->setParameter('ticketId', $ticketId);
 
         $result = $qb->getQuery()->getResult();
-
+        
         return $result ? $result : [];
     }
 
@@ -1524,7 +1527,7 @@ class TicketService
     {
         $preparedResponseIds = [];
         $groupIds = [];
-        $teamIds = [];
+        $teamIds = []; 
         $userId = $this->container->get('user.service')->getCurrentUser()->getAgentInstance()->getId();
 
         $preparedResponseRepo = $this->entityManager->getRepository(PreparedResponses::class)->findAll();
@@ -1589,15 +1592,15 @@ class TicketService
             ->where('mw.status = 1')
             ->andWhere('mw.id IN (:ids)')
             ->setParameter('ids', $preparedResponseIds);
-
+        
         return $qb->getQuery()->getResult();
     }
 
     public function getSavedReplies()
-    {
+    {   
         $savedReplyIds = [];
         $groupIds = [];
-        $teamIds = [];
+        $teamIds = []; 
         $userId = $this->container->get('user.service')->getCurrentUser()->getAgentInstance()->getId();
 
         $savedReplyRepo = $this->entityManager->getRepository(SavedReplies::class)->findAll();
@@ -1661,7 +1664,7 @@ class TicketService
         ->from(SavedReplies::class, 'sr')
         ->Where('sr.id IN (:ids)')
         ->setParameter('ids', $savedReplyIds);
-
+        
         return $qb->getQuery()->getResult();
     }
 
@@ -1711,7 +1714,7 @@ class TicketService
         return $result ? $result[0] : null;
     }
 
-    public function getLastReply($ticketId, $userType = null)
+    public function getLastReply($ticketId, $userType = null) 
     {
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $queryBuilder->select("th, a, u.id as userId")
@@ -1729,19 +1732,19 @@ class TicketService
         if (!empty($userType)) {
             $queryBuilder->andWhere('th.createdBy = :createdBy')->setParameter('createdBy', $userType);
         }
-
+        
         $threadResponse = $queryBuilder->getQuery()->getArrayResult();
-
+        
         if (!empty($threadResponse[0][0])) {
             $threadDetails = $threadResponse[0][0];
             $userService = $this->container->get('user.service');
-
+            
             if ($threadDetails['createdBy'] == 'agent') {
                 $threadDetails['user'] = $userService->getAgentDetailById($threadResponse[0]['userId']);
             } else {
                 $threadDetails['user'] = $userService->getCustomerPartialDetailById($threadResponse[0]['userId']);
             }
-
+            
             $threadDetails['reply'] = html_entity_decode($threadDetails['message']);
             $threadDetails['formatedCreatedAt'] = $this->timeZoneConverter($threadDetails['createdAt']);
             $threadDetails['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($threadDetails['createdAt']);
@@ -1788,7 +1791,7 @@ class TicketService
         $variables['ticket.customerName'] = $customer['name'];
         $variables['ticket.customerEmail'] = $customer['email'];
         $userService = $this->container->get('user.service');
-
+      
         $variables['ticket.agentName'] = '';
         $variables['ticket.agentEmail'] = '';
         if ($ticket->getAgent()) {
@@ -1798,7 +1801,7 @@ class TicketService
                 $variables['ticket.agentEmail'] = $agent['email'];
             }
         }
-
+        
         $router = $this->container->get('router');
 
         if ($type == 'customer') {
@@ -1920,7 +1923,7 @@ class TicketService
 
         return $time;
     }
-
+    
     public function isTicketAccessGranted(Ticket $ticket, User $user = null, $firewall = 'members')
     {
         // @TODO: Take current firewall into consideration (access check on behalf of agent/customer)
@@ -1932,7 +1935,7 @@ class TicketService
             return false;
         } else {
             $agentInstance = $user->getAgentInstance();
-
+    
             if (empty($agentInstance)) {
                 return false;
             }
@@ -1945,11 +1948,11 @@ class TicketService
             if ($ticket->getAgent() != null && $ticket->getAgent()->getId() == $user->getId()) {
                 return true;
             }
-
+            
             if ($accessLevel == 2 || $accessLevel == 3) {
                 // Check if user belongs to a support team assigned to ticket
                 $teamReferenceIds = array_map(function ($team) { return $team->getId(); }, $agentInstance->getSupportTeams()->toArray());
-
+                
                 if ($ticket->getSupportTeam() != null && in_array($ticket->getSupportTeam()->getId(), $teamReferenceIds)) {
                     return true;
                 } else if ($accessLevel == 2) {
@@ -1972,7 +1975,7 @@ class TicketService
     {
         $customFieldsService = null;
         $customFieldsEntityReference = null;
-
+        
         if ($this->userService->isFileExists('apps/uvdesk/custom-fields')) {
             $customFieldsService = $this->container->get('uvdesk_package_custom_fields.service');
             $customFieldsEntityReference = UVDeskCommunityPackages\CustomFields\Entity\CustomFields::class;
@@ -1995,7 +1998,7 @@ class TicketService
             if (in_array($customFields->getFieldType(), ['select', 'checkbox', 'radio']) && !count($customFields->getCustomFieldValues())) {
                 continue;
             }
-
+            
             if (
                 !empty($submittedCustomFields)
                 && $customFields->getFieldType() != 'file'
@@ -2090,7 +2093,7 @@ class TicketService
     {
         $firstThread = null;
         $intialThread = $this->entityManager->getRepository(Thread::class)->findBy(['ticket'=>$ticketId]);
-
+        
         foreach ($intialThread as $key => $value) {
             if ($value->getThreadType() == "create"){
                 $firstThread = $value;
@@ -2636,5 +2639,63 @@ class TicketService
         $resultArray['ticket'] = array_merge($resultArray['ticket'], $ecomArray);
 
         return $resultArray;
+    }
+
+    /**
+     * Generates a unique url that can be used to access ticket without any active session with read only priviliges.
+     */
+    public function generateTicketCustomerReadOnlyResourceAccessLink(Ticket $ticket)
+    {
+        $customer = $ticket->getCustomer();
+
+        $router = $this->container->get('router');
+
+        $accessRule = $this->entityManager->getRepository(KnowledgebaseWebsite::class)->findOneById(1);
+
+        if (empty($accessRule) || $accessRule->getPublicResourceAccessAttemptLimit() == 0) {
+            return $router->generate('helpdesk_customer_ticket', [
+                'id' => $ticket->getId(),
+            ], true);
+        }
+
+        $token = $this->generateCustomToken($ticket->getId());
+
+        $publicResourceAccessLink = new PublicResourceAccessLink();
+        $publicResourceAccessLink
+            ->setResourceId($ticket->getId())
+            ->setResourceType(Ticket::class)
+            ->setUniqueResourceAccessId($token)
+            ->setTotalViews(0)
+            ->setCreatedAt(new \DateTime('now'))
+            ->setExpiresAt(new \DateTime('+1 week'))
+            ->setIsExpired(false)
+            ->setUser($customer)
+        ;
+
+        $this->entityManager->persist($publicResourceAccessLink);
+        $this->entityManager->flush();
+
+        return $router->generate('uvdesk_core_bundle_public_resource_access_intermediate', [
+            'urid' => $publicResourceAccessLink->getUniqueResourceAccessId(),
+        ], true);
+    }
+
+    // Generate a token based on ticket, timestamp and random string.
+    public function generateCustomToken($ticketId, $randomLength = 6) {
+        // Convert the current timestamp to Base36
+        $timestamp = base_convert(time(), 10, 36); 
+        
+        // Add the ticket ID
+        $ticketPart = strtoupper(base_convert($ticketId, 10, 36)); // Convert ticket ID to Base36 (uppercase for readability)
+        
+        // Generate a random string of specified length
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $randomString = '';
+        for ($i = 0; $i < $randomLength; $i++) {
+            $randomString .= $characters[random_int(0, strlen($characters) - 1)];
+        }
+    
+        // Combine all parts: timestamp + ticket ID + random string
+        return $timestamp . $ticketPart . $randomString;
     }
 }
