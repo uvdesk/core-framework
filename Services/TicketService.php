@@ -2675,7 +2675,7 @@ class TicketService
         $this->entityManager->persist($publicResourceAccessLink);
         $this->entityManager->flush();
 
-        return $router->generate('uvdesk_core_bundle_public_resource_access_intermediate', [
+        return $router->generate('helpdesk_customer_public_resource_access_intermediate', [
             'urid' => $publicResourceAccessLink->getUniqueResourceAccessId(),
         ], true);
     }

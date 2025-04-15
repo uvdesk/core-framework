@@ -26,6 +26,10 @@ class UserRoles extends DoctrineFixture
             'code'        => 'ROLE_CUSTOMER',
             'description' => 'Customer'
         ],
+        [
+            'code'        => 'ROLE_CUSTOMER_READ_ONLY',
+            'description' => 'Customer'
+        ],
     ];
 
     public function load(ObjectManager $entityManager)

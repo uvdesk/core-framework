@@ -458,7 +458,7 @@ class User implements UserInterface
     public function getCustomerInstance()
     {
         foreach ($this->getUserInstance()->getValues() as $userInstance) {
-            if ('ROLE_CUSTOMER' === $userInstance->getSupportRole()->getCode()) {
+            if (in_array($userInstance->getSupportRole()->getCode(), ['ROLE_CUSTOMER', 'ROLE_CUSTOMER_READ_ONLY'])) {
                 return $userInstance;
             }
         }
@@ -536,4 +536,3 @@ class User implements UserInterface
         return $this->timeformat;
     }
 }
-

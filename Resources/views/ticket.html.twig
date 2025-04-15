@@ -722,19 +722,17 @@
                         </div>
 
                         {# Generate Public Link #}
-                        {% if isPublicResourceAccessEnabled == true %}
-                            <div class="uv-aside-ticket-brick">
-                                <ul style="padding: unset; margin: unset; list-style: none; display: flex; align-items: center; gap: 10px;">
-                                    <li style="width: 100%;">
-                                        <button id="ticket-generate-customer-public-resource-access-link" class="uv-btn-small" title="Allow customer to view ticket publicly without having to login into their dashboard">Generate Public Link</button>
-                                        <div id="ticket-public-resource-access-link" class="ticket-public-resource-access-link" style="margin-top: 10px;">
-                                            <div class="resource-link"></div>
-                                            <div class="copy-resource-link-to-clipboard">Copy</div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                        {% endif %}
+                        <div class="uv-aside-ticket-brick">
+                            <ul style="padding: unset; margin: unset; list-style: none; display: flex; align-items: center; gap: 10px;">
+                                <li style="width: 100%;">
+                                    <button id="ticket-generate-customer-public-resource-access-link" class="uv-btn-small" title="Allow customer to view ticket publicly without having to login into their dashboard">Generate Public Link</button>
+                                    <div id="ticket-public-resource-access-link" class="ticket-public-resource-access-link" style="margin-top: 10px;">
+                                        <div class="resource-link"></div>
+                                        <div class="copy-resource-link-to-clipboard">Copy</div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
                         {# Generate Public Link End #}
 
                         {# SLA #}
@@ -2207,9 +2205,7 @@
                     'blur .uv-manual-enter': 'enterManualAdd',
                     'click .uv-quick-view-trigger, .quick-view-navigation .uv-btn-tag': 'navigateQuickView',
                     'click .uv-grid-item': 'toggleAccordian',
-                    {% if isPublicResourceAccessEnabled %}
-                        'click #ticket-generate-customer-public-resource-access-link': 'generateCustomerPublicTicketResourceAccessLink',
-                    {% endif %}
+                    'click #ticket-generate-customer-public-resource-access-link': 'generateCustomerPublicTicketResourceAccessLink',
                     'click .ticket-public-resource-access-link .copy-resource-link-to-clipboard': 'copyResourceLinkToClipboard',
                 },
                 ticketNavigationTemplate : _.template($("#ticket_quick_navigation_tmp").html()),
@@ -2267,36 +2263,35 @@
                     var value = currentElement.attr('data-index');
                     $(".uv-aside-select .uv-dropdown-list ul.status li[data-index='" + value + "']").trigger('click')
                 },
-                {% if isPublicResourceAccessEnabled %}
-                    generateCustomerPublicTicketResourceAccessLink: function (e) {
-                        app.appView.showLoader();
+                
+                generateCustomerPublicTicketResourceAccessLink: function (e) {
+                    app.appView.showLoader();
 
-                        $.ajax({
-                            url: "{{ path('uvdesk_member_generate_ticket_public_resource_access_link', { id: ticket.id }) }}",
-                            type: 'POST',
-                            dataType: 'json',
-                            success: function(response) {
-                                if (response.status == true) {
-                                    $('#ticket-public-resource-access-link .resource-link').html(response.resourceUrl);
-                                    $('#ticket-public-resource-access-link').addClass('visible');
-                                }
-
-                                app.appView.hideLoader();
-                            },
-                            error: function (xhr) {
-                                app.appView.renderResponseAlert({
-                                    alertClass: 'danger',
-                                    alertMessage: 'An unexpected error occurred while disabling generating public ticket resource link.'
-                                });
+                    $.ajax({
+                        url: "{{ path('uvdesk_member_generate_ticket_public_resource_access_link', { id: ticket.id }) }}",
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.status == true) {
+                                $('#ticket-public-resource-access-link .resource-link').html(response.resourceUrl);
+                                $('#ticket-public-resource-access-link').addClass('visible');
                             }
-                        });
-                    },
-                    copyResourceLinkToClipboard: function (e) {
-                        let resourceLink = $('#ticket-public-resource-access-link .resource-link').html();
 
-                        copyContentToClipboard(resourceLink);
-                    },
-                {% endif %}
+                            app.appView.hideLoader();
+                        },
+                        error: function (xhr) {
+                            app.appView.renderResponseAlert({
+                                alertClass: 'danger',
+                                alertMessage: 'An unexpected error occurred while disabling generating public ticket resource link.'
+                            });
+                        }
+                    });
+                },
+                copyResourceLinkToClipboard: function (e) {
+                    let resourceLink = $('#ticket-public-resource-access-link .resource-link').html();
+
+                    copyContentToClipboard(resourceLink);
+                },
                 editTicketProperty: function(e) {
                     var currentElement = Backbone.$(e.currentTarget);
                     var uvSelect = currentElement.parents('.uv-aside-select');
@@ -3421,6 +3416,14 @@
             });
 
             var ticketNavigation = $.parseJSON('{{ ticketNavigationIteration|json_encode|raw }}');
+
+            const copyContentToClipboard = async (content) => {
+                try {
+                    await navigator.clipboard.writeText(content);
+                } catch (err) {
+                    console.log('Failed to copy content to clipboard');
+                }
+            }
 
             var ticketModel = new TicketModel({
                 id : "{{ ticket.id }}",

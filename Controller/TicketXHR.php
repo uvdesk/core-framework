@@ -1176,39 +1176,4 @@ class TicketXHR extends AbstractController
             'resourceUrl' => $resourceUrl, 
         ]);
     }
-
-    // Public Link URL For Ticket
-    public function ticketIntermediateAccessAction(Request $request)
-    {
-        $security = $this->get('uvdesk.security');
-        $user = $security->getCurrentUserInSession();
-        
-        if (!empty($user)) {
-            $assignedRoles = $user->getRoles();
-            $urid = $request->query->get('urid');
-
-            if (in_array('ROLE_CUSTOMER_READ_ONLY', $assignedRoles)) {
-                $entityManager = $this->getDoctrine()->getManager();
-                $resource = $entityManager->getRepository(PublicResourceAccessLink::class)->findOneBy([
-                    'uniqueResourceAccessId' => $urid, 
-                ]);
-
-                if (!empty($resource) && $resource->getResourceType() == Ticket::class) {
-                    $ticket = $entityManager->getRepository(Ticket::class)->findOneBy([
-                        'incrementId' => $resource->getResourceId(), 
-                    ]);
-
-                    if (!empty($ticket)) {
-                        return $this->redirect($this->generateUrl('webkul_support_center_front_ticket_view', [
-                            'id' => $ticket->getIncrementId(), 
-                        ]));
-                    }
-                }
-            }
-        }
-
-        $this->addFlash('warning', $this->get('translator')->trans("Please login to continue."));
-        
-        return $this->redirect($this->generateUrl('webkul_support_center_front_solutions'));
-    }
 }
