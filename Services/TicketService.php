@@ -2677,7 +2677,7 @@ class TicketService
 
         return $router->generate('helpdesk_customer_public_resource_access_intermediate', [
             'urid' => $publicResourceAccessLink->getUniqueResourceAccessId(),
-        ], true);
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
     }
 
     // Generate a token based on ticket, timestamp and random string.

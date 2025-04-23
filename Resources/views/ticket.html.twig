@@ -2263,7 +2263,7 @@
                     var value = currentElement.attr('data-index');
                     $(".uv-aside-select .uv-dropdown-list ul.status li[data-index='" + value + "']").trigger('click')
                 },
-                
+               
                 generateCustomerPublicTicketResourceAccessLink: function (e) {
                     app.appView.showLoader();
 
@@ -3419,11 +3419,24 @@
 
             const copyContentToClipboard = async (content) => {
                 try {
-                    await navigator.clipboard.writeText(content);
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(content);
+                    } else {
+                        // Fallback for unsupported browsers
+                        const textarea = document.createElement("textarea");
+                        textarea.value = content;
+                        textarea.style.position = "fixed";  // avoid scrolling to bottom
+                        document.body.appendChild(textarea);
+                        textarea.focus();
+                        textarea.select();
+                        document.execCommand("copy");
+                        document.body.removeChild(textarea);
+                    }
+                    console.log("Copied to clipboard!");
                 } catch (err) {
-                    console.log('Failed to copy content to clipboard');
+                    console.error("Failed to copy content to clipboard:", err);
                 }
-            }
+            };
 
             var ticketModel = new TicketModel({
                 id : "{{ ticket.id }}",
