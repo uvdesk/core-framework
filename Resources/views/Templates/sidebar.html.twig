@@ -5,34 +5,34 @@
         transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
-    .uv-sidebar ul.uv-menubar.uv-language{
+    .uv-sidebar ul.uv-menubar.uv-language {
         position: fixed;
         bottom: 0px;
     }
     
-    .uv-sidebar.uv-sidebar-active ul.uv-menubar.uv-language li a{
+    .uv-sidebar.uv-sidebar-active ul.uv-menubar.uv-language li a {
         width: 58px;
     }
     
-    .uv-sidebar ul.uv-menubar.uv-language li a{
+    .uv-sidebar ul.uv-menubar.uv-language li a {
         max-width: 100%;
     }
     
-    .uv-sidebar ul.uv-menubar.uv-language li a:hover, .uv-sidebar ul.uv-menubar.uv-language li .uv-item-active{
+    .uv-sidebar ul.uv-menubar.uv-language li a:hover, .uv-sidebar ul.uv-menubar.uv-language li .uv-item-active {
         color: #9E9E9E !important;
         border-left: 3px solid transparent;
     }
     
-    .uv-sidebar ul.uv-menubar.uv-language a.uv-cursor{
+    .uv-sidebar ul.uv-menubar.uv-language a.uv-cursor {
         padding: 25px 27px;
     }
     
-    .uv-sidebar ul.uv-menubar.uv-language .uv-profile.uv-dropdown-other{
+    .uv-sidebar ul.uv-menubar.uv-language .uv-profile.uv-dropdown-other {
         margin: -25px -27px;
         padding: 17px 18px;
     }
 
-    .uv-wrapper-padding  {
+    .uv-wrapper-padding {
         padding-left: 300px !important;
     }
 
@@ -60,7 +60,7 @@
 		document.addEventListener("DOMContentLoaded", function(e) {
 			window.dispatchEvent(new Event('resize'));
 		    var uvView = document.querySelector(".uv-view");
-			if(uvView && uvView.offsetWidth <= 1340) {
+			if (uvView && uvView.offsetWidth <= 1340) {
 				document.cookie = "uv-sidebar-status=1; expires=Wed, 01 Jan 2020 00:00:00 GMT;path=/";
 			}
 		});

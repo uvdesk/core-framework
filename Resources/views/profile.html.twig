@@ -309,7 +309,7 @@
 					Backbone.Validation.bind(this);
 					var jsonContext = JSON.parse('{{ errors|raw }}');
 		    		for (var field in jsonContext) {
-                        if(field == 'first') {
+                        if (field == 'first') {
                             Backbone.Validation.callbacks.invalid(this, "user_form[password][" + field + "]", jsonContext[field], 'input');
                         } else {
 		    			    Backbone.Validation.callbacks.invalid(this, "user_form[" + field + "]", jsonContext[field], 'input');
@@ -317,7 +317,7 @@
 					}
 
                     $('#notifications .uv-scroll-plank .uv-scroll-block').each(function() {
-                        if(!$(this).find('.uv-element-block').length) {
+                        if (!$(this).find('.uv-element-block').length) {
                             $(this).parents('.uv-scroll-plank').remove()
                         }
                     })
