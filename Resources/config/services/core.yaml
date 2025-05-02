@@ -38,3 +38,11 @@ services:
         tags:
             - { name: kernel.event_listener, event: console.command }
             - { name: kernel.event_listener, event: console.terminate }
+
+    Webkul\UVDesk\CoreFrameworkBundle\EventListener\Logout:
+        tags:
+            - { name: kernel.event_listener, event: Symfony\Component\Security\Http\Event\LogoutEvent, method: onLogout }
+    
+    Webkul\UVDesk\CoreFrameworkBundle\EventListener\SessionLifetime:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }

@@ -158,13 +158,22 @@ class Ticket extends AbstractController
         $ratings = $ticket->getRatings()->toArray();
         $quickActionButtonCollection->prepareAssets();
 
+        $userService = $container->get('user.service');
+        $customerDetails = $customer->getCustomerInstance()->getPartialDetails();
+
+        if (! empty($customerDetails)) {
+            $customerDetails['lastLogin'] = !empty($customerDetails['lastLogin'])
+            ? $userService->getLocalizedFormattedTime($customerDetails['lastLogin']) 
+            : 'NA';
+        }
+
         return $this->render('@UVDeskCoreFramework//ticket.html.twig', [
             'ticket'                    => $ticket,
             'totalReplies'              => $ticketRepository->countTicketTotalThreads($ticket->getId()),
             'totalCustomerTickets'      => ($ticketRepository->countCustomerTotalTickets($customer, $container) - 1),
             'initialThread'             => $this->ticketService->getTicketInitialThreadDetails($ticket),
             'ticketAgent'               => ! empty($agent) ? $agent->getAgentInstance()->getPartialDetails() : null,
-            'customer'                  => $customer->getCustomerInstance()->getPartialDetails(),
+            'customer'                  => $customerDetails,
             'currentUserDetails'        => $user->getAgentInstance()->getPartialDetails(),
             'supportGroupCollection'    => $userRepository->getSupportGroups(),
             'supportTeamCollection'     => $userRepository->getSupportTeams(),

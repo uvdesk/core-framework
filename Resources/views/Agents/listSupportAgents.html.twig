@@ -113,6 +113,12 @@
 			<img src="{{ asset(default_agent_image_path) }}" alt=""/>
 			<% } %>
 			<%- name %>
+
+			<% if (isOnline) { %>
+				<span title ="<%- lastLogin %>" style="cursor:pointer; color: green; font-size: 24px; vertical-align: middle;">●</span>
+			<% } else { %>
+				<span title ="<%- lastLogin %>" style="cursor:pointer; color: red; font-size: 24px; vertical-align: middle;">●</span>
+			<% } %>
 		</td>
 		<td data-value="Email"><%- email %></td>
 		<td data-value="Role">

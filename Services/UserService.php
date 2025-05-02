@@ -280,7 +280,7 @@ class UserService
     public function getAgentPartialDataCollection(Request $request = null)
     {
         $queryBuilder = $this->entityManager->createQueryBuilder()
-            ->select("user.id, user.email, CONCAT(user.firstName, ' ', COALESCE(user.lastName, '')) as name, userInstance.profileImagePath as smallThumbnail")
+            ->select("user.id, user.email, CONCAT(user.firstName, ' ', COALESCE(user.lastName, '')) as name, userInstance.profileImagePath as smallThumbnail, userInstance.isOnline")
             ->from(User::class, 'user')
             ->leftJoin('user.userInstance', 'userInstance')
             ->leftJoin('userInstance.supportRole', 'supportRole')

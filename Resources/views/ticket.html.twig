@@ -684,7 +684,14 @@
                         </div>
 
                         <div class="uv-aside-customer-info">
-                            <span>{{ customer.name }}</span>
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <span>{{ customer.name }}</span>
+                                {% if customer.isOnline %}
+                                    <span title="Last Login: {{ customer.lastLogin }}" style="cursor:pointer; color: green; font-size: 20px;">●</span>
+                                {% else %}
+                                    <span title="Last Login: {{ customer.lastLogin }}" style="cursor:pointer; color: red; font-size: 20px;">●</span>
+                                {% endif %}
+                            </div>
                             <span>{{ customer.email }}</span>
                             {% if customer.contactNumber %}
                                 <span>{{ customer.contactNumber }}</span>
@@ -810,7 +817,13 @@
                                         {% for agent in user_service.getAgentPartialDataCollection() %}
                                             <li data-index="{{ agent.id }}">
                                                 <img src="{{ agent.smallThumbnail != null ? app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') ~ agent.smallThumbnail : asset(default_agent_image_path) }}"/> {{ agent.name }}
+                                                {% if (agent.isOnline) %}  
+                                                        <span style="cursor:pointer; color: green; font-size: 24px; vertical-align: middle;">●</span>
+                                                    {% else %}  
+                                                        <span style="cursor:pointer; color: red; font-size: 24px; vertical-align: middle;">●</span>
+                                                {% endif %}
                                             </li>
+                                            
                                         {% endfor %}
                                     </ul>
                                 </div>

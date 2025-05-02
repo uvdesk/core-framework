@@ -96,6 +96,14 @@ class UserProvider implements UserProviderInterface
                     $user->setCurrentInstance($userInstance);
                     $user->setRoles((array) $userInstance->getSupportRole()->getCode());
 
+
+                    // Set user instance as online
+                    $userInstance->setIsOnline(true);  
+                    $userInstance->setLastLogin(new \DateTime());
+                    
+                    $this->entityManager->persist($userInstance);
+                    $this->entityManager->flush();
+
                     return $user;
                 }
             } catch (\Exception $e) {
