@@ -183,7 +183,31 @@
                     'alertMessage' : '{{ "Error : Something went wrong, please try again later"|trans }}',
                 };
             </script>
+            {% if currentUser is defined and currentUser is not empty %}
+                <script type="text/javascript">
+                    setInterval(async () => {
+                        try {
+                            const response = await fetch('{{ path('helpdesk_member_session_check') }}', {
+                                credentials: 'include'
+                            });
 
+                            if (! response.ok) {
+                                if (
+                                    response.status === 401 
+                                    || response.status === 440
+                                ) {
+                                    window.location.href = '{{ path('helpdesk_member_handle_login') }}';
+                                }
+                            } else {
+                                const data = await response.json();
+                                console.log('Session status:', data.session);
+                            }
+                        } catch (err) {
+                            console.error('Error checking session:', err);
+                        }
+                    }, 20 * 60 * 1000); // Every 20 minutes
+                </script>
+            {% endif %}
         {% endblock %}
 
         {# Custom Javascript #}

@@ -17,30 +17,42 @@ class SessionLifetime
         $this->entityManager = $entityManager;
     }
 
+    // On Kernal Request.
     public function onKernelRequest(RequestEvent $event): void
     {
         $request = $event->getRequest();
         $session = $request->getSession();
 
-        if (!$session->isStarted()) {
+        if (! $session->isStarted()) {
             return;
         }
 
-        // Skip for login or other specific routes
-        if (in_array($request->attributes->get('_route'), ['helpdesk_member_dashboard','helpdesk_customer_ticket_collection', 'helpdesk_customer_login', 'helpdesk_member_handle_login'])) {
-            return;
-        }
+        $now = time();
+        $sessionLifetime = (int) ini_get('session.gc_maxlifetime');
 
-        if ($this->security->getUser() && !$session->has('_security_main')) {
-            // Session has expired for an authenticated user
-            $user = $this->security->getUser();
-            if ($user && method_exists($user, 'getCurrentInstance')) {
-                $userInstance = $user->getCurrentInstance();
-                if ($userInstance) {
-                    // $userInstance->setIsOnline(false);
-                    $this->entityManager->flush();
+        // Check if the session is expired by comparing timestamps
+        if ($session->has('last_active_time')) {
+            $lastActive = $session->get('last_active_time');
+            if (($now - $lastActive) > $sessionLifetime) {
+                // Session expired
+                $user = $this->security->getUser();
+
+                if ($user && method_exists($user, 'getCurrentInstance')) {
+                    $userInstance = $user->getCurrentInstance();
+                   
+                    if ($userInstance) {
+                        $userInstance->setIsOnline(false);
+
+                        $this->entityManager->persist($userInstance);
+                        $this->entityManager->flush();
+                    }
                 }
+
+                return;
             }
         }
+
+        // Update activity timestamp for next request
+        $session->set('last_active_time', $now);
     }
 }

@@ -433,6 +433,11 @@ helpdesk_member_cache_clear:
     path:     /cache-clear
     controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Authentication::clearProjectCache
 
+# Session Check
+helpdesk_member_session_check:
+    path:     /session-check
+    controller: Webkul\UVDesk\CoreFrameworkBundle\Controller\Session::checkSession
+
 # Microsoft Apps
 uvdesk_member_core_framework_microsoft_apps_settings:
     path:     /settings/microsoft-apps
