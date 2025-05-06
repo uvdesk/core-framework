@@ -277,7 +277,7 @@ class UserService
     public function getAgentPartialDataCollection(Request $request = null)
     {
         $queryBuilder = $this->entityManager->createQueryBuilder()
-            ->select("user.id, user.email, CONCAT(user.firstName, ' ', COALESCE(user.lastName, '')) as name, userInstance.profileImagePath as smallThumbnail")
+            ->select("user.id, user.email, CONCAT(user.firstName, ' ', COALESCE(user.lastName, '')) as name, userInstance.profileImagePath as smallThumbnail, userInstance.isOnline")
             ->from(User::class, 'user')
             ->leftJoin('user.userInstance', 'userInstance')
             ->leftJoin('userInstance.supportRole', 'supportRole')
@@ -341,7 +341,7 @@ class UserService
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb
-            ->select("DISTINCT u.id,u.email,CONCAT(u.firstName,' ', COALESCE(u.lastName,'')) AS name,u.firstName,u.lastName,u.isEnabled,userInstance.profileImagePath,userInstance.profileImagePath as smallThumbnail,userInstance.isActive, userInstance.isVerified, userInstance.designation, userInstance.contactNumber,userInstance.signature,userInstance.ticketAccessLevel")
+            ->select("DISTINCT u.id,u.email,CONCAT(u.firstName,' ', COALESCE(u.lastName,'')) AS name, u.firstName,u.lastName, u.isEnabled, userInstance.profileImagePath, userInstance.profileImagePath as smallThumbnail,userInstance.isActive, userInstance.isVerified, userInstance.designation, userInstance.contactNumber, userInstance.signature, userInstance.ticketAccessLevel, userInstance.isOnline")
             ->from(User::class, 'u')
             ->leftJoin('u.userInstance', 'userInstance')
             ->andWhere('userInstance.supportRole != :roles')

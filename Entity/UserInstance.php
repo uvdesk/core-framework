@@ -69,10 +69,22 @@ class UserInstance
     private $updatedAt;
 
     /**
+     * @var \DateTime
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $lastLogin;
+
+    /**
      * @var boolean
      * @ORM\Column(type="boolean", options={"default": false})
      */
     private $isActive = false;
+
+    /**
+     * @var boolean
+     * @ORM\Column(type="boolean", options={"default": false})
+     */
+    private $isOnline = false;
 
     /**
      * @var boolean
@@ -383,6 +395,54 @@ class UserInstance
     public function getUpdatedAt()
     {
         return $this->updatedAt;
+    }
+
+    /**
+     * Set lastLogin
+     *
+     * @param \DateTime $lastLogin
+     *
+     * @return UserInstance
+     */
+    public function setLastLogin($lastLogin)
+    {
+        $this->lastLogin = $lastLogin;
+
+        return $this;
+    }
+
+    /**
+     * Get lastLogin
+     *
+     * @return \DateTime
+     */
+    public function getLastLogin()
+    {
+        return $this->lastLogin;
+    }
+
+    /**
+     * Set isOnline
+     *
+     * @param boolean $isOnline
+     *
+     * @return UserInstance
+     */
+    public function setIsOnline($isOnline)
+    {
+        $this->isOnline = $isOnline;
+
+        return $this;
+    }
+
+    /**
+     * Get isOnline
+     *
+     * @return boolean
+     */
+    public function getIsOnline()
+    {
+        return $this->isOnline;
     }
 
     /**
@@ -833,7 +893,8 @@ class UserInstance
             'lastName'      => $this->getUser()->getLastName(),
             'contactNumber' => $this->getContactNumber(),
             'thumbnail'     => $this->getProfileImagePath(),
+            'isOnline'      => $this->getIsOnline(),
+            'lastLogin'     => $this->getLastLogin(),
         ];
     }
 }
-

@@ -40,13 +40,13 @@ class UserProvider implements UserProviderInterface
         $recaptchaDetails = $this->recaptchaService->getRecaptchaDetails();
 
         if (
-            $request->getMethod() == 'POST' &&  $recaptchaDetails && $recaptchaDetails->getIsActive() == true
-            && ($request->attributes->get('_route') == 'helpdesk_member_handle_login' || $request->attributes->get('_route') == 'helpdesk_customer_login')
+            $request->getMethod() == 'POST' &&  $recaptchaDetails && $recaptchaDetails->getIsActive() == true 
+            && ($request->attributes->get('_route') == 'helpdesk_member_handle_login' || $request->attributes->get('_route') == 'helpdesk_customer_login') 
             && $this->recaptchaService->getReCaptchaResponse($request->request->get('g-recaptcha-response'))
         ) {
-            $this->session->getFlashBag()->add('warning', "Warning ! Please select correct CAPTCHA or login again with correct CAPTCHA !");
+            $this->session->getFlashBag()->add('warning',"Warning ! Please select correct CAPTCHA or login again with correct CAPTCHA !");
 
-            throw new UsernameNotFoundException('Please select correct CAPTCHA for' . $username);
+            throw new UsernameNotFoundException('Please select correct CAPTCHA for'.$username);
         } else {
             $queryBuilder = $this->entityManager->createQueryBuilder()
                 ->select('user, userInstance')
@@ -55,7 +55,8 @@ class UserProvider implements UserProviderInterface
                 ->leftJoin('userInstance.supportRole', 'supportRole')
                 ->where('user.email = :email')->setParameter('email', trim($username))
                 ->andWhere('userInstance.isActive = :isActive')->setParameter('isActive', true)
-                ->setMaxResults(1);
+                ->setMaxResults(1)
+            ;
 
             // Retrieve user instances based on active firewall
             $activeFirewall = $this->firewall->getFirewallConfig($this->requestStack->getCurrentRequest())->getName();
@@ -81,12 +82,12 @@ class UserProvider implements UserProviderInterface
                     throw new UsernameNotFoundException('Firewall not supported.');
                     break;
             }
-
+        
             $response = $queryBuilder->getQuery()->getResult();
 
             try {
                 if (
-                    ! empty($response)
+                    ! empty($response) 
                     && is_array($response)
                 ) {
                     list($user, $userInstance) = $response;
@@ -94,6 +95,14 @@ class UserProvider implements UserProviderInterface
                     // Set currently active instance
                     $user->setCurrentInstance($userInstance);
                     $user->setRoles((array) $userInstance->getSupportRole()->getCode());
+
+
+                    // Set user instance as online
+                    $userInstance->setIsOnline(true);  
+                    $userInstance->setLastLogin(new \DateTime());
+                    
+                    $this->entityManager->persist($userInstance);
+                    $this->entityManager->flush();
 
                     return $user;
                 }
