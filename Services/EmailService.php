@@ -2,37 +2,30 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\Address;
+use Symfony\Component\Mailer\Transport;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\EmailTemplates;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Microsoft\MicrosoftApp;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Microsoft\MicrosoftAccount;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Website;
-use Webkul\UVDesk\CoreFrameworkBundle\Utils\Microsoft\Graph as MicrosoftGraph;
-use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Webkul\UVDesk\MailboxBundle\Services\MailboxService;
-use Webkul\UVDesk\MailboxBundle\Utils\SMTP\Transport\AppTransportConfigurationInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\MicrosoftIntegration;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntity;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\Microsoft\Graph as MicrosoftGraph;
+use Webkul\UVDesk\MailboxBundle\Utils\SMTP\Transport\AppTransportConfigurationInterface;
 
 class EmailService
 {
-    private $request;
     private $container;
     private $entityManager;
     private $session;
-    private $mailer;
+    private $mailboxService;
+    private $microsoftIntegration;
 
-    public function __construct(ContainerInterface $container, RequestStack $request, EntityManagerInterface $entityManager, SessionInterface $session, MailboxService $mailboxService, MicrosoftIntegration $microsoftIntegration)
+    public function __construct(ContainerInterface $container, EntityManagerInterface $entityManager, SessionInterface $session, MailboxService $mailboxService, MicrosoftIntegration $microsoftIntegration)
     {
-        $this->request = $request;
         $this->container = $container;
         $this->entityManager = $entityManager;
         $this->session = $session;
@@ -48,7 +41,6 @@ class EmailService
     public function getEmailPlaceHolders($params)
     {
         $placeHolders = [];
-        $allEmailPlaceholders = [];
         $template = is_array($params) ? ($params['match'] . 'Note') : (!empty($params) ? $params : 'template');
 
         if ($template == 'template') {
@@ -280,7 +272,7 @@ class EmailService
                     ],
                 ],
             ];
-        } elseif($template == 'manualNote') {
+        } elseif ($template == 'manualNote') {
             $placeHolders = [
                 'ticket' => [
                     'id' => [
@@ -330,7 +322,7 @@ class EmailService
         return $placeHolders;
     }
 
-    public function getEmailPlaceholderValues(User $user, $userType = 'member')
+    public function getEmailPlaceholderValues(CoreFrameworkBundleEntity\User $user)
     {
         if (null == $user->getVerificationCode()) {
             // Set user verification code
@@ -341,21 +333,13 @@ class EmailService
         }
 
         $router = $this->container->get('router');
-        $helpdeskWebsite = $this->entityManager->getRepository(Website::class)->findOneByCode('helpdesk');
+        $helpdeskWebsite = $this->entityManager->getRepository(CoreFrameworkBundleEntity\Website::class)->findOneByCode('helpdesk');
 
         // Link to company knowledgebase
         if (false == array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
             $companyURL = $this->container->getParameter('uvdesk.site_url');
         } else {
             $companyURL = $router->generate('helpdesk_knowledgebase', [], UrlGeneratorInterface::ABSOLUTE_URL);
-        }
-
-        // Resolve path to helpdesk brand image
-        $companyLogoURL = sprintf('http://%s%s', $this->container->getParameter('uvdesk.site_url'), '/bundles/uvdeskcoreframework/images/uv-avatar-uvdesk.png');
-        $helpdeskKnowledgebaseWebsite = $this->entityManager->getRepository(Website::class)->findOneByCode('knowledgebase');
-
-        if (!empty($helpdeskKnowledgebaseWebsite) && null != $helpdeskKnowledgebaseWebsite->getLogo()) {
-            $companyLogoURL = sprintf('http://%s%s', $this->container->getParameter('uvdesk.site_url'), $helpdeskKnowledgebaseWebsite->getLogo());
         }
 
         // Link to update account login credentials
@@ -382,22 +366,18 @@ class EmailService
         return $placeholderParams;
     }
 
-    public function getTicketPlaceholderValues(Ticket $ticket, $type = "")
+    public function getTicketPlaceholderValues(CoreFrameworkBundleEntity\Ticket $ticket)
     {
+        $viewTicketURL = '';
+        $generateTicketURLCustomer = '';
         $supportTeam = $ticket->getSupportTeam();
         $supportGroup = $ticket->getSupportGroup();
-        $supportTags = array_map(function ($supportTag) { return $supportTag->getName(); }, $ticket->getSupportTags()->toArray());
+        $supportTags = array_map(function ($supportTag) {
+            return $supportTag->getName();
+        }, $ticket->getSupportTags()->toArray());
 
         $router = $this->container->get('router');
-        $helpdeskWebsite = $this->entityManager->getRepository(Website::class)->findOneByCode('helpdesk');
-
-        // Resolve path to helpdesk brand image
-        $companyLogoURL = sprintf('http://%s%s', $this->container->getParameter('uvdesk.site_url'), '/bundles/uvdeskcoreframework/images/uv-avatar-uvdesk.png');
-        $helpdeskKnowledgebaseWebsite = $this->entityManager->getRepository(Website::class)->findOneByCode('knowledgebase');
-
-        if (!empty($helpdeskKnowledgebaseWebsite) && null != $helpdeskKnowledgebaseWebsite->getLogo()) {
-            $companyLogoURL = sprintf('http://%s%s', $this->container->getParameter('uvdesk.site_url'), $helpdeskKnowledgebaseWebsite->getLogo());
-        }
+        $helpdeskWebsite = $this->entityManager->getRepository(CoreFrameworkBundleEntity\Website::class)->findOneByCode('helpdesk');
 
         // Link to company knowledgebase
         if (false == array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
@@ -416,14 +396,11 @@ class EmailService
         $generateTicketURLAgent = $router->generate('helpdesk_member_create_ticket', [], UrlGeneratorInterface::ABSOLUTE_URL);
 
         if (false != array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
-                $viewTicketURL = $router->generate('helpdesk_customer_ticket', [
-                    'id' => $ticket->getId(),
-                ], UrlGeneratorInterface::ABSOLUTE_URL);
+            $viewTicketURL = $router->generate('helpdesk_customer_ticket', [
+                'id' => $ticket->getId(),
+            ], UrlGeneratorInterface::ABSOLUTE_URL);
 
-                $generateTicketURLCustomer = $router->generate('helpdesk_customer_create_ticket', [], UrlGeneratorInterface::ABSOLUTE_URL);
-        } else {
-            $viewTicketURL = '';
-            $generateTicketURLCustomer = '';
+            $generateTicketURLCustomer = $router->generate('helpdesk_customer_create_ticket', [], UrlGeneratorInterface::ABSOLUTE_URL);
         }
 
         $placeholderParams = [
@@ -458,14 +435,14 @@ class EmailService
 
     public function threadMessage($ticket)
     {
-        $message = null;
         if (isset($ticket->createdThread) && $ticket->createdThread->getThreadType() != "note") {
             return preg_replace("/<img[^>]+\>/i", "", $ticket->createdThread->getMessage());
         } elseif (isset($ticket->currentThread) && $ticket->currentThread->getThreadType() != "note") {
             return  preg_replace("/<img[^>]+\>/i", "", $ticket->currentThread->getMessage());
         } else {
             $messages = $ticket->getThreads();
-            for ($i = count($messages) - 1 ; $i >= 0  ; $i--) {
+
+            for ($i = count($messages) - 1; $i >= 0; $i--) {
                 if (isset($messages[$i]) && $messages[$i]->getThreadType() != "note") {
                     return preg_replace("/<img[^>]+\>/i", "", $messages[$i]->getMessage());
                 }
@@ -474,7 +451,6 @@ class EmailService
 
         return "";
     }
-
 
     public function processEmailSubject($subject, array $emailPlaceholders = [])
     {
@@ -501,7 +477,6 @@ class EmailService
 
     public function sendMail($subject, $content, $recipient, array $headers = [], $mailboxEmail = null, array $attachments = [], $cc = [], $bcc = [])
     {
-        // dd($content);
         $mailer_type = $this->container->getParameter('uvdesk.support_email.mailer_type');
 
         if (empty($mailboxEmail)) {
@@ -598,8 +573,7 @@ class EmailService
                 ->setBcc($bccAddresses)
                 ->setCc($ccAddresses)
                 ->setBody($content, 'text/html')
-                ->addPart(strip_tags($content), 'text/plain')
-            ;
+                ->addPart(strip_tags($content), 'text/plain');
 
             foreach ($attachments as $attachment) {
                 if (!empty($attachment['path']) && !empty($attachment['name'])) {
@@ -690,7 +664,7 @@ class EmailService
 
             try {
                 if ($mailboxSmtpConfiguration instanceof AppTransportConfigurationInterface) {
-                    $microsoftApp = $this->entityManager->getRepository(MicrosoftApp::class)->findOneByClientId($mailboxSmtpConfiguration->getClient());
+                    $microsoftApp = $this->entityManager->getRepository(CoreFrameworkBundleEntity\Microsoft\MicrosoftApp::class)->findOneByClientId($mailboxSmtpConfiguration->getClient());
 
                     if (empty($microsoftApp)) {
                         $this->session->getFlashBag()->add('warning', $this->trans('An unexpected error occurred while trying to send email. Please try again later.'));
@@ -699,7 +673,7 @@ class EmailService
                         return null;
                     }
 
-                    $microsoftAccount = $this->entityManager->getRepository(MicrosoftAccount::class)->findOneBy([
+                    $microsoftAccount = $this->entityManager->getRepository(CoreFrameworkBundleEntity\Microsoft\MicrosoftAccount::class)->findOneBy([
                         'email'        => $mailboxSmtpConfiguration->getUsername(),
                         'microsoftApp' => $microsoftApp,
                     ]);
@@ -727,7 +701,7 @@ class EmailService
                         ],
                     ];
 
-                    $helpdeskKnowledgebaseWebsite = $this->entityManager->getRepository(Website::class)->findOneByCode('knowledgebase');
+                    $helpdeskKnowledgebaseWebsite = $this->entityManager->getRepository(CoreFrameworkBundleEntity\Website::class)->findOneByCode('knowledgebase');
 
                     if (!empty($helpdeskKnowledgebaseWebsite) && null != $helpdeskKnowledgebaseWebsite->getLogo()) {
                         $companyLogoURL = sprintf('https://%s%s', $this->container->getParameter('uvdesk.site_url'), $helpdeskKnowledgebaseWebsite->getLogo());
@@ -785,8 +759,7 @@ class EmailService
 
                             if (!empty($tokenResponse['access_token'])) {
                                 $microsoftAccount
-                                    ->setCredentials(json_encode($tokenResponse))
-                                ;
+                                    ->setCredentials(json_encode($tokenResponse));
 
                                 $this->entityManager->persist($microsoftAccount);
                                 $this->entityManager->flush();
@@ -836,13 +809,13 @@ class EmailService
 
         if ($ticket->getCollaborators() != null && count($ticket->getCollaborators()) > 0) {
             try {
-                $ticket->lastCollaborator = $ticket->getCollaborators()[ -1 + count($ticket->getCollaborators()) ];
-            } catch(\Exception $e) {
+                $ticket->lastCollaborator = $ticket->getCollaborators()[-1 + count($ticket->getCollaborators())];
+            } catch (\Exception $e) {
             }
         }
 
         if ($ticket->lastCollaborator != null) {
-            $name =  $ticket->lastCollaborator->getFirstName()." ".$ticket->lastCollaborator->getLastName();
+            $name =  $ticket->lastCollaborator->getFirstName() . " " . $ticket->lastCollaborator->getLastName();
         }
 
         return $name != null ? $name : '';
@@ -855,8 +828,8 @@ class EmailService
 
         if ($ticket->getCollaborators() != null && count($ticket->getCollaborators()) > 0) {
             try {
-                $ticket->lastCollaborator = $ticket->getCollaborators()[ -1 + count($ticket->getCollaborators()) ];
-            } catch(\Exception $e) {
+                $ticket->lastCollaborator = $ticket->getCollaborators()[-1 + count($ticket->getCollaborators())];
+            } catch (\Exception $e) {
             }
         }
 

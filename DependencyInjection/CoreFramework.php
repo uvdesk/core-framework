@@ -20,7 +20,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\PanelSidebarItemInterfa
 
 class CoreFramework extends Extension
 {
-    const VERSION = 'v1.1.6';
+    const VERSION = 'v1.1.7';
 
     public function getAlias()
     {

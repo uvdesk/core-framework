@@ -2,22 +2,20 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
-use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
-use Symfony\Component\EventDispatcher\GenericEvent;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
-use Webkul\UVDesk\CoreFrameworkBundle\Services\ReCaptchaService;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\ReCaptchaService;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 
 class Authentication extends AbstractController
 {
@@ -43,8 +41,7 @@ class Authentication extends AbstractController
         if (true === $request->isXmlHttpRequest()) {
             $output = array();
             $projectDir = $this->kernel->getProjectDir();
-            $output = shell_exec('php '.$projectDir.'/bin/console cache:clear');
-            $processId = (int) $output[0];
+            $output = shell_exec('php ' . $projectDir . '/bin/console cache:clear');
 
             $responseContent = [
                 'alertClass'   => 'success',
@@ -67,10 +64,10 @@ class Authentication extends AbstractController
         if (null == $this->userService->getSessionUser()) {
             return $this->render('@UVDeskCoreFramework//login.html.twig', [
                 'last_username' => $this->authenticationUtils->getLastUsername(),
-                'error' => $this->authenticationUtils->getLastAuthenticationError(),
+                'error'         => $this->authenticationUtils->getLastAuthenticationError(),
             ]);
         }
-        
+
         return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
     }
 
@@ -80,7 +77,7 @@ class Authentication extends AbstractController
     }
 
     public function forgotPassword(Request $request)
-    {   
+    {
         $entityManager = $this->getDoctrine()->getManager();
         $recaptchaDetails = $this->recaptchaService->getRecaptchaDetails();
 
@@ -89,14 +86,13 @@ class Authentication extends AbstractController
                 $this->addFlash('warning', $this->translator->trans("Warning ! Please select correct CAPTCHA !"));
             } else {
                 $user = new User();
-                $form = $this->createFormBuilder($user,['csrf_protection' => false])
-                    ->add('email',EmailType::class)
-                    ->getForm()
-                ;
+                $form = $this->createFormBuilder($user, ['csrf_protection' => false])
+                    ->add('email', EmailType::class)
+                    ->getForm();
 
                 $form->submit(['email' => $request->request->get('forgot_password_form')['email']]);
                 $form->handleRequest($request);
-                
+
                 if ($form->isValid()) {
                     $repository = $this->getDoctrine()->getRepository(User::class);
                     $user = $entityManager->getRepository(User::class)->findOneByEmail($form->getData()->getEmail());
@@ -105,9 +101,8 @@ class Authentication extends AbstractController
                         // Trigger agent forgot password event
                         $event = new CoreWorkflowEvents\User\ForgotPassword();
                         $event
-                            ->setUser($user)
-                        ;
-                            
+                            ->setUser($user);
+
                         $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
                         $this->addFlash('success', $this->translator->trans('Please check your mail for password update'));
 
@@ -118,7 +113,7 @@ class Authentication extends AbstractController
                 }
             }
         }
-            
+
         return $this->render("@UVDeskCoreFramework//forgotPassword.html.twig");
     }
 
@@ -127,9 +122,9 @@ class Authentication extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
         $user = $entityManager->getRepository(User::class)->findOneByEmail($email);
         $lastUpdatedInstance = $entityManager->getRepository(User::class)->lastUpdatedRole($user);
-        
+
         if (
-            empty($user) 
+            empty($user)
             || $user->getVerificationCode() != $verificationCode
         ) {
             $this->addFlash('success', $this->translator->trans('You have already update password using this link if you wish to change password again click on forget password link here from login page'));
@@ -148,7 +143,7 @@ class Authentication extends AbstractController
                 $entityManager->flush();
 
                 $this->addFlash('success', $this->translator->trans('Your password has been successfully updated. Login using updated password'));
-              
+
                 if ($lastUpdatedInstance[0]->getSupportRole()->getId() != 4) {
                     return $this->redirect($this->generateUrl('helpdesk_member_handle_login'));
                 } else {

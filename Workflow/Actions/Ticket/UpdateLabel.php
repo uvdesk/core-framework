@@ -2,14 +2,12 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions\Ticket;
 
+use Webkul\UVDesk\AutomationBundle\Workflow\Event;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportLabel;
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportLabel;
-use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
-use Webkul\UVDesk\AutomationBundle\Workflow\Event;
-use Webkul\UVDesk\AutomationBundle\Workflow\Events\AgentActivity;
 use Webkul\UVDesk\AutomationBundle\Workflow\Events\TicketActivity;
+use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class UpdateLabel extends WorkflowAction
 {
@@ -34,7 +32,7 @@ class UpdateLabel extends WorkflowAction
 
         return array_map(function ($label) {
             return [
-                'id' => $label->getId(),
+                'id'   => $label->getId(),
                 'name' => $label->getName(),
             ];
         }, $container->get('ticket.service')->getUserLabels());
@@ -44,16 +42,16 @@ class UpdateLabel extends WorkflowAction
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
 
-        if (!$event instanceof TicketActivity) {
+        if (! $event instanceof TicketActivity) {
             return;
         } else {
             $ticket = $event->getTicket();
-            
+
             if (empty($ticket)) {
                 return;
             }
         }
-        
+
         $isAlreadyAdded = 0;
         $labels = $container->get('ticket.service')->getTicketLabelsAll($ticket->getId());
 
@@ -65,13 +63,12 @@ class UpdateLabel extends WorkflowAction
             }
         }
 
-        if (!$isAlreadyAdded) {
+        if (! $isAlreadyAdded) {
             $label = $entityManager->getRepository(SupportLabel::class)->find($value);
 
             if ($label) {
                 $ticket
-                    ->addSupportLabel($label)
-                ;
+                    ->addSupportLabel($label);
 
                 $entityManager->persist($ticket);
                 $entityManager->flush();

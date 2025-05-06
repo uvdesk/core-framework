@@ -3,9 +3,6 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
@@ -13,36 +10,153 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 
 class UVDeskService
 {
-	protected $container;
-	protected $requestStack;
+    protected $container;
+    protected $requestStack;
     protected $entityManager;
     private $avoidArray = [
-        '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '-', '=', '/', '\\', ':', '{', '}', '[', ']', '<', '>', '.', '?', ';', '"', '\'', ',', '|',
-        '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
-        ' true ', ' false ',
-        ' do ', ' did ',
-        ' is ', ' are ', ' am ', ' was ', ' were ',
-        ' has ', ' have ', ' had ',
-        ' will ', ' would ', ' shall ', ' should ', ' must ', ' can ', ' could ',
-        ' not ', ' never ',
-        ' neither ', ' either ',
-        ' the ', ' a ', ' an ', ' this ', ' that ',
-        ' here ', ' there ',
-        ' then ', ' when ', ' since ',
-        ' he ', ' him ', ' himself ', ' she ', ' her ', ' herself ', ' i ', ' me ', ' myself ', ' mine ', ' you ', ' your ' ,' yourself ', ' ur ', ' we ', ' ourself ', ' it ', ' its ',
-        ' for ', ' from ', ' on ', ' and ', ' in ', ' be ', ' to ', ' or ', ' of ', ' with ',
-        ' what ', ' why ', ' where ', ' who ', ' whom ', ' which ',
-        ' a ', ' b ', ' c ', ' d ', ' e ' , ' f ' , ' g ' , ' h ' , ' i ' , ' j ' , ' k ' , ' l ' , ' m ' , ' n ' , ' o ' , ' p ' , ' q ' , ' r ' , ' s ' , ' t ' , ' u ' , ' v ' , ' w ' , ' x ' , ' y ' , ' z ' ,
+        '!',
+        '@',
+        '#',
+        '$',
+        '%',
+        '^',
+        '&',
+        '*',
+        '(',
+        ')',
+        '_',
+        '+',
+        '-',
+        '=',
+        '/',
+        '\\',
+        ':',
+        '{',
+        '}',
+        '[',
+        ']',
+        '<',
+        '>',
+        '.',
+        '?',
+        ';',
+        '"',
+        '\'',
+        ',',
+        '|',
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9',
+        '0',
+        ' true ',
+        ' false ',
+        ' do ',
+        ' did ',
+        ' is ',
+        ' are ',
+        ' am ',
+        ' was ',
+        ' were ',
+        ' has ',
+        ' have ',
+        ' had ',
+        ' will ',
+        ' would ',
+        ' shall ',
+        ' should ',
+        ' must ',
+        ' can ',
+        ' could ',
+        ' not ',
+        ' never ',
+        ' neither ',
+        ' either ',
+        ' the ',
+        ' a ',
+        ' an ',
+        ' this ',
+        ' that ',
+        ' here ',
+        ' there ',
+        ' then ',
+        ' when ',
+        ' since ',
+        ' he ',
+        ' him ',
+        ' himself ',
+        ' she ',
+        ' her ',
+        ' herself ',
+        ' i ',
+        ' me ',
+        ' myself ',
+        ' mine ',
+        ' you ',
+        ' your ',
+        ' yourself ',
+        ' ur ',
+        ' we ',
+        ' ourself ',
+        ' it ',
+        ' its ',
+        ' for ',
+        ' from ',
+        ' on ',
+        ' and ',
+        ' in ',
+        ' be ',
+        ' to ',
+        ' or ',
+        ' of ',
+        ' with ',
+        ' what ',
+        ' why ',
+        ' where ',
+        ' who ',
+        ' whom ',
+        ' which ',
+        ' a ',
+        ' b ',
+        ' c ',
+        ' d ',
+        ' e ',
+        ' f ',
+        ' g ',
+        ' h ',
+        ' i ',
+        ' j ',
+        ' k ',
+        ' l ',
+        ' m ',
+        ' n ',
+        ' o ',
+        ' p ',
+        ' q ',
+        ' r ',
+        ' s ',
+        ' t ',
+        ' u ',
+        ' v ',
+        ' w ',
+        ' x ',
+        ' y ',
+        ' z ',
         '  ',
     ];
 
-	public function __construct(ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager, UserService $userService)
-	{
-		$this->container = $container;
-		$this->requestStack = $requestStack;
-		$this->entityManager = $entityManager;
+    public function __construct(ContainerInterface $container, RequestStack $requestStack, EntityManagerInterface $entityManager, UserService $userService)
+    {
+        $this->container = $container;
+        $this->requestStack = $requestStack;
+        $this->entityManager = $entityManager;
         $this->userService = $userService;
-	}
+    }
 
     public function updatesLocales($locales)
     {
@@ -73,9 +187,9 @@ class UVDeskService
         $updatedFileContent = $fileTrans;
         $updatedServicesFileContent = $fileServs;
 
-        $updatedlocales = (null !== $helpdesk_panel_locales) ? substr($helpdesk_panel_text, 0, strpos($helpdesk_panel_text, 'default_locale') + strlen('default_locale: ')) . $locales . PHP_EOL: '';
-        $updatedlocales_fallback = (null !== $helpdesk_panel_locales_fallback) ? substr($helpdesk_panel_text_fallback, 0, strpos($helpdesk_panel_text_fallback, '- ') + strlen('- ')) . $locales . PHP_EOL: '';
-        $updatedServiceslocales = (null !== $helpdesk_services_locales) ? substr($helpdesk_services_text, 0, strpos($helpdesk_services_text, 'locale') + strlen('locale: ')) . $locales . PHP_EOL: '';
+        $updatedlocales = (null !== $helpdesk_panel_locales) ? substr($helpdesk_panel_text, 0, strpos($helpdesk_panel_text, 'default_locale') + strlen('default_locale: ')) . $locales . PHP_EOL : '';
+        $updatedlocales_fallback = (null !== $helpdesk_panel_locales_fallback) ? substr($helpdesk_panel_text_fallback, 0, strpos($helpdesk_panel_text_fallback, '- ') + strlen('- ')) . $locales . PHP_EOL : '';
+        $updatedServiceslocales = (null !== $helpdesk_services_locales) ? substr($helpdesk_services_text, 0, strpos($helpdesk_services_text, 'locale') + strlen('locale: ')) . $locales . PHP_EOL : '';
 
         $updatedFileContent[$helpdesk_panel_locales] = $updatedlocales;
         $updatedFileContent[$helpdesk_panel_locales_fallback] = $updatedlocales_fallback;
@@ -89,7 +203,7 @@ class UVDeskService
         return true;
     }
 
-    public function getLocalesList() 
+    public function getLocalesList()
     {
         $translator = $this->container->get('translator');
         return  [
@@ -108,11 +222,11 @@ class UVDeskService
         ];
     }
 
-    public function getActiveLocales() 
+    public function getActiveLocales()
     {
         $localesList = $this->getLocalesList();
         $activeLocales = $this->container->getParameter("app_locales");
-        $explodeActiveLocales = explode("|",$activeLocales);
+        $explodeActiveLocales = explode("|", $activeLocales);
 
         return $explodeActiveLocales;
     }
@@ -131,30 +245,31 @@ class UVDeskService
         return $listingActiveLocales;
     }
 
-    public function getDefaultLangauge() 
+    public function getDefaultLangauge()
     {
-        return $this->container->getParameter("kernel.default_locale");  
+        return $this->container->getParameter("kernel.default_locale");
     }
-    
+
     public function getTimezones()
     {
         return \DateTimeZone::listIdentifiers();
     }
 
-    public function getPrivileges() {
+    public function getPrivileges()
+    {
         $agentPrivilegeCollection = [];
         // $agentPrivilegeCollection = $this->entityManager->getRepository('UserBundle:AgentPrivilege')->findAll();
 
         return $agentPrivilegeCollection;
     }
 
-	public function getLocaleUrl($locale)
-	{
-		$request = $this->requestStack->getCurrentRequest();
+    public function getLocaleUrl($locale)
+    {
+        $request = $this->requestStack->getCurrentRequest();
 
-		return str_replace('/' . $request->getLocale() . '/', '/' . $locale . '/', $request->getRequestUri());
+        return str_replace('/' . $request->getLocale() . '/', '/' . $locale . '/', $request->getRequestUri());
     }
-    
+
     public function buildPaginationQuery(array $query = [])
     {
         $params = array();
@@ -162,13 +277,13 @@ class UVDeskService
 
         if (isset($query['domain'])) unset($query['domain']);
         if (isset($query['_locale'])) unset($query['_locale']);
-        
+
         foreach ($query as $key => $value) {
             $params[] = !isset($value) ? $key : $key . '/' . str_replace('%2F', '/', rawurlencode($value));
         }
 
         $http_query = implode('/', $params);
-        
+
         if (isset($query['new'])) {
             $http_query = str_replace('new/1', 'new', $http_query);
         } elseif (isset($query['unassigned'])) {
@@ -182,7 +297,7 @@ class UVDeskService
         } elseif (isset($query['trashed'])) {
             $http_query = str_replace('trashed/1', 'trashed', $http_query);
         }
-        
+
         return $http_query;
     }
 
@@ -190,10 +305,10 @@ class UVDeskService
     {
         if ($extraPrams)
             return $this->entityManager->getRepository($entity)
-                        ->$callFunction($args, $extraPrams);
+                ->$callFunction($args, $extraPrams);
         else
             return $this->entityManager->getRepository($entity)
-                        ->$callFunction($args);
+                ->$callFunction($args);
     }
 
     public function getValidBroadcastMessage($msg, $format = 'Y-m-d H:i:s')
@@ -201,8 +316,8 @@ class UVDeskService
         $broadcastMessage = !empty($msg) ? json_decode($msg, true) : false;
 
         if (
-            ! empty($broadcastMessage) 
-            && isset($broadcastMessage['isActive']) 
+            ! empty($broadcastMessage)
+            && isset($broadcastMessage['isActive'])
             && $broadcastMessage['isActive']
         ) {
             $timezone = new \DateTimeZone('Asia/Kolkata');
@@ -216,7 +331,7 @@ class UVDeskService
 
             if (array_key_exists('to', $broadcastMessage) && ($toDateTime = \DateTime::createFromFormat($format, $broadcastMessage['to'], $timezone))) {
                 $toTimeStamp = $toDateTime->format('U');;
-                if($nowTimestamp > $toTimeStamp) {
+                if ($nowTimestamp > $toTimeStamp) {
                     return false;
                 }
             }
@@ -229,18 +344,19 @@ class UVDeskService
     }
 
     public function getConfigParameter($param)
-	{
-		if (
-            $param 
+    {
+        if (
+            $param
             && $this->container->hasParameter($param)
         ) {
-			return $this->container->getParameter($param);
-		} else {
-			return false;
-		}
+            return $this->container->getParameter($param);
+        } else {
+            return false;
+        }
     }
-    
-    public function isDarkSkin($brandColor) {
+
+    public function isDarkSkin($brandColor)
+    {
         $brandColor = str_replace('#', '', $brandColor);
         if (strlen($brandColor) == 3)
             $brandColor .= $brandColor;
@@ -249,7 +365,7 @@ class UVDeskService
 
         $a2fCount = 0;
         foreach ($chars as $key => $char) {
-            if(in_array($key, [0, 2, 4]) && in_array(strtoupper($char), ['A', 'B', 'C', 'D', 'E', 'F'])) {
+            if (in_array($key, [0, 2, 4]) && in_array(strtoupper($char), ['A', 'B', 'C', 'D', 'E', 'F'])) {
                 $a2fCount++;
             }
         }
@@ -347,7 +463,7 @@ class UVDeskService
     public function getCurrentWebsitePrefixes()
     {
         $filePath = $this->container->get('kernel')->getProjectDir() . '/config/packages/uvdesk.yaml';
-        
+
         // get file content and index
         $file = file($filePath);
         foreach ($file as $index => $content) {
@@ -380,7 +496,7 @@ class UVDeskService
             'member_prefix'   => $member_panel_prefix,
             'customer_prefix' => $knowledgebase_prefix,
         ];
-        
+
         // get file content and index
         $file = file($filePath);
         foreach ($file as $index => $content) {
@@ -398,9 +514,9 @@ class UVDeskService
 
         // get old member-prefix
         $oldMemberPrefix = substr($member_panel_text, strpos($member_panel_text, 'uvdesk_site_path.member_prefix') + strlen('uvdesk_site_path.member_prefix: '));
-        $oldMemberPrefix = preg_replace('/([\r\n\t])/','', $oldMemberPrefix);
+        $oldMemberPrefix = preg_replace('/([\r\n\t])/', '', $oldMemberPrefix);
 
-        $updatedPrefixForMember = (null !== $member_panel_line) ? substr($member_panel_text, 0, strpos($member_panel_text, 'uvdesk_site_path.member_prefix') + strlen('uvdesk_site_path.member_prefix: ')) . $website_prefixes['member_prefix'] . PHP_EOL: '';
+        $updatedPrefixForMember = (null !== $member_panel_line) ? substr($member_panel_text, 0, strpos($member_panel_text, 'uvdesk_site_path.member_prefix') + strlen('uvdesk_site_path.member_prefix: ')) . $website_prefixes['member_prefix'] . PHP_EOL : '';
         $updatedPrefixForCustomer = (null !== $customer_panel_line) ? substr($customer_panel_text, 0, strpos($customer_panel_text, 'uvdesk_site_path.knowledgebase_customer_prefix') + strlen('uvdesk_site_path.knowledgebase_customer_prefix: ')) . $website_prefixes['customer_prefix'] . PHP_EOL : '';
 
         $updatedFileContent[$member_panel_line] = $updatedPrefixForMember;
@@ -447,10 +563,10 @@ class UVDeskService
 
         if (empty($this->completeLocalResourcePathUri)) {
             $router = $this->container->get('router');
-    
+
             $scheme = $router->getContext()->getScheme();
             $siteurl = $this->container->getParameter('uvdesk.site_url');
-    
+
             $baseurl = "$scheme://$siteurl";
             $urlComponents = parse_url($baseurl);
 
@@ -463,7 +579,7 @@ class UVDeskService
             if (substr($completeLocalResourcePathUri, -1) == '/') {
                 $completeLocalResourcePathUri = substr($completeLocalResourcePathUri, 0, -1);
             }
-    
+
             $this->completeLocalResourcePathUri = $completeLocalResourcePathUri;
         }
 
@@ -502,7 +618,7 @@ class UVDeskService
                 return strtolower(str_replace('ROLE_AGENT_', '', $supportPrivilege));
             }, $resolvedAssignedUserSupportPrivileges);
         }
-        
+
         return array_map(function ($supportPrivilege) {
             return strtolower(str_replace('ROLE_AGENT_', '', $supportPrivilege));
         }, $resolvedAvailableSupportPrivileges);

@@ -3,7 +3,6 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Microsoft\MicrosoftApp;
 
 class MicrosoftIntegration
@@ -18,10 +17,10 @@ class MicrosoftIntegration
     public function getAuthorizationUrl(MicrosoftApp $app, $redirectEndpoint, array $state = [])
     {
         $params = [
-            '{tenant}'       => $app->getTenantId(), 
-            '{client_id}'    => $app->getClientId(), 
-            '{redirect_uri}' => urlencode($redirectEndpoint), 
-            '{scope}'        => urlencode(implode(' ', $app->getApiPermissions())), 
+            '{tenant}'       => $app->getTenantId(),
+            '{client_id}'    => $app->getClientId(),
+            '{redirect_uri}' => urlencode($redirectEndpoint),
+            '{scope}'        => urlencode(implode(' ', $app->getApiPermissions())),
         ];
 
         if (!empty($state)) {
@@ -43,20 +42,16 @@ class MicrosoftIntegration
         curl_setopt($curlHandler, CURLOPT_POST, 1);
         curl_setopt($curlHandler, CURLOPT_URL, $endpoint);
         curl_setopt($curlHandler, CURLOPT_POSTFIELDS, http_build_query([
-            'client_id' => $app->getClientId(), 
-            'scope' => urldecode(implode(' ', $app->getApiPermissions())), 
-            'code' => $accessCode, 
-            'redirect_uri' => $redirectEndpoint, 
-            'grant_type' => 'authorization_code', 
-            'client_secret' => $app->getClientSecret(), 
+            'client_id'     => $app->getClientId(),
+            'scope'         => urldecode(implode(' ', $app->getApiPermissions())),
+            'code'          => $accessCode,
+            'redirect_uri'  => $redirectEndpoint,
+            'grant_type'    => 'authorization_code',
+            'client_secret' => $app->getClientSecret(),
         ]));
 
         $curlResponse = curl_exec($curlHandler);
         $jsonResponse = json_decode($curlResponse, true);
-
-        if (curl_errno($curlHandler)) {
-            $error_msg = curl_error($curlHandler);
-        }
 
         curl_close($curlHandler);
 
@@ -75,20 +70,16 @@ class MicrosoftIntegration
         curl_setopt($curlHandler, CURLOPT_POST, 1);
         curl_setopt($curlHandler, CURLOPT_URL, $endpoint);
         curl_setopt($curlHandler, CURLOPT_POSTFIELDS, http_build_query([
-            'tenant' => $app->getTenantId(), 
-            'client_id' => $app->getClientId(), 
-            'grant_type' => 'refresh_token', 
-            'scope' => urldecode(implode(' ', $app->getApiPermissions())), 
-            'refresh_token' => $refreshToken, 
-            'client_secret' => $app->getClientSecret(), 
+            'tenant'        => $app->getTenantId(),
+            'client_id'     => $app->getClientId(),
+            'grant_type'    => 'refresh_token',
+            'scope'         => urldecode(implode(' ', $app->getApiPermissions())),
+            'refresh_token' => $refreshToken,
+            'client_secret' => $app->getClientSecret(),
         ]));
 
         $curlResponse = curl_exec($curlHandler);
         $jsonResponse = json_decode($curlResponse, true);
-
-        if (curl_errno($curlHandler)) {
-            $error_msg = curl_error($curlHandler);
-        }
 
         curl_close($curlHandler);
 

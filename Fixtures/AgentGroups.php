@@ -3,9 +3,9 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\Fixtures;
 
 use Doctrine\Persistence\ObjectManager;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Doctrine\Bundle\FixturesBundle\Fixture as DoctrineFixture;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 
 class AgentGroups extends DoctrineFixture
 {
@@ -27,10 +27,10 @@ class AgentGroups extends DoctrineFixture
                 $supportGroup->setName($supportGroupSeed['name']);
                 $supportGroup->setDescription($supportGroupSeed['description']);
                 $supportGroup->setIsActive($supportGroupSeed['isActive']);
-    
+
                 $entityManager->persist($supportGroup);
             }
-    
+
             $entityManager->flush();
         }
     }

@@ -3,9 +3,9 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\Fixtures;
 
 use Doctrine\Persistence\ObjectManager;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Doctrine\Bundle\FixturesBundle\Fixture as DoctrineFixture;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 
 class TicketStatuses extends DoctrineFixture
 {
@@ -54,7 +54,7 @@ class TicketStatuses extends DoctrineFixture
         $availableTicketStatuses = array_map(function ($ticketStatus) {
             return $ticketStatus->getCode();
         }, $availableTicketStatuses);
-        
+
         foreach (self::$seeds as $ticketStatusSeed) {
             if (false === in_array($ticketStatusSeed['code'], $availableTicketStatuses)) {
                 $ticketStatus = new CoreEntities\TicketStatus();
@@ -62,7 +62,7 @@ class TicketStatuses extends DoctrineFixture
                 $ticketStatus->setDescription($ticketStatusSeed['description']);
                 $ticketStatus->setColorCode($ticketStatusSeed['colorCode']);
                 $ticketStatus->setSortOrder($ticketStatusSeed['sortOrder']);
-    
+
                 $entityManager->persist($ticketStatus);
             }
         }

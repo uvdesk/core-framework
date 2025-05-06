@@ -2,21 +2,19 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 
 class TeamXHR extends AbstractController
 {
     private $userService;
     private $translator;
-    
+
     public function __construct(UserService $userService, TranslatorInterface $translator)
     {
         $this->userService = $userService;
@@ -53,7 +51,7 @@ class TeamXHR extends AbstractController
             if (! empty($supportTeam)) {
                 $entityManager->remove($supportTeam);
                 $entityManager->flush();
-                
+
                 return new Response(json_encode([
                     'alertClass'         => 'success',
                     'alertMessage'       => $this->translator->trans('Support Team removed successfully.'),

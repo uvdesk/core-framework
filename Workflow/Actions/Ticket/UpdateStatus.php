@@ -2,14 +2,12 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions\Ticket;
 
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Webkul\UVDesk\AutomationBundle\Workflow\Event;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
-use Webkul\UVDesk\AutomationBundle\Workflow\Event;
-use Webkul\UVDesk\AutomationBundle\Workflow\Events\AgentActivity;
 use Webkul\UVDesk\AutomationBundle\Workflow\Events\TicketActivity;
+use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class UpdateStatus extends WorkflowAction
 {
@@ -34,7 +32,7 @@ class UpdateStatus extends WorkflowAction
 
         return array_map(function ($ticketStatus) {
             return [
-                'id' => $ticketStatus->getId(),
+                'id'   => $ticketStatus->getId(),
                 'name' => $ticketStatus->getDescription(),
             ];
         }, $entityManager->getRepository(TicketStatus::class)->findAll());
@@ -49,15 +47,14 @@ class UpdateStatus extends WorkflowAction
         } else {
             $ticket = $event->getTicket();
             $status = $entityManager->getRepository(TicketStatus::class)->findOneById($value);
-            
+
             if (empty($ticket) || empty($status)) {
                 return;
             }
         }
 
         $ticket
-            ->setStatus($status)
-        ;
+            ->setStatus($status);
 
         $entityManager->persist($ticket);
         $entityManager->flush();

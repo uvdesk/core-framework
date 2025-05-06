@@ -2,24 +2,22 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Component\Filesystem\Filesystem as Fileservice;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportRole;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\EventDispatcher\GenericEvent;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Webkul\UVDesk\CoreFrameworkBundle\FileSystem\FileSystem;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Symfony\Component\Filesystem\Filesystem as Fileservice;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 
 class Customer extends AbstractController
-{   
+{
     private $userService;
     private $eventDispatcher;
     private $translator;
@@ -37,7 +35,7 @@ class Customer extends AbstractController
 
     public function listCustomers(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')){
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -46,7 +44,7 @@ class Customer extends AbstractController
 
     public function createCustomer(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')){
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -57,8 +55,9 @@ class Customer extends AbstractController
 
             // Profile upload validation
             $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
+
             if (isset($uploadedFiles['profileImage'])) {
-                if (!in_array($uploadedFiles['profileImage']->getMimeType(), $validMimeType)) {
+                if (! in_array($uploadedFiles['profileImage']->getMimeType(), $validMimeType)) {
                     $this->addFlash('warning', $this->translator->trans('Error ! Profile image is not valid, please upload a valid format'));
                     return $this->redirect($this->generateUrl('helpdesk_member_create_customer_account'));
                 }
@@ -67,8 +66,8 @@ class Customer extends AbstractController
             $user = $entityManager->getRepository(User::class)->findOneBy(array('email' => $formDetails['email']));
             $customerInstance = !empty($user) ? $user->getCustomerInstance() : null;
 
-            if (empty($customerInstance)){
-                if (!empty($formDetails)) {
+            if (empty($customerInstance)) {
+                if (! empty($formDetails)) {
                     $fullname = trim(implode(' ', [$formDetails['firstName'], $formDetails['lastName']]));
                     $supportRole = $entityManager->getRepository(SupportRole::class)->findOneByCode('ROLE_CUSTOMER');
 
@@ -79,12 +78,12 @@ class Customer extends AbstractController
                         'image'   => $uploadedFiles['profileImage'],
                     ]);
 
-                    if (!empty($user)){
+                    if (!empty($user)) {
                         $user->setIsEnabled(true);
                         $entityManager->persist($user);
                         $entityManager->flush();
                     }
-                    
+
                     $this->addFlash('success', $this->translator->trans('Success ! Customer saved successfully.'));
 
                     return $this->redirect($this->generateUrl('helpdesk_member_manage_customer_account_collection'));
@@ -102,7 +101,7 @@ class Customer extends AbstractController
 
     public function editCustomer(Request $request)
     {
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -111,18 +110,21 @@ class Customer extends AbstractController
 
         if ($userId = $request->attributes->get('customerId')) {
             $user = $repository->findOneBy(['id' =>  $userId]);
-            if (!$user)
+
+            if (! $user)
                 $this->noResultFound();
         }
+
         if ($request->getMethod() == "POST") {
             $contentFile = $request->files->get('customer_form');
 
             // Customer Profile upload validation
             $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
+
             if (isset($contentFile['profileImage'])) {
-                if (!in_array($contentFile['profileImage']->getMimeType(), $validMimeType)) {
+                if (! in_array($contentFile['profileImage']->getMimeType(), $validMimeType)) {
                     $this->addFlash('warning', $this->translator->trans('Error ! Profile image is not valid, please upload a valid format'));
-                    return $this->render('@UVDeskCoreFramework/Customers/updateSupportCustomer.html.twig', ['user' => $user,'errors' => json_encode([])]);
+                    return $this->render('@UVDeskCoreFramework/Customers/updateSupportCustomer.html.twig', ['user' => $user, 'errors' => json_encode([])]);
                 }
             }
 
@@ -133,15 +135,21 @@ class Customer extends AbstractController
                 $errorFlag = 0;
 
                 if ($checkUser) {
-                    if($checkUser->getId() != $userId)
+                    if ($checkUser->getId() != $userId)
                         $errorFlag = 1;
                 }
 
-                if (!$errorFlag && 'hello@uvdesk.com' !== $user->getEmail()) {
+                if (
+                    ! $errorFlag
+                    && 'hello@uvdesk.com' !== $user->getEmail()
+                ) {
                     if (
-                        isset($data['password']['first']) && !empty(trim($data['password']['first'])) 
-                        && isset($data['password']['second'])  && !empty(trim($data['password']['second'])) 
-                        && trim($data['password']['first']) == trim($data['password']['second'])) {
+                        isset($data['password']['first'])
+                        && ! empty(trim($data['password']['first']))
+                        && isset($data['password']['second'])
+                        && ! empty(trim($data['password']['second']))
+                        && trim($data['password']['first']) == trim($data['password']['second'])
+                    ) {
                         $encodedPassword = $this->passwordEncoder->encodePassword($user, $data['password']['first']);
                         $user->setPassword($encodedPassword);
                     }
@@ -158,7 +166,7 @@ class Customer extends AbstractController
                     $userInstance->setUser($user);
                     $userInstance->setIsActive(isset($data['isActive']) ? $data['isActive'] : 0);
                     $userInstance->setIsVerified(0);
-                    
+
                     if (isset($data['contactNumber'])) {
                         $userInstance->setContactNumber($data['contactNumber']);
                     }
@@ -167,9 +175,9 @@ class Customer extends AbstractController
                         // Removed profile image from database and path
                         $fileService = new Fileservice;
                         if ($userInstance->getProfileImagePath()) {
-                            $fileService->remove($this->getParameter('kernel.project_dir').'/public'.$userInstance->getProfileImagePath());
+                            $fileService->remove($this->getParameter('kernel.project_dir') . '/public' . $userInstance->getProfileImagePath());
                         }
-                        
+
                         $assetDetails = $this->fileSystem->getUploadManager()->uploadFile($contentFile['profileImage'], 'profile');
                         $userInstance->setProfileImagePath($assetDetails['path']);
                     }
@@ -184,8 +192,7 @@ class Customer extends AbstractController
                     // Trigger customer created event
                     $event = new CoreWorkflowEvents\Customer\Update();
                     $event
-                        ->setUser($user)
-                    ;
+                        ->setUser($user);
 
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
@@ -201,18 +208,21 @@ class Customer extends AbstractController
             $userId  = $content['id'];
             $user = $repository->findOneBy(['id' =>  $userId]);
 
-            if (!$user)
+            if (! $user)
                 $this->noResultFound();
 
             $checkUser = $em->getRepository(User::class)->findOneBy(array('email' => $content['email']));
             $errorFlag = 0;
 
             if ($checkUser) {
-                if($checkUser->getId() != $userId)
+                if ($checkUser->getId() != $userId)
                     $errorFlag = 1;
             }
 
-            if (!$errorFlag && 'hello@uvdesk.com' !== $user->getEmail()) {
+            if (
+                ! $errorFlag
+                && 'hello@uvdesk.com' !== $user->getEmail()
+            ) {
                 $name = explode(' ', $content['name']);
                 $lastName = isset($name[1]) ? $name[1] : ' ';
                 $user->setFirstName(trim($name[0]));
@@ -222,9 +232,11 @@ class Customer extends AbstractController
 
                 //user Instance
                 $userInstance = $em->getRepository(UserInstance::class)->findOneBy(array('user' => $user->getId()));
-                if (isset($content['contactNumber'])){
+
+                if (isset($content['contactNumber'])) {
                     $userInstance->setContactNumber($content['contactNumber']);
                 }
+
                 $em->persist($userInstance);
                 $em->flush();
 
@@ -239,7 +251,7 @@ class Customer extends AbstractController
         }
 
         return $this->render('@UVDeskCoreFramework/Customers/updateSupportCustomer.html.twig', [
-            'user' => $user,
+            'user'   => $user,
             'errors' => json_encode([])
         ]);
     }
@@ -254,37 +266,46 @@ class Customer extends AbstractController
 
     public function bookmarkCustomer(Request $request)
     {
-        if ( !$this->userService->getSessionUser() && !$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER') ) {
+        if (
+            ! $this->userService->getSessionUser()
+            && ! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_CUSTOMER')
+        ) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
         $json = array();
         $em = $this->getDoctrine()->getManager();
         $data = json_decode($request->getContent(), true);
-        $id = $request->attributes->get('id') ? : $data['id'];
+        $id = $request->attributes->get('id') ?: $data['id'];
         $user = $em->getRepository(User::class)->findOneBy(['id' => $id]);
 
-        if (!$user)  {
+        if (! $user) {
             $json['error'] = 'resource not found';
 
             return new JsonResponse($json, Response::HTTP_NOT_FOUND);
         }
-        $userInstance = $em->getRepository(UserInstance::class)->findOneBy(array(
-                'user' => $id,
+
+        $userInstance = $em->getRepository(UserInstance::class)->findOneBy(
+            array(
+                'user'        => $id,
                 'supportRole' => 4
             )
         );
 
         if ($userInstance->getIsStarred()) {
             $userInstance->setIsStarred(0);
+
             $em->persist($userInstance);
             $em->flush();
+
             $json['alertClass'] = 'success';
             $json['message'] = $this->translator->trans('unstarred Action Completed successfully');
         } else {
             $userInstance->setIsStarred(1);
+
             $em->persist($userInstance);
             $em->flush();
+
             $json['alertClass'] = 'success';
             $json['message'] = $this->translator->trans('starred Action Completed successfully');
         }

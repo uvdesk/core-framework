@@ -2,18 +2,17 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedReplies as CoreBundleSavedReplies;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Form as CoreFrameworkBundleForms;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
-use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedReplies as CoreBundleSavedReplies;
 
 class SavedReplies extends AbstractController
 {
@@ -22,11 +21,13 @@ class SavedReplies extends AbstractController
 
     private $userService;
     private $translator;
-    
-    public function __construct(UserService $userService, TranslatorInterface $translator)
+    private $entityManager;
+
+    public function __construct(UserService $userService, TranslatorInterface $translator,EntityManagerInterface $entityManager)
     {
         $this->userService = $userService;
         $this->translator = $translator;
+        $this->entityManager = $entityManager;
     }
 
     public function loadSavedReplies(Request $request)
@@ -41,7 +42,7 @@ class SavedReplies extends AbstractController
     public function updateSavedReplies(Request $request, ContainerInterface $container)
     {
         $templateId = $request->attributes->get('template');
-        $repository = $this->getDoctrine()->getRepository(CoreFrameworkBundleEntities\SavedReplies::class);
+        $repository = $this->entityManager->getRepository(CoreFrameworkBundleEntities\SavedReplies::class);
 
         $template = $repository->getSavedReply($templateId, $container);
         if (! empty($template)) {
@@ -49,7 +50,7 @@ class SavedReplies extends AbstractController
             $teamSupports  = count($template->getSupportTeams());
 
             if (
-                $template->getUser()->getId() != $this->getUser()->getId() 
+                $template->getUser()->getId() != $this->getUser()->getId()
                 && empty($groupSupports) && empty($teamSupports)
             ) {
                 throw new \Exception('Access Denied', 403);
@@ -71,14 +72,14 @@ class SavedReplies extends AbstractController
         if ($request->getMethod() == 'POST') {
             if (empty($request->request->get('message'))) {
                 $this->addFlash('warning',  $this->translator->trans('Error! Saved reply body can not be blank'));
-                
+
                 return $this->render('@UVDeskCoreFramework//savedReplyForm.html.twig', [
                     'template' => $template,
                     'errors'   => json_encode($errors)
                 ]);
             }
 
-            $em = $this->getDoctrine()->getManager();
+            $em = $this->entityManager;
             $template->setName($request->request->get('name'));
 
             // Groups
@@ -89,7 +90,7 @@ class SavedReplies extends AbstractController
                 foreach ($template->getSupportGroups()->toArray() as $key => $group) {
                     $previousGroupIds[] = $group->getId();
                     if (
-                        ! in_array($group->getId(), $groups) 
+                        ! in_array($group->getId(), $groups)
                         && $this->getUser()->getAgentInstance()->getSupportRole()->getCode() != "ROLE_AGENT"
                     ) {
                         $template->removeSupportGroups($group);
@@ -100,12 +101,12 @@ class SavedReplies extends AbstractController
 
             foreach ($groups as $key => $groupId) {
                 if ($groupId) {
-                    $group = $em->getRepository(SupportGroup::class)->findOneBy([ 'id' => $groupId ]);
+                    $group = $em->getRepository(SupportGroup::class)->findOneBy(['id' => $groupId]);
 
                     if (
-                        $group 
-                        && (empty($previousGroupIds) 
-                        || !in_array($groupId, $previousGroupIds))
+                        $group
+                        && (empty($previousGroupIds)
+                            || !in_array($groupId, $previousGroupIds))
                     ) {
                         $template->addSupportGroup($group);
                         $em->persist($template);
@@ -120,9 +121,9 @@ class SavedReplies extends AbstractController
             if ($template->getSupportTeams()) {
                 foreach ($template->getSupportTeams()->toArray() as $key => $team) {
                     $previousTeamIds[] = $team->getId();
-                   
+
                     if (
-                        ! in_array($team->getId(), $teams) 
+                        ! in_array($team->getId(), $teams)
                         && $this->getUser()->getAgentInstance()->getSupportRole()->getCode() != "ROLE_AGENT"
                     ) {
                         $template->removeSupportTeam($team);
@@ -133,12 +134,12 @@ class SavedReplies extends AbstractController
 
             foreach ($teams as $key => $teamId) {
                 if ($teamId) {
-                    $team = $em->getRepository(SupportTeam::class)->findOneBy([ 'id' => $teamId ]);
+                    $team = $em->getRepository(SupportTeam::class)->findOneBy(['id' => $teamId]);
 
                     if (
-                        $team 
-                        && (empty($previousTeamIds) 
-                        || !in_array($teamId, $previousTeamIds))
+                        $team
+                        && (empty($previousTeamIds)
+                            || !in_array($teamId, $previousTeamIds))
                     ) {
                         $template->addSupportTeam($team);
                         $em->persist($template);
@@ -148,14 +149,14 @@ class SavedReplies extends AbstractController
 
             $template->setMessage($request->request->get('message'));
 
-            if (empty($template->getUser()))  {
+            if (empty($template->getUser())) {
                 $template->setUser($this->getUser()->getAgentInstance());
             }
-            
+
             $em->persist($template);
             $em->flush();
 
-            $this->addFlash('success', $request->attributes->get('template') ? $this->translator->trans('Success! Reply has been updated successfully.'): $this->translator->trans('Success! Reply has been added successfully.'));
+            $this->addFlash('success', $request->attributes->get('template') ? $this->translator->trans('Success! Reply has been updated successfully.') : $this->translator->trans('Success! Reply has been added successfully.'));
 
             return $this->redirectToRoute('helpdesk_member_saved_replies');
         }
@@ -172,7 +173,7 @@ class SavedReplies extends AbstractController
             throw new \Exception(404);
         }
 
-        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager = $this->entityManager;
         $savedReplyRepository = $entityManager->getRepository(CoreBundleSavedReplies::class);
 
         if ($request->getMethod() == 'GET') {

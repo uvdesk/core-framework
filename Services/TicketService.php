@@ -2,58 +2,35 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Services;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Yaml\Yaml;
-use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity;
-use UVDesk\CommunityPackages\UVDesk\FormComponent\Entity as CommunityPackageEntities;
-use Webkul\UVDesk\AutomationBundle\Entity\PreparedResponses;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\AgentActivity;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Tag;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketType;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketPriority;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportRole;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Website;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportLabel;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\SavedReplies;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\PublicResourceAccessLink;
-use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
-use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
-use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
-use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
-use Webkul\UVDesk\MailboxBundle\Utils\Mailbox\Mailbox;
-use Webkul\UVDesk\MailboxBundle\Utils\MailboxConfiguration;
-use Webkul\UVDesk\MailboxBundle\Utils\IMAP\Configuration as ImapConfiguration;
-use Webkul\UVDesk\SupportCenterBundle\Entity\Article;
-use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
-use Webkul\UVDesk\MailboxBundle\Services\MailboxService;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Webkul\UVDesk\SupportCenterBundle\Entity\Article;
+use Webkul\UVDesk\MailboxBundle\Services\MailboxService;
+use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Webkul\UVDesk\AutomationBundle\Entity\PreparedResponses;
 use UVDesk\CommunityPackages\UVDesk as UVDeskCommunityPackages;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
+use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkEntity;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 
 class TicketService
 {
     const PATH_TO_CONFIG = '/config/packages/uvdesk_mailbox.yaml';
 
     protected $container;
-	protected $requestStack;
+    protected $requestStack;
     protected $entityManager;
     protected $fileUploadService;
     protected $userService;
-    
+
     public function __construct(
         ContainerInterface $container,
         RequestStack $requestStack,
@@ -64,7 +41,7 @@ class TicketService
         TranslatorInterface $translator
     ) {
         $this->container = $container;
-		$this->requestStack = $requestStack;
+        $this->requestStack = $requestStack;
         $this->entityManager = $entityManager;
         $this->fileUploadService = $fileUploadService;
         $this->userService = $userService;
@@ -76,9 +53,7 @@ class TicketService
     {
         $mailboxConfiguration = $this->mailboxService->parseMailboxConfigurations();
 
-        $defaultMailbox = $mailboxConfiguration->getDefaultMailbox();
-
-        $collection = array_map(function ($mailbox) use ($defaultMailbox) {
+        $collection = array_map(function ($mailbox) {
             return [
                 'id'        => $mailbox->getId(),
                 'name'      => $mailbox->getName(),
@@ -119,7 +94,7 @@ class TicketService
     public function getDefaultType()
     {
         $typeCode = $this->container->getParameter('uvdesk.default.ticket.type');
-        $ticketType = $this->entityManager->getRepository(TicketType::class)->findOneByCode($typeCode);
+        $ticketType = $this->entityManager->getRepository(CoreFrameworkEntity\TicketType::class)->findOneByCode($typeCode);
 
         return !empty($ticketType) ? $ticketType : null;
     }
@@ -127,7 +102,7 @@ class TicketService
     public function getDefaultStatus()
     {
         $statusCode = $this->container->getParameter('uvdesk.default.ticket.status');
-        $ticketStatus = $this->entityManager->getRepository(TicketStatus::class)->findOneByCode($statusCode);
+        $ticketStatus = $this->entityManager->getRepository(CoreFrameworkEntity\TicketStatus::class)->findOneByCode($statusCode);
 
         return !empty($ticketStatus) ? $ticketStatus : null;
     }
@@ -135,7 +110,7 @@ class TicketService
     public function getDefaultPriority()
     {
         $priorityCode = $this->container->getParameter('uvdesk.default.ticket.priority');
-        $ticketPriority = $this->entityManager->getRepository(TicketPriority::class)->findOneByCode($priorityCode);
+        $ticketPriority = $this->entityManager->getRepository(CoreFrameworkEntity\TicketPriority::class)->findOneByCode($priorityCode);
 
         return !empty($ticketPriority) ? $ticketPriority : null;
     }
@@ -154,10 +129,10 @@ class TicketService
     }
 
     public function getMemberCreateTicketSnippet()
-    {   
+    {
         $twigTemplatingEngine = $this->container->get('twig');
-        $ticketTypeCollection = $this->entityManager->getRepository(TicketType::class)->findByIsActive(true);
-        
+        $ticketTypeCollection = $this->entityManager->getRepository(CoreFrameworkEntity\TicketType::class)->findByIsActive(true);
+
         try {
             if ($this->userService->isFileExists('apps/uvdesk/custom-fields')) {
                 $headerCustomFields = $this->container->get('uvdesk_package_custom_fields.service')->getCustomFieldsArray('user');
@@ -191,18 +166,19 @@ class TicketService
 
     public function createTicket(array $params = [])
     {
-        $thread = $this->entityManager->getRepository(Thread::class)->findOneByMessageId($params['messageId']);
+        $thread = $this->entityManager->getRepository(CoreFrameworkEntity\Thread::class)->findOneByMessageId($params['messageId']);
 
         if (empty($thread)) {
-            $user = $this->entityManager->getRepository(User::class)->findOneByEmail($params['from']);
+            $user = $this->entityManager->getRepository(CoreFrameworkEntity\User::class)->findOneByEmail($params['from']);
 
             if (empty($user) || null == $user->getCustomerInstance()) {
-                $role = $this->entityManager->getRepository(SupportRole::class)->findOneByCode($params['role']);
+                $role = $this->entityManager->getRepository(CoreFrameworkEntity\SupportRole::class)->findOneByCode($params['role']);
+
                 if (empty($role)) {
                     throw new \Exception("The requested role '" . $params['role'] . "' does not exist.");
                 }
-                
-                // Create User Instance
+
+                // Create CoreFrameworkEntity\User Instance
                 $user = $this->container->get('user.service')->createUserInstance($params['from'], $params['name'], $role, [
                     'source' => strtolower($params['source']),
                     'active' => true,
@@ -210,7 +186,7 @@ class TicketService
             }
 
             $params['role'] = 4;
-            $params['mailboxEmail'] = current($params['replyTo']); 
+            $params['mailboxEmail'] = current($params['replyTo']);
             $params['customer'] = $params['user'] = $user;
 
             return $this->createTicketBase($params);
@@ -219,52 +195,53 @@ class TicketService
         return;
     }
 
-    public function getDemanedFilterOptions($filterType,$ids) {
+    public function getDemanedFilterOptions($filterType, $ids)
+    {
         $qb = $this->entityManager->createQueryBuilder();
         switch ($filterType) {
             case 'agent':
-                $qb->select("u.id,u.email,CONCAT(u.firstName,' ', u.lastName) AS name")->from(User::class, 'u')
-                        ->leftJoin(UserInstance::class, 'ud', 'WITH', 'u.id = ud.user')
-                        ->where('ud.supportRole != :roles')
-                        ->andwhere('ud.isActive = 1')
-                        ->andwhere('u.id IN (:ids)')
-                        ->setParameter('roles', 4)
-                        ->setParameter('ids', $ids)
-                        ->orderBy('name','ASC');
+                $qb->select("u.id,u.email,CONCAT(u.firstName,' ', u.lastName) AS name")->from(CoreFrameworkEntity\User::class, 'u')
+                    ->leftJoin(CoreFrameworkEntity\UserInstance::class, 'ud', 'WITH', 'u.id = ud.user')
+                    ->where('ud.supportRole != :roles')
+                    ->andwhere('ud.isActive = 1')
+                    ->andwhere('u.id IN (:ids)')
+                    ->setParameter('roles', 4)
+                    ->setParameter('ids', $ids)
+                    ->orderBy('name', 'ASC');
 
                 return $qb->getQuery()->getArrayResult();
             case 'customer':
-                $qb->select("c.id,c.email,CONCAT(c.firstName,' ', c.lastName) AS name")->from(User::class, 'c')
-                        ->leftJoin(UserInstance::class, 'ud', 'WITH', 'c.id = ud.user')
-                        ->where('ud.supportRole = :roles')
-                        ->andwhere('ud.isActive = 1')
-                        ->andwhere('c.id IN (:ids)')
-                        ->setParameter('roles', 4)
-                        ->setParameter('ids', $ids)
-                        ->orderBy('name','ASC');
+                $qb->select("c.id,c.email,CONCAT(c.firstName,' ', c.lastName) AS name")->from(CoreFrameworkEntity\User::class, 'c')
+                    ->leftJoin(CoreFrameworkEntity\UserInstance::class, 'ud', 'WITH', 'c.id = ud.user')
+                    ->where('ud.supportRole = :roles')
+                    ->andwhere('ud.isActive = 1')
+                    ->andwhere('c.id IN (:ids)')
+                    ->setParameter('roles', 4)
+                    ->setParameter('ids', $ids)
+                    ->orderBy('name', 'ASC');
 
                 return $qb->getQuery()->getArrayResult();
             case 'group':
-                $qb->select("ug.id,ug.description")->from(SupportGroup::class, 'ug')
-                        ->andwhere('ug.isEnabled = 1')
-                        ->andwhere('ug.id IN (:ids)')
-                        ->setParameter('ids', $ids)
-                        ->orderBy('ug.description','ASC');
+                $qb->select("ug.id,ug.description")->from(CoreFrameworkEntity\SupportGroup::class, 'ug')
+                    ->andwhere('ug.isEnabled = 1')
+                    ->andwhere('ug.id IN (:ids)')
+                    ->setParameter('ids', $ids)
+                    ->orderBy('ug.description', 'ASC');
 
                 return $qb->getQuery()->getArrayResult();
             case 'team':
-                $qb->select("usg.id,usg.description")->from(SupportTeam::class, 'usg')
-                        ->andwhere('usg.isActive = 1')
-                        ->andwhere('usg.id IN (:ids)')
-                        ->setParameter('ids', $ids)
-                        ->orderBy('usg.description','ASC');
+                $qb->select("usg.id,usg.description")->from(CoreFrameworkEntity\SupportTeam::class, 'usg')
+                    ->andwhere('usg.isActive = 1')
+                    ->andwhere('usg.id IN (:ids)')
+                    ->setParameter('ids', $ids)
+                    ->orderBy('usg.description', 'ASC');
 
                 return $qb->getQuery()->getArrayResult();
             case 'tag':
-                $qb->select("t.id,t.name")->from(Tag::class, 't')
-                        ->andwhere('t.id IN (:ids)')
-                        ->setParameter('ids', $ids)
-                        ->orderBy('t.name','ASC');
+                $qb->select("t.id,t.name")->from(CoreFrameworkEntity\Tag::class, 't')
+                    ->andwhere('t.id IN (:ids)')
+                    ->setParameter('ids', $ids)
+                    ->orderBy('t.name', 'ASC');
 
                 return $qb->getQuery()->getArrayResult();
         }
@@ -301,7 +278,7 @@ class TicketService
         $ticketData['messageId'] = $ticketMessageId;
         $ticketData['isTrashed'] = false;
 
-        $ticket = new Ticket();
+        $ticket = new CoreFrameworkEntity\Ticket();
         foreach ($ticketData as $property => $value) {
             $callable = 'set' . ucwords($property);
 
@@ -315,11 +292,11 @@ class TicketService
 
         return $this->createThread($ticket, $ticketData);
     }
-    
-    public function createThread(Ticket $ticket, array $threadData)
+
+    public function createThread(CoreFrameworkEntity\Ticket $ticket, array $threadData)
     {
         $threadData['isLocked'] = 0;
-      
+
         if ('forward' === $threadData['threadType']) {
             $threadData['replyTo'] = $threadData['to'];
         }
@@ -347,7 +324,7 @@ class TicketService
             $threadData['cc'] = $collaboratorEmails;
         }
 
-        $thread = new Thread();
+        $thread = new CoreFrameworkEntity\Thread();
         $thread->setTicket($ticket);
         $thread->setCreatedAt(new \DateTime());
         $thread->setUpdatedAt(new \DateTime());
@@ -367,7 +344,7 @@ class TicketService
 
         // Update ticket reference ids is thread message id is defined
         if (null != $thread->getMessageId() && false === strpos($ticket->getReferenceIds(), $thread->getMessageId())) {
-            $updatedReferenceIds = $ticket->getReferenceIds() . ' ' . $thread->getMessageId();            
+            $updatedReferenceIds = $ticket->getReferenceIds() . ' ' . $thread->getMessageId();
             $ticket->setReferenceIds($updatedReferenceIds);
 
             $this->entityManager->persist($ticket);
@@ -379,9 +356,9 @@ class TicketService
                 $ticket->setIsCustomerViewed(false);
                 $ticket->setIsReplied(true);
 
-                $customerName = $ticket->getCustomer()->getFirstName().' '.$ticket->getCustomer()->getLastName();
+                $customerName = $ticket->getCustomer()->getFirstName() . ' ' . $ticket->getCustomer()->getLastName();
 
-                $agentActivity = new AgentActivity();
+                $agentActivity = new CoreFrameworkEntity\AgentActivity();
                 $agentActivity->setThreadType('reply');
                 $agentActivity->setTicket($ticket);
                 $agentActivity->setAgent($thread->getUser());
@@ -401,24 +378,24 @@ class TicketService
             $ticket->setIsReplied(false);
             $this->entityManager->persist($ticket);
 
-            $customerName = $ticket->getCustomer()->getFirstName().' '.$ticket->getCustomer()->getLastName();
+            $customerName = $ticket->getCustomer()->getFirstName() . ' ' . $ticket->getCustomer()->getLastName();
 
-            $agentActivity = new AgentActivity();
+            $agentActivity = new CoreFrameworkEntity\AgentActivity();
             $agentActivity->setThreadType('create');
             $agentActivity->setTicket($ticket);
             $agentActivity->setAgent($thread->getUser());
-            $agentActivity->setCustomerName($customerName );
+            $agentActivity->setCustomerName($customerName);
             $agentActivity->setAgentName('agent');
             $agentActivity->setCreatedAt(new \DateTime());
 
             $this->entityManager->persist($agentActivity);
         }
-        
-        $ticket->currentThread = $this->entityManager->getRepository(Thread::class)->getTicketCurrentThread($ticket);
-        
+
+        $ticket->currentThread = $this->entityManager->getRepository(CoreFrameworkEntity\Thread::class)->getTicketCurrentThread($ticket);
+
         $this->entityManager->persist($thread);
         $this->entityManager->flush();
-        
+
         $ticket->createdThread = $thread;
 
         // Uploading Attachments.
@@ -443,17 +420,17 @@ class TicketService
                 if (!empty($value)) {
                     $callable = 'set' . ucwords($property);
                     if (method_exists($thread, $callable)) {
-                        if($callable != "setMessage") {
+                        if ($callable != "setMessage") {
                             $thread->$callable($value);
                         } else {
                             $notesPlaceholders = $this->getNotePlaceholderValues($ticket, 'customer');
                             $content = $value;
                             foreach ($notesPlaceholders as $key => $val) {
-                                if(strpos($value, "{%$key%}") !== false){
+                                if (strpos($value, "{%$key%}") !== false) {
                                     $content = strtr($value, ["{%$key%}" => $val, "{% $key %}" => $val]);
                                 }
                             }
-                            
+
                             $content = stripslashes($content);
                             $thread->$callable($content);
                         }
@@ -472,13 +449,13 @@ class TicketService
             $uploadedFileAttributes = $uploadManager->uploadFile($attachment, $prefix);
 
             if (!empty($uploadedFileAttributes['path'])) {
-                ($threadAttachment = new Attachment())
+                ($threadAttachment = new CoreFrameworkEntity\Attachment())
                     ->setThread($thread)
                     ->setName($uploadedFileAttributes['name'])
                     ->setPath($uploadedFileAttributes['path'])
                     ->setSize($uploadedFileAttributes['size'])
                     ->setContentType($uploadedFileAttributes['content-type']);
-                
+
                 $this->entityManager->persist($threadAttachment);
             }
         }
@@ -490,19 +467,19 @@ class TicketService
     {
         $prefix = 'threads/' . $thread->getId();
         $uploadManager = $this->container->get('uvdesk.core.file_system.service')->getUploadManager();
-        
+
         // Upload thread attachments
         foreach ($attachments as $attachment) {
             $uploadedFileAttributes = $uploadManager->uploadEmailAttachment($attachment, $prefix);
-            
+
             if (!empty($uploadedFileAttributes['path'])) {
-                ($threadAttachment = new Attachment())
+                ($threadAttachment = new CoreFrameworkEntity\Attachment())
                     ->setThread($thread)
                     ->setName($uploadedFileAttributes['name'])
                     ->setPath($uploadedFileAttributes['path'])
                     ->setSize($uploadedFileAttributes['size'])
                     ->setContentType($uploadedFileAttributes['content-type']);
-                
+
                 $this->entityManager->persist($threadAttachment);
             }
         }
@@ -513,7 +490,7 @@ class TicketService
 
         foreach ($attachmentContents as $attachmentContent) {
             $decodedData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $attachmentContent['content']));
-   
+
             $filePath = $prefixOutlook . $attachmentContent['name'];
 
             if (!is_dir($prefixOutlook) && !is_dir($prefixOutlook)) {
@@ -531,7 +508,7 @@ class TicketService
             }
 
             if (!empty($filePath)) {
-                $threadAttachment = (new Attachment())
+                $threadAttachment = (new CoreFrameworkEntity\Attachment())
                     ->setThread($thread)
                     ->setName($attachmentContent['name'])
                     ->setPath($relativePath)
@@ -552,9 +529,9 @@ class TicketService
             return $types;
 
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('tp.id','tp.code As name')->from(TicketType::class, 'tp')
-                ->andWhere('tp.isActive = 1')
-                ->orderBy('tp.code', 'ASC');
+        $qb->select('tp.id', 'tp.code As name')->from(CoreFrameworkEntity\TicketType::class, 'tp')
+            ->andWhere('tp.isActive = 1')
+            ->orderBy('tp.code', 'ASC');
 
         return $types = $qb->getQuery()->getArrayResult();
     }
@@ -566,7 +543,7 @@ class TicketService
             return $statuses;
 
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('ts')->from(TicketStatus::class, 'ts');
+        $qb->select('ts')->from(CoreFrameworkEntity\TicketStatus::class, 'ts');
         // $qb->orderBy('ts.sortOrder', Criteria::ASC);
 
         return $statuses = $qb->getQuery()->getArrayResult();
@@ -575,18 +552,18 @@ class TicketService
     public function getTicketTotalThreads($ticketId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('COUNT(th.id) as threadCount')->from(Ticket::class, 't')
+        $qb->select('COUNT(th.id) as threadCount')->from(CoreFrameworkEntity\Ticket::class, 't')
             ->leftJoin('t.threads', 'th')
             ->andWhere('t.id = :ticketId')
             ->andWhere('th.threadType = :threadType')
-            ->setParameter('threadType','reply')
+            ->setParameter('threadType', 'reply')
             ->setParameter('ticketId', $ticketId);
 
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('COUNT(t.id) as threadCount')->from(Thread::class, 't')
+        $qb->select('COUNT(t.id) as threadCount')->from(CoreFrameworkEntity\Thread::class, 't')
             ->andWhere('t.ticket = :ticketId')
             ->andWhere('t.threadType = :threadType')
-            ->setParameter('threadType','reply')
+            ->setParameter('threadType', 'reply')
             ->setParameter('ticketId', $ticketId);
 
         return $qb->getQuery()->getSingleScalarResult();
@@ -595,34 +572,34 @@ class TicketService
     public function getTicketTags($request = null)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('tg')->from(Tag::class, 'tg');
+        $qb->select('tg')->from(CoreFrameworkEntity\Tag::class, 'tg');
 
-        if($request) {
+        if ($request) {
             $qb->andWhere("tg.name LIKE :tagName");
-            $qb->setParameter('tagName', '%'.urldecode(trim($request->query->get('query'))).'%');
+            $qb->setParameter('tagName', '%' . urldecode(trim($request->query->get('query'))) . '%');
             $qb->andWhere("tg.id NOT IN (:ids)");
-            $qb->setParameter('ids', explode(',',urldecode($request->query->get('not'))));
+            $qb->setParameter('ids', explode(',', urldecode($request->query->get('not'))));
         }
 
         return $qb->getQuery()->getArrayResult();
     }
-    
+
     public function paginateMembersTicketCollection(Request $request)
     {
         $params = $request->query->all();
         $activeUser = $this->container->get('user.service')->getSessionUser();
-        $activeUserTimeZone = $this->entityManager->getRepository(Website::class)->findOneBy(['code' => 'Knowledgebase']);
+        $activeUserTimeZone = $this->entityManager->getRepository(CoreFrameworkEntity\Website::class)->findOneBy(['code' => 'Knowledgebase']);
         $agentTimeZone = !empty($activeUser->getTimezone()) ? $activeUser->getTimezone() : $activeUserTimeZone->getTimezone();
         $agentTimeFormat = !empty($activeUser->getTimeformat()) ? $activeUser->getTimeformat() : $activeUserTimeZone->getTimeformat();
 
-        $ticketRepository = $this->entityManager->getRepository(Ticket::class);
+        $ticketRepository = $this->entityManager->getRepository(CoreFrameworkEntity\Ticket::class);
 
-        $website = $this->entityManager->getRepository(Website::class)->findOneBy(['code' => 'helpdesk']);
+        $website = $this->entityManager->getRepository(CoreFrameworkEntity\Website::class)->findOneBy(['code' => 'helpdesk']);
         $timeZone = $website->getTimezone();
         $timeFormat = $website->getTimeformat();
 
-        $supportGroupReference = $this->entityManager->getRepository(User::class)->getUserSupportGroupReferences($activeUser);
-        $supportTeamReference  = $this->entityManager->getRepository(User::class)->getUserSupportTeamReferences($activeUser);
+        $supportGroupReference = $this->entityManager->getRepository(CoreFrameworkEntity\User::class)->getUserSupportGroupReferences($activeUser);
+        $supportTeamReference  = $this->entityManager->getRepository(CoreFrameworkEntity\User::class)->getUserSupportTeamReferences($activeUser);
 
         // Get base query
         $baseQuery = $ticketRepository->prepareBaseTicketQuery($activeUser, $supportGroupReference, $supportTeamReference, $params);
@@ -656,11 +633,11 @@ class TicketService
 
         $ticketThreadCountQueryTemplate = $this->entityManager->createQueryBuilder()
             ->select('COUNT(thread.id) as threadCount')
-            ->from(Ticket::class, 'ticket')
+            ->from(CoreFrameworkEntity\Ticket::class, 'ticket')
             ->leftJoin('ticket.threads', 'thread')
             ->where('ticket.id = :ticketId')
             ->andWhere('thread.threadType = :threadType')->setParameter('threadType', 'reply');
-        
+
         foreach ($pagination->getItems() as $ticketDetails) {
             $ticket = array_shift($ticketDetails);
 
@@ -670,16 +647,16 @@ class TicketService
             $totalTicketReplies = (int) $ticketThreadCountQuery->getQuery()->getSingleScalarResult();
             $ticketHasAttachments = false;
             $dbTime = $ticket['createdAt'];
-            
-            $formattedTime= $this->fomatTimeByPreference($dbTime,$timeZone,$timeFormat,$agentTimeZone,$agentTimeFormat);
+
+            $formattedTime = $this->fomatTimeByPreference($dbTime, $timeZone, $timeFormat, $agentTimeZone, $agentTimeFormat);
 
             $currentDateTime  = new \DateTime('now');
             if ($this->getLastReply($ticket['id'])) {
-                $lastRepliedTime = 
-                $this->time2string($currentDateTime->getTimeStamp() - $this->getLastReply($ticket['id'])['createdAt']->getTimeStamp());
+                $lastRepliedTime =
+                    $this->time2string($currentDateTime->getTimeStamp() - $this->getLastReply($ticket['id'])['createdAt']->getTimeStamp());
             } else {
-                $lastRepliedTime = 
-                $this->time2string($currentDateTime->getTimeStamp() - $ticket['createdAt']->getTimeStamp());
+                $lastRepliedTime =
+                    $this->time2string($currentDateTime->getTimeStamp() - $ticket['createdAt']->getTimeStamp());
             }
 
             $ticketResponse = [
@@ -701,7 +678,7 @@ class TicketService
                 'hasAttachments'    => $ticketHasAttachments,
                 'lastReplyTime'     => $lastRepliedTime
             ];
-           
+
             if (!empty($ticketDetails['agentId'])) {
                 $ticketResponse['agent'] = [
                     'id' => $ticketDetails['agentId'],
@@ -721,7 +698,7 @@ class TicketService
 
             array_push($ticketCollection, $ticketResponse);
         }
-         
+
         return [
             'tickets'    => $ticketCollection,
             'pagination' => $paginationData,
@@ -730,48 +707,51 @@ class TicketService
                 'predefind' => $this->getPredefindLabelDetails($activeUser, $supportGroupReference, $supportTeamReference, $params),
                 'custom'    => $this->getCustomLabelDetails($this->container),
             ],
-          
+
         ];
     }
 
     // Convert Timestamp to day/hour/min
-    Public function time2string($time) {
-        $d = floor($time/86400);
-        $_d = ($d < 10 ? '0' : '').$d;
+    public function time2string($time)
+    {
+        $d = floor($time / 86400);
+        $_d = ($d < 10 ? '0' : '') . $d;
 
-        $h = floor(($time-$d*86400)/3600);
-        $_h = ($h < 10 ? '0' : '').$h;
+        $h = floor(($time - $d * 86400) / 3600);
+        $_h = ($h < 10 ? '0' : '') . $h;
 
-        $m = floor(($time-($d*86400+$h*3600))/60);
-        $_m = ($m < 10 ? '0' : '').$m;
+        $m = floor(($time - ($d * 86400 + $h * 3600)) / 60);
+        $_m = ($m < 10 ? '0' : '') . $m;
 
-        $s = $time-($d*86400+$h*3600+$m*60);
-        $_s = ($s < 10 ? '0' : '').$s;
+        $s = $time - ($d * 86400 + $h * 3600 + $m * 60);
+        $_s = ($s < 10 ? '0' : '') . $s;
 
         $time_str = "0 minutes";
         if ($_d != 00)
-            $time_str = $_d." ".'days';
+            $time_str = $_d . " " . 'days';
         elseif ($_h != 00)
-            $time_str = $_h." ".'hours';
+            $time_str = $_h . " " . 'hours';
         elseif ($_m != 00)
-            $time_str = $_m." ".'minutes';
+            $time_str = $_m . " " . 'minutes';
 
-        return $time_str." "."ago";
+        return $time_str . " " . "ago";
     }
 
-    public function getPredefindLabelDetails(User $currentUser, array $supportGroupIds = [], array $supportTeamIds = [], array $params = [])
+    public function getPredefindLabelDetails(CoreFrameworkEntity\User $currentUser, array $supportGroupIds = [], array $supportTeamIds = [], array $params = [])
     {
         $data = array();
         $queryBuilder = $this->entityManager->createQueryBuilder();
-        $ticketRepository = $this->entityManager->getRepository(Ticket::class);
-        $queryBuilder->select('COUNT(DISTINCT ticket.id) as ticketCount')->from(Ticket::class, 'ticket');
-            
+        $ticketRepository = $this->entityManager->getRepository(CoreFrameworkEntity\Ticket::class);
+        $queryBuilder->select('COUNT(DISTINCT ticket.id) as ticketCount')->from(CoreFrameworkEntity\Ticket::class, 'ticket');
+
         // // applyFilter according to permission
         $queryBuilder->where('ticket.isTrashed != 1');
         $userInstance = $currentUser->getAgentInstance();
 
-        if (!empty($userInstance) &&  'ROLE_AGENT' == $userInstance->getSupportRole()->getCode() 
-        && $userInstance->getTicketAccesslevel() != 1) {
+        if (
+            !empty($userInstance) &&  'ROLE_AGENT' == $userInstance->getSupportRole()->getCode()
+            && $userInstance->getTicketAccesslevel() != 1
+        ) {
             $supportGroupIds = implode(',', $supportGroupIds);
             $supportTeamIds = implode(',', $supportTeamIds);
 
@@ -779,24 +759,23 @@ class TicketService
                 $queryBuilder->andWhere('ticket.agent = ' . $currentUser->getId());
             } elseif ($userInstance->getTicketAccesslevel() == 2) {
                 $query = '';
-                if ($supportGroupIds){
-                    $query .= ' OR supportGroup.id IN('.$supportGroupIds.') ';
+                if ($supportGroupIds) {
+                    $query .= ' OR supportGroup.id IN(' . $supportGroupIds . ') ';
                 }
                 if ($supportTeamIds) {
-                    $query .= ' OR supportTeam.id IN('.$supportTeamIds.') ';
+                    $query .= ' OR supportTeam.id IN(' . $supportTeamIds . ') ';
                 }
                 $queryBuilder->leftJoin('ticket.supportGroup', 'supportGroup')
-                            ->leftJoin('ticket.supportTeam', 'supportTeam')
-                            ->andWhere('( ticket.agent = ' . $currentUser->getId().$query.')');
-                    
+                    ->leftJoin('ticket.supportTeam', 'supportTeam')
+                    ->andWhere('( ticket.agent = ' . $currentUser->getId() . $query . ')');
             } elseif ($userInstance->getTicketAccesslevel() == 3) {
                 $query = '';
                 if ($supportTeamIds) {
-                    $query .= ' OR supportTeam.id IN('.$supportTeamIds.') ';
+                    $query .= ' OR supportTeam.id IN(' . $supportTeamIds . ') ';
                 }
                 $queryBuilder->leftJoin('ticket.supportGroup', 'supportGroup')
-                            ->leftJoin('ticket.supportTeam', 'supportTeam')
-                            ->andWhere('( ticket.agent = ' . $currentUser->getId().$query. ')');
+                    ->leftJoin('ticket.supportTeam', 'supportTeam')
+                    ->andWhere('( ticket.agent = ' . $currentUser->getId() . $query . ')');
             }
         }
 
@@ -821,7 +800,7 @@ class TicketService
         // for my tickets count
         $mineQb = clone $queryBuilder;
         $mineQb->andWhere("ticket.agent = :agentId")
-                ->setParameter('agentId', $currentUser->getId());
+            ->setParameter('agentId', $currentUser->getId());
         $data['mine'] = $mineQb->getQuery()->getSingleScalarResult();
 
         // for starred tickets count
@@ -839,31 +818,31 @@ class TicketService
 
         return $data;
     }
-    
-    public function paginateMembersTicketThreadCollection(Ticket $ticket, Request $request)
+
+    public function paginateMembersTicketThreadCollection(CoreFrameworkEntity\Ticket $ticket, Request $request)
     {
         $params = $request->query->all();
         $entityManager = $this->entityManager;
         $activeUser = $this->container->get('user.service')->getSessionUser();
 
-        $activeUserTimeZone = $this->entityManager->getRepository(Website::class)->findOneBy(['code' => 'Knowledgebase']);
+        $activeUserTimeZone = $this->entityManager->getRepository(CoreFrameworkEntity\Website::class)->findOneBy(['code' => 'Knowledgebase']);
         $agentTimeZone = !empty($activeUser->getTimezone()) ? $activeUser->getTimezone() : $activeUserTimeZone->getTimezone();
         $agentTimeFormat = !empty($activeUser->getTimeformat()) ? $activeUser->getTimeformat() : $activeUserTimeZone->getTimeformat();
-        
-        $threadRepository = $entityManager->getRepository(Thread::class);
+
+        $threadRepository = $entityManager->getRepository(CoreFrameworkEntity\Thread::class);
         $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
 
         // Get base query
         $enableLockedThreads = $this->container->get('user.service')->isAccessAuthorized('ROLE_AGENT_MANAGE_LOCK_AND_UNLOCK_THREAD');
         $baseQuery = $threadRepository->prepareBasePaginationRecentThreadsQuery($ticket, $params, $enableLockedThreads);
-        
+
         // Apply Pagination
         $paginationItemsQuery = clone $baseQuery;
         $totalPaginationItems = $paginationItemsQuery->select('COUNT(DISTINCT thread.id)')->getQuery()->getSingleScalarResult();
-        
+
         $pageNumber = !empty($params['page']) ? (int) $params['page'] : 1;
         $itemsLimit = !empty($params['limit']) ? (int) $params['limit'] : $threadRepository::DEFAULT_PAGINATION_LIMIT;
-        
+
         $paginationOptions = ['distinct' => true];
         $paginationQuery = $baseQuery->getQuery()->setHydrationMode(Query::HYDRATE_ARRAY)->setHint('knp_paginator.count', (int) $totalPaginationItems);
 
@@ -874,7 +853,7 @@ class TicketService
         $paginationParams = $pagination->getParams();
         $paginationData = $pagination->getPaginationData();
 
-        $website = $this->entityManager->getRepository(Website::class)->findOneBy(['code' => 'helpdesk']);
+        $website = $this->entityManager->getRepository(CoreFrameworkEntity\Website::class)->findOneBy(['code' => 'helpdesk']);
         $timeZone = $website->getTimezone();
         $timeFormat = $website->getTimeformat();
 
@@ -882,7 +861,7 @@ class TicketService
             $requestedThreadCollection = $baseQuery
                 ->andWhere('thread.id >= :threadRequestedId')->setParameter('threadRequestedId', (int) $params['threadRequestedId'])
                 ->getQuery()->getArrayResult();
-            
+
             $totalRequestedThreads = count($requestedThreadCollection);
             $paginationData['current'] = ceil($totalRequestedThreads / $threadRepository::DEFAULT_PAGINATION_LIMIT);
 
@@ -897,14 +876,14 @@ class TicketService
         $paginationData['url'] = '#' . $this->container->get('uvdesk.service')->buildPaginationQuery($paginationParams);
         foreach ($pagination->getItems() as $threadDetails) {
             $dbTime = $threadDetails['createdAt'];
-            $formattedTime = $this->fomatTimeByPreference($dbTime,$timeZone,$timeFormat,$agentTimeZone,$agentTimeFormat);
+            $formattedTime = $this->fomatTimeByPreference($dbTime, $timeZone, $timeFormat, $agentTimeZone, $agentTimeFormat);
 
             $threadResponse = [
                 'id'                => $threadDetails['id'],
                 'user'              => null,
                 'fullname'          => null,
-				'reply'             => html_entity_decode($threadDetails['message']),
-				'source'            => $threadDetails['source'],
+                'reply'             => html_entity_decode($threadDetails['message']),
+                'source'            => $threadDetails['source'],
                 'threadType'        => $threadDetails['threadType'],
                 'userType'          => $threadDetails['createdBy'],
                 'timestamp'         => $formattedTime['dateTimeZone'],
@@ -916,13 +895,13 @@ class TicketService
                 'bcc'               => $threadDetails['bcc'],
                 'attachments'       => $threadDetails['attachments'],
             ];
-  
+
             if (! empty($threadDetails['user'])) {
-        
-                if (!empty(trim($threadDetails['user']['firstName'])) ) {
+
+                if (!empty(trim($threadDetails['user']['firstName']))) {
                     $threadResponse['fullname'] = trim($threadDetails['user']['firstName'] . ' ' . $threadDetails['user']['lastName']);
                 }
-                
+
                 $threadResponse['user'] = [
                     'id' => $threadDetails['user']['id'],
                     'smallThumbnail' => $threadDetails['user']['userInstance'][0]['profileImagePath'],
@@ -934,7 +913,7 @@ class TicketService
 
             if (!empty($threadResponse['attachments'])) {
                 $threadResponse['attachments'] = array_map(function ($attachment) use ($entityManager, $uvdeskFileSystemService) {
-                    $attachmentReferenceObject = $entityManager->getReference(Attachment::class, $attachment['id']);
+                    $attachmentReferenceObject = $entityManager->getReference(CoreFrameworkEntity\Attachment::class, $attachment['id']);
                     return $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject);
                 }, $threadResponse['attachments']);
             }
@@ -953,12 +932,12 @@ class TicketService
         $params = $request->request->get('data');
 
         foreach ($params['ids'] as $ticketId) {
-            $ticket = $this->entityManager->getRepository(Ticket::class)->find($ticketId);
+            $ticket = $this->entityManager->getRepository(CoreFrameworkEntity\Ticket::class)->find($ticketId);
 
             if (false == $this->isTicketAccessGranted($ticket)) {
-		        throw new \Exception('Access Denied', 403);
-	        }
-            
+                throw new \Exception('Access Denied', 403);
+            }
+
             if (empty($ticket)) {
                 continue;
             }
@@ -967,15 +946,14 @@ class TicketService
                 case 'trashed':
                     if (false == $ticket->getIsTrashed()) {
                         $ticket->setIsTrashed(true);
-                        
+
                         $this->entityManager->persist($ticket);
                     }
 
                     // Trigger ticket delete event
                     $event = new CoreWorkflowEvents\Ticket\Delete();
                     $event
-                        ->setTicket($ticket)
-                    ;
+                        ->setTicket($ticket);
 
                     $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
 
@@ -985,15 +963,15 @@ class TicketService
                     $fileService = new Filesystem();
 
                     if (count($threads) > 0) {
-                        foreach($threads as $thread) {
+                        foreach ($threads as $thread) {
                             if (!empty($thread)) {
-                                $fileService->remove($this->container->getParameter('kernel.project_dir').'/public/assets/threads/'.$thread->getId());
+                                $fileService->remove($this->container->getParameter('kernel.project_dir') . '/public/assets/threads/' . $thread->getId());
                             }
                         }
                     }
 
                     $this->entityManager->remove($ticket);
-                    
+
                     break;
                 case 'restored':
                     if (true == $ticket->getIsTrashed()) {
@@ -1006,17 +984,16 @@ class TicketService
                 case 'agent':
                     if ($ticket->getAgent() == null || $ticket->getAgent() && $ticket->getAgent()->getId() != $params['targetId']) {
 
-                        $agent = $this->entityManager->getRepository(User::class)->find($params['targetId']);
+                        $agent = $this->entityManager->getRepository(CoreFrameworkEntity\User::class)->find($params['targetId']);
                         $ticket->setAgent($agent);
-    
+
                         $this->entityManager->persist($ticket);
-    
+
                         // Trigger Agent Assign event
                         $event = new CoreWorkflowEvents\Ticket\Agent();
                         $event
-                            ->setTicket($ticket)
-                        ;
-    
+                            ->setTicket($ticket);
+
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
 
@@ -1024,7 +1001,7 @@ class TicketService
                 case 'status':
                     if ($ticket->getStatus() == null || $ticket->getStatus() && $ticket->getStatus()->getId() != $params['targetId']) {
 
-                        $status = $this->entityManager->getRepository(TicketStatus::class)->findOneById($params['targetId']);
+                        $status = $this->entityManager->getRepository(CoreFrameworkEntity\TicketStatus::class)->findOneById($params['targetId']);
                         $ticket->setStatus($status);
 
                         $this->entityManager->persist($ticket);
@@ -1032,27 +1009,25 @@ class TicketService
                         // Trigger ticket status event
                         $event = new CoreWorkflowEvents\Ticket\Status();
                         $event
-                            ->setTicket($ticket)
-                        ;
-                        
+                            ->setTicket($ticket);
+
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
-                    
+
                     break;
                 case 'type':
                     if ($ticket->getType() == null || $ticket->getType() && $ticket->getType()->getId() != $params['targetId']) {
 
-                        $type = $this->entityManager->getRepository(TicketType::class)->findOneById($params['targetId']);
+                        $type = $this->entityManager->getRepository(CoreFrameworkEntity\TicketType::class)->findOneById($params['targetId']);
                         $ticket->setType($type);
-    
+
                         $this->entityManager->persist($ticket);
-    
+
                         // Trigger ticket type event
                         $event = new CoreWorkflowEvents\Ticket\Type();
                         $event
-                            ->setTicket($ticket)
-                        ;
-    
+                            ->setTicket($ticket);
+
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
 
@@ -1060,71 +1035,68 @@ class TicketService
                 case 'group':
                     if ($ticket->getSupportGroup() == null || $ticket->getSupportGroup() && $ticket->getSupportGroup()->getId() != $params['targetId']) {
 
-                        $group = $this->entityManager->getRepository(SupportGroup::class)->find($params['targetId']);
+                        $group = $this->entityManager->getRepository(CoreFrameworkEntity\SupportGroup::class)->find($params['targetId']);
                         $ticket->setSupportGroup($group);
-    
+
                         $this->entityManager->persist($ticket);
-    
+
                         // Trigger Support group event
                         $event = new CoreWorkflowEvents\Ticket\Group();
                         $event
-                            ->setTicket($ticket)
-                        ;
-    
+                            ->setTicket($ticket);
+
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
 
                     break;
                 case 'team':
-                    if ($ticket->getSupportTeam() == null || $ticket->getSupportTeam() && $ticket->getSupportTeam()->getId() != $params['targetId']){
+                    if ($ticket->getSupportTeam() == null || $ticket->getSupportTeam() && $ticket->getSupportTeam()->getId() != $params['targetId']) {
 
-                        $team = $this->entityManager->getRepository(SupportTeam::class)->find($params['targetId']);
+                        $team = $this->entityManager->getRepository(CoreFrameworkEntity\SupportTeam::class)->find($params['targetId']);
                         $ticket->setSupportTeam($team);
-                        
+
                         $this->entityManager->persist($ticket);
-        
+
                         // Trigger team event
                         $event = new CoreWorkflowEvents\Ticket\Team();
                         $event
-                            ->setTicket($ticket)
-                        ;
-        
+                            ->setTicket($ticket);
+
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
 
                     break;
                 case 'priority':
                     if ($ticket->getPriority() == null || $ticket->getPriority() && $ticket->getPriority()->getId() != $params['targetId']) {
-                        
-                        $priority = $this->entityManager->getRepository(TicketPriority::class)->find($params['targetId']);
+
+                        $priority = $this->entityManager->getRepository(CoreFrameworkEntity\TicketPriority::class)->find($params['targetId']);
                         $ticket->setPriority($priority);
-    
+
                         $this->entityManager->persist($ticket);
-    
+
                         // Trigger ticket Priority event
                         $event = new CoreWorkflowEvents\Ticket\Priority();
                         $event
-                            ->setTicket($ticket)
-                        ;
-    
+                            ->setTicket($ticket);
+
                         $this->container->get('event_dispatcher')->dispatch($event, 'uvdesk.automation.workflow.execute');
                     }
 
                     break;
                 case 'label':
-                    $label = $this->entityManager->getRepository(SupportLabel::class)->find($params['targetId']);
-                    
-                    if ($label && !$this->entityManager->getRepository(Ticket::class)->isLabelAlreadyAdded($ticket, $label)) {
+                    $label = $this->entityManager->getRepository(CoreFrameworkEntity\SupportLabel::class)->find($params['targetId']);
+
+                    if ($label && !$this->entityManager->getRepository(CoreFrameworkEntity\Ticket::class)->isLabelAlreadyAdded($ticket, $label)) {
                         $ticket->addSupportLabel($label);
                     }
-                    
+
                     $this->entityManager->persist($ticket);
 
                     break;
                 default:
                     break;
             }
-        } 
+        }
 
         $this->entityManager->flush();
 
@@ -1134,20 +1106,20 @@ class TicketService
             $message = 'Success ! Tickets restored successfully.';
         } elseif ($params['actionType'] == 'delete') {
             $message = 'Success ! Tickets removed successfully.';
-        } elseif ($params['actionType'] == 'agent'){
+        } elseif ($params['actionType'] == 'agent') {
             $message = 'Success ! Agent assigned successfully.';
-        } elseif ($params['actionType'] == 'status'){
+        } elseif ($params['actionType'] == 'status') {
             $message = 'Success ! Tickets status updated successfully.';
-        } elseif ($params['actionType'] == 'type'){
+        } elseif ($params['actionType'] == 'type') {
             $message = 'Success ! Tickets type updated successfully.';
-        } elseif ($params['actionType'] == 'group'){
+        } elseif ($params['actionType'] == 'group') {
             $message = 'Success ! Tickets group updated successfully.';
         } elseif ($params['actionType'] == 'team') {
             $message = 'Success ! Tickets team updated successfully.';
         } elseif ($params['actionType'] == 'priority') {
             $message = 'Success ! Tickets priority updated successfully.';
         } elseif ($params['actionType'] == 'label') {
-            $message = 'Success ! Tickets added to label successfully.';  
+            $message = 'Success ! Tickets added to label successfully.';
         } else {
             $message = 'Success ! Tickets have been updated successfully';
         }
@@ -1157,7 +1129,7 @@ class TicketService
             'alertMessage' => $this->trans($message),
         ];
     }
-    
+
     public function getNotePlaceholderValues($ticket, $type = "customer")
     {
         $variables = array();
@@ -1176,12 +1148,12 @@ class TicketService
         $customer = $this->container->get('user.service')->getCustomerPartialDetailById($ticket->getCustomer()->getId());
         $variables['ticket.customerName'] = $customer['name'];
         $userService = $this->container->get('user.service');
-      
+
         $variables['ticket.agentName'] = '';
         $variables['ticket.agentEmail'] = '';
         if ($ticket->getAgent()) {
             $agent = $this->container->get('user.service')->getAgentDetailById($ticket->getAgent()->getId());
-            if($agent) {
+            if ($agent) {
                 $variables['ticket.agentName'] = $agent['name'];
                 $variables['ticket.agentEmail'] = $agent['email'];
             }
@@ -1208,7 +1180,7 @@ class TicketService
     {
         // Get base query
         $params = $request->query->all();
-        $ticketRepository = $this->entityManager->getRepository(Ticket::class);
+        $ticketRepository = $this->entityManager->getRepository(CoreFrameworkEntity\Ticket::class);
         $paginationQuery = $ticketRepository->prepareBasePaginationTicketTypesQuery($params);
 
         // Apply Pagination
@@ -1242,7 +1214,7 @@ class TicketService
     {
         // Get base query
         $params = $request->query->all();
-        $ticketRepository = $this->entityManager->getRepository(Ticket::class);
+        $ticketRepository = $this->entityManager->getRepository(CoreFrameworkEntity\Ticket::class);
         $baseQuery = $ticketRepository->prepareBasePaginationTagsQuery($params);
 
         // Apply Pagination
@@ -1291,9 +1263,9 @@ class TicketService
         }
     }
 
-    public function getTicketInitialThreadDetails(Ticket $ticket)
+    public function getTicketInitialThreadDetails(CoreFrameworkEntity\Ticket $ticket)
     {
-        $initialThread = $this->entityManager->getRepository(Thread::class)->findOneBy([
+        $initialThread = $this->entityManager->getRepository(CoreFrameworkEntity\Thread::class)->findOneBy([
             'ticket'     => $ticket,
             'threadType' => 'create',
         ]);
@@ -1301,7 +1273,7 @@ class TicketService
         if (!empty($initialThread)) {
             $author = $initialThread->getUser();
             $authorInstance = 'agent' == $initialThread->getCreatedBy() ? $author->getAgentInstance() : $author->getCustomerInstance();
-        
+
             $threadDetails = [
                 'id'          => $initialThread->getId(),
                 'source'      => $initialThread->getSource(),
@@ -1333,63 +1305,64 @@ class TicketService
     public function getCreateReply($ticketId, $firewall = 'member')
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("th,a,u.id as userId")->from(Thread::class, 'th')
-                ->leftJoin('th.ticket','t')
-                ->leftJoin('th.attachments', 'a')
-                ->leftJoin('th.user','u')
-                ->andWhere('t.id = :ticketId')
-                ->andWhere('th.threadType = :threadType')
-                ->setParameter('threadType','create')
-                ->setParameter('ticketId',$ticketId)
-                ->orderBy('th.id', 'DESC')
-                ->getMaxResults(1);
+        $qb->select("th,a,u.id as userId")->from(CoreFrameworkEntity\Thread::class, 'th')
+            ->leftJoin('th.ticket', 't')
+            ->leftJoin('th.attachments', 'a')
+            ->leftJoin('th.user', 'u')
+            ->andWhere('t.id = :ticketId')
+            ->andWhere('th.threadType = :threadType')
+            ->setParameter('threadType', 'create')
+            ->setParameter('ticketId', $ticketId)
+            ->orderBy('th.id', 'DESC')
+            ->getMaxResults(1);
 
         $threadResponse = $qb->getQuery()->getArrayResult();
 
         if ((!empty($threadResponse[0][0]))) {
             $threadDetails = $threadResponse[0][0];
             $userService = $this->container->get('user.service');
-            
+
             if ($threadDetails['createdBy'] == 'agent') {
                 $threadDetails['user'] = $userService->getAgentDetailById($threadResponse[0]['userId']);
             } else {
                 $threadDetails['user'] = $userService->getCustomerPartialDetailById($threadResponse[0]['userId']);
             }
-            
+
             $threadDetails['reply'] = html_entity_decode($threadDetails['message']);
             $threadDetails['formatedCreatedAt'] = $this->timeZoneConverter($threadDetails['createdAt']);
             $threadDetails['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($threadDetails['createdAt']);
-        
+
             if (!empty($threadDetails['attachments'])) {
                 $entityManager = $this->entityManager;
                 $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
 
                 $threadDetails['attachments'] = array_map(function ($attachment) use ($entityManager, $uvdeskFileSystemService, $firewall) {
-                    $attachmentReferenceObject = $entityManager->getReference(Attachment::class, $attachment['id']);
+                    $attachmentReferenceObject = $entityManager->getReference(CoreFrameworkEntity\Attachment::class, $attachment['id']);
                     return $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject, $firewall);
                 }, $threadDetails['attachments']);
             }
         }
-        
+
         return $threadDetails ?? null;
     }
 
-    public function hasAttachments($ticketId) {
+    public function hasAttachments($ticketId)
+    {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("DISTINCT COUNT(a.id) as attachmentCount")->from(Thread::class, 'th')
-                ->leftJoin('th.ticket','t')
-                ->leftJoin('th.attachments','a')
-                ->andWhere('t.id = :ticketId')
-                ->setParameter('ticketId',$ticketId);
+        $qb->select("DISTINCT COUNT(a.id) as attachmentCount")->from(CoreFrameworkEntity\Thread::class, 'th')
+            ->leftJoin('th.ticket', 't')
+            ->leftJoin('th.attachments', 'a')
+            ->andWhere('t.id = :ticketId')
+            ->setParameter('ticketId', $ticketId);
 
         return intval($qb->getQuery()->getSingleScalarResult());
     }
 
     public function getAgentDraftReply()
     {
-	    $signature = $this->getUser()->getAgentInstance()->getSignature();
-        
-        return str_replace( "\n", '<br/>', $signature);
+        $signature = $this->getUser()->getAgentInstance()->getSignature();
+
+        return str_replace("\n", '<br/>', $signature);
     }
 
     public function trans($text)
@@ -1409,19 +1382,19 @@ class TicketService
         $currentUser = $container->get('user.service')->getCurrentUser();
 
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('COUNT(DISTINCT t) as ticketCount,sl.id')->from(Ticket::class, 't')
-                ->leftJoin('t.supportLabels','sl')
-                ->andWhere('sl.user = :userId')
-                ->setParameter('userId', $currentUser->getId())
-                ->groupBy('sl.id');
+        $qb->select('COUNT(DISTINCT t) as ticketCount,sl.id')->from(CoreFrameworkEntity\Ticket::class, 't')
+            ->leftJoin('t.supportLabels', 'sl')
+            ->andWhere('sl.user = :userId')
+            ->setParameter('userId', $currentUser->getId())
+            ->groupBy('sl.id');
 
         $ticketCountResult = $qb->getQuery()->getResult();
 
         $data = array();
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('sl.id,sl.name,sl.colorCode')->from(SupportLabel::class, 'sl')
-                ->andWhere('sl.user = :userId')
-                ->setParameter('userId', $currentUser->getId());
+        $qb->select('sl.id,sl.name,sl.colorCode')->from(CoreFrameworkEntity\SupportLabel::class, 'sl')
+            ->andWhere('sl.user = :userId')
+            ->setParameter('userId', $currentUser->getId());
 
         $labels = $qb->getQuery()->getResult();
 
@@ -1443,13 +1416,13 @@ class TicketService
             return $labels;
 
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('sl')->from(SupportLabel::class, 'sl')
+        $qb->select('sl')->from(CoreFrameworkEntity\SupportLabel::class, 'sl')
             ->andWhere('sl.user = :userId')
             ->setParameter('userId', $this->getUser()->getId());
 
         if ($request) {
             $qb->andWhere("sl.name LIKE :labelName");
-            $qb->setParameter('labelName', '%'.urldecode(trim($request->query->get('query'))).'%');
+            $qb->setParameter('labelName', '%' . urldecode(trim($request->query->get('query'))) . '%');
         }
 
         return $labels = $qb->getQuery()->getArrayResult();
@@ -1458,14 +1431,14 @@ class TicketService
     public function getTicketCollaborators($ticketId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("DISTINCT c.id, c.email, CONCAT(c.firstName,' ', c.lastName) AS name, userInstance.profileImagePath, userInstance.profileImagePath as smallThumbnail")->from(Ticket::class, 't')
-                ->leftJoin('t.collaborators', 'c')
-                ->leftJoin('c.userInstance', 'userInstance')
-                ->andWhere('t.id = :ticketId')
-                ->andWhere('userInstance.supportRole = :roles')
-                ->setParameter('ticketId', $ticketId)
-                ->setParameter('roles', 4)
-                ->orderBy('name','ASC');
+        $qb->select("DISTINCT c.id, c.email, CONCAT(c.firstName,' ', c.lastName) AS name, userInstance.profileImagePath, userInstance.profileImagePath as smallThumbnail")->from(CoreFrameworkEntity\Ticket::class, 't')
+            ->leftJoin('t.collaborators', 'c')
+            ->leftJoin('c.userInstance', 'userInstance')
+            ->andWhere('t.id = :ticketId')
+            ->andWhere('userInstance.supportRole = :roles')
+            ->setParameter('ticketId', $ticketId)
+            ->setParameter('roles', 4)
+            ->orderBy('name', 'ASC');
 
         return $qb->getQuery()->getArrayResult();
     }
@@ -1473,10 +1446,10 @@ class TicketService
     public function getTicketTagsById($ticketId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('tg')->from(Tag::class, 'tg')
-                ->leftJoin('tg.tickets' ,'t')
-                ->andWhere('t.id = :ticketId')
-                ->setParameter('ticketId', $ticketId);
+        $qb->select('tg')->from(CoreFrameworkEntity\Tag::class, 'tg')
+            ->leftJoin('tg.tickets', 't')
+            ->andWhere('t.id = :ticketId')
+            ->setParameter('ticketId', $ticketId);
 
         return $qb->getQuery()->getArrayResult();
     }
@@ -1484,42 +1457,42 @@ class TicketService
     public function getTicketLabels($ticketId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('DISTINCT sl.id,sl.name,sl.colorCode')->from(Ticket::class, 't')
-                ->leftJoin('t.supportLabels','sl')
-                ->leftJoin('sl.user','slu')
-                ->andWhere('slu.id = :userId')
-                ->andWhere('t.id = :ticketId')
-                ->setParameter('userId', $this->getUser()->getId())
-                ->setParameter('ticketId', $ticketId);
+        $qb->select('DISTINCT sl.id,sl.name,sl.colorCode')->from(CoreFrameworkEntity\Ticket::class, 't')
+            ->leftJoin('t.supportLabels', 'sl')
+            ->leftJoin('sl.user', 'slu')
+            ->andWhere('slu.id = :userId')
+            ->andWhere('t.id = :ticketId')
+            ->setParameter('userId', $this->getUser()->getId())
+            ->setParameter('ticketId', $ticketId);
 
         $result = $qb->getQuery()->getResult();
-        
+
         return $result ? $result : [];
     }
 
     public function getUserLabels()
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('sl')->from(SupportLabel::class, 'sl')
-                ->leftJoin('sl.user','slu')
-                ->andWhere('slu.id = :userId')
-                ->setParameter('userId', $this->getUser()->getId());
+        $qb->select('sl')->from(CoreFrameworkEntity\SupportLabel::class, 'sl')
+            ->leftJoin('sl.user', 'slu')
+            ->andWhere('slu.id = :userId')
+            ->setParameter('userId', $this->getUser()->getId());
 
         $result = $qb->getQuery()->getResult();
-        
+
         return $result ? $result : [];
     }
 
     public function getTicketLabelsAll($ticketId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('DISTINCT sl.id,sl.name,sl.colorCode')->from(Ticket::class, 't')
-                ->leftJoin('t.supportLabels','sl')
-                ->andWhere('t.id = :ticketId')
-                ->setParameter('ticketId', $ticketId);
+        $qb->select('DISTINCT sl.id,sl.name,sl.colorCode')->from(CoreFrameworkEntity\Ticket::class, 't')
+            ->leftJoin('t.supportLabels', 'sl')
+            ->andWhere('t.id = :ticketId')
+            ->setParameter('ticketId', $ticketId);
 
         $result = $qb->getQuery()->getResult();
-        
+
         return $result ? $result : [];
     }
 
@@ -1527,7 +1500,7 @@ class TicketService
     {
         $preparedResponseIds = [];
         $groupIds = [];
-        $teamIds = []; 
+        $teamIds = [];
         $userId = $this->container->get('user.service')->getCurrentUser()->getAgentInstance()->getId();
 
         $preparedResponseRepo = $this->entityManager->getRepository(PreparedResponses::class)->findAll();
@@ -1540,7 +1513,7 @@ class TicketService
         }
 
         // Get the ids of the Group(s) the current user is associated with.
-        $query = "select * from uv_user_support_groups where userInstanceId =".$userId;
+        $query = "select * from uv_user_support_groups where userInstanceId =" . $userId;
         $connection = $this->entityManager->getConnection();
         $stmt = $connection->prepare($query);
         $stmt->execute();
@@ -1569,7 +1542,7 @@ class TicketService
         $stmt->execute();
         $result = $stmt->fetchAll();
 
-        foreach($result as $row) {
+        foreach ($result as $row) {
             if ($row['userInstanceId'] == $userId) {
                 array_push($teamIds, $row['supportTeamId']);
             }
@@ -1592,18 +1565,18 @@ class TicketService
             ->where('mw.status = 1')
             ->andWhere('mw.id IN (:ids)')
             ->setParameter('ids', $preparedResponseIds);
-        
+
         return $qb->getQuery()->getResult();
     }
 
     public function getSavedReplies()
-    {   
+    {
         $savedReplyIds = [];
         $groupIds = [];
-        $teamIds = []; 
+        $teamIds = [];
         $userId = $this->container->get('user.service')->getCurrentUser()->getAgentInstance()->getId();
 
-        $savedReplyRepo = $this->entityManager->getRepository(SavedReplies::class)->findAll();
+        $savedReplyRepo = $this->entityManager->getRepository(CoreFrameworkEntity\SavedReplies::class)->findAll();
 
         foreach ($savedReplyRepo as $sr) {
             if ($userId == $sr->getUser()->getId()) {
@@ -1613,7 +1586,7 @@ class TicketService
         }
 
         // Get the ids of the Group(s) the current user is associated with.
-        $query = "select * from uv_user_support_groups where userInstanceId =".$userId;
+        $query = "select * from uv_user_support_groups where userInstanceId =" . $userId;
         $connection = $this->entityManager->getConnection();
         $stmt = $connection->prepare($query);
         $stmt->execute();
@@ -1661,10 +1634,10 @@ class TicketService
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('DISTINCT sr')
-        ->from(SavedReplies::class, 'sr')
-        ->Where('sr.id IN (:ids)')
-        ->setParameter('ids', $savedReplyIds);
-        
+            ->from(CoreFrameworkEntity\SavedReplies::class, 'sr')
+            ->Where('sr.id IN (:ids)')
+            ->setParameter('ids', $savedReplyIds);
+
         return $qb->getQuery()->getResult();
     }
 
@@ -1675,7 +1648,7 @@ class TicketService
             return $priorities;
 
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('tp')->from(TicketPriority::class, 'tp');
+        $qb->select('tp')->from(CoreFrameworkEntity\TicketPriority::class, 'tp');
 
         return $priorities = $qb->getQuery()->getArrayResult();
     }
@@ -1683,11 +1656,11 @@ class TicketService
     public function getTicketLastThread($ticketId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("th")->from(Thread::class, 'th')
-                ->leftJoin('th.ticket','t')
-                ->andWhere('t.id = :ticketId')
-                ->setParameter('ticketId',$ticketId)
-                ->orderBy('th.id', 'DESC');
+        $qb->select("th")->from(CoreFrameworkEntity\Thread::class, 'th')
+            ->leftJoin('th.ticket', 't')
+            ->andWhere('t.id = :ticketId')
+            ->setParameter('ticketId', $ticketId)
+            ->orderBy('th.id', 'DESC');
 
         return $qb->getQuery()->setMaxResults(1)->getSingleResult();
     }
@@ -1695,56 +1668,56 @@ class TicketService
     public function getlastReplyAgentName($ticketId)
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select("u.id,CONCAT(u.firstName,' ', u.lastName) AS name,u.firstName")->from(Thread::class, 'th')
-                ->leftJoin('th.ticket','t')
-                ->leftJoin('th.user', 'u')
-                ->leftJoin('u.userInstance', 'userInstance')
-                ->andWhere('userInstance.supportRole != :roles')
-                ->andWhere('t.id = :ticketId')
-                ->andWhere('th.threadType = :threadType')
-                ->setParameter('threadType','reply')
-                ->andWhere('th.createdBy = :createdBy')
-                ->setParameter('createdBy','agent')
-                ->setParameter('ticketId',$ticketId)
-                ->setParameter('roles', 4)
-                ->orderBy('th.id', 'DESC');
+        $qb->select("u.id,CONCAT(u.firstName,' ', u.lastName) AS name,u.firstName")->from(CoreFrameworkEntity\Thread::class, 'th')
+            ->leftJoin('th.ticket', 't')
+            ->leftJoin('th.user', 'u')
+            ->leftJoin('u.userInstance', 'userInstance')
+            ->andWhere('userInstance.supportRole != :roles')
+            ->andWhere('t.id = :ticketId')
+            ->andWhere('th.threadType = :threadType')
+            ->setParameter('threadType', 'reply')
+            ->andWhere('th.createdBy = :createdBy')
+            ->setParameter('createdBy', 'agent')
+            ->setParameter('ticketId', $ticketId)
+            ->setParameter('roles', 4)
+            ->orderBy('th.id', 'DESC');
 
         $result = $qb->getQuery()->setMaxResults(1)->getResult();
 
         return $result ? $result[0] : null;
     }
 
-    public function getLastReply($ticketId, $userType = null) 
+    public function getLastReply($ticketId, $userType = null)
     {
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $queryBuilder->select("th, a, u.id as userId")
-            ->from(Thread::class, 'th')
-            ->leftJoin('th.ticket','t')
+            ->from(CoreFrameworkEntity\Thread::class, 'th')
+            ->leftJoin('th.ticket', 't')
             ->leftJoin('th.attachments', 'a')
-            ->leftJoin('th.user','u')
+            ->leftJoin('th.user', 'u')
             ->andWhere('t.id = :ticketId')
             ->andWhere('th.threadType = :threadType')
-            ->setParameter('threadType','reply')
-            ->setParameter('ticketId',$ticketId)
+            ->setParameter('threadType', 'reply')
+            ->setParameter('ticketId', $ticketId)
             ->orderBy('th.id', 'DESC')
             ->getMaxResults(1);
 
         if (!empty($userType)) {
             $queryBuilder->andWhere('th.createdBy = :createdBy')->setParameter('createdBy', $userType);
         }
-        
+
         $threadResponse = $queryBuilder->getQuery()->getArrayResult();
-        
+
         if (!empty($threadResponse[0][0])) {
             $threadDetails = $threadResponse[0][0];
             $userService = $this->container->get('user.service');
-            
+
             if ($threadDetails['createdBy'] == 'agent') {
                 $threadDetails['user'] = $userService->getAgentDetailById($threadResponse[0]['userId']);
             } else {
                 $threadDetails['user'] = $userService->getCustomerPartialDetailById($threadResponse[0]['userId']);
             }
-            
+
             $threadDetails['reply'] = html_entity_decode($threadDetails['message']);
             $threadDetails['formatedCreatedAt'] = $this->timeZoneConverter($threadDetails['createdAt']);
             $threadDetails['timestamp'] = $userService->convertToDatetimeTimezoneTimestamp($threadDetails['createdAt']);
@@ -1754,7 +1727,7 @@ class TicketService
                 $uvdeskFileSystemService = $this->container->get('uvdesk.core.file_system.service');
 
                 $threadDetails['attachments'] = array_map(function ($attachment) use ($entityManager, $uvdeskFileSystemService) {
-                    $attachmentReferenceObject = $this->entityManager->getReference(Attachment::class, $attachment['id']);
+                    $attachmentReferenceObject = $this->entityManager->getReference(CoreFrameworkEntity\Attachment::class, $attachment['id']);
                     return $uvdeskFileSystemService->getFileTypeAssociations($attachmentReferenceObject);
                 }, $threadDetails['attachments']);
             }
@@ -1765,8 +1738,8 @@ class TicketService
 
     public function getSavedReplyContent($savedReplyId, $ticketId)
     {
-        $ticket = $this->entityManager->getRepository(Ticket::class)->find($ticketId);
-        $savedReply = $this->entityManager->getRepository(SavedReplies::class)->findOneById($savedReplyId);
+        $ticket = $this->entityManager->getRepository(CoreFrameworkEntity\Ticket::class)->find($ticketId);
+        $savedReply = $this->entityManager->getRepository(CoreFrameworkEntity\SavedReplies::class)->findOneById($savedReplyId);
         $emailPlaceholders = $this->getSavedReplyPlaceholderValues($ticket, 'customer');
 
         return $this->container->get('email.service')->processEmailContent($savedReply->getMessage(), $emailPlaceholders, true);
@@ -1791,7 +1764,7 @@ class TicketService
         $variables['ticket.customerName'] = $customer['name'];
         $variables['ticket.customerEmail'] = $customer['email'];
         $userService = $this->container->get('user.service');
-      
+
         $variables['ticket.agentName'] = '';
         $variables['ticket.agentEmail'] = '';
         if ($ticket->getAgent()) {
@@ -1801,7 +1774,7 @@ class TicketService
                 $variables['ticket.agentEmail'] = $agent['email'];
             }
         }
-        
+
         $router = $this->container->get('router');
 
         if ($type == 'customer') {
@@ -1860,7 +1833,7 @@ class TicketService
 
     public function timeZoneConverter($dateFlag)
     {
-        $website = $this->entityManager->getRepository(Website::class)->findOneBy(['code' => 'Knowledgebase']);
+        $website = $this->entityManager->getRepository(CoreFrameworkEntity\Website::class)->findOneBy(['code' => 'Knowledgebase']);
         $timeZone = $website->getTimezone();
         $timeFormat = $website->getTimeformat();
 
@@ -1871,10 +1844,10 @@ class TicketService
         $parameterType = gettype($dateFlag);
         if ($parameterType == 'string') {
             if (is_null($agentTimeZone) && is_null($agentTimeFormat)) {
-                if(is_null($timeZone) && is_null($timeFormat)){
+                if (is_null($timeZone) && is_null($timeFormat)) {
                     $datePattern = date_create($dateFlag);
 
-                    return date_format($datePattern,'d-m-Y h:ia');
+                    return date_format($datePattern, 'd-m-Y h:ia');
                 } else {
                     $dateFlag = new \DateTime($dateFlag);
                     $datePattern = $dateFlag->setTimezone(new \DateTimeZone($timeZone));
@@ -1888,9 +1861,9 @@ class TicketService
                 return date_format($datePattern, $agentTimeFormat);
             }
         } else {
-            if (is_null($agentTimeZone) && is_null($agentTimeFormat)){
+            if (is_null($agentTimeZone) && is_null($agentTimeFormat)) {
                 if (is_null($timeZone) && is_null($timeFormat)) {
-                    return date_format($dateFlag,'d-m-Y h:ia');
+                    return date_format($dateFlag, 'd-m-Y h:ia');
                 } else {
                     $datePattern = $dateFlag->setTimezone(new \DateTimeZone($timeZone));
                     return date_format($datePattern, $timeFormat);
@@ -1903,7 +1876,7 @@ class TicketService
         }
     }
 
-    public function fomatTimeByPreference($dbTime,$timeZone,$timeFormat,$agentTimeZone,$agentTimeFormat)
+    public function fomatTimeByPreference($dbTime, $timeZone, $timeFormat, $agentTimeZone, $agentTimeFormat)
     {
         if (is_null($agentTimeZone) && is_null($agentTimeFormat)) {
             if (is_null($timeZone) && is_null($timeFormat)) {
@@ -1923,8 +1896,8 @@ class TicketService
 
         return $time;
     }
-    
-    public function isTicketAccessGranted(Ticket $ticket, User $user = null, $firewall = 'members')
+
+    public function isTicketAccessGranted(CoreFrameworkEntity\Ticket $ticket, CoreFrameworkEntity\User $user = null, $firewall = 'members')
     {
         // @TODO: Take current firewall into consideration (access check on behalf of agent/customer)
         if (empty($user)) {
@@ -1935,7 +1908,7 @@ class TicketService
             return false;
         } else {
             $agentInstance = $user->getAgentInstance();
-    
+
             if (empty($agentInstance)) {
                 return false;
             }
@@ -1948,16 +1921,20 @@ class TicketService
             if ($ticket->getAgent() != null && $ticket->getAgent()->getId() == $user->getId()) {
                 return true;
             }
-            
+
             if ($accessLevel == 2 || $accessLevel == 3) {
                 // Check if user belongs to a support team assigned to ticket
-                $teamReferenceIds = array_map(function ($team) { return $team->getId(); }, $agentInstance->getSupportTeams()->toArray());
-                
+                $teamReferenceIds = array_map(function ($team) {
+                    return $team->getId();
+                }, $agentInstance->getSupportTeams()->toArray());
+
                 if ($ticket->getSupportTeam() != null && in_array($ticket->getSupportTeam()->getId(), $teamReferenceIds)) {
                     return true;
                 } else if ($accessLevel == 2) {
                     // Check if user belongs to a support group assigned to ticket
-                    $groupReferenceIds = array_map(function ($group) { return $group->getId(); }, $agentInstance->getSupportGroups()->toArray());
+                    $groupReferenceIds = array_map(function ($group) {
+                        return $group->getId();
+                    }, $agentInstance->getSupportGroups()->toArray());
 
                     if ($ticket->getSupportGroup() != null && in_array($ticket->getSupportGroup()->getId(), $groupReferenceIds)) {
                         return true;
@@ -1975,7 +1952,7 @@ class TicketService
     {
         $customFieldsService = null;
         $customFieldsEntityReference = null;
-        
+
         if ($this->userService->isFileExists('apps/uvdesk/custom-fields')) {
             $customFieldsService = $this->container->get('uvdesk_package_custom_fields.service');
             $customFieldsEntityReference = UVDeskCommunityPackages\CustomFields\Entity\CustomFields::class;
@@ -1998,7 +1975,7 @@ class TicketService
             if (in_array($customFields->getFieldType(), ['select', 'checkbox', 'radio']) && !count($customFields->getCustomFieldValues())) {
                 continue;
             }
-            
+
             if (
                 !empty($submittedCustomFields)
                 && $customFields->getFieldType() != 'file'
@@ -2031,8 +2008,7 @@ class TicketService
 
                             if (!empty($ticketCustomFieldValues)) {
                                 $ticketCustomField
-                                    ->setTicketCustomFieldValueValues($ticketCustomFieldValues)
-                                ;
+                                    ->setTicketCustomFieldValueValues($ticketCustomFieldValues);
                             }
                         }
                     } else {
@@ -2043,8 +2019,7 @@ class TicketService
 
                         if (!empty($ticketCustomFieldValues)) {
                             $ticketCustomField
-                                ->setTicketCustomFieldValueValues($ticketCustomFieldValues)
-                            ;
+                                ->setTicketCustomFieldValueValues($ticketCustomFieldValues);
                         }
                     }
                 }
@@ -2092,10 +2067,10 @@ class TicketService
     public function getInitialThread($ticketId)
     {
         $firstThread = null;
-        $intialThread = $this->entityManager->getRepository(Thread::class)->findBy(['ticket'=>$ticketId]);
-        
+        $intialThread = $this->entityManager->getRepository(CoreFrameworkEntity\Thread::class)->findBy(['ticket' => $ticketId]);
+
         foreach ($intialThread as $key => $value) {
-            if ($value->getThreadType() == "create"){
+            if ($value->getThreadType() == "create") {
                 $firstThread = $value;
             }
         }
@@ -2539,13 +2514,14 @@ class TicketService
         ];
     }
 
-    public function getTargetAction() {
-       return [
+    public function getTargetAction()
+    {
+        return [
             '4' => ['response' => ['time' => '2', 'unit' => 'hours'], 'resolve' => ['time' => '8', 'unit' => 'hours'], 'operational' => 'calendarHours', 'isActive' => 'on'],
             '3' => ['response' => ['time' => '4', 'unit' => 'hours'], 'resolve' => ['time' => '1', 'unit' => 'days'], 'operational' => 'calendarHours', 'isActive' => 'on'],
             '2' => ['response' => ['time' => '8', 'unit' => 'hours'], 'resolve' => ['time' => '3', 'unit' => 'days'], 'operational' => 'calendarHours', 'isActive' => 'on'],
             '1' => ['response' => ['time' => '16', 'unit' => 'hours'], 'resolve' => ['time' => '5', 'unit' => 'days'], 'operational' => 'calendarHours', 'isActive' => 'on'],
-       ];
+        ];
     }
 
     public function getTicketActions($force = false)
@@ -2629,7 +2605,7 @@ class TicketService
 
         $repo = $this->container->get('doctrine.orm.entity_manager')->getRepository('WebkulAppBundle:ECommerceChannel');
 
-        $ecomArray= [];
+        $ecomArray = [];
         $ecomChannels = $repo->getActiveChannelsByCompany($this->container->get('user.service')->getCurrentCompany());
 
         foreach ($ecomChannels as $channel) {
@@ -2644,7 +2620,7 @@ class TicketService
     /**
      * Generates a unique url that can be used to access ticket without any active session with read only priviliges.
      */
-    public function generateTicketCustomerReadOnlyResourceAccessLink(Ticket $ticket)
+    public function generateTicketCustomerReadOnlyResourceAccessLink(CoreFrameworkEntity\Ticket $ticket)
     {
         $customer = $ticket->getCustomer();
 
@@ -2660,10 +2636,10 @@ class TicketService
 
         $token = $this->generateCustomToken($ticket->getId());
 
-        $publicResourceAccessLink = new PublicResourceAccessLink();
+        $publicResourceAccessLink = new CoreFrameworkEntity\PublicResourceAccessLink();
         $publicResourceAccessLink
             ->setResourceId($ticket->getId())
-            ->setResourceType(Ticket::class)
+            ->setResourceType(CoreFrameworkEntity\Ticket::class)
             ->setUniqueResourceAccessId($token)
             ->setTotalViews(0)
             ->setCreatedAt(new \DateTime('now'))
@@ -2681,20 +2657,21 @@ class TicketService
     }
 
     // Generate a token based on ticket, timestamp and random string.
-    public function generateCustomToken($ticketId, $randomLength = 6) {
+    public function generateCustomToken($ticketId, $randomLength = 6)
+    {
         // Convert the current timestamp to Base36
-        $timestamp = base_convert(time(), 10, 36); 
-        
+        $timestamp = base_convert(time(), 10, 36);
+
         // Add the ticket ID
         $ticketPart = strtoupper(base_convert($ticketId, 10, 36)); // Convert ticket ID to Base36 (uppercase for readability)
-        
+
         // Generate a random string of specified length
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $randomString = '';
         for ($i = 0; $i < $randomLength; $i++) {
             $randomString .= $characters[random_int(0, strlen($characters) - 1)];
         }
-    
+
         // Combine all parts: timestamp + ticket ID + random string
         return $timestamp . $ticketPart . $randomString;
     }

@@ -3,8 +3,6 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer;
 
 use Symfony\Component\Yaml\Yaml;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\SwiftMailer\Configuration as MailerConfigurations;
 
@@ -14,7 +12,7 @@ class SwiftMailer
     const SWIFTMAILER_TEMPLATE = __DIR__ . "/../Templates/SwiftMailer/configurations.php";
     const SWIFTMAILER_NULL_TEMPLATE = __DIR__ . "/../Templates/SwiftMailer/null-configurations.php";
 
-	protected $container;
+    protected $container;
 
     public function __construct(ContainerInterface $container)
     {
@@ -45,7 +43,7 @@ class SwiftMailer
         return $configuration ?? null;
     }
 
-    public function parseSwiftMailerConfigurations() 
+    public function parseSwiftMailerConfigurations()
     {
         $configurations = [];
         $pathToFile = $this->getPathToConfigurationFile();
@@ -69,7 +67,7 @@ class SwiftMailer
                                 } else {
                                     $configuration = new MailerConfigurations\SMTP($mailer_id);
                                 }
-                                
+
                                 $configuration->resolveTransportConfigurations($mailer_configurations);
 
                                 $configurations[] = $configuration;
@@ -100,7 +98,7 @@ class SwiftMailer
             file_put_contents($this->getPathToConfigurationFile(), $stream);
             return;
         }
-        
+
         $references = [];
         $configurationStream = '';
         $use_defaults = count($configurations) <= 1 ? true : false;

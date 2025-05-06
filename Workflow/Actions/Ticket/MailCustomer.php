@@ -2,16 +2,14 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions\Ticket;
 
-use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
+use Webkul\UVDesk\AutomationBundle\Workflow\Event;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\EmailTemplates;
 use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
-use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\EmailTemplates;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
-use Webkul\UVDesk\AutomationBundle\Workflow\Event;
-use Webkul\UVDesk\AutomationBundle\Workflow\Events\AgentActivity;
 use Webkul\UVDesk\AutomationBundle\Workflow\Events\TicketActivity;
+use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class MailCustomer extends WorkflowAction
 {
@@ -36,7 +34,7 @@ class MailCustomer extends WorkflowAction
 
         $emailTemplateCollection = array_map(function ($emailTemplate) {
             return [
-                'id' => $emailTemplate->getId(),
+                'id'   => $emailTemplate->getId(),
                 'name' => $emailTemplate->getName(),
             ];
         }, $entityManager->getRepository(EmailTemplates::class)->findAll());
@@ -52,7 +50,7 @@ class MailCustomer extends WorkflowAction
             return;
         } else {
             $ticket = $event->getTicket();
-            
+
             if (empty($ticket)) {
                 return;
             }
@@ -60,7 +58,7 @@ class MailCustomer extends WorkflowAction
 
         $currentThread = isset($ticket->currentThread) ? $ticket->currentThread : '';
         $createdThread = isset($ticket->createdThread) ? $ticket->createdThread : '';
-        
+
         $emailTemplate = $entityManager->getRepository(EmailTemplates::class)->findOneById($value);
 
         if (empty($emailTemplate)) {
@@ -71,7 +69,7 @@ class MailCustomer extends WorkflowAction
         // @TODO: Revist -> Maybe we should always include attachments if they are provided??
         $attachments = [];
         if (!empty($createdThread) && (strpos($emailTemplate->getMessage(), '{%ticket.attachments%}') !== false || strpos($emailTemplate->getMessage(), '{% ticket.attachments %}') !== false)) {
-            $attachments = array_map(function($attachment) use ($container) { 
+            $attachments = array_map(function ($attachment) use ($container) {
                 return str_replace('//', '/', $container->get('kernel')->getProjectDir() . "/public" . $attachment->getPath());
             }, $entityManager->getRepository(Attachment::class)->findByThread($createdThread));
         }
@@ -80,12 +78,12 @@ class MailCustomer extends WorkflowAction
         $subject = $container->get('email.service')->processEmailSubject($emailTemplate->getSubject(), $ticketPlaceholders);
         $message = $container->get('email.service')->processEmailContent($emailTemplate->getMessage(), $ticketPlaceholders);
         $thread = ($thread != null) ? $thread : $createdThread;
-        $ticketCollaborators = (($thread != null) && !empty($thread->getTicket()) && $thread != "" ) ? $thread->getTicket()->getCollaborators() : [];
+        $ticketCollaborators = (($thread != null) && !empty($thread->getTicket()) && $thread != "") ? $thread->getTicket()->getCollaborators() : [];
 
-        $headers = ['References' => $ticket->getReferenceIds()]; 
+        $headers = ['References' => $ticket->getReferenceIds()];
         if (!empty($thread)) {
             $headers = ['References' => $ticket->getReferenceIds()];
-        
+
             if (!empty($currentThread) && null != $currentThread->getMessageId()) {
                 $headers['In-Reply-To'] = $currentThread->getMessageId();
             }
@@ -93,22 +91,21 @@ class MailCustomer extends WorkflowAction
             $messageId = $container->get('email.service')->sendMail($subject, $message, $ticket->getCustomer()->getEmail(), $headers, $ticket->getMailboxEmail(), $attachments ?? []);
 
             if (!empty($messageId)) {
-                $updatedReferenceIds = $ticket->getReferenceIds() . ' ' . $messageId;            
+                $updatedReferenceIds = $ticket->getReferenceIds() . ' ' . $messageId;
                 $ticket->setReferenceIds($updatedReferenceIds);
 
                 $entityManager->persist($ticket);
                 $entityManager->flush();
             }
 
-            if($thread->getCc() || $thread->getBcc() || $ticketCollaborators != null && count($ticketCollaborators) > 0) {
+            if ($thread->getCc() || $thread->getBcc() || $ticketCollaborators != null && count($ticketCollaborators) > 0) {
                 self::sendCcBccMail($container, $ticket, $thread, $subject, $attachments, $ticketCollaborators, $message);
             }
-            
         } else {
             if (!empty($ticket->getReferenceIds())) {
                 $headers = ['References' => $ticket->getReferenceIds()];
             }
-            
+
             $message = $container->get('email.service')->sendMail($subject, $message, $ticket->getCustomer()->getEmail(), $headers);
         }
     }
@@ -119,14 +116,14 @@ class MailCustomer extends WorkflowAction
         $collabrator = array();
         $entityManager = $container->get('doctrine.orm.entity_manager');
 
-        if($thread->getCc() != null){
-            foreach($thread->getCc() as $EmailCC){
+        if ($thread->getCc() != null) {
+            foreach ($thread->getCc() as $EmailCC) {
                 if ($entityManager->getRepository(Ticket::class)->isTicketCollaborator($thread->getTicket(), $EmailCC) != false) {
                     $collabrator[] = $EmailCC;
                 } else {
                     $cc[] = $EmailCC;
                 }
-           }   
+            }
         }
 
         $emailOfcollabrator = !empty($thread) && $thread->getCreatedBy() == "collaborator" ? $thread->getUser()->getEmail() : null;
@@ -142,27 +139,27 @@ class MailCustomer extends WorkflowAction
             $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $ticket->getMailboxEmail(), $attachments ?? [], $collabrator ?? [], []);
 
             if (!empty($messageId)) {
-                $updatedReferenceIds = $ticket->getReferenceIds() . ' ' . $messageId;            
+                $updatedReferenceIds = $ticket->getReferenceIds() . ' ' . $messageId;
                 $ticket->setReferenceIds($updatedReferenceIds);
 
                 $entityManager->persist($ticket);
                 $entityManager->flush();
             }
 
-            if ($collabrator != null && $thread->getCc()!= null && count($thread->getCc()) == count($collabrator) && $thread->getBcc() != null){
-                $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
-                $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $ticket->getMailboxEmail(), $attachments ?? [], [], $thread->getBcc() ?? []);  
+            if ($collabrator != null && $thread->getCc() != null && count($thread->getCc()) == count($collabrator) && $thread->getBcc() != null) {
+                $message = '<html><body style="background-image: none"><p>' . html_entity_decode($thread->getMessage()) . '</p></body></html>';
+                $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $ticket->getMailboxEmail(), $attachments ?? [], [], $thread->getBcc() ?? []);
             }
         }
 
         if ($cc != null && !empty($cc)) {
-            $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
-            $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $ticket->getMailboxEmail(), $attachments ?? [], $cc ?? [], $thread->getBcc() ?? []);    
+            $message = '<html><body style="background-image: none"><p>' . html_entity_decode($thread->getMessage()) . '</p></body></html>';
+            $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $ticket->getMailboxEmail(), $attachments ?? [], $cc ?? [], $thread->getBcc() ?? []);
         }
-           
+
         if ($thread->getBcc() != null && $thread->getCc() == null) {
-            $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
-            $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $ticket->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?? [], $thread->getBcc() ?? []);  
+            $message = '<html><body style="background-image: none"><p>' . html_entity_decode($thread->getMessage()) . '</p></body></html>';
+            $messageId = $container->get('email.service')->sendMail($subject, $message, null, [], $ticket->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?? [], $thread->getBcc() ?? []);
         }
     }
 }

@@ -3,8 +3,8 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\Fixtures;
 
 use Doctrine\Persistence\ObjectManager;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Doctrine\Bundle\FixturesBundle\Fixture as DoctrineFixture;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportPrivilege;
 
 class AgentPrivileges extends DoctrineFixture
@@ -33,7 +33,7 @@ class AgentPrivileges extends DoctrineFixture
 
                 $entityManager->persist($supportPrivilege);
             }
-    
+
             $entityManager->flush();
         }
     }

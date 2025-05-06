@@ -2,14 +2,12 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions\Ticket;
 
-use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Tag;
-use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 use Webkul\UVDesk\AutomationBundle\Workflow\Event;
-use Webkul\UVDesk\AutomationBundle\Workflow\Events\AgentActivity;
+use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Webkul\UVDesk\AutomationBundle\Workflow\Events\TicketActivity;
+use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class UpdateTag extends WorkflowAction
 {
@@ -34,7 +32,7 @@ class UpdateTag extends WorkflowAction
 
         return array_map(function ($tag) {
             return [
-                'id' => $tag->getId(),
+                'id'   => $tag->getId(),
                 'name' => $tag->getName(),
             ];
         }, $entityManager->getRepository(Tag::class)->findAll());
@@ -48,12 +46,12 @@ class UpdateTag extends WorkflowAction
             return;
         } else {
             $ticket = $event->getTicket();
-            
+
             if (empty($ticket)) {
                 return;
             }
         }
-        
+
         $isAlreadyAdded = 0;
         $tags = $container->get('ticket.service')->getTicketTagsById($ticket->getId());
 
@@ -70,8 +68,7 @@ class UpdateTag extends WorkflowAction
 
             if ($tag) {
                 $ticket
-                    ->addSupportTag($tag)
-                ;
+                    ->addSupportTag($tag);
 
                 $entityManager->persist($ticket);
                 $entityManager->flush();

@@ -2,14 +2,13 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions\Agent;
 
-use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
-use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 use Webkul\UVDesk\AutomationBundle\Workflow\Event;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
+use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Webkul\UVDesk\AutomationBundle\Workflow\Events\AgentActivity;
-use Webkul\UVDesk\AutomationBundle\Workflow\Events\CustomerActivity;
+use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
 
 class TransferTickets extends WorkflowAction
 {
@@ -27,7 +26,7 @@ class TransferTickets extends WorkflowAction
     {
         return FunctionalGroup::AGENT;
     }
-    
+
     public static function getOptions(ContainerInterface $container)
     {
         $agentCollection = array_map(function ($agent) {
@@ -38,7 +37,7 @@ class TransferTickets extends WorkflowAction
         }, $container->get('user.service')->getAgentPartialDataCollection());
 
         array_unshift($agentCollection, [
-            'id' => 'responsePerforming',
+            'id'   => 'responsePerforming',
             'name' => 'Response Performing Agent',
         ]);
 
@@ -67,20 +66,18 @@ class TransferTickets extends WorkflowAction
                     return;
                 }
             }
-
         }
-        
+
         $tickets = $entityManager->getRepository(Ticket::class)->getAgentTickets($user->getId(), $container);
 
         if (!empty($tickets)) {
             foreach ($tickets as $ticket) {
                 $ticket
-                    ->setAgent($targetUser)
-                ;
-    
+                    ->setAgent($targetUser);
+
                 $entityManager->persist($ticket);
             }
-    
+
             $entityManager->flush();
         }
     }

@@ -2,15 +2,13 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Workflow\Actions\Agent;
 
-use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
-use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\EmailTemplates;
 use Webkul\UVDesk\AutomationBundle\Workflow\Event;
-use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\EmailTemplates;
+use Webkul\UVDesk\AutomationBundle\Workflow\FunctionalGroup;
 use Webkul\UVDesk\AutomationBundle\Workflow\Events\TicketActivity;
+use Webkul\UVDesk\AutomationBundle\Workflow\Action as WorkflowAction;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 
 class MailAgent extends WorkflowAction
 {

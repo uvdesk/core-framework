@@ -2,39 +2,27 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Webkul\UVDesk\CoreFrameworkBundle\Form as CoreFrameworkBundleForms;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\DataProxies as CoreFrameworkBundleDataProxies;
-use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Tickets\QuickActionButtonCollection;
 use Webkul\UVDesk\CoreFrameworkBundle\Repository\TicketRepository;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
-use Webkul\UVDesk\CoreFrameworkBundle\Services\EmailService;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpKernel\KernelInterface;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket as CoreBundleTicket;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Tag;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketType;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportRole;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketPriority;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Webkul\UVDesk\CoreFrameworkBundle\Form as CoreFrameworkBundleForms;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
+use Webkul\UVDesk\CoreFrameworkBundle\DataProxies as CoreFrameworkBundleDataProxies;
 
 class Ticket extends AbstractController
 {
@@ -42,48 +30,44 @@ class Ticket extends AbstractController
     private $translator;
     private $eventDispatcher;
     private $ticketService;
-    private $emailService;
-    private $entityManagerInterface;
-    private $containerInterface;
     private $kernel;
+    private $entityManagerInterface;
 
-    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EmailService $emailService, EventDispatcherInterface $eventDispatcher, KernelInterface $kernel, EntityManagerInterface $entityManagerInterface, ContainerInterface $containerInterface)
+    public function __construct(UserService $userService, TranslatorInterface $translator, TicketService $ticketService, EventDispatcherInterface $eventDispatcher, KernelInterface $kernel, EntityManagerInterface $entityManagerInterface)
     {
         $this->userService = $userService;
-        $this->emailService = $emailService;
         $this->translator = $translator;
         $this->ticketService = $ticketService;
         $this->eventDispatcher = $eventDispatcher;
         $this->entityManagerInterface = $entityManagerInterface;
-        $this->containerInterface = $containerInterface;
         $this->kernel = $kernel;
     }
 
     public function listTicketCollection(Request $request)
     {
-        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager = $this->entityManagerInterface;
 
         return $this->render('@UVDeskCoreFramework//ticketList.html.twig', [
-            'ticketStatusCollection'   => $entityManager->getRepository(TicketStatus::class)->findAll(),
-            'ticketTypeCollection'     => $entityManager->getRepository(TicketType::class)->findByIsActive(true),
-            'ticketPriorityCollection' => $entityManager->getRepository(TicketPriority::class)->findAll(),
+            'ticketStatusCollection'   => $entityManager->getRepository(CoreEntities\TicketStatus::class)->findAll(),
+            'ticketTypeCollection'     => $entityManager->getRepository(CoreEntities\TicketType::class)->findByIsActive(true),
+            'ticketPriorityCollection' => $entityManager->getRepository(CoreEntities\TicketPriority::class)->findAll(),
         ]);
     }
 
     public function loadTicket($ticketId, QuickActionButtonCollection $quickActionButtonCollection, ContainerInterface $container)
     {
-        $entityManager = $this->getDoctrine()->getManager();
-        $userRepository = $entityManager->getRepository(User::class);
-        $ticketRepository = $entityManager->getRepository(CoreBundleTicket::class);
+        $entityManager = $this->entityManagerInterface;
+        $userRepository = $entityManager->getRepository(CoreEntities\User::class);
+        $ticketRepository = $entityManager->getRepository(CoreEntities\Ticket::class);
 
         $ticket = $ticketRepository->findOneById($ticketId);
-        
+
         if (empty($ticket)) {
             throw new NotFoundHttpException('Page not found!');
         }
-        
+
         $user = $this->userService->getSessionUser();
-        
+
         // Proceed only if user has access to the resource
         if (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) {
             throw new \Exception('Access Denied', 403);
@@ -91,12 +75,12 @@ class Ticket extends AbstractController
 
         $agent = $ticket->getAgent();
         $customer = $ticket->getCustomer();
-	 
-        if (! empty($agent)) {	
+
+        if (! empty($agent)) {
             $ticketAssignAgent = $agent->getId();
             $currentUser = $user->getId();
         }
-        
+
         // Mark as viewed by agents
         if (false == $ticket->getIsAgentViewed()) {
             $ticket->setIsAgentViewed(true);
@@ -104,24 +88,28 @@ class Ticket extends AbstractController
             $entityManager->persist($ticket);
             $entityManager->flush();
         }
-	
+
         // Ticket Authorization
-        $supportRole = $user->getCurrentInstance()->getSupportRole()->getCode(); 
-        switch($supportRole) {
+        $supportRole = $user->getCurrentInstance()->getSupportRole()->getCode();
+        switch ($supportRole) {
             case 'ROLE_ADMIN':
             case 'ROLE_SUPER_ADMIN':
                 break;
             case 'ROLE_AGENT':
                 $accessLevel = (int) $user->getCurrentInstance()->getTicketAccessLevel();
-                switch($accessLevel) {
+                switch ($accessLevel) {
                     case TicketRepository::TICKET_GLOBAL_ACCESS:
                         break;
                     case TicketRepository::TICKET_GROUP_ACCESS:
-                        $supportGroups = array_map(function($supportGroup) { return $supportGroup->getId(); }, $user->getCurrentInstance()->getSupportGroups()->getValues());                       
+                        $supportGroups = array_map(function ($supportGroup) {
+                            return $supportGroup->getId();
+                        }, $user->getCurrentInstance()->getSupportGroups()->getValues());
                         $ticketAccessableGroups = $ticket->getSupportGroup() ? [$ticket->getSupportGroup()->getId()] : [];
- 
+
                         if ($ticket->getSupportTeam()) {
-                            $ticketSupportTeamGroups = array_map(function($supportGroup) { return $supportGroup->getId(); }, $ticket->getSupportTeam()->getSupportGroups()->getValues());
+                            $ticketSupportTeamGroups = array_map(function ($supportGroup) {
+                                return $supportGroup->getId();
+                            }, $ticket->getSupportTeam()->getSupportGroups()->getValues());
                             $ticketAccessableGroups = array_merge($ticketAccessableGroups, $ticketSupportTeamGroups);
                         }
                         $isAccessableGroupFound = false;
@@ -136,14 +124,18 @@ class Ticket extends AbstractController
                         }
                         break;
                     case TicketRepository::TICKET_TEAM_ACCESS:
-                        $supportTeams = array_map(function($supportTeam) { return $supportTeam->getId(); }, $user->getCurrentInstance()->getSupportTeams()->getValues());                         
+                        $supportTeams = array_map(function ($supportTeam) {
+                            return $supportTeam->getId();
+                        }, $user->getCurrentInstance()->getSupportTeams()->getValues());
                         $supportTeam = $ticket->getSupportTeam();
                         if (!($supportTeam && in_array($supportTeam->getId(), $supportTeams)) && !($ticketAssignAgent == $currentUser)) {
                             throw new NotFoundHttpException('Page not found!');
                         }
                         break;
                     default:
-                        $collaborators = array_map( function ($collaborator) { return $collaborator->getId(); }, $ticket->getCollaborators()->getValues());
+                        $collaborators = array_map(function ($collaborator) {
+                            return $collaborator->getId();
+                        }, $ticket->getCollaborators()->getValues());
                         $accessableAgents = array_merge($collaborators, $ticket->getAgent() ? [$ticket->getAgent()->getId()] : []);
                         if (!in_array($user->getId(), $accessableAgents)) {
                             throw new NotFoundHttpException('Page not found!');
@@ -158,28 +150,19 @@ class Ticket extends AbstractController
         $ratings = $ticket->getRatings()->toArray();
         $quickActionButtonCollection->prepareAssets();
 
-        $userService = $container->get('user.service');
-        $customerDetails = $customer->getCustomerInstance()->getPartialDetails();
-
-        if (! empty($customerDetails)) {
-            $customerDetails['lastLogin'] = !empty($customerDetails['lastLogin'])
-            ? $userService->getLocalizedFormattedTime($customerDetails['lastLogin']) 
-            : 'NA';
-        }
-
         return $this->render('@UVDeskCoreFramework//ticket.html.twig', [
             'ticket'                    => $ticket,
             'totalReplies'              => $ticketRepository->countTicketTotalThreads($ticket->getId()),
             'totalCustomerTickets'      => ($ticketRepository->countCustomerTotalTickets($customer, $container) - 1),
             'initialThread'             => $this->ticketService->getTicketInitialThreadDetails($ticket),
             'ticketAgent'               => ! empty($agent) ? $agent->getAgentInstance()->getPartialDetails() : null,
-            'customer'                  => $customerDetails,
+            'customer'                  => $customer->getCustomerInstance()->getPartialDetails(),
             'currentUserDetails'        => $user->getAgentInstance()->getPartialDetails(),
             'supportGroupCollection'    => $userRepository->getSupportGroups(),
             'supportTeamCollection'     => $userRepository->getSupportTeams(),
-            'ticketStatusCollection'    => $entityManager->getRepository(TicketStatus::class)->findAll(),
-            'ticketTypeCollection'      => $entityManager->getRepository(TicketType::class)->findByIsActive(true),
-            'ticketPriorityCollection'  => $entityManager->getRepository(TicketPriority::class)->findAll(),
+            'ticketStatusCollection'    => $entityManager->getRepository(CoreEntities\TicketStatus::class)->findAll(),
+            'ticketTypeCollection'      => $entityManager->getRepository(CoreEntities\TicketType::class)->findByIsActive(true),
+            'ticketPriorityCollection'  => $entityManager->getRepository(CoreEntities\TicketPriority::class)->findAll(),
             'ticketNavigationIteration' => $ticketRepository->getTicketNavigationIteration($ticket, $container),
             'ticketLabelCollection'     => $ticketRepository->getTicketLabelCollection($ticket, $user),
             'ticketRating'              => ! empty($ratings) && isset($ratings[0]) ? $ratings[0]->getStars() : [],
@@ -189,11 +172,11 @@ class Ticket extends AbstractController
     public function saveTicket(Request $request)
     {
         $requestParams = $request->request->all();
-        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager = $this->entityManagerInterface;
         $response = $this->redirect($this->generateUrl('helpdesk_member_ticket_collection'));
 
         if (
-            $request->getMethod() != 'POST' 
+            $request->getMethod() != 'POST'
             || false == $this->userService->isAccessAuthorized('ROLE_AGENT_CREATE_TICKET')
         ) {
             return $response;
@@ -201,11 +184,11 @@ class Ticket extends AbstractController
 
         $website = $entityManager->getRepository(CoreEntities\Website::class)->findOneByCode('knowledgebase');
         if (
-            ! empty($requestParams['from']) 
+            ! empty($requestParams['from'])
             && $this->ticketService->isEmailBlocked($requestParams['from'], $website)
         ) {
             $request->getSession()->getFlashBag()->set('warning', $this->translator->trans('Warning ! Cannot create ticket, given email is blocked by admin.'));
-            
+
             return $this->redirect($this->generateUrl('helpdesk_member_ticket_collection'));
         }
 
@@ -219,15 +202,13 @@ class Ticket extends AbstractController
             $expectedReferralURL = $this->generateUrl('helpdesk_member_ticket', ['ticketId' => $referralId], UrlGeneratorInterface::ABSOLUTE_URL);
 
             if ($referralURL === $expectedReferralURL) {
-                $referralTicket = $entityManager->getRepository(CoreBundleTicket::class)->findOneById($referralId);
+                $referralTicket = $entityManager->getRepository(CoreEntities\Ticket::class)->findOneById($referralId);
 
                 if (! empty($referralTicket)) {
                     $ticketValidationGroup = 'CustomerCreateTicket';
                 }
             }
         }
-
-        $ticketType = $entityManager->getRepository(TicketType::class)->findOneById($requestParams['type']);
 
         try {
             if ($this->userService->isFileExists('apps/uvdesk/custom-fields')) {
@@ -246,7 +227,7 @@ class Ticket extends AbstractController
         if (! empty($errorFlashMessage)) {
             $this->addFlash('warning', $errorFlashMessage);
         }
-        
+
         $ticketProxy = new CoreFrameworkBundleDataProxies\CreateTicketDataClass();
         $form = $this->createForm(CoreFrameworkBundleForms\CreateTicket::class, $ticketProxy);
 
@@ -269,13 +250,13 @@ class Ticket extends AbstractController
             $customerPartialDetails = $customer->getCustomerInstance()->getPartialDetails();
         } else if (null != $ticketProxy->getFrom() && null != $ticketProxy->getName()) {
             // Create customer if account does not exists
-            $customer = $entityManager->getRepository(User::class)->findOneByEmail($ticketProxy->getFrom());
+            $customer = $entityManager->getRepository(CoreEntities\User::class)->findOneByEmail($ticketProxy->getFrom());
 
             if (
-                empty($customer) 
+                empty($customer)
                 || null == $customer->getCustomerInstance()
             ) {
-                $role = $entityManager->getRepository(SupportRole::class)->findOneByCode('ROLE_CUSTOMER');
+                $role = $entityManager->getRepository(CoreEntities\SupportRole::class)->findOneByCode('ROLE_CUSTOMER');
 
                 // Create User Instance
                 $customer = $this->userService->createUserInstance($ticketProxy->getFrom(), $ticketProxy->getName(), $role, [
@@ -290,7 +271,7 @@ class Ticket extends AbstractController
             'name'        => $customer->getFirstName() . ' ' . $customer->getLastName(),
             'type'        => $ticketProxy->getType(),
             'subject'     => $ticketProxy->getSubject(),
-            // @TODO: We need to enable support for html messages. 
+            // @TODO: We need to enable support for html messages.
             // Our focus here instead should be to prevent XSS (filter js)
             'message'     => str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', htmlspecialchars($ticketProxy->getReply())),
             'firstName'   => $customer->getFirstName(),
@@ -314,8 +295,7 @@ class Ticket extends AbstractController
         try {
             $event = new CoreWorkflowEvents\Ticket\Create();
             $event
-                ->setTicket($ticket)
-            ;
+                ->setTicket($ticket);
 
             $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
         } catch (\Exception $e) {
@@ -325,10 +305,10 @@ class Ticket extends AbstractController
         if (! empty($thread)) {
             $ticket = $thread->getTicket();
             if (
-                $request->request->get('customFields') 
+                $request->request->get('customFields')
                 || $request->files->get('customFields')
             ) {
-                $this->ticketService->addTicketCustomFields($thread, $request->request->get('customFields'), $request->files->get('customFields'));                        
+                $this->ticketService->addTicketCustomFields($thread, $request->request->get('customFields'), $request->files->get('customFields'));
             }
 
             $this->addFlash('success', $this->translator->trans('Success ! Ticket has been created successfully.'));
@@ -359,23 +339,23 @@ class Ticket extends AbstractController
         }
 
         $errorContext = [];
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->entityManagerInterface;
 
         if ($id = $request->attributes->get('ticketTypeId')) {
-            $type = $em->getRepository(TicketType::class)->find($id);
+            $type = $em->getRepository(CoreEntities\TicketType::class)->find($id);
             if (! $type) {
                 $this->noResultFound();
             }
         } else {
-            $type = new CoreFrameworkBundleEntities\TicketType();
+            $type = new CoreEntities\TicketType();
         }
 
         if ($request->getMethod() == "POST") {
             $data = $request->request->all();
-            $ticketType = $em->getRepository(TicketType::class)->findOneByCode($data['code']);
+            $ticketType = $em->getRepository(CoreEntities\TicketType::class)->findOneByCode($data['code']);
 
             if (
-                ! empty($ticketType) 
+                ! empty($ticketType)
                 && $id != $ticketType->getId()
             ) {
                 $this->addFlash('warning', sprintf('Error! Ticket type with same name already exist'));
@@ -423,9 +403,10 @@ class Ticket extends AbstractController
         }
 
         $json = [];
-        if($request->getMethod() == "DELETE") {
-            $em = $this->getDoctrine()->getManager();
-            $tag = $em->getRepository(Tag::class)->find($tagId);
+        if ($request->getMethod() == "DELETE") {
+            $em = $this->entityManagerInterface;
+            $tag = $em->getRepository(CoreEntities\Tag::class)->find($tagId);
+
             if ($tag) {
                 $em->remove($tag);
                 $em->flush();
@@ -436,21 +417,22 @@ class Ticket extends AbstractController
 
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');
-        
+
         return $response;
     }
 
     public function trashTicket(Request $request)
     {
         $ticketId = $request->attributes->get('ticketId');
-        $entityManager = $this->getDoctrine()->getManager();
-        $ticket = $entityManager->getRepository(CoreBundleTicket::class)->find($ticketId);
+        $entityManager = $this->entityManagerInterface;
+        $ticket = $entityManager->getRepository(CoreEntities\Ticket::class)->find($ticketId);
 
         if (! $ticket) {
             $this->noResultFound();
         }
 
         $user = $this->userService->getSessionUser();
+
         // Proceed only if user has access to the resource
         if (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) {
             throw new \Exception('Access Denied', 403);
@@ -466,11 +448,10 @@ class Ticket extends AbstractController
         // Trigger ticket delete event
         $event = new CoreWorkflowEvents\Ticket\Delete();
         $event
-            ->setTicket($ticket)
-        ;
+            ->setTicket($ticket);
 
         $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
-        
+
         $this->addFlash('success', $this->translator->trans('Success ! Ticket moved to trash successfully.'));
 
         return $this->redirectToRoute('helpdesk_member_ticket_collection');
@@ -481,7 +462,7 @@ class Ticket extends AbstractController
     {
         $ticketId = $request->attributes->get('ticketId');
         $entityManager = $this->getDoctrine()->getManager();
-        $ticket = $entityManager->getRepository(CoreBundleTicket::class)->find($ticketId);
+        $ticket = $entityManager->getRepository(CoreEntities\Ticket::class)->find($ticketId);
 
         if (! $ticket) {
             $this->noResultFound();
@@ -496,7 +477,7 @@ class Ticket extends AbstractController
         $entityManager->remove($ticket);
         $entityManager->flush();
 
-        $this->addFlash('success', $this->translator->trans('Success ! Success ! Ticket Id #'. $ticketId .' has been deleted successfully.'));
+        $this->addFlash('success', $this->translator->trans('Success ! Success ! Ticket Id #' . $ticketId . ' has been deleted successfully.'));
 
         return $this->redirectToRoute('helpdesk_member_ticket_collection');
     }
@@ -504,22 +485,22 @@ class Ticket extends AbstractController
     public function downloadZipAttachment(Request $request)
     {
         $threadId = $request->attributes->get('threadId');
-        $attachmentRepository = $this->getDoctrine()->getManager()->getRepository(Attachment::class);
-        $threadRepository = $this->getDoctrine()->getManager()->getRepository(Thread::class);
-        
+        $attachmentRepository = $this->entityManagerInterface->getRepository(CoreEntities\Attachment::class);
+        $threadRepository = $this->entityManagerInterface->getRepository(CoreEntities\Thread::class);
+
         $thread = $threadRepository->findOneById($threadId);
         if (!$thread) {
             $this->noResultFound();
         }
-        
+
         $attachments = $attachmentRepository->findByThread($threadId);
         if (empty($attachments)) {
             $this->noResultFound();
         }
-        
+
         $ticket = $thread->getTicket();
         $user = $this->userService->getSessionUser();
-        
+
         // Proceed only if user has access to the resource
         if (false == $this->ticketService->isTicketAccessGranted($ticket, $user)) {
             throw new \Exception('Access Denied', 403);
@@ -528,12 +509,12 @@ class Ticket extends AbstractController
         // Create temp file in system temp directory
         $projectDir = $this->kernel->getProjectDir();
         $zipPath = sys_get_temp_dir() . '/' . uniqid('zip_') . '_attachments_' . $threadId . '.zip';
-        
+
         $zip = new \ZipArchive();
         if ($zip->open($zipPath, \ZipArchive::CREATE) !== true) {
             throw new \Exception('Cannot create zip file', 500);
         }
-        
+
         if (count($attachments) > 0) {
             foreach ($attachments as $attach) {
                 $filePath = $projectDir . '/public/' . ltrim($attach->getPath(), '/');
@@ -545,7 +526,7 @@ class Ticket extends AbstractController
         }
 
         $zip->close();
-        
+
         // Use BinaryFileResponse for better handling of binary files
         $response = new BinaryFileResponse($zipPath);
         $response->setContentDisposition(
@@ -554,16 +535,14 @@ class Ticket extends AbstractController
         );
         $response->headers->set('Content-Type', 'application/zip');
         $response->deleteFileAfterSend(true); // Delete the temp file after sending
-        
+
         return $response;
     }
 
     public function downloadAttachment(Request $request)
-    {   
+    {
         $attachmentId = $request->attributes->get('attachmendId');
-        $attachment = $this->getDoctrine()->getManager()->getRepository(Attachment::class)->findOneById($attachmentId);
-        
-        $baseurl = $request->getScheme() . '://' . $request->getHttpHost() . $request->getBasePath();
+        $attachment = $this->entityManagerInterface->getRepository(CoreEntities\Attachment::class)->findOneById($attachmentId);
 
         if (empty($attachment)) {
             $this->noResultFound();
@@ -581,7 +560,7 @@ class Ticket extends AbstractController
             }
         }
 
-        $path = $this->kernel->getProjectDir() . "/public/". $attachment->getPath();
+        $path = $this->kernel->getProjectDir() . "/public/" . $attachment->getPath();
 
         $response = new StreamedResponse(function () use ($path) {
             // Output the file content
@@ -589,7 +568,7 @@ class Ticket extends AbstractController
             fpassthru($stream);
             fclose($stream);
         });
-    
+
         // Set headers
         $response->headers->set('Content-Type', $attachment->getContentType());
         $response->headers->set('Content-Disposition', 'attachment; filename="' . $attachment->getName() . '"');
@@ -600,7 +579,7 @@ class Ticket extends AbstractController
 
     /**
      * If customer is playing with url and no result is found then what will happen
-     * @return 
+     * @return
      */
     protected function noResultFound()
     {

@@ -2,22 +2,19 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
-use Doctrine\Common\Collections\Criteria;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\EmailTemplates;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
-use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\EmailTemplates;
 
 class Email extends AbstractController
 {
     const LIMIT = 10;
-    
+
     private $userService;
     private $translator;
 
@@ -73,11 +70,11 @@ class Email extends AbstractController
         }
 
         if ($request->getMethod() == 'POST') {
-            $entityManager= $this->getDoctrine()->getManager();
+            $entityManager = $this->getDoctrine()->getManager();
             $data = $request->request->all();
 
             $user_instance = $this->container->get('security.token_storage')->getToken()->getUser();
-            $user_instance= $entityManager->getRepository(UserInstance::class)->findBy(['id'=>$user_instance->getId()]);
+            $user_instance = $entityManager->getRepository(UserInstance::class)->findBy(['id' => $user_instance->getId()]);
 
             $template->setUser($user_instance[0]);
             $template->setName($data['name']);
@@ -118,7 +115,7 @@ class Email extends AbstractController
             } else {
                 if ($request->attributes->get('template')) {
                     if ($templateBase = $this->getTemplate($request)) {
-                        if ($request->getMethod() == 'DELETE' ) {
+                        if ($request->getMethod() == 'DELETE') {
                             $em = $this->getDoctrine()->getManager();
                             $em->remove($templateBase);
                             $em->flush();
@@ -143,7 +140,7 @@ class Email extends AbstractController
 
         $response = new Response(json_encode($json));
         $response->headers->set('Content-Type', 'application/json');
-        
+
         return $response;
     }
 }

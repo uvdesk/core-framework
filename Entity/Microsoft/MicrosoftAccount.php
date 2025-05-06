@@ -3,7 +3,6 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\Entity\Microsoft;
 
 use Doctrine\ORM\Mapping as ORM;
-use Webkul\UVDesk\CoreFrameworkBundle\Repository\Microsoft\MicrosoftAccountRepository;
 
 /**
  * @ORM\Entity(repositoryClass=MicrosoftAccountRepository::class)

@@ -3,16 +3,16 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\Dashboard;
 
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Webkul\UVDesk\CoreFrameworkBundle\Framework\ExtendableComponentInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\HomepageSectionInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Dashboard\Segments\HomepageSectionItemInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class HomepageTemplate implements ExtendableComponentInterface
 {
-	CONST SECTION_TEMPLATE = '<div class="uv-brick"><div class="uv-brick-head"><h6>[[ TITLE ]]</h6><p>[[ DESCRIPTION ]]</p></div><div class="uv-brick-section">[[ COLLECTION ]]</div></div>';
-	CONST SECTION_ITEM_TEMPLATE = '<a href="[[ PATH ]]"><div class="uv-brick-container"><div class="uv-brick-icon">[[ SVG ]]</div><p>[[ TITLE ]]</p></div></a>';
+	const SECTION_TEMPLATE = '<div class="uv-brick"><div class="uv-brick-head"><h6>[[ TITLE ]]</h6><p>[[ DESCRIPTION ]]</p></div><div class="uv-brick-section">[[ COLLECTION ]]</div></div>';
+	const SECTION_ITEM_TEMPLATE = '<a href="[[ PATH ]]"><div class="uv-brick-container"><div class="uv-brick-icon">[[ SVG ]]</div><p>[[ TITLE ]]</p></div></a>';
 
 	private $sections = [];
 	private $sectionItems = [];
@@ -38,14 +38,14 @@ class HomepageTemplate implements ExtendableComponentInterface
 	private function organizeCollection()
 	{
 		$references = [];
-		
+
 		// Sort segments alphabetically
-		usort($this->sections, function($section_1, $section_2) {
+		usort($this->sections, function ($section_1, $section_2) {
 			return strcasecmp($section_1::getTitle(), $section_2::getTitle());
 		});
 
 		// @TODO: Refactor!!!
-		$findSectionByName = function(&$array, $name) {
+		$findSectionByName = function (&$array, $name) {
 			for ($i = 0; $i < count($array); $i++) {
 				if (strtolower($array[$i]::getTitle()) === $name) {
 					return array($i, $array[$i]);
@@ -54,11 +54,11 @@ class HomepageTemplate implements ExtendableComponentInterface
 		};
 
 		// re-inserting users section
-		$users_sec = $findSectionByName($this->sections, "users"); 
+		$users_sec = $findSectionByName($this->sections, "users");
 		array_splice($this->sections, $users_sec[0], 1);
 		array_splice($this->sections, $findSectionByName($this->sections, "knowledgebase")[0] + 1, 0, [$users_sec[1]]);
 
-		usort($this->sectionItems, function($item_1, $item_2) {
+		usort($this->sectionItems, function ($item_1, $item_2) {
 			return strcasecmp($item_1::getTitle(), $item_2::getTitle());
 		});
 
@@ -90,7 +90,7 @@ class HomepageTemplate implements ExtendableComponentInterface
 			foreach ($segment::getRoles() as $accessRole) {
 				if ($this->userService->isAccessAuthorized($accessRole)) {
 					$is_accessible = true;
-	
+
 					break;
 				}
 			}

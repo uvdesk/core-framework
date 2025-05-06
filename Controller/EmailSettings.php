@@ -2,13 +2,12 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
-use Symfony\Component\Yaml\Yaml;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer;
 use Webkul\UVDesk\MailboxBundle\Services\MailboxService;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
+use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer;
 
 class EmailSettings extends AbstractController
 {
@@ -16,7 +15,7 @@ class EmailSettings extends AbstractController
     private $translator;
     private $swiftMailer;
 
-    public function __construct(UserService $userService, TranslatorInterface $translator,SwiftMailer $swiftMailer, MailboxService $mailboxService)
+    public function __construct(UserService $userService, TranslatorInterface $translator, SwiftMailer $swiftMailer, MailboxService $mailboxService)
     {
         $this->userService = $userService;
         $this->translator = $translator;
@@ -39,9 +38,9 @@ class EmailSettings extends AbstractController
         foreach ($this->mailboxService->parseMailboxConfigurations()?->getMailboxes() as $mailbox) {
             $smtpConfig = $mailbox->getSmtpConfiguration();
             $swiftmailerConfig = $mailbox->getSwiftMailerConfiguration();
-            
+
             if (
-                $smtpConfig 
+                $smtpConfig
                 && $mailbox->getIsenabled()
             ) {
                 $smtpConfiguration[] = $mailbox->getId();
@@ -51,7 +50,7 @@ class EmailSettings extends AbstractController
         return $this->render('@UVDeskCoreFramework//Email//emailSettings.html.twig', [
             'swiftmailers' => $swiftmailerConfigurations,
             'outlooks'     => $smtpConfiguration,
-            'email_settings' => [
+            'email_settings'  => [
                 'id'          => $this->getParameter('uvdesk.support_email.id'),
                 'name'        => $this->getParameter('uvdesk.support_email.name'),
                 'mailer_type' => $this->getParameter('uvdesk.support_email.mailer_type'),

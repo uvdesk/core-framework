@@ -2,25 +2,26 @@
 
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
-use Webkul\UVDesk\CoreFrameworkBundle\Form;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
-use Symfony\Contracts\Translation\TranslatorInterface;
+
 class Team extends AbstractController
 {
     private $userService;
     private $translator;
-    
-    public function __construct(UserService $userService, TranslatorInterface $translator)
+    private $entityManager;
+
+    public function __construct(UserService $userService, TranslatorInterface $translator, EntityManagerInterface $entityManager)
     {
         $this->userService = $userService;
         $this->translator = $translator;
+        $this->entityManager = $entityManager;
     }
 
     public function listTeams(Request $request)
@@ -45,22 +46,21 @@ class Team extends AbstractController
         if ($request->getMethod() == "POST") {
             $request->request->set('users', explode(',', $request->request->get('tempUsers')));
             $request->request->set('groups', explode(',', $request->request->get('tempGroups')));
-            $oldUsers = ($usersList = $supportTeam->getUsers()) ? $usersList->toArray() : $usersList;
-            $oldGroups = ($grpList =  $supportTeam->getSupportGroups()) ? $grpList->toArray() : $grpList;
-
             $allDetails = $request->request->all();
 
-            $em = $this->getDoctrine()->getManager();
+            $em = $this->entityManager;
             $supportTeam->setName(trim($allDetails['name']));
             $supportTeam->setDescription(trim($allDetails['description']));
             $supportTeam->setIsActive((bool) isset($allDetails['isActive']));
             $em->persist($supportTeam);
 
-            $usersList = (!empty($allDetails['users']))? $allDetails['users'] : [];
-            $usersGroup  = (!empty($allDetails['groups']))? $allDetails['groups'] : [];
+            $usersList = (!empty($allDetails['users'])) ? $allDetails['users'] : [];
+            $usersGroup  = (!empty($allDetails['groups'])) ? $allDetails['groups'] : [];
 
             if (! empty($usersList)) {
-                $usersList = array_map(function ($user) { return 'user.id = ' . $user; }, $usersList);
+                $usersList = array_map(function ($user) {
+                    return 'user.id = ' . $user;
+                }, $usersList);
 
                 $userList = $em->createQueryBuilder()->select('user')
                     ->from(User::class, 'user')
@@ -69,7 +69,9 @@ class Team extends AbstractController
             }
 
             if (! empty($usersGroup)) {
-                $usersGroup = array_map(function ($group) { return 'p.id = ' . $group; }, $usersGroup);
+                $usersGroup = array_map(function ($group) {
+                    return 'p.id = ' . $group;
+                }, $usersGroup);
 
                 $userGroup = $em->createQueryBuilder('p')->select('p')
                     ->from(SupportGroup::class, 'p')
@@ -110,7 +112,7 @@ class Team extends AbstractController
         }
 
         if ($request->attributes->get('supportTeamId')) {
-            $supportTeam = $this->getDoctrine()->getRepository(SupportTeam::class)
+            $supportTeam = $this->entityManager->getRepository(SupportTeam::class)
                 ->findSubGroupById(['id' => $request->attributes->get('supportTeamId')]);
 
             if (! $supportTeam)
@@ -126,7 +128,7 @@ class Team extends AbstractController
 
             $allDetails = $request->request->all();
 
-            $em = $this->getDoctrine()->getManager();
+            $em = $this->entityManager;
             $supportTeam->setName(trim($allDetails['name']));
             $supportTeam->setDescription(trim($allDetails['description']));
             $supportTeam->setIsActive((bool) isset($allDetails['isActive']));
@@ -135,7 +137,9 @@ class Team extends AbstractController
             $usersGroup  = (! empty($allDetails['groups'])) ? $allDetails['groups'] : [];
 
             if (! empty($usersList)) {
-                $usersList = array_map(function ($user) { return 'p.id = ' . $user; }, $usersList);
+                $usersList = array_map(function ($user) {
+                    return 'p.id = ' . $user;
+                }, $usersList);
                 $userList = $em->createQueryBuilder('p')->select('p')
                     ->from(User::class, 'p')
                     ->where(implode(' OR ', $usersList))
@@ -143,7 +147,9 @@ class Team extends AbstractController
             }
 
             if (! empty($usersGroup)) {
-                $usersGroup = array_map(function ($group) { return 'p.id = ' . $group; }, $usersGroup);
+                $usersGroup = array_map(function ($group) {
+                    return 'p.id = ' . $group;
+                }, $usersGroup);
 
                 $userGroup = $em->createQueryBuilder('p')->select('p')
                     ->from(SupportGroup::class, 'p')
@@ -154,7 +160,7 @@ class Team extends AbstractController
             foreach ($userList as $user) {
                 $userInstance = $user->getAgentInstance();
                 if (
-                    ! $oldUsers 
+                    ! $oldUsers
                     || !in_array($userInstance, $oldUsers)
                 ) {
                     $userInstance->addSupportTeam($supportTeam);
@@ -170,12 +176,11 @@ class Team extends AbstractController
             // Add Group to team
             foreach ($userGroup as $supportGroup) {
                 if (
-                    ! $oldGroups 
+                    ! $oldGroups
                     || ! in_array($supportGroup, $oldGroups)
                 ) {
                     $supportGroup->addSupportTeam($supportTeam);
                     $em->persist($supportGroup);
-
                 } elseif ($oldGroups && ($key = array_search($supportGroup, $oldGroups)) !== false)
                     unset($oldGroups[$key]);
             }
@@ -189,7 +194,7 @@ class Team extends AbstractController
             $em->flush();
 
             $this->addFlash('success', $this->translator->trans('Success ! Team information updated successfully.'));
-            
+
             return $this->redirect($this->generateUrl('helpdesk_member_support_team_collection'));
         }
 

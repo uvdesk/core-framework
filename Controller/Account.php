@@ -3,33 +3,28 @@
 namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Component\Filesystem\Filesystem as Fileservice;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Recaptcha;
-use Symfony\Component\EventDispatcher\GenericEvent;
-use Webkul\UVDesk\CoreFrameworkBundle\Form\UserAccount;
 use Webkul\UVDesk\CoreFrameworkBundle\Form\UserProfile;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportRole;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportTeam;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportGroup;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\SupportPrivilege;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\FileUploadService;
 use Webkul\UVDesk\CoreFrameworkBundle\FileSystem\FileSystem;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Symfony\Component\Filesystem\Filesystem as Fileservice;
 
 class Account extends AbstractController
 {
     private $userService;
-    private $authenticationUtils;
     private $eventDispatcher;
     private $translator;
     private $passwordEncoder;
@@ -47,7 +42,7 @@ class Account extends AbstractController
         $this->fileSystem = $fileSystem;
         $this->fileUploadService = $fileUploadService;
     }
-    
+
     private function encodePassword(User $user, $plainPassword)
     {
         $encodedPassword = $this->passwordEncoder->encodePassword($user, $plainPassword);
@@ -60,13 +55,13 @@ class Account extends AbstractController
 
     public function listAgents(Request $request)
     {
-        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')) {          
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
         return $this->render('@UVDeskCoreFramework/Agents/listSupportAgents.html.twig');
     }
-    
+
     public function loadProfile(Request $request)
     {
         // @TODO: Refactor
@@ -82,10 +77,10 @@ class Account extends AbstractController
 
             // Profile upload validation
             $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
-            if (isset($dataFiles['profileImage'])){
+            if (isset($dataFiles['profileImage'])) {
                 if (! in_array($dataFiles['profileImage']->getMimeType(), $validMimeType)) {
                     $this->addFlash('warning', $this->translator->trans('Error ! Profile image is not valid, please upload a valid format'));
-                    
+
                     return $this->redirect($this->generateUrl('helpdesk_member_profile'));
                 }
             }
@@ -105,7 +100,7 @@ class Account extends AbstractController
                 $form = $this->createForm(UserProfile::class, $user);
                 $form->handleRequest($request);
                 $form->submit($data);
-                
+
                 if ($form->isValid()) {
                     if ($data != null) {
                         $submittedPassword = $data['password']['first'];
@@ -114,7 +109,7 @@ class Account extends AbstractController
                         // save previous password if password is blank or null provided
                         $encodedPassword = empty($submittedPassword) ? $password : $encoder->encodePassword($user, $submittedPassword);
 
-                        if (! empty($encodedPassword) ) {
+                        if (! empty($encodedPassword)) {
                             $user->setPassword($encodedPassword);
                         } else {
                             $this->addFlash('warning', $this->translator->trans('Error! Given current password is incorrect.'));
@@ -137,20 +132,20 @@ class Account extends AbstractController
                     if (isset($dataFiles['profileImage'])) {
                         $previousImage = $userInstance->getProfileImagePath();
                         if ($previousImage != null) {
-                            $image = str_replace("\\","/",$this->getParameter('kernel.project_dir').'/public'.$previousImage);
-                            $check = $this->fileUploadService->fileRemoveFromFolder($image); 
+                            $image = str_replace("\\", "/", $this->getParameter('kernel.project_dir') . '/public' . $previousImage);
+                            $check = $this->fileUploadService->fileRemoveFromFolder($image);
                         }
-                            $assetDetails = $this->fileSystem->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
-                            $userInstance->setProfileImagePath($assetDetails['path']);
+                        $assetDetails = $this->fileSystem->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
+                        $userInstance->setProfileImagePath($assetDetails['path']);
                     }
 
                     // Removed profile image from database and path
                     $fileService = new Fileservice;
                     if ($request->get('removeImage') == 'on') {
                         if ($userInstance->getProfileImagePath()) {
-                            $fileService->remove($this->getParameter('kernel.project_dir').'/public'.$userInstance->getProfileImagePath());
+                            $fileService->remove($this->getParameter('kernel.project_dir') . '/public' . $userInstance->getProfileImagePath());
                         }
-                        
+
                         $userInstance = $userInstance->setProfileImagePath(null);
                     }
 
@@ -160,8 +155,8 @@ class Account extends AbstractController
                     $em->flush();
 
                     $roleId = $user->getAgentInstance()->getSupportRole()->getId();
-                    
-                    if (in_array($roleId,  [1,2])) {
+
+                    if (in_array($roleId,  [1, 2])) {
                         // Recaptcha Setting
                         $recaptchaSetting = $em->getRepository(Recaptcha::class)->findOneBy(['id' => 1]);
 
@@ -226,7 +221,8 @@ class Account extends AbstractController
         $instanceRole = $user->getAgentInstance()->getSupportRole()->getCode();
 
         if (empty($user)) {
-            dump('Not found');die;
+            dump('Not found');
+            die;
         }
 
         switch (strtoupper($request->getMethod())) {
@@ -238,7 +234,7 @@ class Account extends AbstractController
                 // Agent Profile upload validation
                 $validMimeType = ['image/jpeg', 'image/png', 'image/jpg'];
                 if (isset($dataFiles['profileImage'])) {
-                    if (!in_array($dataFiles['profileImage']->getMimeType(), $validMimeType)) {
+                    if (! in_array($dataFiles['profileImage']->getMimeType(), $validMimeType)) {
 
                         $this->addFlash('warning', $this->translator->trans('Error ! Profile image is not valid, please upload a valid format'));
                         $response = $this->render('@UVDeskCoreFramework/Agents/updateSupportAgent.html.twig', [
@@ -249,7 +245,7 @@ class Account extends AbstractController
                         break;
                     }
                 }
-                $checkUser = $em->getRepository(User::class)->findOneBy(array('email'=> $data['email']));
+                $checkUser = $em->getRepository(User::class)->findOneBy(array('email' => $data['email']));
                 $errorFlag = 0;
 
                 if ($checkUser && $checkUser->getId() != $agentId) {
@@ -258,9 +254,10 @@ class Account extends AbstractController
 
                 if (! $errorFlag) {
                     if (
-                        isset($data['password']['first']) && !empty(trim($data['password']['first'])) 
-                        && isset($data['password']['second'])  && !empty(trim($data['password']['second'])) 
-                        && trim($data['password']['first']) == trim($data['password']['second'])) {
+                        isset($data['password']['first']) && ! empty(trim($data['password']['first']))
+                        && isset($data['password']['second'])  && ! empty(trim($data['password']['second']))
+                        && trim($data['password']['first']) == trim($data['password']['second'])
+                    ) {
                         $encodedPassword = $this->passwordEncoder->encodePassword($user, $data['password']['first']);
                         $user->setPassword($encodedPassword);
                     }
@@ -269,12 +266,12 @@ class Account extends AbstractController
                     $user->setLastName(trim($data['lastName']));
                     $user->setEmail(trim($data['email']));
                     $user->setIsEnabled(true);
-                    
+
                     $userInstance = $em->getRepository(UserInstance::class)->findOneBy(array('user' => $agentId, 'supportRole' => array(1, 2, 3)));
-                    
+
                     $oldSupportTeam = ($supportTeamList = $userInstance != null ? $userInstance->getSupportTeams() : null) ? $supportTeamList->toArray() : [];
                     $oldSupportGroup  = ($supportGroupList = $userInstance != null ? $userInstance->getSupportGroups() : null) ? $supportGroupList->toArray() : [];
-                    $oldSupportedPrivilege = ($supportPrivilegeList = $userInstance != null ? $userInstance->getSupportPrivileges() : null)? $supportPrivilegeList->toArray() : [];
+                    $oldSupportedPrivilege = ($supportPrivilegeList = $userInstance != null ? $userInstance->getSupportPrivileges() : null) ? $supportPrivilegeList->toArray() : [];
 
                     if (isset($data['role'])) {
                         $role = $em->getRepository(SupportRole::class)->findOneBy(array('code' => $data['role']));
@@ -293,9 +290,9 @@ class Account extends AbstractController
                         // Removed profile image from database and path
                         $fileService = new Fileservice;
                         if ($userInstance->getProfileImagePath()) {
-                            $fileService->remove($this->getParameter('kernel.project_dir').'/public'.$userInstance->getProfileImagePath());
+                            $fileService->remove($this->getParameter('kernel.project_dir') . '/public' . $userInstance->getProfileImagePath());
                         }
-                        
+
                         $assetDetails = $this->fileSystem->getUploadManager()->uploadFile($dataFiles['profileImage'], 'profile');
                         $userInstance->setProfileImagePath($assetDetails['path']);
                     }
@@ -307,14 +304,13 @@ class Account extends AbstractController
                         foreach ($data['userSubGroup'] as $userSubGroup) {
                             if ($userSubGrp = $this->uvdeskService->getEntityManagerResult(
                                 SupportTeam::class,
-                                'findOneBy', [
+                                'findOneBy',
+                                [
                                     'id' => $userSubGroup
                                 ]
-                            )
-                            )
+                            ))
                                 if (!$oldSupportTeam || !in_array($userSubGrp, $oldSupportTeam)) {
                                     $userInstance->addSupportTeam($userSubGrp);
-
                                 } elseif ($oldSupportTeam && ($key = array_search($userSubGrp, $oldSupportTeam)) !== false)
                                     unset($oldSupportTeam[$key]);
                         }
@@ -337,15 +333,14 @@ class Account extends AbstractController
                         foreach ($data['groups'] as $userGroup) {
                             if ($userGrp = $this->uvdeskService->getEntityManagerResult(
                                 SupportGroup::class,
-                                'findOneBy', [
+                                'findOneBy',
+                                [
                                     'id' => $userGroup
                                 ]
-                            )
-                            )
+                            ))
 
                                 if (!$oldSupportGroup || !in_array($userGrp, $oldSupportGroup)) {
                                     $userInstance->addSupportGroup($userGrp);
-
                                 } elseif ($oldSupportGroup && ($key = array_search($userGrp, $oldSupportGroup)) !== false)
                                     unset($oldSupportGroup[$key]);
                         }
@@ -358,16 +353,15 @@ class Account extends AbstractController
 
                     if (isset($data['agentPrivilege'])) {
                         foreach ($data['agentPrivilege'] as $supportPrivilege) {
-                            if($supportPlg = $this->uvdeskService->getEntityManagerResult(
+                            if ($supportPlg = $this->uvdeskService->getEntityManagerResult(
                                 SupportPrivilege::class,
-                                'findOneBy', [
+                                'findOneBy',
+                                [
                                     'id' => $supportPrivilege
                                 ]
-                            )
-                            )
+                            ))
                                 if (!$oldSupportedPrivilege || !in_array($supportPlg, $oldSupportedPrivilege)) {
                                     $userInstance->addSupportPrivilege($supportPlg);
-
                                 } elseif ($oldSupportedPrivilege && ($key = array_search($supportPlg, $oldSupportedPrivilege)) !== false)
                                     unset($oldSupportedPrivilege[$key]);
                         }
@@ -387,8 +381,7 @@ class Account extends AbstractController
                     // Trigger customer Update event
                     $event = new CoreWorkflowEvents\Agent\Update();
                     $event
-                        ->setUser($user)
-                    ;
+                        ->setUser($user);
 
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
@@ -420,7 +413,7 @@ class Account extends AbstractController
     public function createAgent(Request $request)
     {
         // @TODO: Refactor
-        if (!$this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')) {          
+        if (! $this->userService->isAccessAuthorized('ROLE_AGENT_MANAGE_AGENT')) {
             return $this->redirect($this->generateUrl('helpdesk_member_dashboard'));
         }
 
@@ -437,16 +430,16 @@ class Account extends AbstractController
             if (isset($uploadedFiles['profileImage'])) {
                 if (!in_array($uploadedFiles['profileImage']->getMimeType(), $validMimeType)) {
                     $this->addFlash('warning', $this->translator->trans('Error ! Profile image is not valid, please upload a valid format'));
-                    
+
                     return $this->redirect($this->generateUrl('helpdesk_member_create_account'));
                 }
             }
 
             $user = $entityManager->getRepository(User::class)->findOneByEmail($formDetails['email']);
-            $agentInstance = !empty($user) ? $user->getAgentInstance() : null;
+            $agentInstance = ! empty($user) ? $user->getAgentInstance() : null;
 
             if (empty($agentInstance)) {
-                if (!empty($formDetails)) {
+                if (! empty($formDetails)) {
                     $fullname = trim(implode(' ', [$formDetails['firstName'], $formDetails['lastName']]));
                     $supportRole = $entityManager->getRepository(SupportRole::class)->findOneByCode($formDetails['role']);
 
@@ -459,7 +452,7 @@ class Account extends AbstractController
                         'designation' => $formDetails['designation'],
                     ]);
 
-                    if (!empty($user)){
+                    if (! empty($user)) {
                         $user->setIsEnabled(true);
                         $entityManager->persist($user);
                         $entityManager->flush();
@@ -472,37 +465,39 @@ class Account extends AbstractController
                     }
 
                     // Map support team
-                    if (!empty($formDetails['userSubGroup'])) {
+                    if (! empty($formDetails['userSubGroup'])) {
                         $supportTeamRepository = $entityManager->getRepository(SupportTeam::class);
 
                         foreach ($formDetails['userSubGroup'] as $supportTeamId) {
                             $supportTeam = $supportTeamRepository->findOneById($supportTeamId);
 
-                            if (!empty($supportTeam)) {
+                            if (! empty($supportTeam)) {
                                 $userInstance->addSupportTeam($supportTeam);
                             }
                         }
                     }
+
                     // Map support group
-                    if (!empty($formDetails['groups'])) {
+                    if (! empty($formDetails['groups'])) {
                         $supportGroupRepository = $entityManager->getRepository(SupportGroup::class);
 
                         foreach ($formDetails['groups'] as $supportGroupId) {
                             $supportGroup = $supportGroupRepository->findOneById($supportGroupId);
 
-                            if (!empty($supportGroup)) {
+                            if (! empty($supportGroup)) {
                                 $userInstance->addSupportGroup($supportGroup);
                             }
                         }
                     }
+
                     // Map support privileges
-                    if (!empty($formDetails['agentPrivilege'])) {
+                    if (! empty($formDetails['agentPrivilege'])) {
                         $supportPrivilegeRepository = $entityManager->getRepository(SupportPrivilege::class);
 
-                        foreach($formDetails['agentPrivilege'] as $supportPrivilegeId) {
+                        foreach ($formDetails['agentPrivilege'] as $supportPrivilegeId) {
                             $supportPrivilege = $supportPrivilegeRepository->findOneById($supportPrivilegeId);
 
-                            if (!empty($supportPrivilege)) {
+                            if (! empty($supportPrivilege)) {
                                 $userInstance->addSupportPrivilege($supportPrivilege);
                             }
                         }
