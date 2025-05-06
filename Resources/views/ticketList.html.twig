@@ -168,6 +168,10 @@
         .uv-action-bar-col-rt {
             width: 60% !important;
         }
+
+        .uv-dropdown-list ul.uv-agents-list li  {
+            padding: 15px;
+        }
     </style>
 {% endblock %}
 
@@ -432,6 +436,12 @@
                                                             <img src="{{ asset(default_agent_image_path) }}" alt=""/>
                                                         {% endif %}
                                                         {{ agent.name }}
+
+                                                        {% if (agent.isOnline) %}
+                                                            <span title="Online" style="cursor:pointer; color: green; font-size: 24px; vertical-align: middle;">●</span>
+                                                                {% else %}
+                                                            <span title="Offline" style="cursor:pointer; color: red; font-size: 24px; vertical-align: middle;">●</span>
+                                                        {% endif %}
                                                     </li>
                                                 {% endfor %}
                                             </ul>

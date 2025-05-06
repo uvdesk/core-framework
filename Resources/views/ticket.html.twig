@@ -818,12 +818,11 @@
                                             <li data-index="{{ agent.id }}">
                                                 <img src="{{ agent.smallThumbnail != null ? app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') ~ agent.smallThumbnail : asset(default_agent_image_path) }}"/> {{ agent.name }}
                                                 {% if (agent.isOnline) %}  
-                                                        <span style="cursor:pointer; color: green; font-size: 24px; vertical-align: middle;">●</span>
+                                                        <span title="Online" style="cursor:pointer; color: green; font-size: 24px; vertical-align: middle;">●</span>
                                                     {% else %}  
-                                                        <span style="cursor:pointer; color: red; font-size: 24px; vertical-align: middle;">●</span>
+                                                        <span title="Offline" style="cursor:pointer; color: red; font-size: 24px; vertical-align: middle;">●</span>
                                                 {% endif %}
                                             </li>
-                                            
                                         {% endfor %}
                                     </ul>
                                 </div>

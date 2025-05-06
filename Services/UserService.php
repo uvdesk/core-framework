@@ -345,7 +345,7 @@ class UserService
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb
-            ->select("DISTINCT u.id,u.email,CONCAT(u.firstName,' ', COALESCE(u.lastName,'')) AS name,u.firstName,u.lastName,u.isEnabled,userInstance.profileImagePath,userInstance.profileImagePath as smallThumbnail,userInstance.isActive, userInstance.isVerified, userInstance.designation, userInstance.contactNumber,userInstance.signature,userInstance.ticketAccessLevel")
+            ->select("DISTINCT u.id,u.email,CONCAT(u.firstName,' ', COALESCE(u.lastName,'')) AS name, u.firstName,u.lastName, u.isEnabled, userInstance.profileImagePath, userInstance.profileImagePath as smallThumbnail,userInstance.isActive, userInstance.isVerified, userInstance.designation, userInstance.contactNumber, userInstance.signature, userInstance.ticketAccessLevel, userInstance.isOnline")
             ->from(User::class, 'u')
             ->leftJoin('u.userInstance', 'userInstance')
             ->andWhere('userInstance.supportRole != :roles')
