@@ -687,9 +687,9 @@
                             <div style="display: flex; align-items: center; gap: 4px;">
                                 <span>{{ customer.name }}</span>
                                 {% if customer.isOnline %}
-                                    <span title="Last Login: {{ customer.lastLogin }}" style="cursor:pointer; color: green; font-size: 20px;">●</span>
+                                    <span title="Last Login: {{ customer.lastLogin }}" style="cursor:pointer; color: green; font-size: 15px;">●</span>
                                 {% else %}
-                                    <span title="Last Login: {{ customer.lastLogin }}" style="cursor:pointer; color: red; font-size: 20px;">●</span>
+                                    <span title="Last Login: {{ customer.lastLogin }}" style="cursor:pointer; color: red; font-size: 15px;">●</span>
                                 {% endif %}
                             </div>
                             <span>{{ customer.email }}</span>
@@ -818,9 +818,9 @@
                                             <li data-index="{{ agent.id }}">
                                                 <img src="{{ agent.smallThumbnail != null ? app.request.scheme ~'://' ~ app.request.httpHost ~ asset('') ~ agent.smallThumbnail : asset(default_agent_image_path) }}"/> {{ agent.name }}
                                                 {% if (agent.isOnline) %}  
-                                                        <span title="Online" style="cursor:pointer; color: green; font-size: 24px; vertical-align: middle;">●</span>
+                                                        <span title="Online" style="cursor:pointer; color: green; font-size: 15px; vertical-align: middle;">●</span>
                                                     {% else %}  
-                                                        <span title="Offline" style="cursor:pointer; color: red; font-size: 24px; vertical-align: middle;">●</span>
+                                                        <span title="Offline" style="cursor:pointer; color: red; font-size: 15px; vertical-align: middle;">●</span>
                                                 {% endif %}
                                             </li>
                                         {% endfor %}
