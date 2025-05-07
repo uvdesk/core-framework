@@ -1587,51 +1587,6 @@
             <div class="uv-ticket-fixed-region">
                 <div class="uv-ticket-fixed-region-lt">
                     {{ uvdesk_extensibles.getRegisteredComponent("Webkul\\UVDesk\\CoreFrameworkBundle\\Tickets\\QuickActionButtonCollection").injectTemplates()|raw }}
-
-                    {# <!-- Saved Replied-->
-                    <div class="uv-dropdown saved-reply">
-                        <div class="uv-dropdown-btn">{{ 'Saved Replies'|trans }}</div>
-                        <div class="uv-dropdown-list uv-top-left">
-                            <div class="uv-dropdown-container">
-                                <label>{{ 'Saved Replies'|trans }}</label>
-                                <ul>
-                                    <li data-id="">
-                                        <a href="{{ path('helpdesk_member_saved_replies') }}" target="_blank" style="color: #2750C4">{{ 'Create New'|trans }}</a>
-                                    </li>
-                                    {% for savedReply in ticket_service.getSavedReplies() %}
-                                        <li data-id="{{ savedReply.id }}">
-                                            {{ savedReply.name }}
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- //Saved Replied--> #}
-
-                    {# <!--Code-->
-                    <div class="uv-dropdown">
-                        <div class="uv-dropdown-btn">{{ 'Prepared Responses'|trans }}</div>
-                        <div class="uv-dropdown-list uv-top-left">
-                        <div class="uv-dropdown-container prepared-responses">
-                            <label>{{ 'Prepared Responses'|trans }}</label>
-                            <ul>
-                                <li>
-                                    <a class="create-new" href="{{path('prepare_response_action')}}" target="_blank" style="color: #2750C4">{{ 'Create New'|trans }}</a>
-                                </li>
-                                {% set preparedResponses = ticket_service.getManualWorkflow() %}
-                                {% for workflow in preparedResponses %}
-                                    <li>
-                                        <a href="{{ path('helpdesk_member_ticket_prepared_response_xhr') }}/{{ ticket.id }}/{{ workflow.id }}">
-                                            {{ workflow.name }}
-                                        </a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        </div>
-                    </div>
-                    <!--//Code--> #}
                 </div>
 
                 <div class="uv-ticket-fixed-region-rt"></div>
@@ -1691,16 +1646,22 @@
 
     <script> 
         $(document).ready(function() {
-            $("#filterSavedreplies").on("keyup", function() {
-                if (this.value.length && this.value.length != '') {
-                    var that = this;
-                    $("#listSavedReplies li").hide().filter(function() {
-                        return $(this).html().toLowerCase().indexOf(that.value.toLowerCase()) !== -1;
-                    }).show();
-                } else {
-                    $("#listSavedReplies li").show()
-                }
-            });
+            function setupFilter(inputSelector, listSelector) {
+                $(inputSelector).on("keyup", function () {
+                    const value = this.value.toLowerCase();
+                    const $items = $(listSelector + " li");
+                    if (value) {
+                        $items.hide().filter(function () {
+                            return $(this).html().toLowerCase().includes(value);
+                        }).show();
+                    } else {
+                        $items.show();
+                    }
+                });
+            }
+
+            setupFilter("#filterSavedreplies", "#listSavedReplies");
+            setupFilter("#filterPreparedResponse", "#listPreparedResponses");
 
             $(".uv-dropdown-btn").click(function(event) {
                 setTimeout(function() {
