@@ -13,7 +13,7 @@ class TicketStatuses extends DoctrineFixture
         [
             'code'        => 'open',
             'description' => 'Open',
-            'colorCode'   => '#7E91F0',
+            'colorCode'   => '#0056fc',
             'sortOrder'   => 1
         ],
         [

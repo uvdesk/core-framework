@@ -17,7 +17,7 @@ class HelpdeskBranding extends DoctrineFixture
             ($website = new CoreEntities\Website())
                 ->setName('Support Center')
                 ->setCode('helpdesk')
-                ->setThemeColor('#7E91F0')
+                ->setThemeColor('#0056fc')
                 ->setCreatedAt(new \DateTime())
                 ->setUpdatedAt(new \DateTime());
 

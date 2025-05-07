@@ -538,7 +538,7 @@ class UserService
                 'id'                        =>  1,
                 'website'                   =>  1,
                 'status'                    =>  1,
-                'brandColor'                => '#7E91F0',
+                'brandColor'                => '#0056fc',
                 'pageBackgroundColor'       => '#FFFFFF',
                 'headerBackgroundColor'     => '#FFFFFF',
                 'bannerBackgroundColor'     => '#7085F4',
