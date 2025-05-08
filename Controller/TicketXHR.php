@@ -17,6 +17,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreFrameworkBundleEntities;
+use Webkul\UVDesk\SupportCenterBundle\Entity\KnowledgebaseWebsite;
 
 class TicketXHR extends AbstractController
 {
@@ -1116,6 +1117,19 @@ class TicketXHR extends AbstractController
     public function generateCustomerPublicTicketResourceAccessLink($id, Request $request, ContainerInterface $container)
     {
         $entityManager = $this->entityManager;
+
+        $accessRule = $this->entityManager->getRepository(KnowledgebaseWebsite::class)->findOneById(1);
+
+        if (
+            empty($accessRule) 
+            || $accessRule->getPublicResourceAccessAttemptLimit() == null 
+            || $accessRule->getPublicResourceAccessAttemptLimit() == 0
+        ) {
+            return new JsonResponse([
+                'status'  => false,
+                'message' => "No public URL access limit is currently set for tickets.",
+            ]);
+        }
 
         $ticket = $entityManager->getRepository(CoreFrameworkBundleEntities\Ticket::class)->findOneBy([
             'id'      => $id

@@ -2626,14 +2626,6 @@ class TicketService
 
         $router = $this->container->get('router');
 
-        $accessRule = $this->entityManager->getRepository(KnowledgebaseWebsite::class)->findOneById(1);
-
-        if (empty($accessRule) || $accessRule->getPublicResourceAccessAttemptLimit() == 0) {
-            return $router->generate('helpdesk_customer_ticket', [
-                'id' => $ticket->getId(),
-            ], true);
-        }
-
         $token = $this->generateCustomToken($ticket->getId());
 
         $publicResourceAccessLink = new CoreFrameworkEntity\PublicResourceAccessLink();

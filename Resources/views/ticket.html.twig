@@ -2248,6 +2248,11 @@
                             if (response.status == true) {
                                 $('#ticket-public-resource-access-link .resource-link').html(response.resourceUrl);
                                 $('#ticket-public-resource-access-link').addClass('visible');
+                            } else {
+                                app.appView.renderResponseAlert({
+                                    alertClass: 'warning',
+                                    alertMessage: response.message,
+                                });
                             }
 
                             app.appView.hideLoader();
