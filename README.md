@@ -9,22 +9,22 @@
     <a href="https://gitter.im/uvdesk/core-framework"><img src="https://badges.gitter.im/uvdesk/core-framework.svg" alt="connect on gitter"></a>
 </p>
 
-The standalone **CoreFrameworkBundle** lies at the heart of the [UVDesk Community][1] helpdesk, providing the core essential functionalities and integration tools to easily integrate any other community helpdesk packages, furhter extending the capabilities of the helpdesk system.
+The **CoreFrameworkBundle** serves as the foundational pillar of the [UVDesk Community][1] helpdesk system. It encapsulates the essential functionalities and acts as a powerful integration framework that streamlines the inclusion of various community helpdesk packages. Designed with modularity and extensibility in mind, this standalone bundle ensures seamless interoperability across different components, empowering developers to enhance, customize, and scale the helpdesk system effortlessly. By providing a unified and robust core architecture, the CoreFrameworkBundle significantly accelerates development while maintaining stability, making it an indispensable asset at the heart of the UVDesk ecosystem.
 
 The core framework bundle comes loaded with the following features:
 
-  * **Ticket Query System** - Easily transform your customer queries into tickets
+  * **Ticket Query System** - Effortlessly convert customer inquiries into organized support tickets for streamlined issue tracking.
 
-  * **Mailboxes** - Pipeline your support email mailboxes directly into tickets for easy query managment
+  * **Mailboxes** - Seamlessly integrate your support email mailboxes with the helpdesk to automatically convert every customer email into a trackable ticket.
 
-  * **Email Templates** - Draft your frequent query responses to improve your productivity and minimize response time
+  * **Email Templates** - Draft your frequent query responses to improve your productivity and minimize response time.
 
   * **User Management System** - Easily manage your support staff members into Admins, Groups & Teams with varying level of system privileges
 
 Installation
 --------------
 
-This bundle can be easily integrated into any Symfony application (though it is recommended that you're using [Symfony 4][3], or your project has a dependency on [Symfony Flex][4], as things have changed drastically with the newer Symfony versions). Before continuing, make sure that you're using PHP 7 or higher and have [Composer][5] installed. You also need to ensure that you have the following PHP extensions installed:
+This bundle can be easily integrated into any Symfony application (though it is recommended that you're using [Symfony 4][3], or your project has a dependency on [Symfony Flex][4], as things have changed drastically with the newer Symfony versions). Before continuing, make sure that you're using PHP 8 or higher and have [Composer][5] installed. You also need to ensure that you have the following PHP extensions installed:
 
   * [PHP IMAP][6]
   * [PHP Mailparse][7]
