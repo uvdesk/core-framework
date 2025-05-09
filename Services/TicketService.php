@@ -107,6 +107,13 @@ class TicketService
         return !empty($ticketStatus) ? $ticketStatus : null;
     }
 
+    public function getUserPresenceStatus()
+    {
+        $presenceStatus = $this->entityManager->getRepository(CoreFrameworkEntity\Website::class)->findOneById(1);
+
+        return !empty($presenceStatus) ? $presenceStatus->getDisplayUserPresenceIndicator() : null;
+    }
+
     public function getDefaultPriority()
     {
         $priorityCode = $this->container->getParameter('uvdesk.default.ticket.priority');

@@ -436,11 +436,13 @@
                                                             <img src="{{ asset(default_agent_image_path) }}" alt=""/>
                                                         {% endif %}
                                                         {{ agent.name }}
-
-                                                        {% if (agent.isOnline) %}
-                                                            <span title="Online" style="cursor:pointer; color: green; font-size: 15px; vertical-align: middle;">●</span>
-                                                                {% else %}
-                                                            <span title="Offline" style="cursor:pointer; color: red; font-size: 15px; vertical-align: middle;">●</span>
+                                                        
+                                                        {% if ticket_service.getUserPresenceStatus %}
+                                                            {% if (agent.isOnline) %}
+                                                                <span title="Online" style="cursor:pointer; color: green; font-size: 15px; vertical-align: middle;">●</span>
+                                                                    {% else %}
+                                                                <span title="Offline" style="cursor:pointer; color: red; font-size: 15px; vertical-align: middle;">●</span>
+                                                            {% endif %}
                                                         {% endif %}
                                                     </li>
                                                 {% endfor %}

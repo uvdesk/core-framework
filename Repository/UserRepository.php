@@ -66,10 +66,12 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         
         $paginationParams['page'] = 'replacePage';
         $paginationAttributes['url'] = '#' . $container->get('uvdesk.service')->buildPaginationQuery($paginationParams);
-        
+
+        $userService = $container->get('user.service');
+
         return [
             'pagination_data' => $paginationAttributes,
-            'users' => array_map(function ($user) {
+            'users' => array_map(function ($user) use ($userService) {
                 return [
                     'id'             => $user['id'],
                     'email'          => $user['email'],
@@ -78,6 +80,10 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
                     'name'           => ucwords(trim(implode(' ', [$user['firstName'], $user['lastName']]))),
                     'role'           => $user['userInstance'][0]['supportRole']['description'],
                     'roleCode'       => $user['userInstance'][0]['supportRole']['code'],
+                    'isOnline'       => $user['userInstance'][0]['isOnline'],
+                    'lastLogin'       => !empty($user['userInstance'][0]['lastLogin'])
+                    ? $userService->getLocalizedFormattedTime($user['userInstance'][0]['lastLogin']) 
+                    : 'NA',
                 ];
             }, $pagination->getItems()),
         ];
@@ -152,6 +158,8 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         $this->container = $container;
         $data = array();
 
+        $userService = $this->container->get('user.service');
+
         foreach ($results as $key => $customer) {
             $data[] =   [
                             'id'             => $customer[0]['id'],
@@ -162,6 +170,10 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
                             'name'           => $customer[0]['firstName'].' '.$customer[0]['lastName'],
                             'source'         => $customer[0]['userInstance'][0]['source'],
                             'count'          => $this->getCustomerTicketCount($customer[0]['id']),
+                            'isOnline'       => $customer[0]['userInstance'][0]['isOnline'],
+                            'lastLogin'       => !empty($customer[0]['userInstance'][0]['lastLogin'])
+                            ? $userService->getLocalizedFormattedTime($customer[0]['userInstance'][0]['lastLogin']) 
+                            : 'NA',
                         ];
         }
 
