@@ -131,12 +131,13 @@
             <a href="{{ path('helpdesk_member_ticket_collection') }}#customer/<%= id %>">
 			    <%- name %>
             </a>
-
-			<% if (isOnline) { %>
-				<span title ="<%- lastLogin %>" style="cursor:pointer; color: green; font-size: 15px; vertical-align: middle;">●</span>
-			<% } else { %>
-				<span title ="<%- lastLogin %>" style="cursor:pointer; color: red; font-size: 15px; vertical-align: middle;">●</span>
-			<% } %>
+			{% if (ticket_service.getUserPresenceStatus) %}
+				<% if (isOnline) { %>
+					<span title ="<%- lastLogin %>" style="cursor:pointer; color: green; font-size: 15px; vertical-align: middle;">●</span>
+				<% } else { %>
+					<span title ="<%- lastLogin %>" style="cursor:pointer; color: red; font-size: 15px; vertical-align: middle;">●</span>
+				<% } %>
+			{% endif %}
 		</td>
 		<td data-value="{{ 'Email'|trans }}"><%- email %></td>
         <td data-value="{{ 'Open Tickets'|trans }}">
