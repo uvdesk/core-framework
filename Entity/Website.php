@@ -27,6 +27,12 @@ class Website
     private $name;
 
     /**
+     * @var bool
+     * @ORM\Column(type="boolean", nullable=true, options={"default": false})
+     */
+    private $displayUserPresenceIndicator;
+
+    /**
      * @var string
      * @ORM\Column(type="string", length=191, unique=true)
      */
@@ -245,6 +251,30 @@ class Website
     public function getFavicon()
     {
         return $this->favicon;
+    }
+
+    /**
+     * Set DisplayUserPresenceIndicator
+     *
+     * @param string $displayUserPresenceIndicator
+     *
+     * @return website
+     */
+    public function setDisplayUserPresenceIndicator($displayUserPresenceIndicator)
+    {
+        $this->displayUserPresenceIndicator = $displayUserPresenceIndicator;
+
+        return $this;
+    }
+
+    /**
+     * Get DisplayUserPresenceIndicator
+     *
+     * @return string
+     */
+    public function getDisplayUserPresenceIndicator()
+    {
+        return $this->displayUserPresenceIndicator;
     }
 
     /**

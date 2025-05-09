@@ -25,7 +25,8 @@ class Theme extends AbstractController
 
             $website->setName($values['helpdeskName']);
             $website->setThemeColor($values['themeColor']);
-
+            $website->setDisplayUserPresenceIndicator($values['displayUserPresenceIndicator']);
+            
             $entityManager->persist($website);
             $entityManager->flush();
 

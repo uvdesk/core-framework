@@ -79,6 +79,19 @@
 					  	</div>
 					</div>
 					<!-- //Field -->
+                   
+                    <!-- Field -->
+                    <div class="uv-element-block" style="margin: 20px 0">
+                        <label>
+                            <div class="uv-checkbox">
+                                <input type="hidden" name="displayUserPresenceIndicator" value="0">
+                                <input name="displayUserPresenceIndicator" type="checkbox" value="1" {{ website.displayUserPresenceIndicator == true ? 'checked' : '' }}>
+                                <span class="uv-checkbox-view"></span>
+                            </div>
+                            <span class="uv-checkbox-label">Enable Agents/Customers Presence status</span>
+                        </label>
+                    </div>
+					<!-- //Field -->
 
 					<!--CTA-->
 					<input class="uv-btn knowledgebase-btn" href="#" value="{{ 'Save Changes'|trans }}" type="submit">
