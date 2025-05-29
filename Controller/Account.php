@@ -274,6 +274,14 @@ class Account extends AbstractController
                     $oldSupportedPrivilege = ($supportPrivilegeList = $userInstance != null ? $userInstance->getSupportPrivileges() : null) ? $supportPrivilegeList->toArray() : [];
 
                     if (isset($data['role'])) {
+                        if ($this->getUser()->getId() == $agentId && $this->getUser()->getRoles()[0] == "ROLE_AGENT" || $this->getUser()->getRoles()[0] =="ROLE_ADMIN") {
+                            $json['alertClass'] = 'warning';
+                            $json['alertMessage'] = $this->translator->trans("Warning ! You are not allowed to change your role.");
+                            return new Response(json_encode($json), 403, ['Content-Type' => 'application/json']);
+                        }
+                    }
+
+                    if (isset($data['role'])) {
                         $role = $em->getRepository(SupportRole::class)->findOneBy(array('code' => $data['role']));
                         $userInstance->setSupportRole($role);
                     }
