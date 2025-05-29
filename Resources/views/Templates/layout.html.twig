@@ -128,7 +128,8 @@
                 // Hide loader once the page is fully loaded
                 window.onload = function() {
                     // Hide the loader
-                    document.querySelector('.uv-loader-view').style.display = 'none';
+                    if (document.querySelector('.uv-loader-view'))
+                        document.querySelector('.uv-loader-view').style.display = 'none';
                 };
             </script>
 

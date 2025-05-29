@@ -42,6 +42,12 @@ class SwiftMailer extends AbstractController
             $params['password'] = base64_encode($params['password']);
             $swiftmailer = $this->swiftMailer;
 
+            if (! empty($params['id']) && ! preg_match('/^[a-zA-Z0-9_-]+$/', $params['id'])) {
+                $this->addFlash('warning', $this->translator->trans('Invalid ID format. Only alphanumeric characters, underscores, and hyphens are allowed.'));
+
+                return new RedirectResponse($this->generateUrl('helpdesk_member_swiftmailer_create_mailer_configuration'));
+            }
+
             $swiftmailerConfiguration = $swiftmailer->createConfiguration($params['transport'], $params['id']);
 
             if (! empty($swiftmailerConfiguration)) {
