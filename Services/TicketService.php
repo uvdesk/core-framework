@@ -336,7 +336,6 @@ class TicketService
         $thread->setCreatedAt(new \DateTime());
         $thread->setUpdatedAt(new \DateTime());
 
-
         if ($threadData['message']) {
             $threadData['message'] = htmlspecialchars($this->sanitizeMessage($threadData['message']), ENT_QUOTES, 'UTF-8');
         }

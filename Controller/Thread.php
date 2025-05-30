@@ -65,9 +65,6 @@ class Thread extends AbstractController
             throw new \Exception('Insufficient Permisions', 400);
         }
 
-        // // Deny access unles granted ticket view permission
-        // $this->denyAccessUnlessGranted('AGENT_VIEW', $ticket);
-
         // Check if reply content is empty
         $parsedMessage = trim(strip_tags($params['reply'], '<img>'));
         $parsedMessage = str_replace('&nbsp;', '', $parsedMessage);
@@ -82,7 +79,7 @@ class Thread extends AbstractController
             'createdBy'   => 'agent',
             'source'      => 'website',
             'threadType'  => strtolower($params['threadType']),
-            'message'     => htmlspecialchars($this->ticketService->sanitizeMessage($params['reply']), ENT_QUOTES, 'UTF-8'),
+            'message'     => ($params['reply']),
             'attachments' => $request->files->get('attachments')
         ];
 
