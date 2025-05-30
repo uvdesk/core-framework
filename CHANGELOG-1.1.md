@@ -14,6 +14,7 @@ This changelog references any relevant changes introduced in 1.1 minor versions.
         - User created notes with different color on ticket view.
         - Added assigned agent access details on ticket view, admin can all the access provided to that agent.
         - Updated some icons on dashboard for microsoft apps etc.
+        - Display all shared saved replies to admin and super admin.
 
 * 1.1.6 (2024-12-23)
     * Issue #508 #549 - Filter issue resolved for customer filtering.

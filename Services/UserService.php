@@ -821,10 +821,20 @@ class UserService
         $savedReplyIds = [];
         $groupIds = [];
         $teamIds = [];
-        $userId = $this->getCurrentUser()->getAgentInstance()->getId();
+        $userInstance = $this->getCurrentUser()->getAgentInstance();
+        $userId = $userInstance->getId();
 
         // Get all the saved reply the current user has created.
         $savedReplyRepo = $this->entityManager->getRepository(SavedReplies::class)->findAll();
+
+        if (in_array($userInstance->getSupportRole()->getCode(), ['ROLE_ADMIN', "ROLE_SUPER_ADMIN"])) {
+            // If the user is admin or super admin, return all saved replies.
+            foreach ($savedReplyRepo as $sr) {
+                array_push($savedReplyIds, (int)$sr->getId());
+            }
+
+            return $savedReplyIds;
+        }
 
         foreach ($savedReplyRepo as $sr) {
             if ($userId == $sr->getUser()->getId()) {
