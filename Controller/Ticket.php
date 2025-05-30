@@ -295,8 +295,12 @@ class Ticket extends AbstractController
             'attachments' => $request->files->get('attachments'),
         ];
 
-        $thread = $this->ticketService->createTicketBase($ticketData);
-
+        try {
+            $thread = $this->ticketService->createTicketBase($ticketData);
+        } catch (\Exception $e) {
+            $this->addFlash('warning', $e->getMessage());
+            return $this->redirect(!empty($referralURL) ? $referralURL : $this->generateUrl('helpdesk_member_ticket_collection'));
+        }
 
         $ticket = $thread->getTicket();
 
