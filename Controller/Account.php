@@ -274,16 +274,52 @@ class Account extends AbstractController
                     $oldSupportedPrivilege = ($supportPrivilegeList = $userInstance != null ? $userInstance->getSupportPrivileges() : null) ? $supportPrivilegeList->toArray() : [];
 
                     if (isset($data['role'])) {
-                        if ($this->getUser()->getId() == $agentId && $this->getUser()->getRoles()[0] == "ROLE_AGENT" || $this->getUser()->getRoles()[0] =="ROLE_ADMIN") {
-                            $json['alertClass'] = 'warning';
-                            $json['alertMessage'] = $this->translator->trans("Warning ! You are not allowed to change your role.");
-                            return new Response(json_encode($json), 403, ['Content-Type' => 'application/json']);
-                        }
-                    }
+                        $currentUser = $this->getUser();
+                        $isAdmin = in_array('ROLE_ADMIN', $currentUser->getRoles(), true);
+                        $isSuperAdmin = in_array('ROLE_SUPER_ADMIN', $currentUser->getRoles(), true);
 
-                    if (isset($data['role'])) {
-                        $role = $em->getRepository(SupportRole::class)->findOneBy(array('code' => $data['role']));
-                        $userInstance->setSupportRole($role);
+                        // Get current role code from user instance
+                        $currentRoleCode = $userInstance->getSupportRole() ? $userInstance->getSupportRole()->getCode() : null;
+
+                        // Check if the role is actually being changed
+                        if ($data['role'] !== $currentRoleCode) {
+                            // Prevent unauthorized users from changing roles
+                            if (!$isAdmin && !$isSuperAdmin) {
+                                $this->addFlash('warning', $this->translator->trans('Error! You are not allowed to change roles.'));
+                                return $this->render('@UVDeskCoreFramework/Agents/updateSupportAgent.html.twig', [
+                                    'user'         => $user,
+                                    'instanceRole' => $instanceRole,
+                                    'errors'       => json_encode([])
+                                ]);
+                            }
+
+                            // Prevent users from changing their own role
+                            if ($currentUser->getId() === $agentId) {
+                                $this->addFlash('warning', $this->translator->trans('Error! You cannot change your own role.'));
+                                return $this->render('@UVDeskCoreFramework/Agents/updateSupportAgent.html.twig', [
+                                    'user'         => $user,
+                                    'instanceRole' => $instanceRole,
+                                    'errors'       => json_encode([])
+                                ]);
+                            }
+
+                            // Prevent assignment of ROLE_SUPER_ADMIN to anyone
+                            if ($data['role'] === 'ROLE_SUPER_ADMIN') {
+                                $this->addFlash('warning', $this->translator->trans('Error! You cannot assign Super Admin role.'));
+                                return $this->render('@UVDeskCoreFramework/Agents/updateSupportAgent.html.twig', [
+                                    'user'         => $user,
+                                    'instanceRole' => $instanceRole,
+                                    'errors'       => json_encode([])
+                                ]);
+                            }
+
+                            // All checks passed, assign the new role
+                            $role = $em->getRepository(SupportRole::class)->findOneBy(['code' => $data['role']]);
+
+                            if ($role) {
+                                $userInstance->setSupportRole($role);
+                            }
+                        }
                     }
 
                     if (isset($data['ticketView'])) {
