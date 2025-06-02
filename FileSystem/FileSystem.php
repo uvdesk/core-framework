@@ -131,12 +131,12 @@ class FileSystem
 
         if ('member' == $firewall) {
             $assetDetails['downloadURL'] = $router->generate('helpdesk_member_ticket_download_attachment', [
-                'attachmendId' => $attachment->getId(),
+                'attachmentId' => $attachment->getId(),
             ], UrlGeneratorInterface::ABSOLUTE_URL);
 
         } else {
             $assetDetails['downloadURL'] = $router->generate('helpdesk_customer_download_ticket_attachment', [
-                'attachmendId' => $attachment->getId(),
+                'attachmentId' => $attachment->getId(),
             ], UrlGeneratorInterface::ABSOLUTE_URL);
         }
 
