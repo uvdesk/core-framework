@@ -16,7 +16,7 @@ class SavedRepliesRepository extends EntityRepository
     {
         $json = array();
         $qb = $this->getEntityManager()->createQueryBuilder();
-        $qb->select('DISTINCT sr.id, sr.name, sr')->from($this->getEntityName(), 'sr');
+        $qb->select('DISTINCT sr.id, sr.name')->from($this->getEntityName(), 'sr');
         $currentUserInstance = $container->get('user.service')->getCurrentUser()?->getAgentInstance();
 
         $data = $obj->all();

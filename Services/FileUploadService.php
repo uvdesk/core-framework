@@ -168,7 +168,7 @@ class FileUploadService extends \Webkul\UVDesk\CoreFrameworkBundle\FileSystem\Up
 
 			// Validate extension and MIME type match
 			if (!array_key_exists($extension, $allowedMimeMap) || $allowedMimeMap[$extension] !== $mimeType) {
-				throw new \Exception('Invalid file type, uploaded file '. $originalName .' is type of ' . $mimeType . ' but allowed types are: ' . implode(', ', array_keys($allowedMimeMap)));
+				throw new \Exception('Invalid file type, allowed types are: ' . implode(', ', array_keys($allowedMimeMap)));
 			}
 
 			// Validate file size
@@ -178,8 +178,13 @@ class FileUploadService extends \Webkul\UVDesk\CoreFrameworkBundle\FileSystem\Up
 
 			// Check for suspicious content (basic payload scan)
 			$contents = file_get_contents($file->getRealPath());
+
 			if (preg_match('/<\?php|<script|eval\(|base64_decode\(/i', $contents)) {
 				throw new \Exception('File contains potentially malicious content.');
+			}
+
+			if (preg_match('/\/JavaScript|\/JS|\/AA|\/OpenAction/i', $contents)) {
+				throw new \Exception("PDF '{$originalName}' contains embedded scripts which are not allowed.");
 			}
 		}
 	}

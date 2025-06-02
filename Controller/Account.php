@@ -191,7 +191,6 @@ class Account extends AbstractController
                     return $this->redirect($this->generateUrl('helpdesk_member_profile'));
                 } else {
                     $errors = $form->getErrors();
-                    $errors = $this->getFormErrors($form);
                 }
             } else {
                 $this->addFlash('warning', $this->translator->trans('Error ! User with same email is already exist.'));
