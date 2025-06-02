@@ -274,6 +274,7 @@ class Account extends AbstractController
                     $oldSupportedPrivilege = ($supportPrivilegeList = $userInstance != null ? $userInstance->getSupportPrivileges() : null) ? $supportPrivilegeList->toArray() : [];
 
                     if (isset($data['role'])) {
+                        $isError = false;
                         $currentUser = $this->getUser();
                         $isAdmin = in_array('ROLE_ADMIN', $currentUser->getRoles(), true);
                         $isSuperAdmin = in_array('ROLE_SUPER_ADMIN', $currentUser->getRoles(), true);
@@ -286,26 +287,29 @@ class Account extends AbstractController
                             // Prevent unauthorized users from changing roles
                             if (!$isAdmin && !$isSuperAdmin) {
                                 $this->addFlash('warning', $this->translator->trans('Error! You are not allowed to change roles.'));
-                                return $this->render('@UVDeskCoreFramework/Agents/updateSupportAgent.html.twig', [
-                                    'user'         => $user,
-                                    'instanceRole' => $instanceRole,
-                                    'errors'       => json_encode([])
-                                ]);
+                                $isError = true;
                             }
 
                             // Prevent users from changing their own role
                             if ($currentUser->getId() === $agentId) {
                                 $this->addFlash('warning', $this->translator->trans('Error! You cannot change your own role.'));
-                                return $this->render('@UVDeskCoreFramework/Agents/updateSupportAgent.html.twig', [
-                                    'user'         => $user,
-                                    'instanceRole' => $instanceRole,
-                                    'errors'       => json_encode([])
-                                ]);
+                                $isError = true;
                             }
 
                             // Prevent assignment of ROLE_SUPER_ADMIN to anyone
                             if ($data['role'] === 'ROLE_SUPER_ADMIN') {
                                 $this->addFlash('warning', $this->translator->trans('Error! You cannot assign Super Admin role.'));
+                                $isError = true;
+                            }
+
+                            $targetUserIsSuperAdmin = 'ROLE_SUPER_ADMIN' == $currentRoleCode;
+
+                            if ($targetUserIsSuperAdmin && !$isSuperAdmin) {
+                                $this->addFlash('warning', $this->translator->trans("Error! You can't update profile of Super Admin."));
+                                $isError = true;
+                            }
+
+                            if ($isError) {
                                 return $this->render('@UVDeskCoreFramework/Agents/updateSupportAgent.html.twig', [
                                     'user'         => $user,
                                     'instanceRole' => $instanceRole,
