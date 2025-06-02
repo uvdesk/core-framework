@@ -253,6 +253,30 @@ class Account extends AbstractController
                 }
 
                 if (! $errorFlag) {
+                    $currentUser = $this->getUser();
+                    $isAdmin = in_array('ROLE_ADMIN', $currentUser->getRoles(), true);
+                    $userInstance = $em->getRepository(UserInstance::class)->findOneBy(array('user' => $agentId, 'supportRole' => array(1, 2, 3)));
+                    $isSuperAdmin = in_array('ROLE_SUPER_ADMIN', $currentUser->getRoles(), true);
+
+                    // Get current role code from user instance
+                    $currentRoleCode = $userInstance->getSupportRole() ? $userInstance->getSupportRole()->getCode() : null;
+                    $targetUserIsSuperAdmin = 'ROLE_SUPER_ADMIN' == $currentRoleCode;
+                    $targetUserIsAdmin = 'ROLE_ADMIN' == $currentRoleCode;
+
+                    if (
+                        (($targetUserIsSuperAdmin
+                        && !$isSuperAdmin) || ($targetUserIsAdmin && !$isAdmin && !$isSuperAdmin))
+                        && $data['email'] !== $user->getEmail()
+                    ) {
+                        $this->addFlash('warning', 'You are not allowed to update the email of a Admin and Super Admin.');
+
+                        return $this->render('@UVDeskCoreFramework/Agents/updateSupportAgent.html.twig', [
+                            'user'         => $user,
+                            'instanceRole' => $instanceRole,
+                            'errors'       => json_encode([])
+                        ]);
+                    }
+
                     if (
                         isset($data['password']['first']) && ! empty(trim($data['password']['first']))
                         && isset($data['password']['second'])  && ! empty(trim($data['password']['second']))
@@ -267,20 +291,12 @@ class Account extends AbstractController
                     $user->setEmail(trim($data['email']));
                     $user->setIsEnabled(true);
 
-                    $userInstance = $em->getRepository(UserInstance::class)->findOneBy(array('user' => $agentId, 'supportRole' => array(1, 2, 3)));
-
                     $oldSupportTeam = ($supportTeamList = $userInstance != null ? $userInstance->getSupportTeams() : null) ? $supportTeamList->toArray() : [];
                     $oldSupportGroup  = ($supportGroupList = $userInstance != null ? $userInstance->getSupportGroups() : null) ? $supportGroupList->toArray() : [];
                     $oldSupportedPrivilege = ($supportPrivilegeList = $userInstance != null ? $userInstance->getSupportPrivileges() : null) ? $supportPrivilegeList->toArray() : [];
 
                     if (isset($data['role'])) {
                         $isError = false;
-                        $currentUser = $this->getUser();
-                        $isAdmin = in_array('ROLE_ADMIN', $currentUser->getRoles(), true);
-                        $isSuperAdmin = in_array('ROLE_SUPER_ADMIN', $currentUser->getRoles(), true);
-
-                        // Get current role code from user instance
-                        $currentRoleCode = $userInstance->getSupportRole() ? $userInstance->getSupportRole()->getCode() : null;
 
                         // Check if the role is actually being changed
                         if ($data['role'] !== $currentRoleCode) {
@@ -301,8 +317,6 @@ class Account extends AbstractController
                                 $this->addFlash('warning', $this->translator->trans('Error! You cannot assign Super Admin role.'));
                                 $isError = true;
                             }
-
-                            $targetUserIsSuperAdmin = 'ROLE_SUPER_ADMIN' == $currentRoleCode;
 
                             if ($targetUserIsSuperAdmin && !$isSuperAdmin) {
                                 $this->addFlash('warning', $this->translator->trans("Error! You can't update profile of Super Admin."));
