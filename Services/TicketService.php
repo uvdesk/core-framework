@@ -1599,9 +1599,15 @@ class TicketService
         $savedReplyIds = [];
         $groupIds = [];
         $teamIds = [];
-        $userId = $this->container->get('user.service')->getCurrentUser()->getAgentInstance()->getId();
+        $userInstance = $this->container->get('user.service')->getCurrentUser()->getAgentInstance();
+        $userId = $userInstance->getId();
+        $currentRole = $userInstance->getSupportRole()->getCode();
 
         $savedReplyRepo = $this->entityManager->getRepository(CoreFrameworkEntity\SavedReplies::class)->findAll();
+
+        if (in_array($currentRole, ['ROLE_SUPER_ADMIN', 'ROLE_ADMIN'])) {
+            return $savedReplyRepo;
+        }
 
         foreach ($savedReplyRepo as $sr) {
             if ($userId == $sr->getUser()->getId()) {
@@ -1765,6 +1771,36 @@ class TicketService
     {
         $ticket = $this->entityManager->getRepository(CoreFrameworkEntity\Ticket::class)->find($ticketId);
         $savedReply = $this->entityManager->getRepository(CoreFrameworkEntity\SavedReplies::class)->findOneById($savedReplyId);
+        $savedReplyGroups = $savedReply->getSupportGroups()->toArray();
+        $savedReplyTeams = $savedReply->getSupportTeams()->toArray();
+
+        $savedReplyGroups = array_map(function ($group) {
+            return $group->getId();
+        }, $savedReplyGroups);
+
+        $savedReplyTeams = array_map(function ($team) {
+            return $team->getId();
+        }, $savedReplyTeams);
+
+        $userInstance = $this->container->get('user.service')->getCurrentUser()->getAgentInstance();
+        $currentUserRole = $userInstance->getSupportRole()->getCode();
+
+        // Check if the user belongs to any of the groups or teams associated with the saved reply
+        $userGroups = $userInstance->getSupportGroups()->toArray();
+        $userTeams = $userInstance->getSupportTeams()->toArray();
+
+        $groupIds = array_map(function ($group) {
+            return $group->getId();
+        }, $userGroups);
+
+        $teamIds = array_map(function ($team) {
+            return $team->getId();
+        }, $userTeams);
+
+        if (!array_intersect($groupIds, $savedReplyGroups) && !array_intersect($teamIds, $savedReplyTeams) && (!in_array($currentUserRole, ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN']))) {
+            throw new \Exception('You are not allowed to apply this saved reply.');
+        }
+
         $emailPlaceholders = $this->getSavedReplyPlaceholderValues($ticket, 'customer');
 
         return $this->container->get('email.service')->processEmailContent($savedReply->getMessage(), $emailPlaceholders, true);

@@ -23,7 +23,7 @@ class SavedReplies extends AbstractController
     private $translator;
     private $entityManager;
 
-    public function __construct(UserService $userService, TranslatorInterface $translator,EntityManagerInterface $entityManager)
+    public function __construct(UserService $userService, TranslatorInterface $translator, EntityManagerInterface $entityManager)
     {
         $this->userService = $userService;
         $this->translator = $translator;
@@ -41,19 +41,22 @@ class SavedReplies extends AbstractController
 
     public function updateSavedReplies(Request $request, ContainerInterface $container)
     {
+        $errors = [];
         $templateId = $request->attributes->get('template');
         $repository = $this->entityManager->getRepository(CoreFrameworkBundleEntities\SavedReplies::class);
+        $currentUser = $this->getUser()->getAgentInstance();
+        $currentUserRole = $currentUser->getSupportRole()->getCode();
 
         $template = $repository->getSavedReply($templateId, $container);
-        if (! empty($template)) {
-            $groupSupports = count($template->getSupportGroups());
-            $teamSupports  = count($template->getSupportTeams());
 
+        if (! empty($template)) {
             if (
-                $template->getUser()->getId() != $this->getUser()->getId()
-                && empty($groupSupports) && empty($teamSupports)
+                $template->getUser()->getId() != $currentUser->getId()
+                && $currentUserRole == 'ROLE_AGENT'
             ) {
-                throw new \Exception('Access Denied', 403);
+                $this->addFlash('warning',  $this->translator->trans('Error! You are not allowed to edit this saved reply.'));
+
+                return $this->redirectToRoute('helpdesk_member_saved_replies');
             }
         }
 
@@ -68,7 +71,6 @@ class SavedReplies extends AbstractController
             }
         }
 
-        $errors = [];
         if ($request->getMethod() == 'POST') {
             if (empty($request->request->get('message'))) {
                 $this->addFlash('warning',  $this->translator->trans('Error! Saved reply body can not be blank'));
@@ -187,7 +189,12 @@ class SavedReplies extends AbstractController
                 $savedReply = $savedReplyRepository->findOneBy(['id' => $savedReplyId, 'user' => $this->getUser()->getAgentInstance()]);
 
                 if (empty($savedReply)) {
-                    throw new \Exception(404);
+                    $responseContent = [
+                        'alertClass'   => 'danger',
+                        'alertMessage' => $this->translator->trans('Errpr! You are not allowed to delete this saved reply.')
+                    ];                    
+
+                    return new Response(json_encode($responseContent), 200, ['Content-Type' => 'application/json']);
                 }
             }
 

@@ -5,6 +5,7 @@ This changelog references any relevant changes introduced in 1.1 minor versions.
 * 1.1.7
     * Fixed Cross-Site Scripting (XSS) security issues
     * Fixed security issue related to access privilage
+    * Fixed vulnerabilities issue related to saved replies
 
     Features:
         - Added rating on ticket view provided by customer based on support provided.
