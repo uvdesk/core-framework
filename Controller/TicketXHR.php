@@ -816,7 +816,15 @@ class TicketXHR extends AbstractController
         $data = $request->query->all();
 
         if ($request->isXmlHttpRequest()) {
-            $json['message'] = $this->ticketService->getSavedReplyContent($data['id'], $data['ticketId']);
+            try {
+                $json['message'] = $this->ticketService->getSavedReplyContent($data['id'], $data['ticketId']);
+            } catch (\Exception $e) {
+                $json['alertClass'] = 'danger';
+                $json['alertMessage'] = $e->getMessage();
+
+                return new Response(json_encode($json), 400, ['Content-Type' => 'application/json']);
+            }
+
         }
 
         $response = new Response(json_encode($json));
@@ -1121,8 +1129,8 @@ class TicketXHR extends AbstractController
         $accessRule = $this->entityManager->getRepository(KnowledgebaseWebsite::class)->findOneById(1);
 
         if (
-            empty($accessRule) 
-            || $accessRule->getPublicResourceAccessAttemptLimit() == null 
+            empty($accessRule)
+            || $accessRule->getPublicResourceAccessAttemptLimit() == null
             || $accessRule->getPublicResourceAccessAttemptLimit() == 0
         ) {
             return new JsonResponse([

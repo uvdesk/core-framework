@@ -5,7 +5,10 @@ This changelog references any relevant changes introduced in 1.1 minor versions.
 * 1.1.7
     * Added conditional operator for getting email in case not getting email in mail parameter for microsoft app.
     * Updated doctrine-migration package
-   
+    * Fixed Cross-Site Scripting (XSS) security issues
+    * Fixed security issue related to access privilage
+    * Fixed vulnerabilities issue related to saved replies
+
     Features:
         - Added rating on ticket view provided by customer based on support provided.
         - Updated UI - Added plus icon for ticket create, agent create etc.
@@ -14,6 +17,7 @@ This changelog references any relevant changes introduced in 1.1 minor versions.
         - User created notes with different color on ticket view.
         - Added assigned agent access details on ticket view, admin can all the access provided to that agent.
         - Updated some icons on dashboard for microsoft apps etc.
+        - Display all shared saved replies to admin and super admin.
 
 * 1.1.6 (2024-12-23)
     * Issue #508 #549 - Filter issue resolved for customer filtering.

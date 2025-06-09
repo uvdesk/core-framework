@@ -138,4 +138,54 @@ class FileUploadService extends \Webkul\UVDesk\CoreFrameworkBundle\FileSystem\Up
 
 		return false;
 	}
+
+	public function validateAttachments($attachments)
+	{
+		$maxSize = 18 * 1024 * 1024; // 18MB
+
+		// Allowed extensions and their corresponding MIME types
+		$allowedMimeMap = [
+			'jpg'   => 'image/jpeg',
+			'jpeg'  => 'image/jpeg',
+			'png'   => 'image/png',
+			'pdf'   => 'application/pdf',
+			'docx'  => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+			'xlsx'  => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+			'txt'   => 'text/plain',
+			'csv'   => 'text/csv',
+			'zip'   => 'application/zip',
+			'pptx'  => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+		];
+
+		foreach ($attachments as $file) {
+			if (! $file->isValid()) {
+				throw new \Exception('File upload error.');
+			}
+
+			$originalName = $file->getClientOriginalName();
+			$extension = strtolower($file->getClientOriginalExtension());
+			$mimeType = $file->getMimeType();
+
+			// Validate extension and MIME type match
+			if (!array_key_exists($extension, $allowedMimeMap) || $allowedMimeMap[$extension] !== $mimeType) {
+				throw new \Exception('Invalid file type, allowed types are: ' . implode(', ', array_keys($allowedMimeMap)));
+			}
+
+			// Validate file size
+			if ($file->getSize() > $maxSize) {
+				throw new \Exception('File is too large. Max size is 18MB.');
+			}
+
+			// Check for suspicious content (basic payload scan)
+			$contents = file_get_contents($file->getRealPath());
+
+			if (preg_match('/<\?php|<script|eval\(|base64_decode\(/i', $contents)) {
+				throw new \Exception('File contains potentially malicious content.');
+			}
+
+			if (preg_match('/\/JavaScript|\/JS|\/AA|\/OpenAction/i', $contents)) {
+				throw new \Exception("PDF '{$originalName}' contains embedded scripts which are not allowed.");
+			}
+		}
+	}
 }

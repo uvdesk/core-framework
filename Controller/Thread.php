@@ -4,7 +4,6 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\EventDispatcher\GenericEvent;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Attachment;
@@ -14,7 +13,6 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\Thread as TicketThread;
 use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Services\UVDeskService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\TicketService;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\EmailService;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -43,6 +41,7 @@ class Thread extends AbstractController
 
     public function saveThread($ticketId, Request $request)
     {
+        $thread = null;
         $params = $request->request->all();
         $entityManager = $this->getDoctrine()->getManager();
 
@@ -66,9 +65,6 @@ class Thread extends AbstractController
             throw new \Exception('Insufficient Permisions', 400);
         }
 
-        // // Deny access unles granted ticket view permission
-        // $this->denyAccessUnlessGranted('AGENT_VIEW', $ticket);
-
         // Check if reply content is empty
         $parsedMessage = trim(strip_tags($params['reply'], '<img>'));
         $parsedMessage = str_replace('&nbsp;', '', $parsedMessage);
@@ -78,19 +74,12 @@ class Thread extends AbstractController
             $this->addFlash('warning', $this->translator->trans('Reply content cannot be left blank.'));
         }
 
-        // @TODO: Validate file attachments
-        // if (true !== $this->get('file.service')->validateAttachments($request->files->get('attachments'))) {
-        //     $this->addFlash('warning', "Invalid attachments.");
-        // }
-        
-	    // $adminReply =  str_replace(['<p>','</p>'],"",$params['reply']);
-
         $threadDetails = [
             'user'        => $this->getUser(),
             'createdBy'   => 'agent',
             'source'      => 'website',
             'threadType'  => strtolower($params['threadType']),
-            'message'     => str_replace(['&lt;script&gt;', '&lt;/script&gt;'], '', htmlspecialchars($params['reply'])),
+            'message'     => ($params['reply']),
             'attachments' => $request->files->get('attachments')
         ];
 
@@ -122,7 +111,14 @@ class Thread extends AbstractController
         }
 
         // Create Thread
-        $thread = $this->ticketService->createThread($ticket, $threadDetails);
+        try {
+            $thread = $this->ticketService->createThread($ticket, $threadDetails);
+        } catch (\Exception $e) {
+            $this->addFlash('warning', $e->getMessage());
+
+            return $this->redirect($request->headers->get('referer') ?: $this->generateUrl('helpdesk_member_ticket_collection'));
+        }
+
         // $this->addFlash('success', ucwords($params['threadType']) . " added successfully.");
 
         // @TODO: Remove Agent Draft Thread
@@ -150,7 +146,7 @@ class Thread extends AbstractController
                         ->setTicket($ticket)
                         ->setThread($thread)
                     ;
-    
+
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
                     $this->eventDispatcher->dispatch($event, 'uvdesk.automation.report_app.workflow.execute');
                 }
@@ -169,18 +165,18 @@ class Thread extends AbstractController
                 $attachments = $entityManager->getRepository(Attachment::class)->findByThread($thread);
 
                 $projectDir = $this->kernel->getProjectDir();
-                $attachments = array_map(function($attachment) use ($projectDir) {
-                return str_replace('//', '/', $projectDir . "/public" . $attachment->getPath());
+                $attachments = array_map(function ($attachment) use ($projectDir) {
+                    return str_replace('//', '/', $projectDir . "/public" . $attachment->getPath());
                 }, $attachments);
 
-                $message = '<html><body style="background-image: none"><p>'.html_entity_decode($thread->getMessage()).'</p></body></html>';
+                $message = '<html><body style="background-image: none"><p>' . html_entity_decode($thread->getMessage()) . '</p></body></html>';
                 // Forward thread to users
                 try {
                     $messageId = $this->emailService->sendMail($params['subject'] ?? ("Forward: " . $ticket->getSubject()), $message, $thread->getReplyTo(), $headers, $ticket->getMailboxEmail(), $attachments ?? [], $thread->getCc() ?: [], $thread->getBcc() ?: []);
-    
+
                     if (! empty($messageId)) {
                         $thread->setMessageId($messageId);
-    
+
                         $entityManager->persist($thread);
                         $entityManager->flush();
                     }
@@ -200,7 +196,7 @@ class Thread extends AbstractController
         if ('redirect' === $params['nextView']) {
             return $this->redirect($this->generateUrl('helpdesk_member_ticket_collection'));
         }
-        
+
         return $this->redirect($this->generateUrl('helpdesk_member_ticket', ['ticketId' => $ticket->getId()]));
     }
 
@@ -222,9 +218,10 @@ class Thread extends AbstractController
         }
 
         if ($request->getMethod() == "PUT") {
-            // $this->isAuthorized('ROLE_AGENT_EDIT_THREAD_NOTE');
-            if (str_replace(' ','',str_replace('&nbsp;','',trim(strip_tags($content['reply'], '<img>')))) != "") {
-                $thread->setMessage($content['reply']);
+            $replyMessage = $this->ticketService->sanitizeMessage($content['reply']);
+
+            if (str_replace(' ', '', str_replace('&nbsp;', '', trim(strip_tags($content['reply'], '<img>')))) != "") {
+                $thread->setMessage($replyMessage);
                 $em->persist($thread);
                 $em->flush();
 
@@ -233,8 +230,7 @@ class Thread extends AbstractController
                 // Trigger agent reply event
                 $event = new CoreWorkflowEvents\Ticket\ThreadUpdate();
                 $event
-                    ->setTicket($ticket)
-                ;
+                    ->setTicket($ticket);
 
                 $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
@@ -255,28 +251,28 @@ class Thread extends AbstractController
         $content = json_decode($request->getContent(), true);
         $em = $this->getDoctrine()->getManager();
 
-        $ticket = $em->getRepository(Ticket::class)->findOneById($content['ticketId']); 
+        $ticket = $em->getRepository(Ticket::class)->findOneById($content['ticketId']);
 
         // Proceed only if user has access to the resource
-        if (false == $this->ticketService->isTicketAccessGranted($ticket)){
+        if (false == $this->ticketService->isTicketAccessGranted($ticket)) {
             throw new \Exception('Access Denied', 403);
         }
-        
+
         $threadId = $request->attributes->get('threadId');
 
         if ($request->getMethod() == "DELETE") {
             $thread = $em->getRepository(TicketThread::class)->findOneBy(array('id' => $threadId, 'ticket' => $content['ticketId']));
             $projectDir = $this->kernel->getProjectDir();
-            
+
             if ($thread) {
-                $this->fileUploadService->fileRemoveFromFolder($projectDir."/public/assets/threads/".$threadId);
-                
+                $this->fileUploadService->fileRemoveFromFolder($projectDir . "/public/assets/threads/" . $threadId);
+
                 // Trigger thread deleted event
                 // $event = new CoreWorkflowEvents\Ticket\ThreadDeleted();
                 // $event
                 //     ->setTicket($ticket)
                 // ;
-                // 
+                //
                 // $this->eventDispatcher->dispatch($event, 'uvdesk.automation.workflow.execute');
 
                 $em->remove($thread);

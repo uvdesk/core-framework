@@ -336,6 +336,10 @@ class TicketService
         $thread->setCreatedAt(new \DateTime());
         $thread->setUpdatedAt(new \DateTime());
 
+        if ($threadData['message']) {
+            $threadData['message'] = htmlspecialchars($this->sanitizeMessage($threadData['message']), ENT_QUOTES, 'UTF-8');
+        }
+
         if ($threadData['threadType'] != "note") {
             foreach ($threadData as $property => $value) {
                 if (!empty($value)) {
@@ -411,9 +415,23 @@ class TicketService
         ) {
             if ('email' == $threadData['source']) {
                 // Saving Email attachments in case of outlook with $threadData['attachmentContent']
-                $this->saveThreadEmailAttachments($thread, $threadData['attachments'], $threadData['attachmentContent'] ?? []);
+                try {
+                    $attachments = ! empty($threadData['attachments']) ? $threadData['attachments'] : $threadData['attachmentContent'];
+
+                    if (! empty($attachments)) {
+                        $this->fileUploadService->validateAttachments($attachments);
+                        $this->saveThreadEmailAttachments($thread, $threadData['attachments'], $threadData['attachmentContent'] ?? []);
+                    }
+                } catch (\Exception $e) {
+                    throw new \Exception($e->getMessage());
+                }
             } else if (!empty($threadData['attachments'])) {
-                $this->saveThreadAttachment($thread, $threadData['attachments']);
+                try {
+                    $this->fileUploadService->validateAttachments($threadData['attachments']);
+                    $this->saveThreadAttachment($thread, $threadData['attachments']);
+                } catch (\Exception $e) {
+                    throw new \Exception($e->getMessage());
+                }
             }
         }
 
@@ -1577,9 +1595,15 @@ class TicketService
         $savedReplyIds = [];
         $groupIds = [];
         $teamIds = [];
-        $userId = $this->container->get('user.service')->getCurrentUser()->getAgentInstance()->getId();
+        $userInstance = $this->container->get('user.service')->getCurrentUser()->getAgentInstance();
+        $userId = $userInstance->getId();
+        $currentRole = $userInstance->getSupportRole()->getCode();
 
         $savedReplyRepo = $this->entityManager->getRepository(CoreFrameworkEntity\SavedReplies::class)->findAll();
+
+        if (in_array($currentRole, ['ROLE_SUPER_ADMIN', 'ROLE_ADMIN'])) {
+            return $savedReplyRepo;
+        }
 
         foreach ($savedReplyRepo as $sr) {
             if ($userId == $sr->getUser()->getId()) {
@@ -1739,6 +1763,36 @@ class TicketService
     {
         $ticket = $this->entityManager->getRepository(CoreFrameworkEntity\Ticket::class)->find($ticketId);
         $savedReply = $this->entityManager->getRepository(CoreFrameworkEntity\SavedReplies::class)->findOneById($savedReplyId);
+        $savedReplyGroups = $savedReply->getSupportGroups()->toArray();
+        $savedReplyTeams = $savedReply->getSupportTeams()->toArray();
+
+        $savedReplyGroups = array_map(function ($group) {
+            return $group->getId();
+        }, $savedReplyGroups);
+
+        $savedReplyTeams = array_map(function ($team) {
+            return $team->getId();
+        }, $savedReplyTeams);
+
+        $userInstance = $this->container->get('user.service')->getCurrentUser()->getAgentInstance();
+        $currentUserRole = $userInstance->getSupportRole()->getCode();
+
+        // Check if the user belongs to any of the groups or teams associated with the saved reply
+        $userGroups = $userInstance->getSupportGroups()->toArray();
+        $userTeams = $userInstance->getSupportTeams()->toArray();
+
+        $groupIds = array_map(function ($group) {
+            return $group->getId();
+        }, $userGroups);
+
+        $teamIds = array_map(function ($team) {
+            return $team->getId();
+        }, $userTeams);
+
+        if (!array_intersect($groupIds, $savedReplyGroups) && !array_intersect($teamIds, $savedReplyTeams) && (!in_array($currentUserRole, ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN']))) {
+            throw new \Exception('You are not allowed to apply this saved reply.');
+        }
+
         $emailPlaceholders = $this->getSavedReplyPlaceholderValues($ticket, 'customer');
 
         return $this->container->get('email.service')->processEmailContent($savedReply->getMessage(), $emailPlaceholders, true);
@@ -2665,5 +2719,183 @@ class TicketService
 
         // Combine all parts: timestamp + ticket ID + random string
         return $timestamp . $ticketPart . $randomString;
+    }
+
+    public function sanitizeMessage($html)
+    {
+        // Step 1: Normalize the input by decoding multiple levels of encoding
+        $originalHtml = $html;
+        $iterations = 0;
+        $maxIterations = 5; // Prevent infinite loops
+
+        do {
+            $previousHtml = $html;
+            // Decode HTML entities (handles &lt; &gt; &amp; &quot; &#39; etc.)
+            $html = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            // Also decode numeric entities like &#60; &#62;
+            $html = preg_replace_callback('/&#(\d+);/', function ($matches) {
+                return chr($matches[1]);
+            }, $html);
+            // Decode hex entities like &#x3C; &#x3E;
+            $html = preg_replace_callback('/&#x([0-9a-fA-F]+);/', function ($matches) {
+                return chr(hexdec($matches[1]));
+            }, $html);
+            $iterations++;
+        } while ($html !== $previousHtml && $iterations < $maxIterations);
+
+        // Step 2: Remove all script tags and their content (multiple variations)
+        $scriptPatterns = [
+            '/<\s*script[^>]*>.*?<\s*\/\s*script\s*>/is',
+            '/<\s*script[^>]*>.*?$/is', // Unclosed script tags
+            '/javascript\s*:/i',
+            '/vbscript\s*:/i',
+            '/data\s*:\s*text\/html/i',
+            '/data\s*:\s*application\/javascript/i'
+        ];
+
+        foreach ($scriptPatterns as $pattern) {
+            $html = preg_replace($pattern, '', $html);
+        }
+
+        // Step 3: Remove dangerous tags
+        $dangerousTags = [
+            'script',
+            'iframe',
+            'object',
+            'embed',
+            'form',
+            'input',
+            'textarea',
+            'button',
+            'select',
+            'option',
+            'style',
+            'link',
+            'meta',
+            'base',
+            'applet',
+            'bgsound',
+            'blink',
+            'body',
+            'frame',
+            'frameset',
+            'head',
+            'html',
+            'ilayer',
+            'layer',
+            'plaintext',
+            'title',
+            'xml',
+            'xmp'
+        ];
+
+        foreach ($dangerousTags as $tag) {
+            // Remove opening and closing tags
+            $html = preg_replace('/<\s*\/?\s*' . preg_quote($tag, '/') . '[^>]*>/is', '', $html);
+        }
+
+        // Step 4: Remove ALL event handlers and dangerous attributes
+        $dangerousAttributes = [
+            // Event handlers
+            'on\w+', // Catches onclick, onload, onerror, etc.
+            // Other dangerous attributes
+            'style',
+            'background',
+            'dynsrc',
+            'lowsrc',
+            'href\s*=\s*["\']?\s*javascript',
+            'src\s*=\s*["\']?\s*javascript',
+            'action',
+            'formaction',
+            'poster',
+            'cite',
+            'longdesc',
+            'profile',
+            'usemap'
+        ];
+
+        foreach ($dangerousAttributes as $attr) {
+            $html = preg_replace('/\s+' . $attr . '\s*=\s*(["\'])[^"\']*\1/i', '', $html);
+            $html = preg_replace('/\s+' . $attr . '\s*=\s*[^\s>]+/i', '', $html);
+        }
+
+        // Step 5: Remove dangerous protocols from remaining attributes
+        $html = preg_replace('/(href|src|action|formaction|background|cite|longdesc|profile|usemap)\s*=\s*(["\']?)(javascript|data|vbscript|about|chrome|file|ftp|jar|mailto|ms-its|mhtml|mocha|opera|res|resource|shell|view-source|wyciwyg):[^"\'>\s]*/i', '$1=$2#blocked', $html);
+
+        // Step 6: Strip tags - only allow explicitly safe ones
+        $allowedTags = '<p><b><i><strong><em><ul><ol><li><br><a><img><h1><h2><h3><h4><h5><h6><blockquote><code><pre><span><div>';
+        $html = strip_tags($html, $allowedTags);
+
+        // Step 7: Final validation and cleanup of remaining tags
+        $html = preg_replace_callback('/<(\w+)([^>]*)>/i', function ($matches) {
+            $tag = strtolower($matches[1]);
+            $attributes = $matches[2];
+
+            // Only allow specific attributes for specific tags
+            $allowedAttributes = [
+                'a'    => ['href', 'title', 'target'],
+                'img'  => ['src', 'alt', 'width', 'height', 'title'],
+                'p'    => ['class'],
+                'div'  => ['class'],
+                'span' => ['class']
+            ];
+
+            if (!isset($allowedAttributes[$tag])) {
+                // Tag has no allowed attributes, return just the tag
+                return '<' . $tag . '>';
+            }
+
+            $validAttrs = [];
+            foreach ($allowedAttributes[$tag] as $allowedAttr) {
+                if (preg_match('/\s+' . preg_quote($allowedAttr, '/') . '\s*=\s*(["\'])([^"\']*)\1/i', $attributes, $match)) {
+                    $value = $match[2];
+
+                    // Additional validation for specific attributes
+                    if ($allowedAttr === 'href') {
+                        // Only allow safe URLs
+                        if (preg_match('/^(https?:\/\/|mailto:|\/|#)/i', $value)) {
+                            $validAttrs[] = $allowedAttr . '="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '"';
+                        }
+                    } elseif ($allowedAttr === 'src') {
+                        // Only allow safe image sources
+                        if (preg_match('/^(https?:\/\/|\/)/i', $value)) {
+                            $validAttrs[] = $allowedAttr . '="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '"';
+                        }
+                    } elseif ($allowedAttr === 'target') {
+                        // Only allow safe target values
+                        if (in_array($value, ['_blank', '_self', '_parent', '_top'])) {
+                            $validAttrs[] = $allowedAttr . '="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '"';
+                        }
+                    } else {
+                        // For other attributes, just escape the value
+                        $validAttrs[] = $allowedAttr . '="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '"';
+                    }
+                }
+            }
+
+            return '<' . $tag . (empty($validAttrs) ? '' : ' ' . implode(' ', $validAttrs)) . '>';
+        }, $html);
+
+        // Step 8: Remove any malformed or incomplete tags
+        $html = preg_replace('/<[^>]*$/', '', $html); // Remove incomplete tags at end
+        $html = preg_replace('/^[^<]*>/', '', $html); // Remove incomplete tags at start
+
+        // Step 9: Final security check - remove any remaining suspicious patterns
+        $suspiciousPatterns = [
+            '/expression\s*\(/i',           // CSS expression()
+            '/behavior\s*:/i',              // CSS behavior
+            '/binding\s*:/i',               // CSS binding
+            '/import\s*["\']?[^"\';]*;?/i', // CSS @import
+            '/url\s*\([^)]*\)/i',          // CSS url()
+            '/&#/i',                        // Remaining HTML entities
+            '/&\w+;/i'                      // HTML entity patterns
+        ];
+
+        foreach ($suspiciousPatterns as $pattern) {
+            $html = preg_replace($pattern, '', $html);
+        }
+
+        // Step 10: Trim and return
+        return trim($html);
     }
 }

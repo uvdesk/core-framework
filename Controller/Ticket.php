@@ -295,8 +295,12 @@ class Ticket extends AbstractController
             'attachments' => $request->files->get('attachments'),
         ];
 
-        $thread = $this->ticketService->createTicketBase($ticketData);
-
+        try {
+            $thread = $this->ticketService->createTicketBase($ticketData);
+        } catch (\Exception $e) {
+            $this->addFlash('warning', $e->getMessage());
+            return $this->redirect(!empty($referralURL) ? $referralURL : $this->generateUrl('helpdesk_member_ticket_collection'));
+        }
 
         $ticket = $thread->getTicket();
 
@@ -550,7 +554,7 @@ class Ticket extends AbstractController
 
     public function downloadAttachment(Request $request)
     {
-        $attachmentId = $request->attributes->get('attachmendId');
+        $attachmentId = $request->attributes->get('attachmentId');
         $attachment = $this->entityManagerInterface->getRepository(CoreEntities\Attachment::class)->findOneById($attachmentId);
 
         if (empty($attachment)) {

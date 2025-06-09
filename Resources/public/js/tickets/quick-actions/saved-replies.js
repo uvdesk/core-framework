@@ -28,6 +28,10 @@ $(function () {
                         }, 'slow');
                     },
                     error: function (xhr) {
+                        app.appView.renderResponseAlert(xhr.responseJSON);
+                        app.appView.hideLoader();
+                        console.error('Error applying saved reply:', xhr.responseJSON.alertMessage);
+                        
                         if (url = xhr.getResponseHeader('Location')) {
                             window.location = url;
                         }
