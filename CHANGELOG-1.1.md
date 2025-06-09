@@ -4,6 +4,7 @@ CHANGELOG for 1.1.x
 This changelog references any relevant changes introduced in 1.1 minor versions.
 * 1.1.7
     * Added conditional operator for getting email in case not getting email in mail parameter for microsoft app.
+    * Updated doctrine-migration package
    
     Features:
         - Added rating on ticket view provided by customer based on support provided.

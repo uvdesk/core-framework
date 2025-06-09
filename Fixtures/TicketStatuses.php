@@ -48,7 +48,7 @@ class TicketStatuses extends DoctrineFixture
         ],
     ];
 
-    public function load(ObjectManager $entityManager)
+    public function load(ObjectManager $entityManager): void
     {
         $availableTicketStatuses = $entityManager->getRepository(TicketStatus::class)->findAll();
         $availableTicketStatuses = array_map(function ($ticketStatus) {

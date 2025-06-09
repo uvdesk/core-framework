@@ -24,7 +24,7 @@ class EmailTemplates extends DoctrineFixture
         CoreEmailTemplates\Collaborator\TicketReplyCustomer::class,
     ];
 
-    public function load(ObjectManager $entityManager)
+    public function load(ObjectManager $entityManager): void
     {
         $emailTemplateCollection = $entityManager->getRepository(CoreBundleEmailTemplates::class)->findAll();
 

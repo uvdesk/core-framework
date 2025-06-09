@@ -19,7 +19,7 @@ class AgentPrivileges extends DoctrineFixture
         ],
     ];
 
-    public function load(ObjectManager $entityManager)
+    public function load(ObjectManager $entityManager): void
     {
         $availableSupportPrivileges = $entityManager->getRepository(SupportPrivilege::class)->findAll();
 

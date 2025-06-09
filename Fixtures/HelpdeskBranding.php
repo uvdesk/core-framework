@@ -9,7 +9,7 @@ use Webkul\UVDesk\CoreFrameworkBundle\Entity\Website;
 
 class HelpdeskBranding extends DoctrineFixture
 {
-    public function load(ObjectManager $entityManager)
+    public function load(ObjectManager $entityManager): void
     {
         $website = $entityManager->getRepository(Website::class)->findOneByCode('helpdesk');
 

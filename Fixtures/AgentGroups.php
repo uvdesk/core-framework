@@ -17,7 +17,7 @@ class AgentGroups extends DoctrineFixture
         ],
     ];
 
-    public function load(ObjectManager $entityManager)
+    public function load(ObjectManager $entityManager): void
     {
         $availableSupportGroups = $entityManager->getRepository(SupportGroup::class)->findAll();
 

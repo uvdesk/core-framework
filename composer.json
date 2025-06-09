@@ -12,8 +12,8 @@
     "require": {
         "php": "^7.2.5 || ^8.0",
         "doctrine/doctrine-bundle": "^2.4",
-        "doctrine/doctrine-fixtures-bundle": "^3.4.0",
-        "doctrine/doctrine-migrations-bundle": "^2.2.2",
+        "doctrine/doctrine-fixtures-bundle": "^3.4",
+        "doctrine/doctrine-migrations-bundle": "^3.4",
         "knplabs/knp-paginator-bundle": "^5.4.0"
     },
     "suggest": {

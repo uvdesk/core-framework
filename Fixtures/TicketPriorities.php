@@ -32,7 +32,7 @@ class TicketPriorities extends DoctrineFixture
         ],
     ];
 
-    public function load(ObjectManager $entityManager)
+    public function load(ObjectManager $entityManager): void
     {
         $availableTicketPriorities = $entityManager->getRepository(TicketPriority::class)->findAll();
         $availableTicketPriorities = array_map(function ($ticketPriority) {

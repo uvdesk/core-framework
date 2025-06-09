@@ -32,7 +32,7 @@ class UserRoles extends DoctrineFixture
         ],
     ];
 
-    public function load(ObjectManager $entityManager)
+    public function load(ObjectManager $entityManager): void
     {
         $availablePermissions = $entityManager->getRepository(SupportRole::class)->findAll();
         $availablePermissions = array_map(function ($permission) {

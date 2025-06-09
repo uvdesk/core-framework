@@ -17,7 +17,7 @@ class TicketTypes extends DoctrineFixture
         ],
     ];
 
-    public function load(ObjectManager $entityManager)
+    public function load(ObjectManager $entityManager): void
     {
         $availableTicketTypes = $entityManager->getRepository(TicketType::class)->findAll();
         $availableTicketTypes = array_map(function ($ticketType) {
