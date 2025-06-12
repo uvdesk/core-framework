@@ -675,9 +675,11 @@ class TicketService
             $formattedTime = $this->fomatTimeByPreference($dbTime, $timeZone, $timeFormat, $agentTimeZone, $agentTimeFormat);
 
             $currentDateTime  = new \DateTime('now');
-            if ($this->getLastReply($ticket['id'])) {
+            $lastReply = $this->getLastReply($ticket['id']);
+
+            if ($lastReply) {
                 $lastRepliedTime =
-                    $this->time2string($currentDateTime->getTimeStamp() - $this->getLastReply($ticket['id'])['createdAt']->getTimeStamp());
+                    $this->time2string($currentDateTime->getTimeStamp() - $lastReply['createdAt']->getTimeStamp());
             } else {
                 $lastRepliedTime =
                     $this->time2string($currentDateTime->getTimeStamp() - $ticket['createdAt']->getTimeStamp());

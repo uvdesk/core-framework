@@ -83,7 +83,9 @@ class Ticket extends AbstractController
 
         // Mark as viewed by agents
         if (false == $ticket->getIsAgentViewed()) {
-            $ticket->setIsAgentViewed(true);
+            $ticket
+                ->setIsAgentViewed(true)
+                ->setSkipUpdatedAt(true);
 
             $entityManager->persist($ticket);
             $entityManager->flush();

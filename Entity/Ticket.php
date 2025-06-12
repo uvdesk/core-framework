@@ -102,7 +102,7 @@ class Ticket
      * @ORM\Column(type="datetime")
      */
     private $updatedAt;
-    
+
     /**
      * @var \DateTime
      * @ORM\Column(type="datetime", nullable=true)
@@ -211,7 +211,7 @@ class Ticket
      * @ORM\Column(type="integer", nullable=true)
      */
     private $responseSlaLevel;
-    
+
     /**
      * @var integer
      * @ORM\Column(type="integer", nullable=true)
@@ -223,6 +223,13 @@ class Ticket
      * @ORM\Column(type="string", nullable=true)
      */
     private $country;
+
+    /**
+     * @var string
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $skipUpdatedAt = false;
+
     /**
      * Constructor
      */
@@ -270,12 +277,13 @@ class Ticket
 
     /**
      * Set country
-     * 
+     *
      * @param string $country
-     * 
+     *
      * @return Ticket
      */
-    public function setCountry($country) {
+    public function setCountry($country)
+    {
         $this->country = $country;
 
         return $this;
@@ -284,7 +292,8 @@ class Ticket
     /**
      * Get country
      */
-    public function getCountry() {
+    public function getCountry()
+    {
         return $this->country;
     }
 
@@ -585,7 +594,9 @@ class Ticket
      */
     public function setUpdatedAt($updatedAt)
     {
-        $this->updatedAt = $updatedAt;
+        if (! $this->skipUpdatedAt) {
+            $this->updatedAt = $updatedAt;
+        }
 
         return $this;
     }
@@ -598,6 +609,16 @@ class Ticket
     public function getUpdatedAt()
     {
         return $this->updatedAt;
+    }
+
+    public function setSkipUpdatedAt(bool $skip): void
+    {
+        $this->skipUpdatedAt = $skip;
+    }
+
+    public function shouldSkipUpdatedAt(): bool
+    {
+        return $this->skipUpdatedAt;
     }
 
     /**
@@ -1017,4 +1038,3 @@ class Ticket
         return $this->formatedCreatedAt;
     }
 }
-
