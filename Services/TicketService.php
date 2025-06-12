@@ -419,7 +419,6 @@ class TicketService
                     $attachments = ! empty($threadData['attachments']) ? $threadData['attachments'] : $threadData['attachmentContent'];
 
                     if (! empty($attachments)) {
-                        $this->fileUploadService->validateAttachments($attachments);
                         $this->saveThreadEmailAttachments($thread, $threadData['attachments'], $threadData['attachmentContent'] ?? []);
                     }
                 } catch (\Exception $e) {

@@ -342,14 +342,25 @@ class EmailService
             $companyURL = $router->generate('helpdesk_knowledgebase', [], UrlGeneratorInterface::ABSOLUTE_URL);
         }
 
+        $currentRequest = $this->container->get('request_stack')->getCurrentRequest();
+
+        // Determine the scheme based on the current request
+        $scheme = $currentRequest && $currentRequest->isSecure() ? 'https://' : 'http://';
+
         // Link to update account login credentials
-        $updateCredentialsURL = str_replace(
-            'http://',
-            'https://',
+        $updateCredentialsURL = preg_replace(
+            '/^https?:\/\//',
+            $scheme,
             $router->generate('helpdesk_update_account_credentials', [
                 'email' => $user->getEmail(),
                 'verificationCode' => $user->getVerificationCode(),
             ], UrlGeneratorInterface::ABSOLUTE_URL)
+        );
+
+        $companyUrl = preg_replace(
+            '/^https?:\/\//',
+            $scheme,
+            $companyURL
         );
 
         $placeholderParams = [
@@ -359,8 +370,8 @@ class EmailService
             'user.forgotPasswordLink'    => "<a href='$updateCredentialsURL'>$updateCredentialsURL</a>",
             'user.accountValidationLink' => "<a href='$updateCredentialsURL'>$updateCredentialsURL</a>",
             'global.companyName'         => $helpdeskWebsite->getName(),
-            'global.companyLogo'         => "<img style='max-height:60px' src='cid:companyLogo'/>",
-            'global.companyUrl'          => "<a href='$companyURL'>$companyURL</a>",
+            'global.companyLogo'         => "<img src='cid:companyLogo' height='60 style='display:block; height:60px; max-height:60px; width:auto;' />",
+            'global.companyUrl'          => "<a href='$companyUrl'>$companyURL</a>",
         ];
 
         return $placeholderParams;
@@ -388,19 +399,54 @@ class EmailService
 
         $customerPartialDetails = $ticket->getCustomer()->getCustomerInstance()->getPartialDetails();
         $agentPartialDetails = $ticket->getAgent() ? $ticket->getAgent()->getAgentInstance()->getPartialDetails() : null;
+        $currentRequest = $this->container->get('request_stack')->getCurrentRequest();
+
+        // Determine the scheme based on the current request
+        $scheme = $currentRequest && $currentRequest->isSecure() ? 'https://' : 'http://';
+
+        $companyURL = preg_replace(
+            '/^https?:\/\//',
+            $scheme,
+            $companyURL
+        );
 
         //Ticket Url and create ticket url for agent
-        $viewTicketURLAgent = $router->generate('helpdesk_member_ticket', [
-            'ticketId' => $ticket->getId(),
-        ], UrlGeneratorInterface::ABSOLUTE_URL);
-        $generateTicketURLAgent = $router->generate('helpdesk_member_create_ticket', [], UrlGeneratorInterface::ABSOLUTE_URL);
+        $viewTicketURLAgent = preg_replace(
+            '/^https?:\/\//',
+            $scheme,
+            $router->generate('helpdesk_member_ticket', [
+                'ticketId' => $ticket->getId(),
+            ], UrlGeneratorInterface::ABSOLUTE_URL)
+        );
+
+        $generateTicketURLAgent = preg_replace(
+            '/^https?:\/\//',
+            $scheme,
+            $router->generate(
+                'helpdesk_member_create_ticket',
+                [],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            )
+        );
 
         if (false != array_key_exists('UVDeskSupportCenterBundle', $this->container->getParameter('kernel.bundles'))) {
-            $viewTicketURL = $router->generate('helpdesk_customer_ticket', [
-                'id' => $ticket->getId(),
-            ], UrlGeneratorInterface::ABSOLUTE_URL);
+            $viewTicketURL = preg_replace(
+                '/^https?:\/\//',
+                $scheme,
+                $router->generate('helpdesk_customer_ticket', [
+                    'id' => $ticket->getId(),
+                ], UrlGeneratorInterface::ABSOLUTE_URL)
+            );
 
-            $generateTicketURLCustomer = $router->generate('helpdesk_customer_create_ticket', [], UrlGeneratorInterface::ABSOLUTE_URL);
+            $generateTicketURLCustomer = preg_replace(
+                '/^https?:\/\//',
+                $scheme,
+                $router->generate(
+                    'helpdesk_customer_create_ticket',
+                    [],
+                    UrlGeneratorInterface::ABSOLUTE_URL
+                )
+            );
         }
 
         $placeholderParams = [
@@ -527,6 +573,21 @@ class EmailService
             $mailboxSmtpConfiguration = $mailbox?->getSmtpConfiguration();
         }
 
+        $helpdeskKnowledgebaseWebsite = $this->entityManager->getRepository(CoreFrameworkBundleEntity\Website::class)->findOneByCode('knowledgebase');
+
+        if (!empty($helpdeskKnowledgebaseWebsite) && null != $helpdeskKnowledgebaseWebsite->getLogo()) {
+            $currentRequest = $this->container->get('request_stack')->getCurrentRequest();
+            $scheme = $currentRequest && $currentRequest->isSecure() ? 'https://' : 'http://';
+
+            $companyLogoURL = sprintf('https://%s%s', $this->container->getParameter('uvdesk.site_url'), $helpdeskKnowledgebaseWebsite->getLogo());
+
+            $companyLogoURL = preg_replace(
+                '/^https?:\/\//',
+                $scheme,
+                $companyLogoURL
+            );
+        }
+
         if ($mailer_type == 'swiftmailer_id') {
             // Retrieve mailer to be used for sending emails
             try {
@@ -574,6 +635,21 @@ class EmailService
                 ->setCc($ccAddresses)
                 ->setBody($content, 'text/html')
                 ->addPart(strip_tags($content), 'text/plain');
+
+            if (!empty($companyLogoURL)) {
+                try {
+                    $logoPath = tempnam(sys_get_temp_dir(), 'company_logo');
+                    file_put_contents($logoPath, file_get_contents($companyLogoURL));
+
+                    $embeddedLogoCID = $message->embed(\Swift_Image::fromPath($logoPath)->setFilename('logo.png'));
+
+                    // Replace <img src='cid:companyLogo'> or similar placeholder in content
+                    $content = str_replace('cid:companyLogo', $embeddedLogoCID, $content);
+                    $message->setBody($content, 'text/html');
+                } catch (\Exception $e) {
+                    // Could log warning about logo not being embedded
+                }
+            }
 
             foreach ($attachments as $attachment) {
                 if (!empty($attachment['path']) && !empty($attachment['name'])) {
@@ -700,12 +776,6 @@ class EmailService
                             ],
                         ],
                     ];
-
-                    $helpdeskKnowledgebaseWebsite = $this->entityManager->getRepository(CoreFrameworkBundleEntity\Website::class)->findOneByCode('knowledgebase');
-
-                    if (!empty($helpdeskKnowledgebaseWebsite) && null != $helpdeskKnowledgebaseWebsite->getLogo()) {
-                        $companyLogoURL = sprintf('https://%s%s', $this->container->getParameter('uvdesk.site_url'), $helpdeskKnowledgebaseWebsite->getLogo());
-                    }
 
                     // Download the company logo image
                     $imageContent = file_get_contents($companyLogoURL);
