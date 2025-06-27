@@ -8,6 +8,7 @@ This changelog references any relevant changes introduced in 1.1 minor versions.
     * Fixed Cross-Site Scripting (XSS) security issues
     * Fixed security issue related to access privilage
     * Fixed vulnerabilities issue related to saved replies
+    * Added feature to send notification on webhook url
 
     Features:
         - Added rating on ticket view provided by customer based on support provided.

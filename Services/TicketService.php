@@ -11,6 +11,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webkul\UVDesk\SupportCenterBundle\Entity\Article;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity\Website;
 use Webkul\UVDesk\MailboxBundle\Services\MailboxService;
 use Webkul\UVDesk\CoreFrameworkBundle\Utils\TokenGenerator;
 use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
@@ -433,6 +434,9 @@ class TicketService
                 }
             }
         }
+
+        // Send Webhook Notification
+        $this->sendWebhookNotificationAction($thread);
 
         return $thread;
     }
@@ -2898,5 +2902,73 @@ class TicketService
 
         // Step 10: Trim and return
         return trim($html);
+    }
+
+    public function getThreadAttachments($thread)
+    {
+        $attachments = $this->entityManager->getRepository(CoreFrameworkEntity\Attachment::class)->findBy(['thread' => $thread->getId()]);
+
+        $attachmentCollection = array_map(function ($attachment) {
+            return [
+                'id'                => $attachment->getId(),
+                'name'              => $attachment->getName(),
+                'contentType'       => $attachment->getContentType(),
+                'path'              => $attachment->getPath(),
+                'fileSystem'        => $attachment->getFileSystem(),
+                'attachmentThumb'   => $attachment->getAttachmentThumb(),
+                'attachmentOrginal' => $attachment->getAttachmentOrginal(),
+            ];
+        }, $attachments);
+
+        return $attachmentCollection;
+    }
+
+    public function sendWebhookNotificationAction($thread)
+    {
+        $website = $this->entityManager->getRepository(Website::class)->findOneByCode('helpdesk');
+        $endpoint = $website->getWebhookUrl();
+
+        if (empty($endpoint)) {
+            return;
+        }
+
+        if ($thread->getThreadType() == 'reply' || $thread->getThreadType() == 'create') {
+            $ticket = $thread->getTicket();
+
+            if ($this->userService->isFileExists('apps/uvdesk/custom-fields')) {
+                $customFieldsService = $this->container->get('uvdesk_package_custom_fields.service');
+                $customFields =  $customFieldsService->getTicketCustomFieldDetails($ticket->getId());
+            }
+
+            $payload = json_encode([
+                'threadDetails' => [
+                    'threadId'          => $thread->getId(),
+                    'threadReply'       => strip_tags(html_entity_decode($thread->getMessage())),
+                    'ticketId'          => $ticket->getId(),
+                    'customerEmail'     => $ticket->getCustomer()->getEmail(),
+                    'userType'          => $thread->getCreatedBy(),
+                    'agentEmail'        => $thread->getCreatedBy() === 'agent' ? $thread->getUser()->getEmail() : '',
+                    'createdAt'         => $thread->getCreatedAt(),
+                    'source'            => $thread->getSource(),
+                    'threadAttachments' => $this->getThreadAttachments($thread),
+                    'status'            => $ticket->getStatus(),
+                ],
+                'customFields' => $customFields
+            ]);
+
+            $curlHandler = curl_init();
+
+            curl_setopt($curlHandler, CURLOPT_URL, $endpoint);
+            curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($curlHandler, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($curlHandler, CURLOPT_POST, true);
+            curl_setopt($curlHandler, CURLOPT_POSTFIELDS, $payload);
+
+            $curlResponse = curl_exec($curlHandler);
+
+            curl_close($curlHandler);
+        }
+
+        return;
     }
 }

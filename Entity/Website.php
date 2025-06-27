@@ -96,6 +96,30 @@ class Website
     private $businessHourStatus;
 
     /**
+     * Set webhookUrl.
+     *
+     * @param string $webhookUrl
+     *
+     * @return Website
+     */
+    public function setWebhookUrl($webhookUrl)
+    {
+        $this->webhookUrl = $webhookUrl;
+
+        return $this;
+    }
+
+    /**
+     * Get webhookUrl.
+     *
+     * @return string
+     */
+    public function getWebhookUrl()
+    {
+        return $this->webhookUrl;
+    }
+
+    /**
      * Get business hour
      */
     public function getBusinessHour() {

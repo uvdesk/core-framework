@@ -79,6 +79,26 @@
 					  	</div>
 					</div>
 					<!-- //Field -->
+
+                    <!-- Field -->
+					<div class="uv-element-block" style="margin: 20px 0">
+					  	<label class="uv-field-label">{{ 'Set Webhook Url'|trans }}</label>
+					  	<div class="uv-field-block">
+					    	<input name="webhookUrl" class="uv-field" type="text" value="{{ website.webhookUrl ? website.webhookUrl : ''}}" placeholder="https://example.com/webhook" validate="url" />
+					  	</div>
+                        <span class="uv-field-info">Webhook URL for event(new Thread or Ticket) notifications.</span>
+					</div>
+					<!-- //Field -->
+
+                    <div class="uv-element-block">
+                        <label class="uv-field-label">{{ 'Session Expiration Time (in minutes)'|trans }}</label>
+                        <div class="uv-field-block">
+                            <input type="number" name="website[session_expiry]" class="uv-field" value="{{ currentSessionExpiry }}" />
+                            <span class="uv-field-info">
+                                {{ 'Set how long a user stays logged in without activity.'|trans }}
+                            </span>
+                        </div>
+                    </div>
                    
                     <!-- Field -->
                     <div class="uv-element-block" style="margin: 20px 0">
