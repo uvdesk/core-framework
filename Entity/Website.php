@@ -82,6 +82,11 @@ class Website
     /**
      * @ORM\Column(type="string", length=191, nullable=true)
      */
+    private $webhookUrl;
+
+    /**
+     * @ORM\Column(type="string", length=191, nullable=true)
+     */
     private $timeformat;
 
     /**
@@ -396,5 +401,5 @@ class Website
 
         return $this;
     }
-    
+
 }
