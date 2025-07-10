@@ -6,7 +6,7 @@
             <ul id="listSavedReplies">
                 <input id="filterSavedreplies" type="text" class="uv-search-inline" autofocus="autofocus"  style="width:98%">
                 <li data-id="">
-                    <a href="{{ path('helpdesk_member_saved_replies') }}" target="_blank" style="color: #2750C4">{{ 'create new'|trans }}</a>
+                    <a href="{{ path('helpdesk_member_create_saved_replies') }}" target="_blank" style="color: #2750C4">{{ 'create new'|trans }}</a>
                 </li>
                 {% for savedReply in ticket_service.getSavedReplies() %}
                     <li class="savedReplyData" data-id="{{ savedReply.id }}">
