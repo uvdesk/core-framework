@@ -23,18 +23,18 @@ class Theme extends AbstractController
     {
         $envPath = $this->getParameter('kernel.project_dir') . '/.env';
         $envContent = file_get_contents($envPath);
-        $sessionExpiryInMinute = $envContent ? (preg_match('/UV_SESSION_COOKIE_LIFETIME=(\d+)/', $envContent, $matches) ? (int) $matches[1] : 60) : 60;
+        $sessionExpiryInSeconds = $envContent ? (preg_match('/UV_SESSION_COOKIE_LIFETIME=(\d+)/', $envContent, $matches) ? (int) $matches[1] : 60) : 60;
         $website = $this->entityManager->getRepository(Website::class)->findOneByCode('helpdesk');
 
         if ($request->getMethod() == "POST") {
             $params = $request->request->all();
 
-            if (! filter_var($params['webhookUrl'], FILTER_VALIDATE_URL)) {
+            if ($params['webhookUrl'] && ! filter_var($params['webhookUrl'], FILTER_VALIDATE_URL)) {
                 $this->addFlash('danger', $this->translator->trans('warning ! Invalid webhook URL provided. Please enter a valid URL.'));
 
                 return $this->render('@UVDeskCoreFramework/theme.html.twig', [
                     'website'              => $website,
-                    'currentSessionExpiry' => $sessionExpiryInMinute / 60
+                    'currentSessionExpiry' => $sessionExpiryInSeconds / 60
                 ]);
             }
 
@@ -48,9 +48,24 @@ class Theme extends AbstractController
 
             if (! empty($params['website']['session_expiry'])) {
                 $sessionExpiry = (int) $params['website']['session_expiry'];
-                $sessionExpiryInSeconds = $sessionExpiry * 60; // Convert minutes to seconds
-                $envContent = preg_replace('/^UV_SESSION_COOKIE_LIFETIME=\d+$/m', 'UV_SESSION_COOKIE_LIFETIME=' . $sessionExpiryInSeconds, $envContent);
-                file_put_contents($envPath, $envContent);
+                $sessionExpiryInSeconds = $sessionExpiry * 60;
+
+                $envContent = file_get_contents($envPath);
+
+                // Check if the key exists, update it; if not, add it
+                if (preg_match('/^UV_SESSION_COOKIE_LIFETIME=.*$/m', $envContent)) {
+                    $envContent = preg_replace(
+                        '/^UV_SESSION_COOKIE_LIFETIME=.*$/m',
+                        'UV_SESSION_COOKIE_LIFETIME=' . $sessionExpiryInSeconds,
+                        $envContent
+                    );
+                } else {
+                    $envContent .= "\nUV_SESSION_COOKIE_LIFETIME=" . $sessionExpiryInSeconds;
+                }
+
+                if (file_put_contents($envPath, $envContent) === false) {
+                    throw new \RuntimeException("Failed to write updated env file");
+                }
             }
 
             $this->addFlash('success', $this->translator->trans('Success ! Helpdesk details saved successfully'));
@@ -58,7 +73,7 @@ class Theme extends AbstractController
 
         return $this->render('@UVDeskCoreFramework/theme.html.twig', [
             'website'              => $website,
-            'currentSessionExpiry' => $sessionExpiryInMinute / 60
+            'currentSessionExpiry' => $sessionExpiryInSeconds / 60
         ]);
     }
 }
