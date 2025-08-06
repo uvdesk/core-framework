@@ -2927,6 +2927,7 @@ class TicketService
     {
         $website = $this->entityManager->getRepository(Website::class)->findOneByCode('helpdesk');
         $endpoint = $website->getWebhookUrl();
+        $customFields = [];
 
         if (empty($endpoint)) {
             return;
@@ -2940,6 +2941,11 @@ class TicketService
                 $customFields =  $customFieldsService->getTicketCustomFieldDetails($ticket->getId());
             }
 
+            $ticketStatus = [
+                'id'    => $ticket->getStatus()->getId(),
+                'code'  => $ticket->getStatus()->getCode(),
+            ];
+
             $payload = json_encode([
                 'threadDetails' => [
                     'threadId'          => $thread->getId(),
@@ -2951,7 +2957,7 @@ class TicketService
                     'createdAt'         => $thread->getCreatedAt(),
                     'source'            => $thread->getSource(),
                     'threadAttachments' => $this->getThreadAttachments($thread),
-                    'status'            => $ticket->getStatus(),
+                    'status'            => $ticketStatus,
                 ],
                 'customFields' => $customFields
             ]);
