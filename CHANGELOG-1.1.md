@@ -2,24 +2,27 @@ CHANGELOG for 1.1.x
 ===================
 
 This changelog references any relevant changes introduced in 1.1 minor versions.
-* 1.1.7
-    * Added conditional operator for getting email in case not getting email in mail parameter for microsoft app.
-    * Updated doctrine-migration package
-    * Fixed Cross-Site Scripting (XSS) security issues
-    * Fixed security issue related to access privilage
-    * Fixed vulnerabilities issue related to saved replies
-    * Added feature to send notification on webhook url
 
+* 1.1.7 (2025-09-19)
+    Fixes:
+    * Added conditional operator for getting email in case not getting email in mail parameter for microsoft app.
+    * Updated doctrine-migration package.
+    * Fixed Cross-Site Scripting (XSS) security issues.
+    * Fixed security issue related to access privilege.
+    * Fixed vulnerabilities issue related to saved replies.
+    
     Features:
-        - Added rating on ticket view provided by customer based on support provided.
-        - Updated UI - Added plus icon for ticket create, agent create etc.
-        - Added portuguese trans in service.
-        - Updates for search by filter for ticket list, added dropdown to select and element before search (Id, email, subject).
-        - User created notes with different color on ticket view.
-        - Added assigned agent access details on ticket view, admin can all the access provided to that agent.
-        - Updated some icons on dashboard for microsoft apps etc.
-        - Display all shared saved replies to admin and super admin.
-        - Use remote image display in emails by embedding images
+    * Added rating on ticket view provided by customer based on support provided.
+    * Updated UI - Added plus icon for ticket create, agent create etc.
+    * Added portuguese trans in service.
+    * Updates for search by filter for ticket list, added dropdown to select and element before search 
+      (Id,  email, subject).
+    * User created notes with different color on ticket view.
+    * Added assigned agent access details on ticket view, admin can all the access provided to that agent.
+    * Updated some icons on dashboard for microsoft apps etc.
+    * Display all shared saved replies to admin and super admin.
+    * Use remote image display in emails by embedding images.
+    * Added feature to send notification on webhook url for ticket create and replies with all details.
 
 * 1.1.6 (2024-12-23)
     * Issue #508 #549 - Filter issue resolved for customer filtering.
