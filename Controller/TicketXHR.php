@@ -1010,6 +1010,26 @@ class TicketXHR extends AbstractController
 
         if ($request->isXmlHttpRequest()) {
             $ticketId = $request->query->get('ticketId');
+            $ticket = $this->entityManager->getRepository(CoreFrameworkBundleEntities\Ticket::class)->findOneById($ticketId);
+
+            if (empty($ticket)) {
+                $response = new Response(json_encode($json));
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            }
+
+            // Enforce the same group/team/individual ticket-access scoping that
+            // the main ticket view (Ticket::loadTicket) already applies, so this
+            // quick-view preview can't be used to read a ticket an agent isn't
+            // otherwise permitted to open.
+            if (false == $this->ticketService->isTicketAccessGranted($ticket, $this->userService->getSessionUser())) {
+                $response = new Response(json_encode($json), 403);
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            }
+
             $json = $this->entityManager->getRepository(CoreFrameworkBundleEntities\Ticket::class)->getTicketDetails($request->query, $container);
         }
 
