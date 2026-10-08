@@ -5,8 +5,10 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\Event\ConfigurationRemovedEvent;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 use Webkul\UVDesk\CoreFrameworkBundle\SwiftMailer\SwiftMailer as SwiftMailerService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -14,11 +16,13 @@ class SwiftMailerXHR extends AbstractController
 {
     private $translator;
     private $swiftMailer;
-    
-    public function __construct(TranslatorInterface $translator,SwiftMailerService $swiftMailer)
+    private $userService;
+
+    public function __construct(TranslatorInterface $translator, SwiftMailerService $swiftMailer, UserService $userService)
     {
         $this->translator = $translator;
         $this->swiftMailer = $swiftMailer;
+        $this->userService = $userService;
     }
 
     public function loadMailersXHR(Request $request)
@@ -41,6 +45,10 @@ class SwiftMailerXHR extends AbstractController
 
     public function removeMailerConfiguration(Request $request, ContainerInterface $container)
     {
+        if (! $this->userService->isAccessAuthorized('ROLE_ADMIN')) {
+            throw new AccessDeniedException("Insufficient account privileges");
+        }
+
         $params = $request->query->all();
         $swiftmailer = $this->swiftMailer;
         $configurations = $swiftmailer->parseSwiftMailerConfigurations();

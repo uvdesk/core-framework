@@ -519,7 +519,10 @@ class TicketService
         foreach ($attachmentContents as $attachmentContent) {
             $decodedData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $attachmentContent['content']));
 
-            $filePath = $prefixOutlook . $attachmentContent['name'];
+            // basename() strips any directory traversal components the Microsoft
+            // Graph attachment name may carry before it is concatenated into the
+            // filesystem path below.
+            $filePath = $prefixOutlook . basename($attachmentContent['name']);
 
             if (!is_dir($prefixOutlook) && !is_dir($prefixOutlook)) {
                 mkdir($prefixOutlook, 0755, true);

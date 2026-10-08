@@ -4,6 +4,7 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller\Microsoft;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -30,6 +31,10 @@ class MicrosoftAppsXHR extends AbstractController
 
     public function toggleConfigurationStatus($id, Request $request, UserService $userService, EntityManagerInterface $entityManager, MicrosoftIntegration $microsoftIntegration, TranslatorInterface $translator)
     {
+        if (! $userService->isAccessAuthorized('ROLE_ADMIN')) {
+            throw new AccessDeniedException("Insufficient account privileges");
+        }
+
         $status = $request->query->get('status');
 
         if (empty($status) || !in_array($status, ['enable', 'disable'])) {
@@ -70,6 +75,10 @@ class MicrosoftAppsXHR extends AbstractController
 
     public function removeConfiguration($id, Request $request, UserService $userService, EntityManagerInterface $entityManager, MicrosoftIntegration $microsoftIntegration, TranslatorInterface $translator)
     {
+        if (! $userService->isAccessAuthorized('ROLE_ADMIN')) {
+            throw new AccessDeniedException("Insufficient account privileges");
+        }
+
         $microsoftApp = $entityManager->getRepository(MicrosoftApp::class)->findOneById($id);
 
         if (empty($microsoftApp)) {

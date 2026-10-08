@@ -132,6 +132,19 @@ class AccountXHR extends AbstractController
         } elseif ($request->getMethod() == 'PUT' || $request->getMethod() == 'PATCH') {
             $content = $request->request->all();
             $filter = $em->getRepository(SavedFilters::class)->find($content['id']);
+
+            // A saved filter belongs to the agent who created it; without this
+            // check any agent could update another agent's filter by id.
+            if (empty($filter) || $filter->getUser()->getId() != $userData->getId()) {
+                $json['alertClass'] = 'danger';
+                $json['alertMessage'] = $this->translator->trans('Error ! Invalid filter id.');
+
+                $response = new Response(json_encode($json), 404);
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            }
+
             $filter->setName($content['name']);
             $filter->setRoute($content['route']);
             $em->flush();
@@ -150,6 +163,19 @@ class AccountXHR extends AbstractController
         } elseif ($request->getMethod() == 'DELETE') {
             $id = $request->attributes->get('filterId');
             $filter = $em->getRepository(SavedFilters::class)->find($id);
+
+            // A saved filter belongs to the agent who created it; without this
+            // check any agent could delete another agent's filter by id.
+            if (empty($filter) || $filter->getUser()->getId() != $userData->getId()) {
+                $json['alertClass'] = 'danger';
+                $json['alertMessage'] = $this->translator->trans('Error ! Invalid filter id.');
+
+                $response = new Response(json_encode($json), 404);
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            }
+
             $em->remove($filter);
             $em->flush();
 
