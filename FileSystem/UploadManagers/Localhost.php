@@ -100,7 +100,11 @@ class Localhost implements FileUploadServiceInterface
 
     public function uploadEmailAttachment(Attachment $attachmentStream, $prefix = null, bool $renameFile = false)
     {
-        $fileName = $attachmentStream->getFilename();
+        // basename() strips any directory components an inbound attachment
+        // filename may carry (e.g. "../../config/packages/x.php"), since
+        // this value is never validated/randomized before reaching
+        // resolvePathToAsset() below unless $renameFile is explicitly true.
+        $fileName = basename($attachmentStream->getFilename());
 
         if (true == $renameFile) {
             $fileName = sprintf('%s%s', TokenGenerator::generateToken(16), strrchr($fileName, '.') ?: '');

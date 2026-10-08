@@ -5,22 +5,30 @@ namespace Webkul\UVDesk\CoreFrameworkBundle\Controller;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\Website;
+use Webkul\UVDesk\CoreFrameworkBundle\Services\UserService;
 
 class Theme extends AbstractController
 {
     private $translator;
     private $entityManager;
+    private $userService;
 
-    public function __construct(TranslatorInterface $translator, EntityManagerInterface $entityManager)
+    public function __construct(TranslatorInterface $translator, EntityManagerInterface $entityManager, UserService $userService)
     {
         $this->translator = $translator;
         $this->entityManager = $entityManager;
+        $this->userService = $userService;
     }
 
     public function updateHelpdeskTheme(Request $request)
     {
+        if (! $this->userService->isAccessAuthorized('ROLE_ADMIN')) {
+            throw new AccessDeniedException("Insufficient account privileges");
+        }
+
         $envPath = $this->getParameter('kernel.project_dir') . '/.env';
         $envContent = file_get_contents($envPath);
         $sessionExpiryInSeconds = $envContent ? (preg_match('/UV_SESSION_COOKIE_LIFETIME=(\d+)/', $envContent, $matches) ? (int) $matches[1] : 60) : 60;

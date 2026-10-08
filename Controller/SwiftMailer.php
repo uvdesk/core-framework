@@ -37,6 +37,10 @@ class SwiftMailer extends AbstractController
 
     public function createMailerConfiguration(Request $request)
     {
+        if (! $this->userService->isAccessAuthorized('ROLE_ADMIN')) {
+            throw new AccessDeniedException("Insufficient account privileges");
+        }
+
         if ($request->getMethod() == 'POST') {
             $params = $request->request->all();
             $params['password'] = base64_encode($params['password']);
@@ -72,6 +76,10 @@ class SwiftMailer extends AbstractController
 
     public function updateMailerConfiguration($id, Request $request, ContainerInterface $container)
     {
+        if (! $this->userService->isAccessAuthorized('ROLE_ADMIN')) {
+            throw new AccessDeniedException("Insufficient account privileges");
+        }
+
         $swiftmailerService = $this->swiftMailer;;
         $swiftmailerConfigurations = $swiftmailerService->parseSwiftMailerConfigurations();
 
