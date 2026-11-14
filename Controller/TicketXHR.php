@@ -1010,6 +1010,13 @@ class TicketXHR extends AbstractController
 
         if ($request->isXmlHttpRequest()) {
             $ticketId = $request->query->get('ticketId');
+            $ticket = $this->entityManager->getRepository(CoreFrameworkBundleEntities\Ticket::class)->findOneById($ticketId);
+
+            // Process only if user has ticket access
+            if (empty($ticket) || false == $this->ticketService->isTicketAccessGranted($ticket)) {
+                throw new \Exception('Access Denied', 403);
+            }
+
             $json = $this->entityManager->getRepository(CoreFrameworkBundleEntities\Ticket::class)->getTicketDetails($request->query, $container);
         }
 
