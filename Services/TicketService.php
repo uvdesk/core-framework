@@ -519,6 +519,7 @@ class TicketService
         foreach ($attachmentContents as $attachmentContent) {
             $decodedData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $attachmentContent['content']));
 
+            $attachmentContent['name'] = \Webkul\UVDesk\CoreFrameworkBundle\FileSystem\UploadManagers\Localhost::safeFileName($attachmentContent['name'] ?? '');
             $filePath = $prefixOutlook . $attachmentContent['name'];
 
             if (!is_dir($prefixOutlook) && !is_dir($prefixOutlook)) {

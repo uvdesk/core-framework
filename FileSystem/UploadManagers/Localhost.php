@@ -13,6 +13,15 @@ class Localhost implements FileUploadServiceInterface
 {
     const UPLOAD_DIRECTORY = 'assets';
 
+    const BLOCKED_EXTENSIONS = [
+        'php', 'php2', 'php3', 'php4', 'php5', 'php6', 'php7', 'php8', 'phtml', 'pht', 'phtm', 'phar', 'phps', 'pgif', 'inc',
+        'shtml', 'shtm', 'stm', 'htaccess', 'htpasswd', 'ini', 'config',
+        'js', 'mjs', 'cjs', 'jsp', 'jspx', 'jsw', 'jsv', 'jspf', 'asp', 'aspx', 'asa', 'asax', 'ascx', 'ashx', 'asmx', 'axd', 'cer', 'cshtml', 'vbhtml',
+        'exe', 'com', 'bat', 'cmd', 'msi', 'msp', 'dll', 'scr', 'pif', 'cpl', 'sys', 'vbs', 'vbe', 'wsf', 'wsh', 'ws', 'hta', 'ps1', 'psm1', 'reg', 'lnk',
+        'sh', 'bash', 'zsh', 'csh', 'ksh', 'cgi', 'pl', 'pm', 'py', 'pyc', 'rb', 'jar', 'war', 'swf',
+        'html', 'htm', 'xhtml', 'xht',
+    ];
+
     private $container;
     private $requestStack;
     private $projectRootDirectory;
@@ -83,6 +92,7 @@ class Localhost implements FileUploadServiceInterface
             $fileName = sprintf('%s%s', TokenGenerator::generateToken(16), $temporaryFile->guessExtension() ? '.' . $temporaryFile->guessExtension() : '');
         }
 
+        $fileName = self::safeFileName($fileName);
         list($relativePath, $absolutePath) = $this->resolvePathToAsset($fileName, $prefix);
         
         // Upload file to target directory
@@ -106,6 +116,7 @@ class Localhost implements FileUploadServiceInterface
             $fileName = sprintf('%s%s', TokenGenerator::generateToken(16), strrchr($fileName, '.') ?: '');
         }
 
+        $fileName = self::safeFileName($fileName);
         list($relativePath, $absolutePath) = $this->resolvePathToAsset($fileName, $prefix);
 
         // Upload file to target directory
@@ -118,5 +129,23 @@ class Localhost implements FileUploadServiceInterface
             'size'           => filesize($absolutePath),
             'content-type'   => $attachmentStream->getContentType(),
         ];
+    }
+
+    public static function safeFileName($name): string
+    {
+        $name = basename(str_replace('\\', '/', (string) $name));
+        $name = trim(preg_replace('/["\x00-\x1F\x7F]/', '', $name));
+
+        $parts = explode('.', $name);
+        $safeParts = [array_shift($parts)];
+        foreach ($parts as $part) {
+            if (!in_array(strtolower(trim($part)), self::BLOCKED_EXTENSIONS, true)) {
+                $safeParts[] = $part;
+            }
+        }
+
+        $name = rtrim(implode('.', $safeParts), '. ');
+
+        return '' === $name ? 'attachment' : $name;
     }
 }
