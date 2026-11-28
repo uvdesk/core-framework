@@ -219,6 +219,7 @@ class UVDeskService
             'pl'    => $translator->trans("Polish"),
             'he'    => $translator->trans("Hebrew"),
             'pt_BR' => $translator->trans("Portuguese"),
+            'nl'    => $translator->trans("Dutch"),
         ];
     }
 
